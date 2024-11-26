@@ -17,6 +17,7 @@ namespace Modal
             optionsBuilder.UseSqlServer(conn);
             base.OnConfiguring(optionsBuilder);
         }
-        public DbSet<User> User { get; set; }
+        public DbSet<Users> Users { get; set; }
+        public DbSet<UserAccounRecovery> UserAccounRecovery { get; set; }
     }
 }

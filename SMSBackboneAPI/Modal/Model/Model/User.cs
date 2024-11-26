@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Modal.Model.Model
 {
-    public class User
+    public class Users
     {
         [Key]
         public int Id { get; set; }
