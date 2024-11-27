@@ -128,7 +128,7 @@ namespace SMSBackboneAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("confirmationEmail")]
-        public RedirectResult ConfirmMail(string email, string token)//string email,[FromBody] string urlCallback)
+        public IActionResult ConfirmMail(string email, string token)//string email,[FromBody] string urlCallback)
         {
             GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
 
@@ -139,13 +139,15 @@ namespace SMSBackboneAPI.Controllers
             var URL = Common.ConfigurationManagerJson("UrlSitio");
             if (!confirmation)
             {
-                return RedirectPermanent(URL);
+                //Response.Redirect(URL);
+           
             }
             else
             {
-                return RedirectPermanent(URL);
+                //Response.Redirect(URL);
+             
             }
-
+            return Redirect(URL);
         }
 
         [HttpGet("Credit")]
