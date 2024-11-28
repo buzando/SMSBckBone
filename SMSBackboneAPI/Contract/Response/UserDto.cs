@@ -29,5 +29,7 @@ namespace Contract.Response
         public bool clauseAccepted { get; set; }
         public DateTime clauseDate { get; set; }
         public string phonenumber { get; set; }
+
+        public bool TwoFactorAuthentication { get; set; }
     }
 }

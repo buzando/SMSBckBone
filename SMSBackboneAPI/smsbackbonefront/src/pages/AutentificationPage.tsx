@@ -20,7 +20,7 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
-
+import Countdown from 'react-countdown';
 
 type errorObj = {
     code: string;
@@ -33,21 +33,37 @@ const Autentification: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [token, settoken] = useState('');
     const [tokenuser, settokenuser] = useState('');
+    const [messageAlert, setmessageAlert] = useState('');
     const [formraddio, setformraddio] = useState('none');
     const [formtoken, setformtoken] = useState('visible');
+    const [StarCountdown, setStarCountdown] = useState(false);
+
+
+
+
+    const Completionist = () => <span>You are good to go!</span>;
+
+
     function onChangeValue(event) {
         setSendType(event.target.value);
+        return true;
     }
 
-    function Return(event) {
-        setformraddio('visible');
-        setformtoken('none');
+    const Return = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setformraddio('none');
+        setformtoken('visible');
+        return true;
     }
-
-    function ValidateToken(event) {
+    const navigate = useNavigate();
+    const ValidateToken = async (event: React.FormEvent) => {
+        event.preventDefault();
         if (tokenuser != token) {
-            console.log(error);
+            setmessageAlert('Codigo Invalido');
+        } else {
+            navigate('/chooseroom');
         }
+        return true;
     }
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -72,8 +88,9 @@ const Autentification: React.FC = () => {
 
             if (response.status === 200) {
                 settoken(response.data);
-                setformraddio('none');
-                setformtoken('visible');
+                setformraddio('visible');
+                setformtoken('none');
+                setStarCountdown(true);
             }
             setLoading(false);
         }
@@ -100,21 +117,13 @@ const Autentification: React.FC = () => {
                 }}
             >
 
-                <form onSubmit={handleSubmit} id="formType">
+                <form onSubmit={handleSubmit} name="formType" id="formType" noValidate>
                     <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
                         <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
                             <Typography variant="h4" fontWeight="bold" align="center">
                                 Autenticación de la cuenta
                             </Typography>
-                            <Avatar
-                                sx={(theme) => ({
-                                    backgroundColor: theme.palette.primary.main,
-                                    margin: 'auto',
-                                })}
-                            >
-                                <LockOutlinedIcon />
-                            </Avatar>
-                            <div style={{ display: formraddio }} >
+                            <div style={{ display: formtoken }} >
                                 <Typography variant="h6" align="center">
                                     Seleccione el canal por el cual prefiere recibir su código de autenticación
                                 </Typography>
@@ -130,11 +139,12 @@ const Autentification: React.FC = () => {
                                     />
                                 </Box>
                             </div>
-                            <div style={{ display: formtoken }} >
+                            <div style={{ display: 'visible' }} >
                                 <Typography variant="h6" align="center">
-                                    ¿El código no fue recibido o caducó? REENVIAR
+                                    ¿El código no fue recibido o caducó? <a onClick={handleSubmit}>REENVIAR</a>
                                 </Typography>
-                                Tiempo de expiración de codigo: 
+                                Tiempo de expiración de codigo:    <Countdown autoStart={ StarCountdown } date={Date.now() + 60000}>
+                                </Countdown>
 
                                 <TextField
                                     label="token"
@@ -144,29 +154,15 @@ const Autentification: React.FC = () => {
                                     required
                                     margin="normal"
                                 />
-
-                           {/*     <Button*/}
-                           {/*         color="inherit"*/}
-                           {/*         size="small"*/}
-                           {/*         onClick={Return}*/}
-                           {/*         / >*/}
-                           {/*         Regresar*/}
-                         
-
-
-                           {/*     <Button*/}
-                           {/*         color="inherit"*/}
-                           {/*     size="small"*/}
-                           {/*     onClick={ValidateToken}*/}
-                           {/*/ >*/}
-                           {/*         Validar*/}
-                         
+                                {messageAlert}
+                                <button onClick={Return}>Regresar</button>
+                                <button  onClick={ValidateToken}>Validar</button>
+                      
 
                             </div>
                         </Box>
                     </Paper>
                 </form>
-
             </Box>
         </Grid>
 

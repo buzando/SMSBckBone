@@ -33,6 +33,8 @@ namespace Modal.Model.Model
 
         public string phonenumber { get; set; }
 
+        public bool TwoFactorAuthentication { get; set; }
+
 
 
     }

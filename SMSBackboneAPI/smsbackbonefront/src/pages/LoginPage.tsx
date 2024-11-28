@@ -62,7 +62,7 @@ const Login: React.FC = () => {
         const isLogin = !!token;
 
         if (isLogin) {
-            navigate('/Autentification');
+         /*   navigate('/Autentification');*/
         }
     }, []);
 
