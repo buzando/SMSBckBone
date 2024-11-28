@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Business
 {
-    public class MailManager
+    public static class MailManager
     {
         public static bool SendEmail(string userEmail, string subject, string body)
         {
@@ -59,6 +59,9 @@ namespace Business
                 case "recovery":
                     msgBody = $"<h1>Recorver Password</h1>" + $"Please click on the following link to change your password:<p>" +
                         $"<a href=\"{link}\">Recover Password</a></p>";
+                    break;
+                case "Code":
+                    msgBody = $"<h1>2 step verification</h1> Inserta el siguiente Codigo para Iniciar Sesion: {token}";
                     break;
                 default:
                     msgBody = "";

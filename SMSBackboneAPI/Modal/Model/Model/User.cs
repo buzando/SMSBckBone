@@ -31,7 +31,7 @@ namespace Modal.Model.Model
         public bool clauseAccepted { get; set; }
         public DateTime clauseDate { get; set; }
 
-
+        public string phonenumber { get; set; }
 
 
 

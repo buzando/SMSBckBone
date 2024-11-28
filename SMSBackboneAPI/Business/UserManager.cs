@@ -125,7 +125,26 @@ namespace Business
             return token;
         }
 
+        public string EnvioCodigo(string dato, string tipo)
+        {
+            var token = string.Empty;
+            if (tipo == "EMAIL")
+            {
+                Random random = new Random();
+                int randomNumber = random.Next(100000, 1000000);
 
+                token = randomNumber.ToString();
+
+                var body = MailManager.GenerateMailMessage(dato, token, "", "Code");
+                bool emailResponse = MailManager.SendEmail(dato, "Confirm your email", body);
+
+            }
+            if (tipo == "SMS")
+            {
+                token = "123456";
+            }
+            return token;
+        }
 
         public CreditDto GetCredit(string userName)
         {

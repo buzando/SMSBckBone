@@ -150,6 +150,29 @@ namespace SMSBackboneAPI.Controllers
             return Redirect(URL);
         }
 
+        [AllowAnonymous]
+        [HttpGet("SendConfirmation")]
+        public IActionResult MandarCodigoConfirmacion(string dato, string tipo)
+        {
+            GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
+
+           
+            var userManager = new Business.UserManager();
+            var token = userManager.EnvioCodigo(dato,tipo);
+            if (!string.IsNullOrEmpty(token))
+            {
+                var response = Ok(token);
+                return response;
+            }
+            else
+            {
+                var response = BadRequest(errorResponse);
+                return response;
+            }
+          
+        }
+
+
         [HttpGet("Credit")]
         public async Task<IActionResult> Credit()
         {

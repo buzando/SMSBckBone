@@ -48,9 +48,6 @@ const Login: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [messageAlert, setMessageAlert] = useState('Ocurrio un error');
     const [openAlert, setOpenAlert] = useState(false);
-    const [Mostarform, setMostrarform] = useState('none');
-    const [MostarformAutenticacion, setMostrarformAutenticacion] = useState('visible');
-    const [SendType, setSendType] = useState('');
     const [UnconfirmedEmail, setUnconfirmedEmail] = useState<UnconfirmeEmail>({
         sending: false,
         isUnconfirmed: false,
@@ -60,18 +57,14 @@ const Login: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        //const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token');
 
-        //const isLogin = !!token;
+        const isLogin = !!token;
 
-        //if (isLogin) {
-        //	navigate('/');
-        //}
+        if (isLogin) {
+            navigate('/Autentification');
+        }
     }, []);
-
-    function onChangeValue(event) {
-        setSendType(event.target.value);
-    }
 
 
     const validate = (values: string) => {
@@ -87,9 +80,7 @@ const Login: React.FC = () => {
     }
 
 
-    const SendNotification = async (event: React.FormEvent) => {
 
-     };
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setLoading(true);
@@ -134,8 +125,6 @@ const Login: React.FC = () => {
                     localStorage.setItem('token', token);
                     localStorage.setItem('expirationDate', expiration);
                     localStorage.setItem('userData', JSON.stringify(user));
-                    setMostrarform('none');
-                    setMostrarformAutenticacion('visible');
                     navigate('/Autentification');
                 } else {
                     setMessageAlert('Privilegios insuficientes para acceder');
@@ -253,7 +242,7 @@ const Login: React.FC = () => {
                         justifyContent: 'center',
                     }}
                 >
-                    <form onSubmit={handleSubmit} id="formlogin" style={{ display: Mostarform }}>
+                    <form onSubmit={handleSubmit} id="formlogin">
                         <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
                             <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
                                 <Typography variant="h2" fontWeight="bold" align="center">
@@ -394,43 +383,10 @@ const Login: React.FC = () => {
                     </form>
 
 
-                    <form onSubmit={handleSubmit} id="formType" style={{ display: MostarformAutenticacion }}>
-                        <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
-                            <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
-                                <Typography variant="h4" fontWeight="bold" align="center">
-                                    Autenticación de la cuenta
-                                </Typography>
-                                <Avatar
-                                    sx={(theme) => ({
-                                        backgroundColor: theme.palette.primary.main,
-                                        margin: 'auto',
-                                    })}
-                                >
-                                    <LockOutlinedIcon />
-                                </Avatar>
-                                <Typography variant="h6" align="center">
-                                    Seleccione el canal por el cual prefiere recibir su código de autenticación
-                                </Typography>
-                                <div onChange={onChangeValue}>
-                                    <input type="radio" value="SMS" name="Type" checked={SendType === "SMS"} /> SMS
-                                    <input type="radio" value="EMAIL" name="Type" checked={SendType === "EMAIL"} /> Email
-                                </div>
-
-                                <Box display="flex" justifyContent="center" py={2}>
-                                    <ButtonLoadingSubmit
-                                        label="ENVIAR"
-                                        loading={loading}
-                                    />
-                                </Box>
-                              
-                            </Box>
-                        </Paper>
-                    </form>
-
                 </Box>
             </Grid>
 
-            <Grid style={{ display: Mostarform }} item xs={12} md={6} sx={{ display: { xs: 'none', lg: 'block' } }}>
+            <Grid item xs={12} md={6} sx={{ display: { xs: 'none', lg: 'block' } }}>
                 <Box
                     sx={{
                         background:

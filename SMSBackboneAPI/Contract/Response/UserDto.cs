@@ -28,5 +28,6 @@ namespace Contract.Response
         public DateTime feedbackDate { get; set; }
         public bool clauseAccepted { get; set; }
         public DateTime clauseDate { get; set; }
+        public string phonenumber { get; set; }
     }
 }
