@@ -152,7 +152,7 @@ namespace SMSBackboneAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("SendConfirmation")]
-        public IActionResult MandarCodigoConfirmacion(string dato, string tipo)
+        public IActionResult sendConfirmationMail(string dato, string tipo)
         {
             GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
 
@@ -172,6 +172,49 @@ namespace SMSBackboneAPI.Controllers
           
         }
 
+        [AllowAnonymous]
+        [HttpGet("SaveTwoFactor")]
+        public IActionResult SaveTwoFactor(string email)
+        {
+            GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
+
+
+            var userManager = new Business.UserManager();
+            var save = userManager.SaveTwoFactor(email);
+            if (save)
+            {
+                var response = Ok();
+                return response;
+            }
+            else
+            {
+                var response = BadRequest(errorResponse);
+                return response;
+            }
+
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetRooms")]
+        public IActionResult Roomsbyuser(string email)
+        {
+            GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
+
+
+            var userManager = new Business.UserManager();
+            var listrooms = userManager.roomsByUser(email);
+            if (listrooms.Count() > 0)
+            {
+                var response = Ok(listrooms);
+                return response;
+            }
+            else
+            {
+                var response = BadRequest(errorResponse);
+                return response;
+            }
+
+        }
 
         [HttpGet("Credit")]
         public async Task<IActionResult> Credit()

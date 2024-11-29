@@ -38,7 +38,15 @@ const Autentification: React.FC = () => {
     const [formtoken, setformtoken] = useState('visible');
     const [StarCountdown, setStarCountdown] = useState(false);
 
+    useEffect(() => {
+        const usuario = localStorage.getItem("userData");
 
+        const obj = JSON.parse(usuario);
+
+        if (obj.twoFactorAuthentication) {
+            navigate('/chooseroom');
+        }
+    }, []);
 
 
     const Completionist = () => <span>You are good to go!</span>;

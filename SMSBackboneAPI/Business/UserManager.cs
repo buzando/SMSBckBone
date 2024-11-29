@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Contract.Request;
+using System.Numerics;
 namespace Business
 {
     public class UserManager
@@ -144,6 +145,64 @@ namespace Business
                 token = "123456";
             }
             return token;
+        }
+
+        public bool SaveTwoFactor(string email)
+        {
+            var userdto = new UserDto();
+            /*Petición a base de datos*/
+            using (var context = new Entities())
+            {
+                var userdb = context.Users.FirstOrDefault(p => p.email == email);
+                if (userdb != null)
+                {
+
+                    userdb.TwoFactorAuthentication = true;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    return false;
+                }
+
+            }
+
+            //UserDto result = new UserDto
+            //{
+            //    userName = user,
+            //    email = "user@correo.com",
+            //    accessFailedCount = 0,
+            //    lockoutEnabled = false,
+            //    rol = 0,
+            //    status = true
+            //};
+            return true;
+        }
+
+        public List<RoomsDTO> roomsByUser(string email)
+        {
+            var rooms = new List<RoomsDTO>();
+            try
+            {
+
+                using (var ctx = new Entities())
+                {
+                    rooms =  ctx.Users
+           .Join(ctx.Rooms,
+              post => post.Id,
+              meta => meta.iduser,
+              (post, meta) => new { Post = post, Meta = meta })
+           .Where(x => x.Post.email == email).Select(
+                        x => new RoomsDTO {name = x.Meta.name, long_sms = x.Meta.long_sms, calls = x.Meta.calls, 
+                            credits = x.Meta.credits, dscription = x.Meta.dscription, client = x.Meta.client, iduser = x.Meta.iduser, id = x.Meta.id }).ToList();
+                }
+
+                return rooms;
+            }
+            catch (Exception e)
+            {
+                return rooms;
+            }
         }
 
         public CreditDto GetCredit(string userName)

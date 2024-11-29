@@ -19,5 +19,6 @@ namespace Modal
         }
         public DbSet<Users> Users { get; set; }
         public DbSet<UserAccounRecovery> UserAccounRecovery { get; set; }
+        public DbSet<rooms> Rooms { get; set; }
     }
 }
