@@ -14,5 +14,7 @@ namespace Modal.Model.Model
         public int iduser { get; set; }
         public string token { get; set; }
         public DateTime Expiration { get; set; }
+
+        public int type { get; set; } 
     }
 }

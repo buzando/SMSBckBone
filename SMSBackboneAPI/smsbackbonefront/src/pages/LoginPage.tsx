@@ -62,7 +62,7 @@ const Login: React.FC = () => {
         const isLogin = !!token;
 
         if (isLogin) {
-           navigate('/Autentification');
+        /*   navigate('/Autentification');*/
         }
     }, []);
 
@@ -179,7 +179,7 @@ const Login: React.FC = () => {
         }));
         try {
             const response = await axios.get(
-                `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_SEND_CONFIRMATION_EMAIL + UnconfirmedEmail.email}`,
+                `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_SEND_CONFIRMATION_EMAIL + UnconfirmedEmail.email}&type=confirmation`,
             );
 
             if (response.status === 200) {

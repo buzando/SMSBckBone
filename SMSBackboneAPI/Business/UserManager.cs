@@ -101,7 +101,7 @@ namespace Business
                 return true;
             }
         }
-        public string GeneraToken(int iduser)
+        public string GeneraToken(int iduser, int tipo)
         {
             var token = string.Empty;
             try
@@ -113,7 +113,7 @@ namespace Business
 
                 using (var ctx = new Entities())
                 {
-                    var recovery = new UserAccounRecovery { Expiration = DateTime.Now.AddDays(1), iduser = iduser, token = token };
+                    var recovery = new UserAccounRecovery { Expiration = DateTime.Now.AddDays(1), iduser = iduser, token = token,type = tipo  };
                     ctx.UserAccounRecovery.Add(recovery);
                     ctx.SaveChanges();
                 }
@@ -202,6 +202,32 @@ namespace Business
             catch (Exception e)
             {
                 return rooms;
+            }
+        }
+
+        public bool NewPassword(PasswordResetDTO pass)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var user = ctx.Users.Where(x => x.email == pass.Email).FirstOrDefault();
+                    if (user != null)
+                    {
+                        user.passwordHash = pass.NewPassword;
+                        ctx.SaveChanges();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                return false;
             }
         }
 

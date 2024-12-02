@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage'
 import AutentificationPage from './pages/AutentificationPage'
 import Chooseroom from './pages/chooseroom'
+import PasswordReset from './pages/PasswordReset'
 //import RegisterPage from './pages/public/RegisterPage'
 //import UsersPage from './pages/private/UsersPage';
 /*import PrivateRoute from './components/PrivateRoute';*/
@@ -63,7 +64,7 @@ function App() {
                             <Route path="/Autentification" element={<AutentificationPage />} />
                             <Route path="/chooseroom" element={<Chooseroom />} />
                             {/*<Route path="/register" element={<RegisterPage />} />*/}
-                            {/*<Route path="/password_reset" element={<PasswordReset />} />*/}
+                            <Route path="/password_reset" element={<PasswordReset />} />
                             {/*<Route path="/legan/terms" element={<TermsAndConditions />} />*/}
                             {/*<Route element={<PrivateRoute />}>*/}
                             {/*    <Route path='/' element={<HomePage />} />*/}

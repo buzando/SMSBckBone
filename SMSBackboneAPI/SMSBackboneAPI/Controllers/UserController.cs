@@ -82,7 +82,7 @@ namespace SMSBackboneAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("GenerateconfirmationEmail")]
-        public async Task<IActionResult> GenerateMail(string email)//string email,[FromBody] string urlCallback)
+        public async Task<IActionResult> GenerateMail(string email, string type)//string email,[FromBody] string urlCallback)
         {
             GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
             //if (_context.Users == null)
@@ -108,7 +108,16 @@ namespace SMSBackboneAPI.Controllers
             }
 
             var URL = Common.ConfigurationManagerJson("UrlSitioRecuperacion");
-            var token = userManager.GeneraToken(user.Id);
+            var typeemail = 0;
+            if (type == "confirmation")
+            {
+                typeemail = 1;
+            }
+            if (type == "GenerateMailMessage")
+            {
+                typeemail = 2;
+            }
+            var token = userManager.GeneraToken(user.Id, typeemail);
             //var confirmationLink = $"{urlCallback}?email={email}&token={token}"; 
             string body = MailManager.GenerateMailMessage(user.email, token, URL, "confirmation");
             bool emailResponse = MailManager.SendEmail(user.email, "Confirm your email", body);
@@ -215,6 +224,81 @@ namespace SMSBackboneAPI.Controllers
             }
 
         }
+
+        [AllowAnonymous]
+        [HttpGet("GetUserByEmail")]
+        public IActionResult GetUserByEmail(string email)
+        {
+            GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
+
+
+            var userManager = new Business.UserManager();
+            var user = userManager.FindEmail(email);
+            if (user != null)
+            {
+                var response = Ok(user);
+                return response;
+            }
+            else
+            {
+                var response = BadRequest(errorResponse);
+                return response;
+            }
+
+        }
+
+        [HttpPost("NewPassword")]
+        public async Task<IActionResult> NewPassword(LoginDto Login)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var userManager = new Business.UserManager();
+            var responseDto = userManager.Login(Login.email, Login.password);
+            if (responseDto != null)
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var byteKey = Encoding.UTF8.GetBytes(configuration.GetSection("SecretKey").Value);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim("User", JsonConvert.SerializeObject(responseDto))
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(1),
+                    Issuer = JwtIssuer,
+                    Audience = JwtAudience,
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(byteKey), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var respuesta = new ResponseDTO { user = responseDto, token = token.ToString(), expiration = DateTime.Now.AddDays(1) };
+                // var response = Ok(tokenHandler.WriteToken(token));
+                if (!responseDto.emailConfirmed)
+                {
+
+
+                    return BadRequest(new GeneralErrorResponseDto() { code = "UnconfirmedEmail", description = "Confirmation email could not be sent" });
+                }
+                if (!responseDto.status)
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "UserLocked", description = "User locked" });
+
+                }
+                var response = Ok(respuesta);
+
+                return response;
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "BadCredentials", description = "Bad Credentials" });
+
+            }
+        }
+
 
         [HttpGet("Credit")]
         public async Task<IActionResult> Credit()

@@ -145,11 +145,11 @@ const chooseroom: React.FC = () => {
                             <Typography variant="h4" fontWeight="bold" align="center">
                                 Autenticación de la cuenta
                             </Typography>
-                            {rooms.map((room, i) => {
-                                console.log("Entered");
-                                // Return the element. Also pass key     
-                                return (<Box key={room.id} answer={room.id} />) 
-                            })}
+                            {/*{rooms.map((room, i) => {*/}
+                            {/*    console.log("Entered");*/}
+                            {/*    // Return the element. Also pass key     */}
+                            {/*    return (<Box key={room.id} answer={room.id} />) */}
+                            {/*})}*/}
                         </Box>
                     </Paper>
                 </form>
