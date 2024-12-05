@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+ï»¿import { useState, useContext, useEffect } from 'react';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -22,7 +22,7 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import App from '../App';
-
+import "../Logincss.css";
 
 type errorObj = {
     code: string;
@@ -38,14 +38,11 @@ type UnconfirmeEmail = {
 
 
 const Login: React.FC = () => {
-    const validEmail = new RegExp(
-        '^[a-zA-Z0-9._:$!%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]$'
-    );
     const { setContextState } = useContext(AppContext);
     const [email, setEmail] = useState('');
-    const [emailErr, setEmailErr] = useState(false);
+    const [emailErr, setEmailErr] = useState(true);
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [messageAlert, setMessageAlert] = useState('Ocurrio un error');
     const [openAlert, setOpenAlert] = useState(false);
     const [UnconfirmedEmail, setUnconfirmedEmail] = useState<UnconfirmeEmail>({
@@ -62,23 +59,20 @@ const Login: React.FC = () => {
         const isLogin = !!token;
 
         if (isLogin) {
-        /*   navigate('/Autentification');*/
+          navigate('/Autentification');
         }
     }, []);
 
 
-    const validate = (values: string) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value; // Convertir a mayÃºsculas automÃ¡ticamente
+        setEmail(value);
 
-
-        if (!validEmail.test(values)) {
-            setEmailErr(true);
-            setLoading(false);
-      
-        }
-
-        return "";
-    }
-
+        const rfcRegex =
+            /^([A-ZÃ‘&]{3,4})\d{6}([A-Z\d]{2})([A\d])$/; // ExpresiÃ³n regular para RFC vÃ¡lido
+        setEmailErr(rfcRegex.test(value));
+        setLoading(false);
+    };
 
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -106,7 +100,7 @@ const Login: React.FC = () => {
             };
 
 
-            const response = await axios.post(
+             const response = await axios.post(
                 `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_LOGIN_ENDPOINT}`,
                 data,
                 { headers },
@@ -137,12 +131,12 @@ const Login: React.FC = () => {
                 const axiosError: AxiosError = error;
                 if (axiosError.response) {
                     console.log('Error de respuesta:', axiosError.response);
-                    console.log('Código de estado:', axiosError.response.status);
+                    console.log('CÃ³digo de estado:', axiosError.response.status);
                     const responseObj = axiosError.response.data as errorObj;
                     switch (responseObj.code) {
                         case 'UnconfirmedEmail':
                             setMessageAlert(
-                                'El correo electrónico no está confirmado, confírmelo primero',
+                                'El correo electrÃ³nico no estÃ¡ confirmado, confÃ­rmelo primero',
                             );
                             setUnconfirmedEmail({
                                 sending: false,
@@ -152,7 +146,7 @@ const Login: React.FC = () => {
                             });
                             break;
                         case 'BadCredentials':
-                            setMessageAlert('Credenciales inválidas');
+                            setMessageAlert('Credenciales invÃ¡lidas');
                             break;
                         case 'UserLocked':
                             setMessageAlert('El usuario ha sido bloqueado');
@@ -165,8 +159,8 @@ const Login: React.FC = () => {
                     setOpenAlert(true);
                 }
             } else {
-                console.log('Error de conexión en el servidor -> ', error);
-                setMessageAlert('Ocurrio un error de conexión con el servidor');
+                console.log('Error de conexiÃ³n en el servidor -> ', error);
+                setMessageAlert('Ocurrio un error de conexiÃ³n con el servidor');
                 setOpenAlert(true);
             }
         }
@@ -198,17 +192,17 @@ const Login: React.FC = () => {
                 const axiosError: AxiosError = error;
                 if (axiosError.response) {
                     console.log('Error de respuesta:', axiosError.response);
-                    console.log('Código de estado:', axiosError.response.status);
+                    console.log('CÃ³digo de estado:', axiosError.response.status);
                     const responseObj = axiosError.response.data as errorObj;
                     switch (responseObj.code) {
                         case 'InvalidUser':
                             setMessageAlert(
-                                'No se encontraron coincidencias con el correo electrónico',
+                                'No se encontraron coincidencias con el correo electrÃ³nico',
                             );
                             break;
                         case 'ConfirmationUnset':
                             setMessageAlert(
-                                'No se pudo enviar el correo electrónico de confirmación',
+                                'No se pudo enviar el correo electrÃ³nico de confirmaciÃ³n',
                             );
                             break;
                     }
@@ -219,8 +213,8 @@ const Login: React.FC = () => {
                     setOpenAlert(true);
                 }
             } else {
-                console.log('Error de conexión en el servidor -> ', error);
-                setMessageAlert('Ocurrio un error de conexión con el servidor');
+                console.log('Error de conexiÃ³n en el servidor -> ', error);
+                setMessageAlert('Ocurrio un error de conexiÃ³n con el servidor');
                 setOpenAlert(true);
             }
         }
@@ -246,7 +240,7 @@ const Login: React.FC = () => {
                         <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
                             <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
                                 <Typography variant="h2" fontWeight="bold" align="center">
-                                    Bienvenído
+                                    BienvenÃ­do
                                 </Typography>
                                 <Avatar
                                     sx={(theme) => ({
@@ -257,20 +251,21 @@ const Login: React.FC = () => {
                                     <LockOutlinedIcon />
                                 </Avatar>
                                 <Typography variant="h5" align="center">
-                                    Iniciar sesión
+                                    Iniciar sesiÃ³n
                                 </Typography>
                                 <TextField
-                                    label="Correo electrónico"
+                                    label="Correo electrÃ³nico"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={handleInputChange}
                                     variant="outlined"
                                     fullWidth
-                                    required
                                     margin="normal"
+                                    error={!emailErr}
+                                    helperText={!emailErr ? "Email invÃ¡lido." : ""}
+                                    required
                                 />
-                                {emailErr && <p>Your email is invalid</p>}
                                 <TextField
-                                    label="Contraseña"
+                                    label="ContraseÃ±a"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     variant="outlined"
@@ -285,7 +280,7 @@ const Login: React.FC = () => {
                                         variant="caption"
                                         to={'/password_reset'}
                                     >
-                                        ¿Olvidaste tu contraseña?
+                                        Â¿Olvidaste tu contraseÃ±a?
                                     </Link>
                                 </Box>
                                 <Box sx={{ width: '100%', marginTop: 1 }}>
@@ -296,7 +291,7 @@ const Login: React.FC = () => {
                                                 <Box>
                                                     {UnconfirmedEmail.isUnconfirmed && (
                                                         <Tooltip
-                                                            title={`Reenviar correo de confirmación a ${UnconfirmedEmail.email}`}
+                                                            title={`Reenviar correo de confirmaciÃ³n a ${UnconfirmedEmail.email}`}
                                                         >
                                                             {UnconfirmedEmail.sending ? (
                                                                 <CircularProgress size={20}></CircularProgress>
@@ -350,21 +345,22 @@ const Login: React.FC = () => {
                                                 </IconButton>
                                             }
                                         >
-                                            Correo de confirmación enviado a "{UnconfirmedEmail.email}
+                                            Correo de confirmaciÃ³n enviado a "{UnconfirmedEmail.email}
                                             "
                                         </Alert>
                                     </Collapse>
                                 </Box>
                                 <Box display="flex" justifyContent="center" py={2}>
                                     <ButtonLoadingSubmit
-                                        label="Iniciar sesión pvtos"
+                                        label="Iniciar sesiÃ³n pvtos"
                                         loading={loading}
+                                        
                                     />
                                 </Box>
                                 <Divider />
                                 <Box display="flex" justifyContent="center" marginTop={1}>
                                     <Typography variant="caption" marginRight={1}>
-                                        ¿Aún no tienes cuenta?
+                                        Â¿AÃºn no tienes cuenta?
                                     </Typography>
                                     <Link component={LinkDom} variant="caption" to={'/register'}>
                                         Registrate

@@ -80,6 +80,31 @@ namespace SMSBackboneAPI.Controllers
             }
         }
 
+        [HttpPost("LockUser")]
+        public async Task<IActionResult> LockUser(UserDto user)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var userManager = new Business.UserManager();
+            var responseDto = userManager.LockUser(user);
+            if (responseDto)
+            {
+                
+                var response = Ok();
+
+                return response;
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "", description = "" });
+
+            }
+        }
+
         [AllowAnonymous]
         [HttpGet("GenerateconfirmationEmail")]
         public async Task<IActionResult> GenerateMail(string email, string type)//string email,[FromBody] string urlCallback)

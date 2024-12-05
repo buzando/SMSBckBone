@@ -75,6 +75,22 @@ namespace Business
             return userdto;
         }
 
+        public bool LockUser(UserDto user)
+        {
+            var userdto = new UserDto();
+            /*Petición a base de datos*/
+            using (var context = new Entities())
+            {
+                var userdb = context.Users.FirstOrDefault(p => p.Id == user.Id);
+
+                userdb.lockoutEnabled = user.lockoutEnabled;
+                userdb.lockoutEndDateUtc = user.lockoutEndDateUtc;
+                context.SaveChanges();
+
+            }
+
+            return true;
+        }
         public bool FindEmailToken(string email, string token)
         {
             using (var ctx = new Entities())
