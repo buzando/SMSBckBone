@@ -10,5 +10,6 @@ namespace Contract.Request
     {
         public string NewPassword { get; set; }
         public string Email { get; set; }
+        public bool TwoFactorAuthentication { get; set; }
     }
 }

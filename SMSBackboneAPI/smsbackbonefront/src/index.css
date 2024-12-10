@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
 :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
@@ -66,8 +68,6 @@ h1 {
         background-color: #ffe6e6;
     }
 
-
-
 button {
     border-radius: 8px;
     border: 1px solid transparent;
@@ -88,10 +88,12 @@ button {
     button:focus-visible {
         outline: 4px auto -webkit-focus-ring-color;
     }
+
     button:disabled {
         background-color: #ccc;
         cursor: not-allowed;
     }
+
 @media (prefers-color-scheme: light) {
     :root {
         color: #213547;
@@ -106,6 +108,7 @@ button {
         background-color: #f9f9f9;
     }
 }
+
 .visible {
     visibility: visible;
 }
@@ -113,3 +116,16 @@ button {
 .oculto {
     visibility: hidden;
 }
+
+/* Estilo para el título centrado */
+.centered-title {
+    text-align: center; /* Centrado del texto */
+    font-family: 'Poppins', sans-serif; /* Familia tipográfica Poppins */
+    font-weight: 500; /* Peso de la fuente */
+    font-size: 28px; /* Tamaño de la fuente */
+    line-height: 55px; /* Altura de línea */
+    letter-spacing: 0; /* Espaciado entre letras */
+    color: #330F1B; /* Color del texto */
+    opacity: 1; /* Opacidad */
+}
+

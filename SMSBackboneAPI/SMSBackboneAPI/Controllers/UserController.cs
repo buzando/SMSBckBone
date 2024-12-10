@@ -4,6 +4,7 @@ using Contract.Request;
 using Contract.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Modal.Model.Model;
@@ -12,6 +13,7 @@ using SMSBackboneAPI.Service;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SMSBackboneAPI.Controllers
 {
@@ -81,7 +83,7 @@ namespace SMSBackboneAPI.Controllers
         }
 
         [HttpPost("LockUser")]
-        public async Task<IActionResult> LockUser(UserDto user)
+        public async Task<IActionResult> LockUser(lockDTO user)
         {
             GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
             //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
@@ -93,7 +95,7 @@ namespace SMSBackboneAPI.Controllers
             var responseDto = userManager.LockUser(user);
             if (responseDto)
             {
-                
+
                 var response = Ok();
 
                 return response;
@@ -174,12 +176,12 @@ namespace SMSBackboneAPI.Controllers
             if (!confirmation)
             {
                 //Response.Redirect(URL);
-           
+
             }
             else
             {
                 //Response.Redirect(URL);
-             
+
             }
             return Redirect(URL);
         }
@@ -190,9 +192,9 @@ namespace SMSBackboneAPI.Controllers
         {
             GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
 
-           
+
             var userManager = new Business.UserManager();
-            var token = userManager.EnvioCodigo(dato,tipo);
+            var token = userManager.EnvioCodigo(dato, tipo);
             if (!string.IsNullOrEmpty(token))
             {
                 var response = Ok(token);
@@ -203,7 +205,7 @@ namespace SMSBackboneAPI.Controllers
                 var response = BadRequest(errorResponse);
                 return response;
             }
-          
+
         }
 
         [AllowAnonymous]
@@ -273,7 +275,7 @@ namespace SMSBackboneAPI.Controllers
         }
 
         [HttpPost("NewPassword")]
-        public async Task<IActionResult> NewPassword(LoginDto Login)
+        public async Task<IActionResult> NewPassword(PasswordResetDTO Login)
         {
             GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
             //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
@@ -282,45 +284,20 @@ namespace SMSBackboneAPI.Controllers
             //    return BadRequest("Sin request valido.");
             //}
             var userManager = new Business.UserManager();
-            var responseDto = userManager.Login(Login.email, Login.password);
-            if (responseDto != null)
+            var responseDto = userManager.NewPassword(Login);
+            if (!responseDto)
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var byteKey = Encoding.UTF8.GetBytes(configuration.GetSection("SecretKey").Value);
-
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim("User", JsonConvert.SerializeObject(responseDto))
-                    }),
-                    Expires = DateTime.UtcNow.AddDays(1),
-                    Issuer = JwtIssuer,
-                    Audience = JwtAudience,
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(byteKey), SecurityAlgorithms.HmacSha256Signature)
-                };
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var respuesta = new ResponseDTO { user = responseDto, token = token.ToString(), expiration = DateTime.Now.AddDays(1) };
-                // var response = Ok(tokenHandler.WriteToken(token));
-                if (!responseDto.emailConfirmed)
-                {
 
 
-                    return BadRequest(new GeneralErrorResponseDto() { code = "UnconfirmedEmail", description = "Confirmation email could not be sent" });
-                }
-                if (!responseDto.status)
-                {
-                    return BadRequest(new GeneralErrorResponseDto() { code = "UserLocked", description = "User locked" });
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Password invalid" });
 
-                }
-                var response = Ok(respuesta);
 
-                return response;
+
             }
             else
             {
-                return BadRequest(new GeneralErrorResponseDto() { code = "BadCredentials", description = "Bad Credentials" });
-
+                var response = Ok();
+                return response;
             }
         }
 
@@ -336,6 +313,94 @@ namespace SMSBackboneAPI.Controllers
             var userManager = new Business.UserManager();
             var result = userManager.GetCredit(autenticate.userName);
             return Ok(result);
+        }
+
+
+        [HttpPost("registerAccount")]
+        public async Task<IActionResult> RegisterUser(RegisterUser user)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+
+            var existe = new UserManager().FindEmail(user.email);
+            if (existe != null)
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "DuplicateUserName", description = "DuplicateUserName" });
+
+            }
+            var clientManager = new Business.ClientManager();
+            var responseDto = clientManager.ObtenerClienteporNombre(user.client);
+            if (responseDto == null)
+            {
+                var newclient = new clientDTO { nombrecliente = user.client };
+                var add = clientManager.AgregarCliente(newclient);
+                if (add)
+                {
+                    var usuario = new UserManager().AddUserFromRegister(user);
+                    if (usuario != null)
+                    {
+                        var room = new roomsManager().addroomByNewUser(usuario.Id, usuario.IdCliente);
+                        if (room)
+                        {
+                            var token = new  UserManager().EnvioCodigo(user.email, "EMAIL");
+                            if (string.IsNullOrEmpty(token))
+                            {
+                                return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
+
+                            }
+                            return Ok(usuario);
+                        }
+                        else
+                        {
+                            return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+                    }
+                }
+                else
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+                }
+            }
+            else
+            {
+                var usuario = new UserManager().AddUserFromRegister(user);
+                if (usuario != null)
+                {
+                    var room = new roomsManager().addroomByNewUser(usuario.Id, usuario.IdCliente);
+                    if (room)
+                    {
+                        var token = new UserManager().EnvioCodigo(user.email, "EMAIL");
+                        if (string.IsNullOrEmpty(token))
+                        {
+                            return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
+
+                        }
+                        return Ok(usuario);
+                    }
+                    else
+                    {
+                        return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+                    }
+                }
+                else
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+                }
+
+            }
         }
 
     }

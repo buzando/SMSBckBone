@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Contract.Request;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 namespace Business
 {
     public class UserManager
@@ -47,37 +48,47 @@ namespace Business
 
         public UserDto FindEmail(string email)
         {
-            var userdto = new UserDto();
-            /*Petición a base de datos*/
-            using (var context = new Entities())
+            try
             {
-                var userdb = context.Users.FirstOrDefault(p => p.email == email);
 
-                var config = new MapperConfiguration(cfg =>
+                var userdto = new UserDto();
+                /*Petición a base de datos*/
+                using (var context = new Entities())
+                {
+                    var userdb = context.Users.FirstOrDefault(p => p.email == email);
 
-    cfg.CreateMap<Users, UserDto>()
+                    var config = new MapperConfiguration(cfg =>
 
-); var mapper = new Mapper(config);
+        cfg.CreateMap<Users, UserDto>()
 
-                userdto = mapper.Map<UserDto>(userdb);
+    ); var mapper = new Mapper(config);
 
+                    userdto = mapper.Map<UserDto>(userdb);
+
+                }
+
+                //UserDto result = new UserDto
+                //{
+                //    userName = user,
+                //    email = "user@correo.com",
+                //    accessFailedCount = 0,
+                //    lockoutEnabled = false,
+                //    rol = 0,
+                //    status = true
+                //};
+
+                return userdto;
             }
-
-            //UserDto result = new UserDto
-            //{
-            //    userName = user,
-            //    email = "user@correo.com",
-            //    accessFailedCount = 0,
-            //    lockoutEnabled = false,
-            //    rol = 0,
-            //    status = true
-            //};
-            return userdto;
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
-        public bool LockUser(UserDto user)
+        public bool LockUser(lockDTO user)
         {
             var userdto = new UserDto();
+            user.lockoutEndDateUtc = DateTime.Now.AddMinutes(30);
             /*Petición a base de datos*/
             using (var context = new Entities())
             {
@@ -129,7 +140,7 @@ namespace Business
 
                 using (var ctx = new Entities())
                 {
-                    var recovery = new UserAccounRecovery { Expiration = DateTime.Now.AddDays(1), iduser = iduser, token = token,type = tipo  };
+                    var recovery = new UserAccounRecovery { Expiration = DateTime.Now.AddDays(1), iduser = iduser, token = token, type = tipo };
                     ctx.UserAccounRecovery.Add(recovery);
                     ctx.SaveChanges();
                 }
@@ -144,21 +155,30 @@ namespace Business
 
         public string EnvioCodigo(string dato, string tipo)
         {
+
             var token = string.Empty;
-            if (tipo == "EMAIL")
+            try
             {
-                Random random = new Random();
-                int randomNumber = random.Next(100000, 1000000);
 
-                token = randomNumber.ToString();
+                if (tipo == "EMAIL")
+                {
+                    Random random = new Random();
+                    int randomNumber = random.Next(100000, 1000000);
 
-                var body = MailManager.GenerateMailMessage(dato, token, "", "Code");
-                bool emailResponse = MailManager.SendEmail(dato, "Confirm your email", body);
+                    token = randomNumber.ToString();
 
+                    var body = MailManager.GenerateMailMessage(dato, token, "", "confirmation");
+                    bool emailResponse = MailManager.SendEmail(dato, "Confirm your email", body);
+
+                }
+                if (tipo == "SMS")
+                {
+                    token = "123456";
+                }
             }
-            if (tipo == "SMS")
+            catch (Exception e)
             {
-                token = "123456";
+                token = string.Empty;
             }
             return token;
         }
@@ -203,14 +223,23 @@ namespace Business
 
                 using (var ctx = new Entities())
                 {
-                    rooms =  ctx.Users
+                    rooms = ctx.Users
            .Join(ctx.Rooms,
               post => post.Id,
-              meta => meta.iduser,
+              meta => meta.IdUser,
               (post, meta) => new { Post = post, Meta = meta })
            .Where(x => x.Post.email == email).Select(
-                        x => new RoomsDTO {name = x.Meta.name, long_sms = x.Meta.long_sms, calls = x.Meta.calls, 
-                            credits = x.Meta.credits, dscription = x.Meta.dscription, client = x.Meta.client, iduser = x.Meta.iduser, id = x.Meta.id }).ToList();
+                        x => new RoomsDTO
+                        {
+                            name = x.Meta.Name,
+                            long_sms = x.Meta.long_sms,
+                            calls = x.Meta.Calls,
+                            credits = x.Meta.Credits,
+                            dscription = x.Meta.Description,
+                            //client = x.Meta.Client,
+                            iduser = x.Meta.IdUser,
+                            id = x.Meta.Id
+                        }).ToList();
                 }
 
                 return rooms;
@@ -231,6 +260,7 @@ namespace Business
                     if (user != null)
                     {
                         user.passwordHash = pass.NewPassword;
+                        user.TwoFactorAuthentication = pass.TwoFactorAuthentication;
                         ctx.SaveChanges();
                         return true;
                     }
@@ -254,6 +284,81 @@ namespace Business
             {
                 Credit = 0
             };
+        }
+
+        public bool NewPassword(string user, string password)
+        {
+            try
+            {
+
+                using (var ctx = new Entities())
+                {
+                    var usuario = ctx.Users.Where(x => x.email == user).FirstOrDefault();
+                    usuario.passwordHash = password;
+                    usuario.lastPasswordChangeDate = DateTime.Now;
+                    ctx.SaveChanges();
+                }
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public UserDto AddUserFromRegister(RegisterUser register)
+        {
+            try
+            {
+                var user = new Users
+                {
+                    accessFailedCount = 0,
+                    Call = register.llamada,
+                    clauseAccepted = false,
+                    createDate = DateTime.Now,
+                    email = register.email,
+                    emailConfirmed = false,
+                    firstName = register.firstName,
+                    idRole = 2,
+                    lastName = register.lastName,
+                    lastPasswordChangeDate = DateTime.Now,
+                    lockoutEnabled = false,
+                    passwordHash = "123456",
+                    phonenumber = register.phone,
+                    SMS = register.sms,
+                    userName = register.email,
+                    lockoutEndDateUtc = null,
+                    TwoFactorAuthentication = false,
+                    status = true
+                };
+                var cliente = new ClientManager().ObtenerClienteporNombre(register.client);
+                if (cliente != null)
+                {
+                    user.IdCliente = cliente.id;
+                    using (var ctx = new Entities())
+                    {
+                        ctx.Users.Add(user);
+                        ctx.SaveChanges();
+                    }
+                    var config = new MapperConfiguration(cfg =>
+
+    cfg.CreateMap<Users, UserDto>()
+
+); var mapper = new Mapper(config);
+
+                    var userdto = mapper.Map<UserDto>(user);
+                    return userdto;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
     }
 }

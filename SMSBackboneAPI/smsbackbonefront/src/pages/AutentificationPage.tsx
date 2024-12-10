@@ -28,8 +28,8 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-
-
+import Modal from 'react-modal';
+import "../chooseroom.css"
 type errorObj = {
     code: string;
     description: string;
@@ -52,6 +52,7 @@ const Autentification: React.FC = () => {
     const maxResendAttempts = 5; // Límite de reenvíos
     const [lockoutEndTime, setLockoutEndTime] = useState<Date | null>(null);
     const [codeExpired, setCodeExpired] = useState(false);
+    const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
     useEffect(() => {
         const checkLockout = async () => {
             const usuario = localStorage.getItem("userData");
@@ -60,7 +61,7 @@ const Autentification: React.FC = () => {
             const obj = JSON.parse(usuario);
 
             if (obj.twoFactorAuthentication) {
-                /*navigate('/chooseroom');*/
+               navigate('/chooseroom');
             }
 
             if (obj.lockoutEnabled) {
@@ -68,7 +69,7 @@ const Autentification: React.FC = () => {
                 const now = new Date();
                 setLoading(true);
 
-                if (now > lockoutEnd) {
+                if (now < lockoutEnd) {
                     // Si el bloqueo aún está vigente, calcular tiempo restante
                     setLockoutEndTime(lockoutEnd);
                     setStep(3); // Ir al Step 3 directamente
@@ -76,12 +77,25 @@ const Autentification: React.FC = () => {
                     // Si el bloqueo expiró, resetear valores en el usuario
                     const userObj = { ...obj }; // Clonar objeto usuario para modificarlo
                     try {
-                        const apiEndpoint = `${import.meta.env.VITE_API_URL + import.meta.env.VITE_API_LOCKOUT_USER}`; // Cambia por tu endpoint real
-                        await axios.post(apiEndpoint, {
-                            "id": userObj.id,
-                            "email": userObj.email,
-                            "lockoutEnabled": userObj.lockoutEnabled,
-                            "lockoutEndDateUtc": userObj.lockoutEndDateUtc
+                        userObj.lockoutEnabled = false;
+                        const data = {
+                            Id: userObj.id, // ID del usuario, asegurarte de que esté presente en el JSON almacenado.
+                            email: userObj.email, // Email del usuario.
+                            lockoutEnabled: userObj.lockoutEnabled, // Indica que el bloqueo está habilitado.
+                            lockoutEndDateUtc: lockoutEnd.toISOString(), // Fecha y hora en formato ISO 8601.
+                        };
+
+
+                        // Definir encabezados
+                        const headers = {
+                            'Content-Type': 'application/json',
+                            "Access-Control-Allow-Headers": "X-Requested-With",
+                            "Access-Control-Allow-Origin": "*",
+                        };
+
+                        const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_LOCKOUT_USER}`; // Cambia por tu endpoint real
+                        await axios.post(apiEndpoint, data, {
+                            headers
                         });
                     } catch (error) {
                         console.error("Error al registrar el desbloqueo:", error);
@@ -100,6 +114,7 @@ const Autentification: React.FC = () => {
 
 
     function onChangeValue(event) {
+        
         setSendType(event.target.value);
         return true;
     }
@@ -169,12 +184,24 @@ const Autentification: React.FC = () => {
 
 
                 try {
-                    const apiEndpoint = `${import.meta.env.VITE_API_URL + import.meta.env.VITE_API_LOCKOUT_USER}`; // Cambia por tu endpoint real
-                    await axios.post(apiEndpoint, {
-                        "id": userObj.Id,
-                        "email": userObj.email,
-                        "lockoutEnabled": userObj.lockoutEnabled,
-                        "lockoutEndDateUtc": userObj.lockoutEndDateUtc
+
+                    const data = {
+                        Id: userObj.id, // ID del usuario, asegurarte de que esté presente en el JSON almacenado.
+                        email: userObj.email, // Email del usuario.
+                        lockoutEnabled: userObj.lockoutEnabled, // Indica que el bloqueo está habilitado.
+                        lockoutEndDateUtc: lockoutEnd.toISOString(), // Fecha y hora en formato ISO 8601.
+                    };
+
+                    // Definir encabezados
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        "Access-Control-Allow-Headers": "X-Requested-With",
+                        "Access-Control-Allow-Origin": "*",
+                    };
+
+                    const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_LOCKOUT_USER}`; // Cambia por tu endpoint real
+                    await axios.post(apiEndpoint, data, {
+                        headers
                     });
                 } catch (error) {
                     console.error("Error al registrar el bloqueo:", error);
@@ -226,7 +253,15 @@ const Autentification: React.FC = () => {
         }
     }
 
+    // Abrir el modal ayuda
+    const openHelpModal = () => {
+        setHelpModalIsOpen(true);
+    };
 
+    // Cerrar el modal ayuda
+    const closeHelpModal = () => {
+        setHelpModalIsOpen(false);
+    };
 
     return (
         <Box
@@ -422,13 +457,33 @@ const Autentification: React.FC = () => {
                         marginTop: "20px",
                     }}
                 >
-                    <Typography variant="h6" gutterBottom>
-                        Se ha llegado al límite de envíos de códigos
-                    </Typography>
-                    <Typography variant="body1" gutterBottom>
-                        El ingreso a la cuenta quedará bloqueado por {30} minutos.
-                        Inténtelo más tarde.
-                    </Typography>
+                            <Typography variant="h6" gutterBottom>
+                                Se ha llegado al límite de envíos de códigos
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                El ingreso a la cuenta quedará bloqueado por:
+                            </Typography>
+                            <Typography
+                                variant="h5"
+                                sx={{
+                                    color: "#f44336", // Rojo
+                                    fontWeight: "bold",
+                                    marginTop: "10px",
+                                }}
+                            >
+                                <Countdown
+                                    date={lockoutEndTime}
+                                    renderer={({ hours, minutes, seconds, completed }) =>
+                                        completed ? (
+                                            <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
+                                        ) : (
+                                            <span>
+                                                {hours}h {minutes}m {seconds}s
+                                            </span>
+                                        )
+                                    }
+                                />
+                            </Typography>
                 </Box>
             ) : null}
 
@@ -458,6 +513,79 @@ const Autentification: React.FC = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            {/* Botón flotante */}
+            <Button
+                className="floating-button"
+                onClick={openHelpModal}
+            >
+                <span style={{ fontSize: '24px', fontWeight: 'bold' }}>?</span>
+            </Button>
+
+
+            {/* Modal de Ayuda */}
+            <Modal
+                isOpen={helpModalIsOpen}
+                onRequestClose={closeHelpModal}
+                style={{
+                    content: {
+                        top: '50%',
+                        left: '50%',
+                        right: 'auto',
+                        bottom: 'auto',
+                        marginRight: '-50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '90%',
+                        maxWidth: '500px',
+                        borderRadius: '10px',
+                        padding: '20px',
+                    },
+                    overlay: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    },
+                }}
+            >
+                <Box>
+                    <Typography variant="h6" align="center" gutterBottom>
+                        Ayuda
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                        Por favor, contáctenos:
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Horarios de atención</strong>
+                    </Typography>
+                    <Typography variant="body2">
+                        Lunes a viernes<br />
+                        Teléfono: 55 1107 8510 Opción 3<br />
+                        <br />
+                        Sábado<br />
+                        9:00-18:00 CST<br />
+                        Teléfono: 55 1107 8510 Opción 3<br />
+                        <br />
+                        Domingo<br />
+                        9:00-15:00 CST<br />
+                        Teléfono: 55 1107 8510 Opción 3<br />
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Línea de emergencia</strong>
+                    </Typography>
+                    <Typography variant="body2">
+                        Lunes a viernes 21:00 - 07:00<br />
+                        Teléfono: 55 5437 6175<br />
+                        <br />
+                        Sábado y domingo<br />
+                        Teléfono: 55 5437 6175<br />
+                    </Typography>
+                    <Typography variant="body2" style={{ marginTop: '10px' }}>
+                        Soporte: cwsoporte@nuxiba.com
+                    </Typography>
+                    <Box style={{ marginTop: '20px', textAlign: 'right' }}>
+                        <Button onClick={closeHelpModal} variant="contained" color="primary">
+                            Cerrar
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
 
 
         </Box>

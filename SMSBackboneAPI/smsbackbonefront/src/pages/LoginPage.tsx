@@ -59,7 +59,7 @@ const Login: React.FC = () => {
         const isLogin = !!token;
 
         if (isLogin) {
-          navigate('/Autentification');
+           /* navigate('/Autentification');*/
         }
     }, []);
 
@@ -68,10 +68,16 @@ const Login: React.FC = () => {
         const value = event.target.value; // Convertir a mayúsculas automáticamente
         setEmail(value);
 
-        const rfcRegex =
-            /^([A-ZÑ&]{3,4})\d{6}([A-Z\d]{2})([A\d])$/; // Expresión regular para RFC válido
-        setEmailErr(rfcRegex.test(value));
-        setLoading(false);
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        const isValidEmail = emailRegex.test(value);
+
+        // Actualizar el estado de error dependiendo de si es válido o no
+        setEmailErr(isValidEmail); // Si no es válido, se pone el error a true
+        if (isValidEmail) {
+
+            setLoading(false);
+        }
     };
 
 
@@ -81,13 +87,13 @@ const Login: React.FC = () => {
         setUnconfirmedEmail({
             sending: false,
             isUnconfirmed: false,
-            email: '',  
+            email: '',
             isMailSent: false,
         });
 
         try {
 
-       
+
             const data = {
                 email,
                 password,
@@ -100,7 +106,7 @@ const Login: React.FC = () => {
             };
 
 
-             const response = await axios.post(
+            const response = await axios.post(
                 `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_LOGIN_ENDPOINT}`,
                 data,
                 { headers },
@@ -222,11 +228,6 @@ const Login: React.FC = () => {
 
     return (
         <Grid container spacing={0} sx={{ minHeight: '100vh' }}>
-            <div className="App">
-                <button style={{ position: "fixed", bottom: 0, right: "50%" }}>
-                    Centro borde inferior
-                </button>
-            </div>
             <Grid item xs={12} lg={6}>
                 <Box
                     sx={{
@@ -354,7 +355,7 @@ const Login: React.FC = () => {
                                     <ButtonLoadingSubmit
                                         label="Iniciar sesión pvtos"
                                         loading={loading}
-                                        
+
                                     />
                                 </Box>
                                 <Divider />
@@ -393,7 +394,7 @@ const Login: React.FC = () => {
                         justifyContent: 'center',
                     }}
                 >
-                    <img  src={AppIconByNuxiba} alt="Nuxiba Logo" width="410" />
+                    <img src={AppIconByNuxiba} alt="Nuxiba Logo" width="410" />
                 </Box>
             </Grid>
         </Grid>

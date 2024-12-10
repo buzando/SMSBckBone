@@ -1,5 +1,6 @@
 ﻿using Contract;
 using Microsoft.EntityFrameworkCore;
+using Modal.Model;
 using Modal.Model.Model;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,7 @@ namespace Modal
         public DbSet<Users> Users { get; set; }
         public DbSet<UserAccounRecovery> UserAccounRecovery { get; set; }
         public DbSet<rooms> Rooms { get; set; }
+        public DbSet<clients> clients { get; set; }
+        public DbSet<Roles> Roles { get; set; }
     }
 }

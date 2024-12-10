@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+body {
+    background-color: #F8F8F8; /* Cambia a #FFFFFF si lo deseas completamente blanco */
+}
+
+/* Estilo para el botón de búsqueda */
+.search-button {
+    text-align: left; /* Alineación del texto a la izquierda */
+    font-family: 'Poppins', sans-serif; /* Familia tipográfica Poppins */
+    font-weight: normal; /* Peso de la fuente */
+    font-size: 16px; /* Tamaño de la fuente */
+    line-height: 25px; /* Altura de línea */
+    letter-spacing: 0; /* Espaciado entre letras */
+    color: #9B9295; /* Color del texto */
+    opacity: 1; /* Opacidad */
+}
+
+/* Estilo para las cajas de "rooms" */
+.room-box {
+    background: #FFFFFF 0% 0% no-repeat padding-box; /* Fondo blanco con propiedades de repetición */
+    box-shadow: 0px 4px 4px #E1E4E6; /* Sombra sutil */
+    border: 1px solid #CED2D54D; /* Borde con un color ligeramente gris */
+    border-radius: 4px; /* Bordes redondeados */
+    opacity: 1; /* Opacidad */
+    padding: 20px; /* Relleno interno */
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
+    width: 100%;
+    max-width: 300px; /* Tamaño máximo para hacerlo más pequeño */
+    margin-bottom: 16px; /* Espaciado entre las cajas */
+}
+
+    /* Mejorar la apariencia de la caja de "rooms" */
+    .room-box .room-name {
+        font-size: 18px; /* Tamaño de la fuente del nombre de la sala */
+        font-weight: bold; /* Resaltar el nombre de la sala */
+        color: #330F1B; /* Color del texto */
+        margin-bottom: 10px; /* Espaciado debajo del nombre */
+    }
+
+    .room-box .room-details {
+        font-size: 14px; /* Tamaño de la fuente para los detalles */
+        color: #9B9295; /* Color gris para los detalles */
+        margin-bottom: 12px; /* Espaciado debajo de los detalles */
+    }
+
+    /* Estilo del botón para seleccionar la sala */
+    .room-box .select-button {
+        background-color: #646cff; /* Color de fondo del botón */
+        color: white; /* Color del texto del botón */
+        padding: 8px 16px; /* Relleno del botón */
+        border: none; /* Sin borde */
+        border-radius: 4px; /* Bordes redondeados */
+        cursor: pointer; /* Cambio de cursor para mostrar que es clickeable */
+        font-size: 14px; /* Tamaño de la fuente */
+    }
+
+        .room-box .select-button:hover {
+            background-color: #535bf2; /* Color de fondo al pasar el mouse */
+        }
+
+
+
+/* Contenedor general */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFFFFF; /* Fondo similar al mostrado */
+}
+
+/* Campo de búsqueda */
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: #F1F1F1; /* Fondo gris claro */
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+    .search-container input {
+        border: none;
+        outline: none;
+        background: transparent;
+        flex: 1;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        color: #9B9295;
+        margin-left: 8px;
+    }
+
+/* Contenedor general */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #F8F8F8; /* Fondo similar al mostrado */
+}
+
+/* Estilo para las cajas de salas (rooms) */
+.room-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFFFFF;
+    border: 1px solid #E6E6E6;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+    padding: 16px;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 600px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .room-box:hover {
+        transform: scale(1.02);
+        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+/* Información de la sala */
+.room-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.room-icon {
+    font-size: 40px;
+    color: #9B9295;
+}
+
+.room-details {
+    font-family: 'Poppins', sans-serif;
+    color: #4A4A4A;
+}
+
+    .room-details h6 {
+        font-size: 18px;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .room-details p {
+        font-size: 14px;
+        margin: 4px 0;
+        color: #9B9295;
+    }
+
+/* Detalles adicionales */
+.room-extra {
+    text-align: right;
+    font-family: 'Poppins', sans-serif;
+    color: #A77A91;
+    font-size: 14px;
+}
+
+    .room-extra span {
+        display: block;
+    }
+
+/* Botón seleccionar o flecha */
+.room-action {
+    color: #A77A91;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+
+.floating-button {
+    position: fixed;
+    bottom: 10px; /* Asegura que esté al fondo */
+    left: 360px; /* Asegura que esté a la derecha */
+    background-color: #000; /* Fondo negro */
+    color: #FFF; /* Texto blanco */
+    border: none; /* Sin bordes */
+    border-radius: 50%; /* Hace que el botón sea circular */
+    width: 60px; /* Ancho del botón */
+    height: 60px; /* Altura del botón */
+    display: flex;
+    align-items: center; /* Centra el contenido verticalmente */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    font-size: 24px; /* Tamaño del signo de interrogación */
+    font-weight: bold; /* Grosor del signo */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Sombra del botón */
+    transition: transform 0.2s ease-in-out; /* Suaviza el efecto de zoom */
+    z-index: 9999; /* Asegura que esté por encima de otros elementos */
+}
+
+    .floating-button:hover {
+        background-color: #330F1B; /* Fondo oscuro al pasar el ratón */
+        color: #FFFFFF; /* Icono blanco al pasar el ratón */
+        transform: scale(1.1); /* Efecto de zoom */
+    }
