@@ -32,8 +32,8 @@ namespace Modal.Model.Model
         public bool Call { get; set; }
         public string passwordHash { get; set; }
 
-        //[ForeignKey("IdCliente")]
-        //public virtual clients Client { get; set; }
+        [ForeignKey("IdCliente")]
+        public virtual clients Client { get; set; }
 
         //[ForeignKey("IdRole")]
         //public virtual Roles Role { get; set; }

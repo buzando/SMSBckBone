@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+ï»¿import React, { useState, useContext, useEffect } from 'react';
 import { styled, Theme, CSSObject } from '@mui/material/styles';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -45,7 +45,7 @@ import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import StoreIcon from '@mui/icons-material/Store';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 import HomeIcon from '@mui/icons-material/Home';
-
+import EditIcon from "@mui/icons-material/Edit";
 
 const drawerWidth = 280;
 
@@ -74,9 +74,9 @@ const pages: Page[] = [
     { id: 0, title: 'Inicio', path: '/', icon: <HomeIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 1, title: 'Usuarios', path: '/users', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 2, title: 'Facturación', path: '/billing', icon: <LocalAtmIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 2, title: 'FacturaciÃ³n', path: '/billing', icon: <LocalAtmIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Historial de pagos', path: '/billing/paymenthistory', icon: <HistoryIcon sx={{ color: 'white' }} /> },
-            { id: 2, title: 'Métodos de pago', path: '/billing/paymentmethods', icon: <PaymentIcon sx={{ color: 'white' }} /> },
+            { id: 2, title: 'MÃ©todos de pago', path: '/billing/paymentmethods', icon: <PaymentIcon sx={{ color: 'white' }} /> },
             { id: 3, title: 'Uso', path: '/billing/paymentusage', icon: <DataUsageIcon sx={{ color: 'white' }} /> },
             { id: 4, title: 'Costos', path: '/billing/paymentcost', icon: <AttachMoneyIcon sx={{ color: 'white' }} /> },
             { id: 5, title: 'Ajustes de pago', path: '/billing/paymentsettings', icon: <SettingsSuggestIcon sx={{ color: 'white' }} /> },
@@ -84,9 +84,9 @@ const pages: Page[] = [
     },
     { id: 3, title: 'Reportes', path: '/reports', icon: <AssessmentIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 4, title: 'Números', path: '/numbers', icon: <SmartphoneIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
-            { id: 1, title: 'Mis números', path: '/numbers/mynumbers', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
-            { id: 2, title: 'Comprar números', path: '/numbers/buynumbers', icon: <StoreIcon sx={{ color: 'white' }} /> },
+        id: 4, title: 'NÃºmeros', path: '/numbers', icon: <SmartphoneIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+            { id: 1, title: 'Mis nÃºmeros', path: '/numbers/mynumbers', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
+            { id: 2, title: 'Comprar nÃºmeros', path: '/numbers/buynumbers', icon: <StoreIcon sx={{ color: 'white' }} /> },
         ]
     },
     { id: 5, title: 'Prueba de API', path: '/apitest', icon: <CloudSyncIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
@@ -95,7 +95,7 @@ const pages: Page[] = [
 const userSettings: userMenu[] = [
     { idMenu: 1, title: 'Perfil', enable: false },
     { idMenu: 2, title: 'Cuenta', enable: false },
-    { idMenu: 3, title: 'Cerrar sesión', enable: true }
+    { idMenu: 3, title: 'Cerrar sesiÃ³n', enable: true }
 ];
 
 type Props = {
@@ -163,13 +163,23 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         boxSizing: 'border-box',
         ...(open && {
             ...openedMixin(theme),
-            '& .MuiDrawer-paper': openedMixin(theme),
+            '& .MuiDrawer-paper': {
+                ...openedMixin(theme),
+                background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%)',
+                borderRight: '1px solid #E6E4E4',
+                color: '#FFFFFF',
+            },
         }),
         ...(!open && {
             ...closedMixin(theme),
-            '& .MuiDrawer-paper': closedMixin(theme),
+            '& .MuiDrawer-paper': {
+                ...closedMixin(theme),
+                background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%)',
+                borderRight: '1px solid #E6E4E4',
+                color: '#FFFFFF',
+            },
         }),
-    }),
+    })
 );
 
 
@@ -183,7 +193,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const [openSubMenuNumbers, setOpenSubMenuNumbers] = useState(false);
     const { contextState, setContextState } = useContext(AppContext)
     const { user } = contextState
-
+    const [openSubMenu, setOpenSubMenu] = useState(false); // SubmenÃº de administraciÃ³n
     const handleDrawerOpen = () => {
         setOpenDrawer(true);
     };
@@ -236,6 +246,10 @@ const NavBarAndDrawer: React.FC<Props> = props => {
             return () => setOpenSubMenuNumbers(!openSubMenuNumbers);
         }
     }
+
+    const handleSubMenuToggle = () => {
+        setOpenSubMenu(!openSubMenu);
+    };
 
     return (
         <>
@@ -295,7 +309,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         </IconButton>
                     </Box>
 
-                    {/* Información y menú del Usuario */}
+                    {/* InformaciÃ³n y menÃº del Usuario */}
                     <Box sx={{ flexGrow: 0 }}>
                         <Tooltip title={user.userName}>
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -318,32 +332,82 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
-                            {userSettings.map(({ idMenu, title, enable }) => (
-                                enable &&
-                                <MenuItem key={idMenu} id={idMenu.toString()} onClick={handleCloseUserMenu}>
-                                    <Typography textAlign="center">{title}</Typography>
-                                </MenuItem>
-                            ))}
+                            <MenuItem onClick={() => console.log("Editar cuenta")}>
+                                <Typography textAlign="left">
+                                    <Box display="flex" alignItems="center">
+                                        <EditIcon sx={{ fontSize: 20, mr: 1 }} />
+                                        Editar cuenta
+                                    </Box>
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => navigate('/UserAdministration')}>
+                                <Typography textAlign="left">
+                                    <Box display="flex" alignItems="center">
+                                        <PeopleAltIcon sx={{ fontSize: 20, mr: 1 }} />
+                                        Administrar cuentas
+                                    </Box>
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => console.log("Datos de facturaciÃ³n")}>
+                                <Typography textAlign="left">
+                                    <Box display="flex" alignItems="center">
+                                        <LocalAtmIcon sx={{ fontSize: 20, mr: 1 }} />
+                                        Datos de facturaciÃ³n
+                                    </Box>
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem onClick={() => console.log("TÃ©rminos y condiciones")}>
+                                <Typography textAlign="left">
+                                    <Box display="flex" alignItems="center">
+                                        <ChecklistRtlIcon sx={{ fontSize: 20, mr: 1 }} />
+                                        TÃ©rminos y condiciones
+                                    </Box>
+                                </Typography>
+                            </MenuItem>
+                            <MenuItem id="3" onClick={handleCloseUserMenu}>
+                                <Typography textAlign="left">
+                                    <Box display="flex" alignItems="center">
+                                        <Avatar sx={{ fontSize: 20, mr: 1 }} />
+                                        Cerrar sesiÃ³n
+                                    </Box>
+                                </Typography>
+                            </MenuItem>
                         </Menu>
+
+
                     </Box>
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" open={openDrawer} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white' } }}>
                 <DrawerHeader />
                 <Box sx={{ display: 'flex', justifyContent: 'center', margin: 2, ...(!openDrawer && { display: 'none' }) }}>
-                    <Paper elevation={20} sx={{ width: '100%', borderRadius: '20px', border: 'solid 1px gray' }}>
-                        <Box sx={{ margin: '15px' }}>
+                    <Paper
+                        elevation={20}
+                        sx={{
+                            width: '90%',
+                            borderRadius: '16px',
+                            border: '1px solid gray',
+                            backgroundColor: '#FFFFFF',
+                        }}
+                    >
+                        <Box sx={{ padding: '16px' }}>
                             <Typography variant="subtitle2" fontWeight="bold" align="left" color="#574B4F">
-                                Saldo
+                                CrÃ©ditos SMS
                             </Typography>
-                            <Typography variant="h5" fontWeight="bold" align="center" my={1} color={'#330F1B'}>
-                                $10,000.00 mxn
+                            <Typography
+                                variant="h4"
+                                fontWeight="bold"
+                                align="center"
+                                my={1}
+                                color="#330F1B"
+                            >
+                                10,000
                             </Typography>
-                            <Box display="flex" justifyContent="space-between" >
-                                <Button variant="text" color="primary" >
+                            <Box display="flex" justifyContent="space-between">
+                                <Button variant="outlined" color="primary" size="small">
                                     Gestionar
                                 </Button>
-                                <Button variant="text" color="primary">
+                                <Button variant="outlined" color="primary" size="small">
                                     Recargar
                                 </Button>
                             </Box>
@@ -351,103 +415,86 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </Paper>
                 </Box>
                 <List>
-                    <ListSubheader sx={{
-                        background: 'transparent', color: 'white', fontSize: '1rem', fontWeight: 'bold',
-                        ...(!openDrawer && { display: 'none' })
-                    }}>
-                        MENÚ
-                    </ListSubheader>
-                    {pages.map((page) => (
-
-                        <ListItem key={page.id} disablePadding sx={{ display: 'block' }}>
-                            {
-                                !page.hasSubMenus ?
-                                    (<Link to={page.path} style={{ textDecoration: 'none', color: 'currentColor' }} onClick={handleDrawerClose}>
-                                        <ListItemButton
-                                            sx={{
-                                                minHeight: 48,
-                                                justifyContent: openDrawer ? 'initial' : 'center',
-                                                px: 2.5,
-                                            }}>
-                                            <ListItemIcon
-                                                sx={{
-                                                    minWidth: 0,
-                                                    mr: openDrawer ? 2 : 'auto',
-                                                    justifyContent: 'center',
-                                                }}
-                                            >
-                                                {page.icon}
-                                            </ListItemIcon>
-                                            <ListItemText primary={page.title} sx={{ opacity: openDrawer ? 1 : 0 }} primaryTypographyProps={{ fontWeight: 'bold', fontSize: '1rem' }} />
-                                        </ListItemButton>
-                                    </Link>) :
-                                    (
-                                        <>
-                                            <ListItemButton
-                                                sx={{
-                                                    minHeight: 48,
-                                                    justifyContent: openDrawer ? 'initial' : 'center',
-                                                    px: 2.5,
-                                                }}
-                                                onClick={getToggleFunction(page.id)}>
-
-                                                <ListItemIcon
-                                                    sx={{
-                                                        minWidth: 0,
-                                                        mr: openDrawer ? 2 : 'auto',
-                                                        justifyContent: 'center',
-                                                    }}
-                                                >
-                                                    {page.icon}
-                                                </ListItemIcon>
-                                                <ListItemText primary={page.title} sx={{ opacity: openDrawer ? 1 : 0 }} primaryTypographyProps={{ fontWeight: 'bold', fontSize: '1rem' }} />
-                                                {page.hasSubMenus && page.id === 2 && openDrawer && (openSubMenuBilling ? <ExpandLess /> : <ExpandMore />)}
-                                                {page.hasSubMenus && page.id === 4 && openDrawer && (openSubMenuNumbers ? <ExpandLess /> : <ExpandMore />)}
-                                            </ListItemButton>
-                                            <Collapse in={page.id === 2 ? openSubMenuBilling : page.id === 4 && openSubMenuNumbers} timeout="auto">
-                                                <List component="div" disablePadding sx={{ borderLeft: 'solid 1px white', ml: 4 }}>
-                                                    {
-                                                        page.subMenus.map((subMenu) => (
-                                                            <Link key={subMenu.id} to={subMenu.path} style={{ textDecoration: 'none', color: 'currentColor' }} onClick={handleDrawerClose}>
-
-                                                                <ListItemButton key={subMenu.id} sx={{ pl: 3 }}>
-                                                                    <ListItemIcon
-                                                                        sx={{
-                                                                            minWidth: 0,
-                                                                            mr: openDrawer ? 2 : 'auto',
-                                                                            justifyContent: 'center',
-                                                                        }}>
-                                                                        {subMenu.icon}
-                                                                    </ListItemIcon>
-                                                                    <ListItemText primary={subMenu.title} primaryTypographyProps={{ fontWeight: 'bold', fontSize: '1rem' }} />
-                                                                </ListItemButton>
-                                                            </Link>
-                                                        ))
-                                                    }
-                                                </List>
-                                            </Collapse>
-                                        </>
-                                    )
-                            }
-                        </ListItem>
-                    ))}
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
+                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                <HomeIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="AdministraciÃ³n"
+                                primaryTypographyProps={{
+                                    fontWeight: 'bold',
+                                    color: '#FFFFFF',
+                                }}
+                            />
+                            {openSubMenu ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                    </ListItem>
+                    <Collapse in={openSubMenu} timeout="auto">
+                        <List component="div" disablePadding>
+                            <Link to="/users" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/users')}>
+                                    <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                        <PeopleAltIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary="Usuarios"
+                                        primaryTypographyProps={{
+                                            fontWeight: 'bold',
+                                            fontSize: '0.9rem',
+                                            color: '#FFFFFF',
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </Link>
+                            <Link to="/rooms" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/rooms')}>
+                                    <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                        <HomeIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary="Salas"
+                                        primaryTypographyProps={{
+                                            fontWeight: 'bold',
+                                            fontSize: '0.9rem',
+                                            color: '#FFFFFF',
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </Link>
+                        </List>
+                    </Collapse>
                 </List>
+
             </Drawer >
             <Container fixed maxWidth="xl" sx={{ marginBottom: 8 }}>
                 <Box sx={{ height: '4.5rem' }} />
                 {props.children}
             </Container>
             <footer>
-                <Box display="flex" justifyContent="space-between" sx={{ position: 'fixed', bottom: 0, width: '100%', padding: 1, borderTop: 'solid 1px #E6E4E4', background: '#FFFFFF', zIndex: 1200 }}>
-                    <Typography variant="caption" color="textSecondary" align="left">
-                        {'Copyright © '}
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{
+                        position: 'fixed',
+                        bottom: 0,
+                        width: '100%',
+                        padding: '16px',
+                        borderTop: '1px solid #E6E4E4',
+                        background: '#FFFFFF',
+                        zIndex: 1200,
+                    }}
+                >
+                    <Typography variant="caption" color="textSecondary">
+                        {'Copyright Â© '}
                         {new Date().getFullYear()}
-                        {' Nuxiba. Todos los derechos reservados. Se prohíbe el uso no autorizado.'}
+                        {' Nuxiba. Todos los derechos reservados. Se prohÃ­be el uso no autorizado.'}
                     </Typography>
-
-                    <img src={nuxiba_svg} alt="Description" width="70" />
+                    <img src={nuxiba_svg} alt="Nuxiba Logo" width="80" />
                 </Box>
             </footer>
+
         </>
     )
 }

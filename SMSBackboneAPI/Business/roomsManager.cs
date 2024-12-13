@@ -1,6 +1,8 @@
-﻿using Contract.Response;
+﻿using Contract.Request;
+using Contract.Response;
 using Modal;
 using Modal.Model;
+using Modal.Model.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +15,179 @@ namespace Business
     {
         public bool addroomByNewUser(int User, int client)
         {
-			try
-			{
-				using (var ctx = new Entities())
-				{
-					var room = new Modal.Model.Model.rooms { Name = "Default", Calls = 0, Credits = 0, Description = "Room default", IdUser = User, long_sms = 0, IdClient = client };
-					ctx.Rooms.Add(room);
-					ctx.SaveChanges();
-				
-				}
-				return true;
-			}
-			catch (Exception e)
-			{
-				return false;
-			}
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var room = new Modal.Model.Model.rooms { name = "Default", calls = 0, credits = 0, description = "Room default", long_sms = 0 };
+                    ctx.Rooms.Add(room);
+                    ctx.SaveChanges();
+
+                    var roombyuser = new Modal.Model.Model.roomsbyuser { idRoom = room.id, idUser = User };
+                    ctx.roomsbyuser.Add(roombyuser);
+                    ctx.SaveChanges();
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+        public bool ManageroomBystring(string Users, int userid)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    foreach (var user in Users.Split(","))
+                    {
+                        var rommbuyser = new Modal.Model.Model.roomsbyuser { idRoom = int.Parse(user), idUser = userid };
+                        ctx.roomsbyuser.Add(rommbuyser);
+                        ctx.SaveChanges();
+                    }
+
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public bool addroom(roomsDTO Newroom)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var room = new Modal.Model.Model.rooms { name = Newroom.name, calls = 0, credits = 0, description = Newroom.description, long_sms = 0 };
+                    ctx.Rooms.Add(room);
+                    ctx.SaveChanges();
+
+
+                    var newRoomId = room.id;
+                    var newrombyuser = new roomsbyuser { idUser = Newroom.iduser, idRoom = newRoomId };
+
+                    ctx.roomsbyuser.Add(newrombyuser);
+                    ctx.SaveChanges();
+
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public bool UpdateRoom(roomsDTO Newroom)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var room = ctx.Rooms.Where(x => x.id == Newroom.id).FirstOrDefault();
+                    room.name = Newroom.name;
+                    room.description = Newroom.description;
+                    ctx.SaveChanges();
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteRoom(int id)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var roomforeign = ctx.roomsbyuser.Where(x => x.idRoom == id).ToList();
+                    ctx.roomsbyuser.RemoveRange(roomforeign);
+                    ctx.SaveChanges();
+
+                    var room = ctx.Rooms.Where(x => x.id == id).FirstOrDefault();
+                    ctx.Rooms.Remove(room);
+                    ctx.SaveChanges();
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public List<roomsDTO> GetRoomsByClient(int id)
+        {
+            var rooms = new List<roomsDTO>();
+            try
+            {
+                using (var ctx = new Entities())
+                {
+
+                    rooms = ctx.roomsbyuser
+    .Join(ctx.Rooms,
+          rb => rb.idRoom,
+          r => r.id,
+          (rb, r) => new { rb, r })
+    .Join(ctx.Users,
+          combined => combined.rb.idUser,
+          u => u.Id,
+          (combined, u) => new { combined, u })
+    .Join(ctx.clients,
+          result => result.u.IdCliente,
+          c => c.id,
+          (result, c) => new { result.combined, c })
+    .Where(result => result.c.id == id) // Filtro por ID del cliente
+    .Select(result => new
+    {
+        id = result.combined.r.id,
+        iduser = result.combined.rb.idUser,
+        name = result.combined.r.name,
+        description = result.combined.r.description,
+        credits = result.combined.r.credits,
+        long_sms = result.combined.r.long_sms,
+        calls = result.combined.r.calls,
+        idClient = result.c.id
+    })
+    .AsEnumerable() // Cambia a evaluación en cliente
+    .GroupBy(room => room.name) // Agrupamos por 'name' en memoria
+    .Where(group => group.Count() == 1) // Filtramos los nombres únicos
+    .Select(group => group.First()) // Seleccionamos el primer elemento del grupo
+    .Select(room => new roomsDTO
+    {
+        id = room.id,
+        iduser = room.iduser,
+        name = room.name,
+        description = room.description,
+        credits = room.credits,
+        long_sms = room.long_sms,
+        calls = room.calls,
+        idClient = room.idClient
+    })
+    .ToList();
+
+
+
+                }
+                return rooms;
+            }
+            catch (Exception e)
+            {
+                return new List<roomsDTO>();
+            }
+
         }
     }
 }

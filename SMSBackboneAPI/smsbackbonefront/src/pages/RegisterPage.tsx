@@ -141,7 +141,11 @@ const Register: React.FC = () => {
 
             console.log(`Response: ${response}`);
             if (response.status === 200) {
-                localStorage.setItem('userData', JSON.stringify(response.data));
+                const { user, token, expiration } = await response.data;
+                setContextState({ user, token, expiration });
+                localStorage.setItem('token', token);
+                localStorage.setItem('expirationDate', expiration);
+                localStorage.setItem('userData', JSON.stringify(user));
                 navigate('/chooseroom'); 
                 setLoading(false);
                 console.log('-----------------');
@@ -600,13 +604,51 @@ const Register: React.FC = () => {
                             </Typography>
                             <Divider sx={{ marginBottom: 3 }} />
                             <Box sx={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                {/* Contenido de los términos y condiciones */}
+                                {/* Primera parte */}
                                 <Typography variant="body1" paragraph>
-                                    Aparte del crédito disponible en su cuenta, no establecemos un tope en el número de
-                                    mensajes que puede enviar a través de nuestro servicio...
+                                    Aparte del crédito disponible en su cuenta, no establecemos un tope en el número de mensajes que puede enviar a través de nuestro servicio.
+                                </Typography>
+                                <Typography component="ul" variant="body1">
+                                    <li>Siguiendo estos términos y condiciones.</li>
+                                    <li>Con fines estrictamente apegados a la ley.</li>
+                                    <li>Respetando todas las leyes y normativas aplicables, tanto locales como internacionales.</li>
+                                    <li>Para los objetivos por los que fueron creados.</li>
                                 </Typography>
                                 <Typography variant="body1" paragraph>
-                                    {/* Más texto aquí */}
+                                    Al emplear nuestros servicios, deberá evitar:
+                                </Typography>
+                                <Typography component="ul" variant="body1">
+                                    <li>Enviar mensajes SMS no solicitados o spam.</li>
+                                    <li>Alterar los detalles de origen en cualquier mensaje electrónico.</li>
+                                    <li>
+                                        Enviar mensajes que sean difamatorios, discriminatorios, obscenos, ofensivos,
+                                        amenazantes, abusivos, acosadores, dañinos, o violentos.
+                                    </li>
+                                    <li>Participar en fraudes o esquemas piramidales.</li>
+                                    <li>Transmitir códigos maliciosos como virus o troyanos.</li>
+                                    <li>Violar la privacidad de terceros.</li>
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                    Además de los términos ya establecidos, esta sección es aplicable si se emplea nuestro servicio de API.
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                    Hemos habilitado la posibilidad de que las empresas o los individuos se conecten a nuestro servidor para facilitar el envío de mensajes de texto directamente a nuestro sistema de SMS.
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                    Nos reservamos el derecho de aprobar o rechazar conexiones de clientes y APIs según nuestro propio criterio.
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                    Promovemos activamente las políticas contra el envío de spam (mensajes no solicitados).
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                    Proporcionaremos especificaciones para las conexiones API y nos esforzaremos por mantenerlas actualizadas. Estas especificaciones pueden estar incompletas y estar sujetas a cambios sin previo aviso.
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                    Para todos los servicios de mensajería SMS, le proporcionaremos un nombre de usuario y contraseña. Cualquier medida de seguridad adicional, incluyendo pero no limitado a la gestión de accesos y contraseñas, uso indebido, etc., quedará bajo responsabilidad del usuario.
+                                </Typography>
+                                {/* Última sección */}
+                                <Typography variant="body1" paragraph>
+                                    EL CLIENTE será responsable totalmente de la gestión de las contraseñas y acceso al sistema donde se utiliza el servicio de SMS. CENTERNEXT quedará exento de cualquier uso inapropiado o indebido realizado por cuentas que gestionan el SMS.
                                 </Typography>
                             </Box>
                             <Box display="flex" justifyContent="space-between" mt={3}>
@@ -620,6 +662,10 @@ const Register: React.FC = () => {
                         </Box>
                     </Fade>
                 </Modal>
+
+
+
+
             </Container>
         </PublicLayout>
     );

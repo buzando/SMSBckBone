@@ -346,13 +346,29 @@ namespace SMSBackboneAPI.Controllers
                         var room = new roomsManager().addroomByNewUser(usuario.Id, usuario.IdCliente);
                         if (room)
                         {
-                            var token = new  UserManager().EnvioCodigo(user.email, "EMAIL");
-                            if (string.IsNullOrEmpty(token))
-                            {
-                                return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
+                            //var enviomail = new  UserManager().EnvioCodigo(user.email, "EMAIL");
+                            //if (string.IsNullOrEmpty(enviomail))
+                            //{
+                            //    return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
 
-                            }
-                            return Ok(usuario);
+                            //}
+                            var tokenHandler = new JwtSecurityTokenHandler();
+                            var byteKey = Encoding.UTF8.GetBytes(configuration.GetSection("SecretKey").Value);
+
+                            var tokenDescriptor = new SecurityTokenDescriptor
+                            {
+                                Subject = new ClaimsIdentity(new Claim[]
+                                {
+                        new Claim("User", JsonConvert.SerializeObject(responseDto))
+                                }),
+                                Expires = DateTime.UtcNow.AddDays(1),
+                                Issuer = JwtIssuer,
+                                Audience = JwtAudience,
+                                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(byteKey), SecurityAlgorithms.HmacSha256Signature)
+                            };
+                            var token = tokenHandler.CreateToken(tokenDescriptor);
+                            var respuesta = new ResponseDTO { user = usuario, token = token.ToString(), expiration = DateTime.Now.AddDays(1) };
+                            return Ok(respuesta);
                         }
                         else
                         {
@@ -380,12 +396,29 @@ namespace SMSBackboneAPI.Controllers
                     var room = new roomsManager().addroomByNewUser(usuario.Id, usuario.IdCliente);
                     if (room)
                     {
-                        var token = new UserManager().EnvioCodigo(user.email, "EMAIL");
-                        if (string.IsNullOrEmpty(token))
-                        {
-                            return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
+                        //var token = new UserManager().EnvioCodigo(user.email, "EMAIL");
+                        //if (string.IsNullOrEmpty(token))
+                        //{
+                        //    return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
 
-                        }
+                        //}
+                        var tokenHandler = new JwtSecurityTokenHandler();
+                        var byteKey = Encoding.UTF8.GetBytes(configuration.GetSection("SecretKey").Value);
+
+                        var tokenDescriptor = new SecurityTokenDescriptor
+                        {
+                            Subject = new ClaimsIdentity(new Claim[]
+                            {
+                        new Claim("User", JsonConvert.SerializeObject(responseDto))
+                            }),
+                            Expires = DateTime.UtcNow.AddDays(1),
+                            Issuer = JwtIssuer,
+                            Audience = JwtAudience,
+                            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(byteKey), SecurityAlgorithms.HmacSha256Signature)
+                        };
+                        var token = tokenHandler.CreateToken(tokenDescriptor);
+                        var respuesta = new ResponseDTO { user = usuario, token = token.ToString(), expiration = DateTime.Now.AddDays(1) };
+                        return Ok(respuesta);
                         return Ok(usuario);
                     }
                     else
@@ -401,6 +434,105 @@ namespace SMSBackboneAPI.Controllers
                 }
 
             }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetUsersByClient")]
+        public IActionResult GetUsersByClient(int Client)
+        {
+            GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
+
+
+            var userManager = new Business.UserManager();
+            var users = userManager.FindUsers(Client);
+            if (users.Count() > 0)
+            {
+                var response = Ok(users);
+                return response;
+            }
+            else
+            {
+                var response = BadRequest(errorResponse);
+                return response;
+            }
+
+        }
+
+
+        [HttpGet("DeleteUserByid")]
+        public async Task<IActionResult> DeleteUserByid(int id)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.UserManager();
+            var responseDto = UserManager.DeleteUser(id);
+            if (!responseDto)
+            {
+
+
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Creating ROOM" });
+
+
+
+            }
+            else
+            {
+                var response = Ok();
+                return response;
+            }
+        }
+
+        [HttpPost("AddUser")]
+        public async Task<IActionResult> AddUser(UserAddDTO user)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+
+            var existe = new UserManager().FindEmail(user.Email);
+            if (existe != null)
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "DuplicateUserName", description = "DuplicateUserName" });
+
+            }
+
+            var usuario = new UserManager().AddUserFromManage(user);
+            if (usuario != 0)
+            {
+
+                var room = new roomsManager().ManageroomBystring(user.Conecctions, usuario);
+
+                if (room)
+                {
+                    //var enviomail = new UserManager().EnvioCodigo(user.Email, "EMAIL");
+                    //if (string.IsNullOrEmpty(enviomail))
+                    //{
+                    //    return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
+
+                    //}
+
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+                }
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+            }
+
+
         }
 
     }

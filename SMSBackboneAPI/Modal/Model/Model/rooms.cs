@@ -11,28 +11,18 @@ namespace Modal.Model.Model
     public class rooms
     {
         [Key]
-        public int Id { get; set; } 
+        public int id { get; set; } 
 
-        public string Name { get; set; } 
+        public string name { get; set; } 
 
-        public int Calls { get; set; } = 0; 
+        public int calls { get; set; } = 0; 
 
-        public int Credits { get; set; } = 0; 
+        public int credits { get; set; } = 0; 
 
-        public string Description { get; set; } 
-
-        [Required]
-        [ForeignKey("User")]
-        public int IdUser { get; set; } 
-
-        //public virtual Users User { get; set; } 
+        public string description { get; set; } 
 
         public int long_sms { get; set; } = 0; 
 
-        [Required]
-        [ForeignKey("Client")]
-        public int IdClient { get; set; } 
 
-        //public virtual clients Client { get; set; } 
     }
 }

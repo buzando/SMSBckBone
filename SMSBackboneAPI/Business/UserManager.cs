@@ -12,6 +12,8 @@ using AutoMapper;
 using Contract.Request;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
+using Modal.Model;
 namespace Business
 {
     public class UserManager
@@ -82,6 +84,47 @@ namespace Business
             catch (Exception e)
             {
                 return null;
+            }
+        }
+
+        public List<UserAdministrationDTO> FindUsers(int Client)
+        {
+            var userDtoList = new List<UserAdministrationDTO>();
+            try
+            {
+
+                using (var ctx = new Entities())
+                {
+                    userDtoList = ctx.roomsbyuser
+    .Join(ctx.Users,
+          rb => rb.idUser, // Clave foránea en roomsbyuser
+          u => u.Id,       // Clave primaria en users
+          (rb, u) => new { rb, u }) // Combina roomsbyuser y users
+    .Join(ctx.clients,
+          combined => combined.u.IdCliente, // Clave foránea en users
+          c => c.id,                        // Clave primaria en clients
+          (combined, c) => new { combined.rb, combined.u, c }) // Combina users con clients
+    .Where(x => x.c.id == Client) // Filtra por id del cliente aquí
+    .GroupBy(x => new { x.u.Id, x.u.userName, x.u.email, x.u.status }) // Agrupa por usuario
+    .Select(group => new UserAdministrationDTO
+    {
+        id = group.Key.Id,                        // ID del usuario
+        name = group.Key.userName,                // Nombre del usuario
+        email = group.Key.email,                  // Correo electrónico
+        Conecctions = string.Join(", ", group.Select(g => g.rb.Rooms.name)), // Concatena los nombres de las salas
+        Restricctions = "",                       // Asigna restricciones según lógica
+        status = group.Key.status                 // Estado del usuario
+    })
+    .ToList();
+                }
+
+
+
+                return userDtoList;
+            }
+            catch (Exception e)
+            {
+                return userDtoList;
             }
         }
 
@@ -223,23 +266,29 @@ namespace Business
 
                 using (var ctx = new Entities())
                 {
-                    rooms = ctx.Users
-           .Join(ctx.Rooms,
-              post => post.Id,
-              meta => meta.IdUser,
-              (post, meta) => new { Post = post, Meta = meta })
-           .Where(x => x.Post.email == email).Select(
-                        x => new RoomsDTO
-                        {
-                            name = x.Meta.Name,
-                            long_sms = x.Meta.long_sms,
-                            calls = x.Meta.Calls,
-                            credits = x.Meta.Credits,
-                            dscription = x.Meta.Description,
-                            //client = x.Meta.Client,
-                            iduser = x.Meta.IdUser,
-                            id = x.Meta.Id
-                        }).ToList();
+                    rooms = ctx.roomsbyuser
+    .Join(ctx.Users,
+          rb => rb.idUser, // Clave foránea en roomsbyuser
+          u => u.Id,       // Clave primaria en users
+          (rb, u) => new { rb, u }) // Combina roomsbyuser y users
+    .Where(combined => combined.u.email == email) // Filtra por el email aquí
+    .Join(ctx.clients,
+          combined => combined.u.IdCliente, // Clave foránea en users
+          c => c.id,                        // Clave primaria en clients
+          (combined, c) => new RoomsDTO
+          {
+              id = combined.rb.Rooms.id,                   // ID de roomsbyuser
+              iduser = combined.u.Id,               // ID del usuario
+              name = combined.rb.Rooms.name,        // Nombre de la sala
+              description = combined.rb.Rooms.description, // Descripción de la sala
+              credits = combined.rb.Rooms.credits,  // Créditos de la sala
+              long_sms = combined.rb.Rooms.long_sms,// SMS largos
+              calls = combined.rb.Rooms.calls,      // Llamadas
+              idClient = combined.u.IdCliente,      // ID del cliente
+              Cliente = c.nombrecliente             // Nombre del cliente
+          })
+    .ToList();
+
                 }
 
                 return rooms;
@@ -358,6 +407,74 @@ namespace Business
             catch (Exception e)
             {
                 return null;
+            }
+        }
+
+        public int AddUserFromManage(UserAddDTO register)
+        {
+            try
+            {
+                var user = new Users
+                {
+                    accessFailedCount = 0,
+                    Call =false,
+                    clauseAccepted = false,
+                    createDate = DateTime.Now,
+                    email = register.Email,
+                    emailConfirmed = false,
+                    firstName = register.FirstName,
+                    idRole = 2,
+                    lastName = register.LastName,
+                    lastPasswordChangeDate = DateTime.Now,
+                    lockoutEnabled = false,
+                    passwordHash = register.Password,
+                    phonenumber = register.PhoneNumber,
+                    SMS = false,
+                    userName = register.Email,
+                    lockoutEndDateUtc = null,
+                    TwoFactorAuthentication = false,
+                    status = true,
+                    IdCliente = register.IdCliente
+                };
+                    using (var ctx = new Entities())
+                    {
+                        ctx.Users.Add(user);
+                        ctx.SaveChanges();
+                    }
+
+                    return user.Id;
+
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        public bool DeleteUser(int id)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var roomforeign = ctx.roomsbyuser.Where(x => x.idUser == id).ToList();
+                    ctx.roomsbyuser.RemoveRange(roomforeign);
+                    ctx.SaveChanges();
+
+                    var tokens = ctx.UserAccounRecovery.Where(x => x.iduser == id).ToList();
+                    ctx.UserAccounRecovery.RemoveRange(tokens);
+                    ctx.SaveChanges();
+
+                    var users = ctx.Users.Where(x => x.Id == id).FirstOrDefault();
+                    ctx.Users.Remove(users);
+                    ctx.SaveChanges();
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
             }
         }
     }

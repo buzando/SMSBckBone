@@ -23,5 +23,6 @@ namespace Modal
         public DbSet<rooms> Rooms { get; set; }
         public DbSet<clients> clients { get; set; }
         public DbSet<Roles> Roles { get; set; }
+        public DbSet<roomsbyuser> roomsbyuser { get; set; }
     }
 }
