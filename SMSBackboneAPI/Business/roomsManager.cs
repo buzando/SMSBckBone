@@ -35,17 +35,49 @@ namespace Business
                 return false;
             }
         }
-        public bool ManageroomBystring(string Users, int userid)
+        public bool ManageroomBystring(string rooms, int userid)
         {
             try
             {
                 using (var ctx = new Entities())
                 {
-                    foreach (var user in Users.Split(","))
+                    foreach (var room in rooms.Split(","))
                     {
-                        var rommbuyser = new Modal.Model.Model.roomsbyuser { idRoom = int.Parse(user), idUser = userid };
+                        var rommbuyser = new Modal.Model.Model.roomsbyuser { idRoom = int.Parse(room), idUser = userid };
                         ctx.roomsbyuser.Add(rommbuyser);
                         ctx.SaveChanges();
+                    }
+
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public bool UpdateRooms(string Rooms, int userid)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    foreach (var Room in Rooms.Split(","))
+                    {
+                        var room = ctx.roomsbyuser.Where(x => x.idUser == userid && x.idRoom == int.Parse(Room)).ToList();
+                        if (room != null)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            var rommbyuser = new roomsbyuser { idRoom = int.Parse(Room), idUser = userid };
+                            ctx.roomsbyuser.Add(rommbyuser);
+                            ctx.SaveChanges();
+                        }
+                     
                     }
 
 
@@ -150,7 +182,7 @@ namespace Business
           c => c.id,
           (result, c) => new { result.combined, c })
     .Where(result => result.c.id == id) // Filtro por ID del cliente
-    .Select(result => new
+    .Select(result => new roomsDTO
     {
         id = result.combined.r.id,
         iduser = result.combined.rb.idUser,
@@ -162,20 +194,8 @@ namespace Business
         idClient = result.c.id
     })
     .AsEnumerable() // Cambia a evaluación en cliente
-    .GroupBy(room => room.name) // Agrupamos por 'name' en memoria
-    .Where(group => group.Count() == 1) // Filtramos los nombres únicos
-    .Select(group => group.First()) // Seleccionamos el primer elemento del grupo
-    .Select(room => new roomsDTO
-    {
-        id = room.id,
-        iduser = room.iduser,
-        name = room.name,
-        description = room.description,
-        credits = room.credits,
-        long_sms = room.long_sms,
-        calls = room.calls,
-        idClient = room.idClient
-    })
+    .GroupBy(room => room.name) // Agrupamos por 'name'
+    .Select(group => group.First()) // Seleccionamos el primer elemento de cada grupo
     .ToList();
 
 

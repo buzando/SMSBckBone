@@ -261,6 +261,85 @@ const ManageAccounts: React.FC = () => {
         return areFieldsFilled && hasConnectionSelected;
     };
 
+    const handleEditClick = (account) => {
+        setFormData({
+            name: account.name || "",
+            lastName: account.lastName || "",
+            birthDate: account.birthDate || "",
+            gender: account.gender || "",
+            email: account.email || "",
+            password: "", // No incluimos la contraseña para edición por seguridad
+            phone: account.phone || "",
+            twoFactorEnabled: account.twoFactorEnabled || false,
+            connections: account.conecctions?.split(",").map((id) => parseInt(id.trim())) || [], // Convierte a un arreglo de IDs
+            restrictions: account.restrictions?.split(",").map((id) => parseInt(id.trim())) || [], // Convierte a un arreglo de IDs
+            tabIndex: 0,
+        });
+        setSelectedAccount(account);
+        setActiveStep(2);
+    };
+
+
+    const handleUpdateUser = async () => {
+        try {
+            const userData = localStorage.getItem("userData");
+            if (!userData) {
+                navigate('/login');
+                return;
+            }
+
+            const parsedUserData = JSON.parse(userData);
+            const clientId = parsedUserData.idCliente;
+
+            if (!selectedAccount) {
+                console.error("No hay una cuenta seleccionada para actualizar");
+                return;
+            }
+
+            const data = {
+                Id: selectedAccount.id, // Asegúrate de enviar el ID del usuario que se está actualizando
+                FirstName: formData.name,
+                LastName: formData.lastName,
+                BirthDate: new Date(formData.birthDate).toISOString(),
+                Gender: formData.gender,
+                Email: formData.email,
+                PhoneNumber: formData.phone,
+                TwoFactorEnabled: formData.twoFactorEnabled,
+                Conecctions: conections
+                    .filter((connection) => formData.connections.includes(connection.id))
+                    .map((connection) => connection.id)
+                    .join(", "),
+                Restrictions: restriction
+                    .filter((restrictionItem) => formData.restrictions.includes(restrictionItem.id))
+                    .map((restrictionItem) => restrictionItem.id)
+                    .join(", "),
+                IdCliente: clientId,
+            };
+
+            const headers = {
+                'Content-Type': 'application/json',
+                "Access-Control-Allow-Headers": "X-Requested-With",
+                "Access-Control-Allow-Origin": "*",
+            };
+
+            const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_UPDATE_USERS}`; // Cambia por tu endpoint real
+            const response = await axios.put(apiEndpoint, data, {
+                headers
+            });
+
+            if (response.status === 200) {
+                console.log("Usuario actualizado correctamente");
+                fetchAccounts(); // Actualiza la lista de cuentas
+                setActiveStep(0); // Regresa al paso inicial
+            }
+        } catch (error) {
+            console.error("Error al actualizar el usuario:", error);
+            setErrorMessage("Error al actualizar el usuario. Por favor, inténtalo más tarde.");
+            setErrorModalOpen(true); // Abre el modal de error
+        }
+    };
+
+
     return (
         <Box p={3}>
 
@@ -337,12 +416,7 @@ const ManageAccounts: React.FC = () => {
                                                 open={Boolean(menuAnchorEl)}
                                                 onClose={handleMenuClose}
                                             >
-                                                <MenuItem
-                                                    onClick={() => {
-                                                        console.log("Editar:", account);
-                                                        handleMenuClose();
-                                                    }}
-                                                >
+                                                <MenuItem onClick={() => handleEditClick(account)}>
                                                     Editar
                                                 </MenuItem>
                                                 <MenuItem
@@ -699,6 +773,295 @@ const ManageAccounts: React.FC = () => {
                     </Box>
                 </Box>
             )}
+
+            {activeStep === 2 && (
+                <Box>
+                    <Tabs
+                        value={formData.tabIndex}
+                        onChange={(e, value) => setFormData({ ...formData, tabIndex: value })}
+                    >
+                        <Tab label="Editar colaborador" />
+                        <Tab label="Conexiones" />
+                    </Tabs>
+
+                    {formData.tabIndex === 0 && (
+                        <Box p={3}>
+                            <Typography variant="h6">Editar Colaborador</Typography>
+                            <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2} mt={2}>
+                                <TextField
+                                    label="Nombre"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, name: e.target.value })
+                                    }
+                                    required
+                                />
+                                <TextField
+                                    label="Apellidos"
+                                    name="lastName"
+                                    value={formData.lastName}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, lastName: e.target.value })
+                                    }
+                                    required
+                                />
+                                <TextField
+                                    label="Fecha de nacimiento"
+                                    name="birthDate"
+                                    value={formData.birthDate}
+                                    type="date"
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, birthDate: e.target.value })
+                                    }
+                                    required
+                                />
+                                <FormControl>
+                                    <InputLabel>Género</InputLabel>
+                                    <Select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, gender: e.target.value })
+                                        }
+                                    >
+                                        <MuiMenuItem value="Masculino">Masculino</MuiMenuItem>
+                                        <MuiMenuItem value="Femenino">Femenino</MuiMenuItem>
+                                        <MuiMenuItem value="Otro">Otro</MuiMenuItem>
+                                    </Select>
+                                </FormControl>
+                                <TextField
+                                    label="Correo electrónico"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, email: e.target.value })
+                                    }
+                                    required
+                                />
+                                <TextField
+                                    label="Teléfono"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, phone: e.target.value })
+                                    }
+                                    required
+                                />
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={formData.twoFactorEnabled}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    twoFactorEnabled: e.target.checked,
+                                                })
+                                            }
+                                        />
+                                    }
+                                    label="Activar verificación en dos pasos"
+                                />
+                            </Box>
+                        </Box>
+                    )}
+
+                    {formData.tabIndex === 1 && (
+                        <Box p={3}>
+                            <Typography variant="h6" gutterBottom>
+                                Conexiones
+                            </Typography>
+                            <Box display="flex" justifyContent="space-between" gap={4}>
+                                {/* Conexiones */}
+                                <Box flex={1}>
+                                    <Paper
+                                        variant="outlined"
+                                        sx={{ p: 2, mt: 2, maxHeight: 300, overflowY: "auto" }}
+                                    >
+                                        <RadioGroup
+                                            value={formData.assignFutureConnections}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    assignFutureConnections: e.target.value === "true",
+                                                })
+                                            }
+                                        >
+                                            <FormControlLabel
+                                                value={true}
+                                                control={<Radio />}
+                                                label="Asignar futuras conexiones"
+                                                sx={{ alignItems: "center" }}
+                                            />
+                                        </RadioGroup>
+                                        <Box sx={{ display: "grid", gridTemplateColumns: "1fr", rowGap: 1 }}>
+                                            {/* Seleccionar todo */}
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    padding: "4px 8px",
+                                                    borderRadius: "4px",
+                                                    "&:hover": { backgroundColor: "#f5f5f5" },
+                                                }}
+                                            >
+                                                <Checkbox
+                                                    checked={
+                                                        formData.connections.length === conections.length // Total de conexiones disponibles
+                                                    }
+                                                    indeterminate={
+                                                        formData.connections.length > 0 &&
+                                                        formData.connections.length < conections.length
+                                                    }
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                connections: conections.map((c: any) => c.id), // Usar el ID u otra propiedad relevante
+                                                            }));
+                                                        } else {
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                connections: [],
+                                                            }));
+                                                        }
+                                                    }}
+                                                    sx={{ marginRight: 2 }}
+                                                />
+                                                <Typography>Seleccionar todo</Typography>
+                                            </Box>
+                                            {/* Lista de conexiones */}
+                                            {Array.isArray(conections) && conections.map((connection: any) => (
+                                                <Box
+                                                    key={connection.id}
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        padding: "4px 8px",
+                                                        borderRadius: "4px",
+                                                        "&:hover": { backgroundColor: "#f5f5f5" },
+                                                    }}
+                                                >
+                                                    <Checkbox
+                                                        value={connection.id}
+                                                        checked={formData.connections.includes(connection.id)}
+                                                        onChange={(e) => {
+                                                            const value = parseInt(e.target.value, 10);
+                                                            const checked = e.target.checked;
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                connections: checked
+                                                                    ? [...prev.connections, value]
+                                                                    : prev.connections.filter((c) => c !== value),
+                                                            }));
+                                                        }}
+                                                        sx={{ marginRight: 2 }}
+                                                    />
+                                                    <Typography>{connection.name}</Typography>
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    </Paper>
+                                </Box>
+                                {/* Restricciones */}
+                                <Box flex={1}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Restricciones
+                                    </Typography>
+                                    <Paper
+                                        variant="outlined"
+                                        sx={{ p: 2, maxHeight: 300, overflowY: "auto" }}
+                                    >
+                                        <Box sx={{ display: "grid", gridTemplateColumns: "1fr", rowGap: 1 }}>
+                                            {/* Seleccionar todo */}
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    padding: "4px 8px",
+                                                    borderRadius: "4px",
+                                                    "&:hover": { backgroundColor: "#f5f5f5" },
+                                                }}
+                                            >
+                                                <Checkbox
+                                                    checked={
+                                                        formData.restrictions.length === restriction.length // Total de restricciones disponibles
+                                                    }
+                                                    indeterminate={
+                                                        formData.restrictions.length > 0 &&
+                                                        formData.restrictions.length < restriction.length
+                                                    }
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                restrictions: restriction.map((r: any) => r.id), // Usar el ID u otra propiedad relevante
+                                                            }));
+                                                        } else {
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                restrictions: [],
+                                                            }));
+                                                        }
+                                                    }}
+                                                    sx={{ marginRight: 2 }}
+                                                />
+                                                <Typography>Seleccionar todo</Typography>
+                                            </Box>
+                                            {/* Lista de restricciones */}
+                                            {Array.isArray(restriction) && restriction.map((restrictionItem: any) => (
+                                                <Box
+                                                    key={restrictionItem.id}
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        padding: "4px 8px",
+                                                        borderRadius: "4px",
+                                                        "&:hover": { backgroundColor: "#f5f5f5" },
+                                                    }}
+                                                >
+                                                    <Checkbox
+                                                        value={restrictionItem.id}
+                                                        checked={formData.restrictions.includes(restrictionItem.id)}
+                                                        onChange={(e) => {
+                                                            const value = parseInt(e.target.value, 10);
+                                                            const checked = e.target.checked;
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                restrictions: checked
+                                                                    ? [...prev.restrictions, value]
+                                                                    : prev.restrictions.filter((r) => r !== value),
+                                                            }));
+                                                        }}
+                                                        sx={{ marginRight: 2 }}
+                                                    />
+                                                    <Typography>{restrictionItem.name}</Typography>
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    </Paper>
+                                </Box>
+                            </Box>
+                        </Box>
+                    )}
+
+                    <Box display="flex" justifyContent="flex-end" gap={2} p={3}>
+                        <Button onClick={() => setActiveStep(0)} color="secondary">
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleUpdateUser}
+                            variant="contained"
+                            sx={{ backgroundColor: "#A05B71" }}
+                            disabled={!isFormValid()} // Deshabilitar si no es válido
+                        >
+                            Actualizar
+                        </Button>
+                    </Box>
+                </Box>
+            )}
+
+
             {/* Modal de error */}
             <Modal
                 open={errorModalOpen}

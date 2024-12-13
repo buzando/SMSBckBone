@@ -332,7 +332,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
-                            <MenuItem onClick={() => console.log("Editar cuenta")}>
+                            <MenuItem onClick={() => navigate('/ManageAccount')}>
                                 <Typography textAlign="left">
                                     <Box display="flex" alignItems="center">
                                         <EditIcon sx={{ fontSize: 20, mr: 1 }} />

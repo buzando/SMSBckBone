@@ -451,6 +451,26 @@ namespace Business
             }
         }
 
+        public bool UpdateUser(UserAddDTO register)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var usuarer = ctx.Users.Where(u => u.email == register.Email).FirstOrDefault();
+                    usuarer.passwordHash = register.Password;
+                    ctx.SaveChanges();
+                }
+
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
         public bool DeleteUser(int id)
         {
             try

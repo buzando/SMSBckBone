@@ -12,6 +12,7 @@ import PasswordReset from './pages/PasswordReset'
 import RegisterPage from './pages/RegisterPage'
 import Rooms from './pages/Rooms'
 import UserAdministration from './pages/UserAdministration'
+import ManageAccount from './pages/ManageAccount'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -84,6 +85,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/UserAdministration' element={<UserAdministration />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/ManageAccount' element={<ManageAccount />} />
                             </Route>
                             {/*<Route element={<PrivateRoute />}>*/}
                             {/*    <Route path='/billing/paymenthistory' element={<PaymentHistoryPage />} />*/}

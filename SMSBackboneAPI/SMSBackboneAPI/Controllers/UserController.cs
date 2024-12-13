@@ -535,5 +535,47 @@ namespace SMSBackboneAPI.Controllers
 
         }
 
+        [HttpPost("UpdateUser")]
+        public async Task<IActionResult> UpdateUser(UserAddDTO user)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+
+            var usuario = new UserManager().UpdateUser(user);
+            if (usuario)
+            {
+
+                var room = new roomsManager().ManageroomBystring(user.Conecctions, user.IdUsuario);
+
+                if (room)
+                {
+                    //var enviomail = new UserManager().EnvioCodigo(user.Email, "EMAIL");
+                    //if (string.IsNullOrEmpty(enviomail))
+                    //{
+                    //    return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
+
+                    //}
+
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+                }
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+            }
+
+
+        }
+
     }
 }
