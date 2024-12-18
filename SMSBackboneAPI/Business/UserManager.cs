@@ -112,20 +112,22 @@ namespace Business
     .GroupBy(x => new
     {
         x.u.Id,
-        x.u.userName,
+        x.u.firstName,
         x.u.email,
         x.u.status,
         x.u.idRole,
-        x.r.Role // Incluye el nombre del rol desde la tabla Roles
+        x.r.Role,         // Incluye el nombre del rol desde la tabla Roles
+        x.u.phonenumber   // Incluye PhoneNumber en la clave del grupo
     })
     .Select(group => new UserAdministrationDTO
     {
         id = group.Key.Id,                        // ID del usuario
-        name = group.Key.userName,                // Nombre del usuario
+        name = group.Key.firstName,                // Nombre del usuario
         email = group.Key.email,                  // Correo electrónico
         idRole = group.Key.idRole,                // ID del rol
         Role = group.Key.Role,                    // Nombre del rol
         Rooms = string.Join(", ", group.Select(g => g.rb.Rooms.name)), // Concatena los nombres de las salas
+        PhoneNumber = group.Key.phonenumber       // Rellena PhoneNumber desde Users
     })
     .ToList();
                 }
@@ -474,8 +476,13 @@ namespace Business
             {
                 using (var ctx = new Entities())
                 {
-                    var usuarer = ctx.Users.Where(u => u.email == register.Email).FirstOrDefault();
-                    //usuarer.passwordHash = register.Password;
+                    var usuarer = ctx.Users.Where(u => u.Id == register.IdUsuario).FirstOrDefault();
+                    usuarer.firstName = register.FirstName;
+                    usuarer.phonenumber = register.PhoneNumber;
+
+                    usuarer.idRole = ctx.Roles.Where(x => x.Role == register.Profile.ToLower()).Select(x => x.id).FirstOrDefault();
+
+
                     ctx.SaveChanges();
                 }
 

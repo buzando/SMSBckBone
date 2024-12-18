@@ -553,12 +553,6 @@ namespace SMSBackboneAPI.Controllers
 
                 if (room)
                 {
-                    //var enviomail = new UserManager().EnvioCodigo(user.Email, "EMAIL");
-                    //if (string.IsNullOrEmpty(enviomail))
-                    //{
-                    //    return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
-
-                    //}
 
                     return Ok();
                 }

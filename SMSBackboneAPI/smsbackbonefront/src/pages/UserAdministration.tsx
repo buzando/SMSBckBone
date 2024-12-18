@@ -49,11 +49,13 @@ const ManageAccounts: React.FC = () => {
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
     const [openAddUserModal, setOpenAddUserModal] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const [rooms, setrooms] = useState<string[]>([]); 
+    const [rooms, setrooms] = useState<string[]>([]);
     const [selectedRooms, setSelectedRooms] = useState<number[]>([]);
     const [errorModalOpen, setErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [ConfirmationEmail, setConfirmationEmail] = useState("");
+    const [isEditing, setIsEditing] = useState(false); // Para saber si es edición
+    const [editUserId, setEditUserId] = useState<number | null>(null); // Guarda el ID del usuario en edición
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -104,7 +106,7 @@ const ManageAccounts: React.FC = () => {
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, account: Account) => {
         setMenuAnchorEl(event.currentTarget);
-        setSelectedAccount(account);
+        setSelectedAccount(account); // Asegúrate de configurar el estado correctamente
     };
 
     const handleMenuClose = () => {
@@ -118,7 +120,19 @@ const ManageAccounts: React.FC = () => {
 
     const handleCloseModal = () => {
         setOpenAddUserModal(false);
+        setIsEditing(false);
+        setEditUserId(null);
+        setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            profile: "",
+            useRecoveryEmail: false,
+            allAndFuture: false,
+            rooms: "",
+        });
     };
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, checked, type } = e.target;
@@ -187,21 +201,39 @@ const ManageAccounts: React.FC = () => {
                 "Access-Control-Allow-Origin": "*",
             };
 
-            const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_USERS}`; // Cambia por tu endpoint real
-            const response = await axios.post(apiEndpoint, data, {
-                headers
-            });
+            if (isEditing) {
+                // Lógica para actualizar un usuario existente
+                const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_UPDATE_USERS}`; // Cambiar por el endpoint real de actualización
+                const response = await axios.post(apiEndpoint, data, { headers });
 
-            if (response.status === 200) {
-                fetchAccounts();
-                setFormData({
-                    name: "",
-                    email: "",
-                    phone: "",
-                    rooms: "",
+                if (response.status === 200) {
+                    console.log("Usuario actualizado correctamente.");
+                    fetchAccounts(); // Refrescar la lista de usuarios
+                    setOpenAddUserModal(false); // Cerrar el modal
+                    setIsEditing(false); // Salir del modo de edición
+                }
+            } else {
+                const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_USERS}`; // Cambia por tu endpoint real
+                const response = await axios.post(apiEndpoint, data, {
+                    headers
                 });
-                setOpenAddUserModal(false);
+
+                if (response.status === 200) {
+                    fetchAccounts();
+                    setFormData({
+                        name: "",
+                        email: "",
+                        phone: "",
+                        profile: "",
+                        useRecoveryEmail: false,
+                        allAndFuture: false,
+                        rooms: "",
+                    });
+                    setOpenAddUserModal(false);
+                }
             }
+
+
         } catch (error) {
             if (error.response.data.code === "DuplicateUserName") {
                 setErrorMessage(
@@ -276,7 +308,52 @@ const ManageAccounts: React.FC = () => {
         fetchAccounts();
     }, []);
 
- 
+    const handleEditClick = async (account) => {
+        // Asegúrate de que las salas estén cargadas
+        if (rooms.length === 0) {
+            await fetchRooms();
+        }
+
+        // Parsear los nombres de las salas desde el campo `rooms` del usuario
+        const selectedRoomNames = account.rooms
+            ? account.rooms.split(", ").map((name) => name.trim())
+            : [];
+
+        // Filtrar los IDs de las salas basándose en los nombres
+        const selectedRoomIds = rooms
+            .filter((room) => selectedRoomNames.includes(room.name))
+            .map((room) => room.id);
+
+        setSelectedRooms(selectedRoomIds); // Actualiza los IDs seleccionados
+
+        // Establece los datos del formulario
+        setFormData({
+            name: account.name,
+            email: account.email,
+            phone: account.phoneNumber || "",
+            useRecoveryEmail: false, // No aplica en edición
+            allAndFuture: false, // Ajusta según sea necesario
+            profile: account.role, // Establece el rol
+            rooms: selectedRoomIds.join(","), // Configura las salas seleccionadas como una lista de IDs separados por comas
+        });
+
+        setIsEditing(true); // Activa el modo de edición
+        setOpenAddUserModal(true); // Abre el modal
+    };
+
+    const isFormValid = (): boolean => {
+        const nameRegex = /^[a-zA-Z\s]*$/; // Permite solo letras y espacios
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Valida formato de correo
+        const phoneRegex = /^[0-9]*$/; // Permite solo números
+
+        return (
+            nameRegex.test(formData.name) && // Validación de nombre
+            emailRegex.test(formData.email) && // Validación de correo
+            phoneRegex.test(formData.phone) && // Validación de teléfono
+            formData.profile !== "" && // Verificar que el perfil esté seleccionado
+            selectedRooms.length > 0 // Verificar que al menos una sala esté seleccionada
+        );
+    };
 
     return (
         <Box p={3}>
@@ -311,7 +388,7 @@ const ManageAccounts: React.FC = () => {
                                 <TableCell>{account.role}</TableCell>
                                 {/* Ícono condicional */}
                                 <TableCell>
-                                    {account.role === "Admin" && (
+                                    {account.role === "Administrador" && (
                                         <img src={usrAdmin} alt="Administrador" width="32" height="32" />
                                     )}
                                     {account.role === "Supervisor" && (
@@ -347,9 +424,14 @@ const ManageAccounts: React.FC = () => {
                                         open={Boolean(menuAnchorEl)}
                                         onClose={handleMenuClose}
                                     >
-                                        {/*<MenuItem onClick={() => handleEditClick(account)}>*/}
-                                        {/*    Editar*/}
-                                        {/*</MenuItem>*/}
+                                        <MenuItem
+                                            onClick={() => {
+                                                handleEditClick(selectedAccount); // Pasamos el account seleccionado
+                                                handleMenuClose(); // Cerramos el menú
+                                            }}
+                                        >
+                                            Editar
+                                        </MenuItem>
                                         <MenuItem
                                             onClick={() => {
                                                 setOpenDeleteModal(true);
@@ -383,7 +465,7 @@ const ManageAccounts: React.FC = () => {
                     }}
                 >
                     <Typography variant="h6" mb={3}>
-                        Añadir usuario
+                        {isEditing ? "Editar usuario" : "Añadir usuario"}
                     </Typography>
 
                     {/* Form */}
@@ -396,6 +478,11 @@ const ManageAccounts: React.FC = () => {
                             value={formData.name}
                             onChange={handleInputChange}
                             required
+                            error={!/^[a-zA-Z\s]*$/.test(formData.name)} // Validación visual
+                            helperText={
+                                !/^[a-zA-Z\s]*$/.test(formData.name) &&
+                                "El nombre solo debe contener letras y espacios."
+                            }
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -415,10 +502,16 @@ const ManageAccounts: React.FC = () => {
                             value={formData.email}
                             onChange={handleInputChange}
                             required
+                            disabled={isEditing}
+                            error={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)} // Validación visual
+                            helperText={
+                                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+                                "Ingrese un correo válido."
+                            } // Desactiva el campo si es edición
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <Tooltip title="Ingrese el correo electrónico del usuario">
+                                        <Tooltip title={isEditing ? "El correo no se puede editar en modo edición" : "Ingrese el correo electrónico del usuario"}>
                                             <InfoIcon fontSize="small" color="action" />
                                         </Tooltip>
                                     </InputAdornment>
@@ -433,6 +526,11 @@ const ManageAccounts: React.FC = () => {
                             name="phone"
                             value={formData.phone}
                             onChange={handleInputChange}
+                            error={!/^[0-9]*$/.test(formData.phone)} // Validación visual
+                            helperText={
+                                !/^[0-9]*$/.test(formData.phone) &&
+                                "El teléfono solo debe contener números."
+                            }
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -446,17 +544,19 @@ const ManageAccounts: React.FC = () => {
                     </Box>
 
                     {/* Checkbox */}
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={formData.useEmailForRecovery}
-                                onChange={handleInputChange}
-                                name="useEmailForRecovery"
-                            />
-                        }
-                        label="Usar el correo de registro para la recuperación de cuenta"
-                        sx={{ mt: 2 }}
-                    />
+                    {!isEditing && (
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={formData.useEmailForRecovery}
+                                    onChange={handleInputChange}
+                                    name="useEmailForRecovery"
+                                />
+                            }
+                            label="Usar el correo de registro para la recuperación de cuenta"
+                            sx={{ mt: 2 }}
+                        />
+                    )}
                     {/* Selección de roles */}
                     {/* Roles en línea horizontal */}
                     <Typography variant="subtitle1" fontWeight="bold" mb={2}>
@@ -471,20 +571,7 @@ const ManageAccounts: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, profile: e.target.value })}
                     >
                         <Box display="flex" justifyContent="space-between" gap={2}>
-                            {/* Monitor */}
-                            <Box
-                                sx={{
-                                    border: "2px solid #C3B5E6",
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    textAlign: "center",
-                                    width: "30%", // Ancho ajustable
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    cursor: "pointer",
-                                }}
-                            >
+                            <Box sx={{ border: "2px solid #C3B5E6", borderRadius: 2, padding: 2, textAlign: "center", width: "30%", display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
                                 <Radio value="Monitor" />
                                 <img src={usrMon} alt="Monitor" width="50" height="50" />
                                 <Typography fontWeight="bold" color="#9C27B0" mt={1}>
@@ -495,21 +582,7 @@ const ManageAccounts: React.FC = () => {
                                     - Consultar reportes
                                 </Typography>
                             </Box>
-
-                            {/* Supervisor */}
-                            <Box
-                                sx={{
-                                    border: "2px solid #FBC02D",
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    textAlign: "center",
-                                    width: "30%",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    cursor: "pointer",
-                                }}
-                            >
+                            <Box sx={{ border: "2px solid #FBC02D", borderRadius: 2, padding: 2, textAlign: "center", width: "30%", display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
                                 <Radio value="Supervisor" />
                                 <img src={usrSup} alt="Supervisor" width="50" height="50" />
                                 <Typography fontWeight="bold" color="#FB8C00" mt={1}>
@@ -521,21 +594,7 @@ const ManageAccounts: React.FC = () => {
                                     - Crear/eliminar campañas
                                 </Typography>
                             </Box>
-
-                            {/* Administrador */}
-                            <Box
-                                sx={{
-                                    border: "2px solid #F48FB1",
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    textAlign: "center",
-                                    width: "30%",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    cursor: "pointer",
-                                }}
-                            >
+                            <Box sx={{ border: "2px solid #F48FB1", borderRadius: 2, padding: 2, textAlign: "center", width: "30%", display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}>
                                 <Radio value="Administrador" />
                                 <img src={usrAdmin} alt="Administrador" width="50" height="50" />
                                 <Typography fontWeight="bold" color="#F06292" mt={1}>
@@ -549,6 +608,7 @@ const ManageAccounts: React.FC = () => {
                             </Box>
                         </Box>
                     </RadioGroup>
+
 
 
                     <Box p={3}>
@@ -622,7 +682,6 @@ const ManageAccounts: React.FC = () => {
                                                 {room.long_sms}
                                             </Typography>
                                         </Box>
-
                                         <Box display="flex" alignItems="center" whiteSpace="nowrap">
                                             <Typography variant="caption" color="textSecondary" mr={0.5}>
                                                 Llamada:
@@ -644,6 +703,7 @@ const ManageAccounts: React.FC = () => {
                             ))}
 
 
+
                         </Box>
                     </Box>
                     {/* Buttons */}
@@ -651,8 +711,13 @@ const ManageAccounts: React.FC = () => {
                         <Button onClick={handleCloseModal} color="secondary">
                             Cancelar
                         </Button>
-                        <Button onClick={handleAddUser} variant="contained" sx={{ backgroundColor: "#A05B71" }}>
-                            Guardar
+                        <Button
+                            onClick={handleAddUser}
+                            variant="contained"
+                            sx={{ backgroundColor: "#A05B71" }}
+                            disabled={!isFormValid()} // Desactivar según validación
+                        >
+                            {isEditing ? "Actualizar" : "Guardar"}
                         </Button>
                     </Box>
                 </Box>

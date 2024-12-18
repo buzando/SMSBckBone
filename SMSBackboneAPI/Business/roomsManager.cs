@@ -41,13 +41,37 @@ namespace Business
             {
                 using (var ctx = new Entities())
                 {
+                    var allroms = ctx.roomsbyuser.Where(x => x.idUser == userid).ToList();
                     foreach (var room in rooms.Split(","))
                     {
-                        var rommbuyser = new Modal.Model.Model.roomsbyuser { idRoom = int.Parse(room), idUser = userid };
-                        ctx.roomsbyuser.Add(rommbuyser);
-                        ctx.SaveChanges();
+                        var exiteroom = allroms.Where(x => x.idRoom == int.Parse(room)).FirstOrDefault();
+                        if (exiteroom != null)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            var rommbuyser = new Modal.Model.Model.roomsbyuser { idRoom = int.Parse(room), idUser = userid };
+                            ctx.roomsbyuser.Add(rommbuyser);
+                            ctx.SaveChanges();
+                        }
+                      
                     }
 
+                    foreach(var room in allroms)
+                    {
+                        var exiteroom = rooms.Split(",").Where(x => x == room.idRoom.ToString()).FirstOrDefault();
+                        if (exiteroom != null)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            var roomdelete = ctx.roomsbyuser.Where(x => x.idRoom == room.idRoom).FirstOrDefault();
+                            ctx.roomsbyuser.Remove(roomdelete);
+                            ctx.SaveChanges();
+                        }
+                    }
 
                 }
                 return true;

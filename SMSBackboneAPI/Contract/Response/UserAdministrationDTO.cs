@@ -14,5 +14,6 @@ namespace Contract.Response
         public string Rooms { get; set; }
         public int idRole { get; set; }
         public string Role { get; set; }
+        public string PhoneNumber { get; set; }
     }
 }
