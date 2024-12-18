@@ -511,12 +511,12 @@ namespace SMSBackboneAPI.Controllers
 
                 if (room)
                 {
-                    //var enviomail = new UserManager().EnvioCodigo(user.Email, "EMAIL");
-                    //if (string.IsNullOrEmpty(enviomail))
-                    //{
-                    //    return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
+                    var enviomail = new UserManager().EnvioCodigo(user.ConfirmationEmail, "EMAIL");
+                    if (string.IsNullOrEmpty(enviomail))
+                    {
+                        return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
 
-                    //}
+                    }
 
                     return Ok();
                 }
@@ -561,6 +561,81 @@ namespace SMSBackboneAPI.Controllers
                     return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
 
                 }
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+            }
+
+
+        }
+
+        [HttpPost("UpdateLogUser")]
+        public async Task<IActionResult> UpdateLogUser(UpdateUser user)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+
+            var usuario = new UserManager().UpdateLogUser(user);
+            if (usuario)
+            {
+
+
+
+                return Ok();
+
+
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "UpdateUser", description = "Error al editar usuario intente más tarde" });
+
+            }
+
+
+        }
+
+        [HttpPost("FinishRegister")]
+        public async Task<IActionResult> FinishRegister(UserFinishRegistrationDTO user)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+
+            var usuario = new UserManager().UpdateUserRegistration(user);
+            if (usuario)
+            {
+                var userManager = new Business.UserManager();
+                var responseDto = userManager.FindEmail(user.Email);
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var byteKey = Encoding.UTF8.GetBytes(configuration.GetSection("SecretKey").Value);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim("User", JsonConvert.SerializeObject(responseDto))
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(1),
+                    Issuer = JwtIssuer,
+                    Audience = JwtAudience,
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(byteKey), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var respuesta = new ResponseDTO { user = responseDto, token = token.ToString(), expiration = DateTime.Now.AddDays(1) };
+
+                var response = Ok(respuesta);
+
+                return response;
+
             }
             else
             {

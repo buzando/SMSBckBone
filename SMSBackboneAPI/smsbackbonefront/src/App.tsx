@@ -13,6 +13,7 @@ import RegisterPage from './pages/RegisterPage'
 import Rooms from './pages/Rooms'
 import UserAdministration from './pages/UserAdministration'
 import ManageAccount from './pages/ManageAccount'
+import ConfigurationAccount from './pages/ConfigurationAccount'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -65,13 +66,14 @@ function App() {
                     <BrowserRouter>
                         <Routes>
                             <Route path="/login" element={<LoginPage />} />
-                            <Route element={<AutentificationRoute />} >
+                            <Route element={<AutentificationRoute isAllowed={true} redirectTo="/login" />} >
                                 <Route path="/Autentification" element={<AutentificationPage />} />
                             </Route>
                             <Route element={<AutentificationRoute />} >
                                 <Route path="/chooseroom" element={<Chooseroom />} />
                             </Route>
                             <Route path="/register" element={<RegisterPage />} />
+                            <Route path="/ConfigurationAccount" element={<ConfigurationAccount />} />
                             <Route path="/password_reset" element={<PasswordReset />} />
                             {/*<Route path="/legan/terms" element={<TermsAndConditions />} />*/}
                             <Route element={<PrivateRoute />}>

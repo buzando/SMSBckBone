@@ -7,43 +7,17 @@ import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import { AppContext } from '../hooks/useContextInitialState';
 import axios, { AxiosError } from 'axios';
-import { useNavigate, Link as LinkDom } from 'react-router-dom';
-import ButtonLoadingSubmit from '../components/commons/ButtonLoadingSubmit';
-import Alert from '@mui/material/Alert';
+import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import Collapse from '@mui/material/Collapse';
-import CloseIcon from '@mui/icons-material/Close';
-import Link from '@mui/material/Link';
 import { Divider, Modal, Fade, Backdrop } from '@mui/material';
 import PublicLayout from '../components/PublicLayout';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs, { Dayjs } from 'dayjs';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InputAdornment from '@mui/material/InputAdornment';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Tooltip from '@mui/material/Tooltip';
-type RegisterUser = {
-    name: string;
-    lastname: string;
-    phone: string;
-    birthday: Dayjs | null;
-    gender: number;
-    email: string;
-    password: string;
-    termAndConditions: boolean;
-};
 
-type AccountInfo = {
-    name: string;
-    website: string;
-};
 
 type errorObj = {
     code: string;
@@ -62,27 +36,24 @@ const Register: React.FC = () => {
         emailConfirmation: '',
         sms: false,
         llamada: false,
+        password: '',
     });
 
-    const [accountInfoObj, setAccountInfoObj] = useState<AccountInfo>({
-        name: '',
-        website: '',
-    });
-    const [loading, setLoading] = useState(false);
+
     const [modalOpen, setModalOpen] = useState(false);
-    const [messageAlerts, setMessageAlerts] = useState<string[]>([]);
-    const [openAlert, setOpenAlert] = useState(false);
-    const [phone, setPhone] = useState<string>("");
-    const [error, setError] = useState<boolean>(false);
     const navigate = useNavigate();
-    const [email, setEmail] = useState<string>("");
-    const [errormail, setErrormail] = useState<boolean>(false);
-    const [emailconfirmation, setEmailemailconfirmation] = useState<string>("");
-    const [errormailconfirmation, setErrormailconfirmation] = useState<boolean>(false);
     const [errors, setErrors] = useState({
         phone: false,
         email: false,
         emailConfirmation: false,
+    });
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordErrors, setPasswordErrors] = useState({
+        minLength: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
     });
 
 
@@ -110,8 +81,6 @@ const Register: React.FC = () => {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        setLoading(true);
-        setMessageAlerts([]);
 
         try {
             const data = {
@@ -123,7 +92,8 @@ const Register: React.FC = () => {
                 extension: formData.extension,
                 emailConfirmation: formData.emailConfirmation,
                 sms: formData.sms,
-                llamada: formData.llamada
+                llamada: formData.llamada,
+                Password: password,// Incluye la contraseña en el payload
             };
 
             const headers = {
@@ -147,7 +117,6 @@ const Register: React.FC = () => {
                 localStorage.setItem('expirationDate', expiration);
                 localStorage.setItem('userData', JSON.stringify(user));
                 navigate('/chooseroom'); 
-                setLoading(false);
                 console.log('-----------------');
                 console.log(response.data);
             }
@@ -232,6 +201,32 @@ const Register: React.FC = () => {
         }
     };
 
+    const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setPassword(value);
+        validatePassword(value);
+    };
+
+    const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setConfirmPassword(e.target.value);
+    };
+
+    const validatePassword = (password: string) => {
+        const errors = {
+            minLength: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password),
+        };
+        setPasswordErrors(errors);
+    };
+
+    const arePasswordsValid = (): boolean => {
+        return (
+            Object.values(passwordErrors).every((valid) => valid) &&
+            password === confirmPassword
+        );
+    };
 
 
     const isFormValid = () => {
@@ -312,7 +307,6 @@ const Register: React.FC = () => {
                                     }}
                                 />
                             </Grid>
-
                             {/* Espacio para separación */}
                             <Grid item xs={12} />
 
@@ -509,6 +503,78 @@ const Register: React.FC = () => {
                                     }}
                                 />
                             </Grid>
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    label="Contraseña"
+                                    name="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={handlePasswordChange}
+                                    variant="outlined"
+                                    fullWidth
+                                    required
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip
+                                                    title={
+                                                        <>
+                                                            <Typography variant="caption" color={passwordErrors.minLength ? "green" : "red"}>
+                                                                - Mínimo 8 caracteres
+                                                            </Typography><br />
+                                                            <Typography variant="caption" color={passwordErrors.uppercase ? "green" : "red"}>
+                                                                - Una letra mayúscula
+                                                            </Typography><br />
+                                                            <Typography variant="caption" color={passwordErrors.lowercase ? "green" : "red"}>
+                                                                - Una letra minúscula
+                                                            </Typography><br />
+                                                            <Typography variant="caption" color={passwordErrors.number ? "green" : "red"}>
+                                                                - Un número
+                                                            </Typography>
+                                                        </>
+                                                    }
+                                                >
+                                                    <IconButton>
+                                                        <InfoOutlinedIcon color="action" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    label="Confirmar Contraseña"
+                                    name="confirmPassword"
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={handleConfirmPasswordChange}
+                                    variant="outlined"
+                                    fullWidth
+                                    required
+                                    error={confirmPassword && confirmPassword !== password}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip
+                                                    title={
+                                                        confirmPassword && confirmPassword !== password
+                                                            ? "Las contraseñas no coinciden"
+                                                            : "Las contraseñas coinciden"
+                                                    }
+                                                >
+                                                    <IconButton>
+                                                        <InfoOutlinedIcon color={confirmPassword && confirmPassword !== password ? "error" : "success"} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+
+
 
                             {/* Services */}
                             <Grid item xs={12}>
@@ -557,20 +623,32 @@ const Register: React.FC = () => {
 
                             {/* Buttons */}
                             <Grid item xs={12}>
-                                <Box display="flex" justifyContent="space-between">
-                                    <Button variant="outlined" color="secondary">
+                                <Box display="flex" justifyContent="space-between" alignItems="center">
+                                    <Button
+                                        variant="outlined"
+                                        color="secondary"
+                                        onClick={() => navigate('/')}
+                                    >
                                         Cancelar
                                     </Button>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        disabled={!isFormValid()}
-                                        onClick={handleOpenModal}
-                                    >
-                                        Registrarse
-                                    </Button>
+                                    <Box display="flex" flexDirection="column" alignItems="flex-start">
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            disabled={!isFormValid() || !arePasswordsValid()}
+                                            onClick={handleOpenModal}
+                                        >
+                                            Registrarse
+                                        </Button>
+                                        {!arePasswordsValid() && (
+                                            <Typography variant="caption" color="red" mt={1}>
+                                                Asegúrate de cumplir con los requisitos de contraseña y que coincidan.
+                                            </Typography>
+                                        )}
+                                    </Box>
                                 </Box>
                             </Grid>
+
                         </Grid>
 
                     </Paper>

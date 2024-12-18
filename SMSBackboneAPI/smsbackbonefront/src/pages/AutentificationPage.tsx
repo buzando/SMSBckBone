@@ -1,25 +1,10 @@
-﻿import { useState, useContext, useEffect, useRef } from 'react';
-import Divider from '@mui/material/Divider';
+﻿import { useState, useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Avatar from '@mui/material/Avatar';
-import Paper from '@mui/material/Paper';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { AppContext } from '../hooks/useContextInitialState';
-import axios, { AxiosError } from 'axios';
-import { useNavigate, Link as LinkDom } from 'react-router-dom';
-import ButtonLoadingSubmit from '../components/commons/ButtonLoadingSubmit';
-import Alert from '@mui/material/Alert';
-import IconButton from '@mui/material/IconButton';
-import Collapse from '@mui/material/Collapse';
-import CloseIcon from '@mui/icons-material/Close';
-import { Role } from '../types/Types';
+import { useNavigate } from 'react-router-dom';
 import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import Tooltip from '@mui/material/Tooltip';
 import Countdown from 'react-countdown';
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -28,12 +13,8 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import Modal from 'react-modal';
 import "../chooseroom.css"
-type errorObj = {
-    code: string;
-    description: string;
-};
+
 
 
 const Autentification: React.FC = () => {
@@ -61,7 +42,7 @@ const Autentification: React.FC = () => {
             const obj = JSON.parse(usuario);
 
             if (obj.twoFactorAuthentication) {
-            /*   navigate('/chooseroom');*/
+               navigate('/chooseroom');
             }
 
             if (obj.lockoutEnabled) {

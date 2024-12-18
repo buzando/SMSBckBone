@@ -14,14 +14,12 @@ import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import { Role } from '../types/Types';
 import Link from '@mui/material/Link';
 import AppIconByNuxiba from '../assets/AppIconByNuxiba.svg';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
-import App from '../App';
 import "../Logincss.css";
 
 type errorObj = {
@@ -45,6 +43,7 @@ const Login: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [messageAlert, setMessageAlert] = useState('Ocurrio un error');
     const [openAlert, setOpenAlert] = useState(false);
+    const [spinner, setSpinner] = useState(false);
     const [UnconfirmedEmail, setUnconfirmedEmail] = useState<UnconfirmeEmail>({
         sending: false,
         isUnconfirmed: false,
@@ -84,6 +83,7 @@ const Login: React.FC = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setLoading(true);
+        setSpinner(true);
         setUnconfirmedEmail({
             sending: false,
             isUnconfirmed: false,
@@ -115,7 +115,7 @@ const Login: React.FC = () => {
             if (response.status === 200) {
                 const { user, token, expiration } = await response.data;
                 setLoading(false);
-
+                setSpinner(false);
                 // root or admin
                 setContextState({ user, token, expiration });
                 localStorage.setItem('token', token);
@@ -126,6 +126,7 @@ const Login: React.FC = () => {
             }
         } catch (error) {
             setLoading(false);
+            setSpinner(false);
             if (axios.isAxiosError(error)) {
                 const axiosError: AxiosError = error;
                 if (axiosError.response) {
@@ -222,6 +223,24 @@ const Login: React.FC = () => {
     return (
         <Grid container spacing={0} sx={{ minHeight: '100vh' }}>
             <Grid item xs={12} lg={6}>
+                {spinner && (
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            backgroundColor: "rgba(255, 255, 255, 0.7)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 1000,
+                        }}
+                    >
+                        <CircularProgress size={50} />
+                    </Box>
+                )}
                 <Box
                     sx={{
                         height: '100%',
@@ -348,7 +367,7 @@ const Login: React.FC = () => {
                                     <ButtonLoadingSubmit
                                         label="Iniciar sesión"
                                         loading={loading}
-
+                                        
                                     />
                                 </Box>
                                 <Divider />

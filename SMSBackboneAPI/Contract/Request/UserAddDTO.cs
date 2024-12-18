@@ -17,6 +17,7 @@ namespace Contract.Request
         public bool? FutureRooms { get; set; }
         public int IdCliente { get; set; }
         public int IdUsuario { get; set; }
+        public string Password { get; set; }
 
     }
 }

@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Contract;
 
 namespace Business
 {
@@ -62,6 +63,12 @@ namespace Business
                     break;
                 case "Code":
                     msgBody = $"<h1>2 step verification</h1> Inserta el siguiente Codigo para Iniciar Sesion: {token}";
+                    break;
+                case "Register":
+                   var sitiofront = Common.ConfigurationManagerJson("UrlSitio");
+                    link =  $"{url}?email={email}";
+                    msgBody = $"<h1>Register user</h1>" + $"Please click on the following link to finish your register:<p>" +
+                       $"<a href=\"{link}\">Recover Password</a></p>";
                     break;
                 default:
                     msgBody = "";

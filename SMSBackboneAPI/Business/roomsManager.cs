@@ -131,7 +131,19 @@ namespace Business
                     ctx.roomsbyuser.Add(newrombyuser);
                     ctx.SaveChanges();
 
+                    var cliente = ctx.Users.Where(x => x.Id == Newroom.iduser).Select(x => x.IdCliente).FirstOrDefault();
 
+                    var usuarios = ctx.Users.Where(x => x.IdCliente == cliente && x.futurerooms == true).ToList();
+
+                    foreach (var user in usuarios)
+                    {
+                        if (user.Id == Newroom.iduser)
+                        {
+                            continue;
+                        }
+                        ctx.roomsbyuser.Add(new roomsbyuser { idUser = user.Id, idRoom = newRoomId });
+                        ctx.SaveChanges();
+                    }
                 }
                 return true;
             }

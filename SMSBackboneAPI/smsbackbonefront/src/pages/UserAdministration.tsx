@@ -21,10 +21,10 @@ import {
     FormControlLabel,
     InputAdornment,
     RadioGroup,
-    FormControl,
-    FormLabel,
     Radio,
     Grid,
+    Backdrop,
+    CircularProgress,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -41,7 +41,32 @@ type Account = {
     email: string;
     rooms: string;
     status: boolean;
+    role: string;
+    phoneNumber?: string;
 };
+
+type Room = {
+    id: number; // Identificador único de la sala
+    name: string; // Nombre de la sala
+    long_sms: boolean; // Indicador para SMS largos
+    calls: boolean; // Indicador para llamadas
+    credits: number; // Saldo de la sala
+};
+
+type FormData = {
+    name: string; // Nombre del usuario
+    email: string; // Correo principal
+    confirmEmail: string; // Confirmación del correo
+    phone: string; // Teléfono
+    useRecoveryEmail: boolean; // Indicador de uso de correo para recuperación
+    password: string; // Contraseña
+    confirmPassword: string; // Confirmación de contraseña
+    allAndFuture: boolean; // Indicador para "todas y futuras salas"
+    profile: string; // Perfil/rol del usuario
+    rooms: string; // Lista de IDs de salas separados por comas
+};
+
+
 
 const ManageAccounts: React.FC = () => {
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -49,22 +74,37 @@ const ManageAccounts: React.FC = () => {
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
     const [openAddUserModal, setOpenAddUserModal] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const [rooms, setrooms] = useState<string[]>([]);
+    const [rooms, setRooms] = useState<Room[]>([]);
     const [selectedRooms, setSelectedRooms] = useState<number[]>([]);
     const [errorModalOpen, setErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [ConfirmationEmail, setConfirmationEmail] = useState("");
     const [isEditing, setIsEditing] = useState(false); // Para saber si es edición
-    const [editUserId, setEditUserId] = useState<number | null>(null); // Guarda el ID del usuario en edición
-    const [formData, setFormData] = useState({
+    const [loading, setLoading] = useState(false);
+
+    const [formData, setFormData] = useState<FormData>({
         name: "",
         email: "",
+        confirmEmail: "",
         phone: "",
         useRecoveryEmail: false,
+        password: "",
+        confirmPassword: "",
         allAndFuture: false,
-        profile: "", // Nuevo campo para el rol seleccionado
-        rooms: "",   // Nuevo campo para los IDs de salas seleccionadas
+        profile: "",
+        rooms: "",
     });
+
+
+
+    const isPasswordValid = (password: string): boolean => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        return passwordRegex.test(password);
+    };
+
+
+
+
     const handleCheckboxChange = (id: number) => {
         setSelectedRooms((prev) => {
             const newSelectedRooms = prev.includes(id)
@@ -121,17 +161,21 @@ const ManageAccounts: React.FC = () => {
     const handleCloseModal = () => {
         setOpenAddUserModal(false);
         setIsEditing(false);
-        setEditUserId(null);
         setFormData({
             name: "",
             email: "",
+            confirmEmail: "",
             phone: "",
-            profile: "",
             useRecoveryEmail: false,
+            password: "",
+            confirmPassword: "",
             allAndFuture: false,
+            profile: "",
             rooms: "",
         });
     };
+
+
 
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,9 +233,10 @@ const ManageAccounts: React.FC = () => {
                 FutureRooms: formData.allAndFuture,
                 Profile: formData.profile,
                 PhoneNumber: formData.phone,
+                Password: !isEditing ? formData.password : '123', // Solo enviar si no es edición
                 Rooms: selectedRooms.join(","),
                 IdCliente: clientId,
-                IdUsuario: parsedUserData.id
+                IdUsuario: parsedUserData.id,
             };
 
             // Make POST request
@@ -223,10 +268,13 @@ const ManageAccounts: React.FC = () => {
                     setFormData({
                         name: "",
                         email: "",
+                        confirmEmail: "",
                         phone: "",
-                        profile: "",
                         useRecoveryEmail: false,
+                        password: "",
+                        confirmPassword: "",
                         allAndFuture: false,
+                        profile: "",
                         rooms: "",
                     });
                     setOpenAddUserModal(false);
@@ -235,20 +283,24 @@ const ManageAccounts: React.FC = () => {
 
 
         } catch (error) {
-            if (error.response.data.code === "DuplicateUserName") {
-                setErrorMessage(
-                    "Email Registrado previamente."
-                );
-            }
-            if (error.response.data.code === "ConfirmationUnsent") {
-                setErrorMessage(
-                    "No se pudo enviar el mail de confirmacion"
-                );
-            }
-            if (error.response.data.code === "agregarusuario") {
-                setErrorMessage(
-                    "Error al Agregar un usuario. por favor intente más tarde"
-                );
+            if (axios.isAxiosError(error) && error.response) {
+                const errorCode = error.response.data?.code;
+
+                if (errorCode === "DuplicateUserName") {
+                    setErrorMessage(
+                        "Email Registrado previamente."
+                    );
+                }
+                if (errorCode === "ConfirmationUnsent") {
+                    setErrorMessage(
+                        "No se pudo enviar el mail de confirmacion"
+                    );
+                }
+                if (errorCode === "agregarusuario") {
+                    setErrorMessage(
+                        "Error al Agregar un usuario. por favor intente más tarde"
+                    );
+                }
             }
             // Establece el mensaje de error
             setErrorModalOpen(true); // Abre el modal de error
@@ -260,6 +312,7 @@ const ManageAccounts: React.FC = () => {
 
     const fetchAccounts = async () => {
         try {
+            setLoading(true);
             const userData = localStorage.getItem("userData");
             if (!userData) {
                 navigate("/login");
@@ -279,8 +332,14 @@ const ManageAccounts: React.FC = () => {
             if (response.status === 200) {
                 setAccounts(response.data);
             }
-        } catch (error) {
-            console.error("Error al obtener las cuentas:", error);
+        } catch {
+            setErrorMessage(
+                "Error al traer los usuarios. por favor intente más tarde"
+            );
+            setErrorModalOpen(true);
+        }
+        finally {
+            setLoading(false); // Desactiva el estado de carga
         }
     };
     const fetchRooms = async () => {
@@ -297,8 +356,16 @@ const ManageAccounts: React.FC = () => {
             const request = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ROOMBYCLIENTE_ROOM}?Client=${clientId}`;
             const response = await axios.get(request);
             if (response.status === 200) {
-                const roomsData = Array.isArray(response.data) ? response.data : []; // Asegurarse de que es un array
-                setrooms(roomsData); // Actualizar conexiones
+                const roomsData = Array.isArray(response.data) ? response.data : [];
+                // Asegurarse de que los datos coincidan con el tipo Room
+                const validRooms = roomsData.map((room: Room) => ({
+                    id: room.id,
+                    name: room.name,
+                    long_sms: room.long_sms || false,
+                    calls: room.calls || false,
+                    credits: room.credits || 0,
+                }));
+                setRooms(validRooms) // Actualizar conexiones
             }
         } catch (error) {
             console.error("Error al obtener los rooms:", error);
@@ -308,7 +375,7 @@ const ManageAccounts: React.FC = () => {
         fetchAccounts();
     }, []);
 
-    const handleEditClick = async (account) => {
+    const handleEditClick = async (account: Account) => {
         // Asegúrate de que las salas estén cargadas
         if (rooms.length === 0) {
             await fetchRooms();
@@ -328,14 +395,20 @@ const ManageAccounts: React.FC = () => {
 
         // Establece los datos del formulario
         setFormData({
-            name: account.name,
-            email: account.email,
-            phone: account.phoneNumber || "",
+            name: account.name || "", // Nombre del usuario
+            email: account.email || "", // Correo principal
+            confirmEmail: account.email || "", // Confirmación del correo (igual al correo principal en edición)
+            phone: account.phoneNumber || "", // Teléfono del usuario, o vacío si no está disponible
             useRecoveryEmail: false, // No aplica en edición
-            allAndFuture: false, // Ajusta según sea necesario
-            profile: account.role, // Establece el rol
-            rooms: selectedRoomIds.join(","), // Configura las salas seleccionadas como una lista de IDs separados por comas
+            password: "", // Se deja vacío en edición para no sobrescribir la contraseña
+            confirmPassword: "", // Confirmación de contraseña, también vacío en edición
+            allAndFuture: false, // Ajusta según sea necesario para "todas y futuras salas"
+            profile: account.role || "", // Rol del usuario
+            rooms: selectedRoomIds.join(","), // Lista de IDs de salas seleccionadas como una cadena separada por comas
         });
+
+
+
 
         setIsEditing(true); // Activa el modo de edición
         setOpenAddUserModal(true); // Abre el modal
@@ -347,16 +420,30 @@ const ManageAccounts: React.FC = () => {
         const phoneRegex = /^[0-9]*$/; // Permite solo números
 
         return (
-            nameRegex.test(formData.name) && // Validación de nombre
-            emailRegex.test(formData.email) && // Validación de correo
-            phoneRegex.test(formData.phone) && // Validación de teléfono
-            formData.profile !== "" && // Verificar que el perfil esté seleccionado
+            nameRegex.test(formData.name.trim()) && // Validación de nombre
+            phoneRegex.test(formData.phone.trim()) && // Validación de teléfono
+            emailRegex.test(formData.email) && // Validación de formato de correo
+            formData.email === formData.confirmEmail && // Validación de correos coincidentes
+            isPasswordValid(formData.password) && // Validación de contraseña
+            formData.password === formData.confirmPassword && // Validación de contraseñas coincidentes
+            formData.profile.trim() !== "" && // Verificar que el perfil esté seleccionado
             selectedRooms.length > 0 // Verificar que al menos una sala esté seleccionada
         );
     };
 
+
     return (
         <Box p={3}>
+            <Backdrop
+                open={loading}
+                sx={{
+                    color: "#fff",
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                }}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
+
             <Typography variant="h4" fontWeight="bold" mb={2}>
                 Administrar cuentas
             </Typography>
@@ -426,7 +513,7 @@ const ManageAccounts: React.FC = () => {
                                     >
                                         <MenuItem
                                             onClick={() => {
-                                                handleEditClick(selectedAccount); // Pasamos el account seleccionado
+                                                handleEditClick(selectedAccount!); // Pasamos el account seleccionado
                                                 handleMenuClose(); // Cerramos el menú
                                             }}
                                         >
@@ -478,69 +565,137 @@ const ManageAccounts: React.FC = () => {
                             value={formData.name}
                             onChange={handleInputChange}
                             required
-                            error={!/^[a-zA-Z\s]*$/.test(formData.name)} // Validación visual
-                            helperText={
-                                !/^[a-zA-Z\s]*$/.test(formData.name) &&
-                                "El nombre solo debe contener letras y espacios."
-                            }
+                            error={!/^[a-zA-Z\s]*$/.test(formData.name)}
+                            helperText={!/^[a-zA-Z\s]*$/.test(formData.name) && "Solo letras y espacios."}
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <Tooltip title="Ingrese el nombre completo del usuario">
+                                        <Tooltip title="Nombre completo del usuario">
                                             <InfoIcon fontSize="small" color="action" />
                                         </Tooltip>
                                     </InputAdornment>
                                 ),
                             }}
                         />
-
-                        {/* Correo */}
-                        <TextField
-                            fullWidth
-                            label="Correo"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            required
-                            disabled={isEditing}
-                            error={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)} // Validación visual
-                            helperText={
-                                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
-                                "Ingrese un correo válido."
-                            } // Desactiva el campo si es edición
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <Tooltip title={isEditing ? "El correo no se puede editar en modo edición" : "Ingrese el correo electrónico del usuario"}>
-                                            <InfoIcon fontSize="small" color="action" />
-                                        </Tooltip>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-
-                        {/* Teléfono */}
                         <TextField
                             fullWidth
                             label="Teléfono"
                             name="phone"
                             value={formData.phone}
                             onChange={handleInputChange}
-                            error={!/^[0-9]*$/.test(formData.phone)} // Validación visual
-                            helperText={
-                                !/^[0-9]*$/.test(formData.phone) &&
-                                "El teléfono solo debe contener números."
-                            }
+                            error={!/^[0-9]{10}$/.test(formData.phone)}
+                            helperText={!/^[0-9]{10}$/.test(formData.phone) && "Debe tener 10 dígitos."}
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <Tooltip title="Ingrese el número telefónico del usuario">
+                                        <Tooltip title="Número telefónico">
                                             <InfoIcon fontSize="small" color="action" />
                                         </Tooltip>
                                     </InputAdornment>
                                 ),
                             }}
                         />
+                        {/* Teléfono */}
+                        {/* Correo y Confirmación de Correo */}
+                        {/* Correo Electrónico */}
+                        <TextField
+                            fullWidth
+                            label="Correo Electrónico"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            error={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)}
+                            helperText={
+                                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && "Ingrese un correo válido."
+                            }
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Ejemplo: usuario@dominio.com">
+                                            <InfoIcon fontSize="small" color="action" />
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ),
+                            }}
+                            required
+                        />
+
+                        {/* Confirmar Correo Electrónico */}
+                        <TextField
+                            fullWidth
+                            label="Confirmar Correo Electrónico"
+                            name="confirmEmail"
+                            value={formData.confirmEmail}
+                            onChange={handleInputChange}
+                            error={formData.email !== formData.confirmEmail}
+                            helperText={
+                                formData.email !== formData.confirmEmail && "Los correos electrónicos no coinciden."
+                            }
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Debe coincidir con el correo ingresado.">
+                                            <InfoIcon fontSize="small" color="action" />
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ),
+                            }}
+                            required
+                        />
+
+                        {/* Contraseña y Confirmar Contraseña */}
+                        {!isEditing && (
+                            <>
+                                {/* Contraseña */}
+                                <TextField
+                                    fullWidth
+                                    label="Contraseña"
+                                    name="password"
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    error={!isPasswordValid(formData.password)}
+                                    helperText={
+                                        !isPasswordValid(formData.password) && "La contraseña debe cumplir con los requisitos."
+                                    }
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip title="Debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número.">
+                                                    <InfoIcon fontSize="small" color="action" />
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    required
+                                />
+
+                                {/* Confirmar contraseña */}
+                                <TextField
+                                    fullWidth
+                                    label="Confirmar contraseña"
+                                    name="confirmPassword"
+                                    type="password"
+                                    value={formData.confirmPassword}
+                                    onChange={handleInputChange}
+                                    error={formData.password !== formData.confirmPassword}
+                                    helperText={
+                                        formData.password !== formData.confirmPassword && "Las contraseñas no coinciden."
+                                    }
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip title="Debe coincidir con la contraseña.">
+                                                    <InfoIcon fontSize="small" color="action" />
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    required
+                                />
+
+                            </>
+                        )}
                     </Box>
 
                     {/* Checkbox */}
@@ -548,7 +703,7 @@ const ManageAccounts: React.FC = () => {
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={formData.useEmailForRecovery}
+                                    checked={formData.useRecoveryEmail}
                                     onChange={handleInputChange}
                                     name="useEmailForRecovery"
                                 />
@@ -715,7 +870,11 @@ const ManageAccounts: React.FC = () => {
                             onClick={handleAddUser}
                             variant="contained"
                             sx={{ backgroundColor: "#A05B71" }}
-                            disabled={!isFormValid()} // Desactivar según validación
+                            disabled={
+                                !isFormValid() ||
+                                formData.email !== formData.confirmEmail ||
+                                (!isEditing && formData.password !== formData.confirmPassword)
+                            }
                         >
                             {isEditing ? "Actualizar" : "Guardar"}
                         </Button>

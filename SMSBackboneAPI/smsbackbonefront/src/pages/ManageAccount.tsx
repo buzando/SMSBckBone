@@ -6,8 +6,9 @@ import {
     Typography,
     Paper,
     Tooltip,
+    Modal,
 } from "@mui/material";
-
+import axios from "axios";
 const ManageAccount: React.FC = () => {
     const [formData, setFormData] = useState({
         firstName: "",
@@ -16,7 +17,11 @@ const ManageAccount: React.FC = () => {
         alternateEmail: "",
         password: "",
         confirmPassword: "",
+        email: "",
     });
+
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
 
     // Load user data from localStorage
     useEffect(() => {
@@ -26,8 +31,9 @@ const ManageAccount: React.FC = () => {
             setFormData({
                 firstName: parsedData.firstName || "",
                 lastName: parsedData.lastName || "",
-                phone: parsedData.phone || "",
-                alternateEmail: parsedData.alternateEmail || "",
+                phone: parsedData.phonenumber || "",
+                email: parsedData.email || "",
+                alternateEmail: parsedData.secondaryEmail || "",
                 password: "", // For security reasons, do not prefill passwords
                 confirmPassword: "", // For security reasons, do not prefill passwords
             });
@@ -36,17 +42,62 @@ const ManageAccount: React.FC = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+
+        // Restrict input for phone number to numbers only
+        if (name === "phone" && !/^[0-9]*$/.test(value)) return;
+
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = () => {
+
+    const validateEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const handleSubmit = async () => {
         if (formData.password !== formData.confirmPassword) {
-            alert("Passwords do not match!");
+            setModalMessage("Las contraseñas no coinciden");
+            setModalOpen(true);
             return;
         }
+        if (!validateEmail(formData.alternateEmail)) {
+            setModalMessage("El correo alternativo no es válido");
+            setModalOpen(true);
+            return;
+        }
+        try {
 
-        console.log("Updated user data:", formData);
-        // Here, you can send the updated data to your backend API
+            const data = {
+                FirstName: formData.firstName,
+                LastName: formData.lastName,
+                Email: formData.email,
+                ConfirmationEmail: formData.alternateEmail,
+                PhoneNumber: formData.phone,
+                Password: formData.password,
+            };
+
+            // Make POST request
+            const headers = {
+                'Content-Type': 'application/json',
+                "Access-Control-Allow-Headers": "X-Requested-With",
+                "Access-Control-Allow-Origin": "*",
+            };
+
+            const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_UPDATE_USER}`; // Cambiar por el endpoint real de actualización
+            const response = await axios.post(apiEndpoint, data, { headers });
+
+            if (response.status === 200) {
+
+                alert("Usuario actualizado con éxito");
+            }
+
+
+
+        } catch (error) {
+            setModalMessage("Error al actualizar usuario");
+            setModalOpen(true);
+        }
     };
 
     return (
@@ -117,13 +168,7 @@ const ManageAccount: React.FC = () => {
                     *El asterisco indica los campos obligatorios.
                 </Typography>
                 <Box display="flex" justifyContent="space-between" mt={3}>
-                    <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => console.log("Cancel clicked")}
-                    >
-                        Cancelar
-                    </Button>
+
                     <Button
                         variant="contained"
                         color="primary"
@@ -141,6 +186,37 @@ const ManageAccount: React.FC = () => {
                     </Button>
                 </Box>
             </Paper>
+
+            {/* Modal de error */}
+            <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 400,
+                        bgcolor: "background.paper",
+                        p: 4,
+                        borderRadius: 2,
+                        boxShadow: 24,
+                    }}
+                >
+                    <Typography variant="h6" mb={2}>
+                        Error al registrar usuario!
+                    </Typography>
+                    <Typography>{modalMessage}</Typography>
+                    <Box display="flex" justifyContent="flex-end" mt={3}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => setModalOpen(false)}
+                        >
+                            Cerrar
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
         </Box>
     );
 };

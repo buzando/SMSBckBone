@@ -27,6 +27,8 @@ namespace Contract.Response
         public bool TwoFactorAuthentication { get; set; }
         public bool SMS { get; set; }
         public bool Call { get; set; }
-        public string passwordHash { get; set; }
+        public string SecondaryEmail { get; set; }
+        public bool? futurerooms { get; set; }
+        public string Client { get; set; }
     }
 }

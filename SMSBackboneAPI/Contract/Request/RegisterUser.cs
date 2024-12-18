@@ -17,5 +17,6 @@ namespace Contract.Request
         public string emailConfirmation { get; set; }
         public bool sms { get; set; }
         public bool llamada { get; set; }
+        public string Password { get; set; }
     }
 }

@@ -50,6 +50,7 @@ namespace Business
 
         public UserDto FindEmail(string email)
         {
+            var client = string.Empty;
             try
             {
 
@@ -66,7 +67,7 @@ namespace Business
     ); var mapper = new Mapper(config);
 
                     userdto = mapper.Map<UserDto>(userdb);
-
+                    userdto.Client = context.clients.Where(x => x.id == userdb.IdCliente).Select(x => x.nombrecliente).FirstOrDefault();
                 }
 
                 //UserDto result = new UserDto
@@ -116,18 +117,20 @@ namespace Business
         x.u.email,
         x.u.status,
         x.u.idRole,
-        x.r.Role,         // Incluye el nombre del rol desde la tabla Roles
-        x.u.phonenumber   // Incluye PhoneNumber en la clave del grupo
+        x.r.Role,         
+        x.u.phonenumber,
+        x.c.nombrecliente
     })
     .Select(group => new UserAdministrationDTO
     {
-        id = group.Key.Id,                        // ID del usuario
-        name = group.Key.firstName,                // Nombre del usuario
-        email = group.Key.email,                  // Correo electrónico
-        idRole = group.Key.idRole,                // ID del rol
-        Role = group.Key.Role,                    // Nombre del rol
-        Rooms = string.Join(", ", group.Select(g => g.rb.Rooms.name)), // Concatena los nombres de las salas
-        PhoneNumber = group.Key.phonenumber       // Rellena PhoneNumber desde Users
+        id = group.Key.Id,                        
+        name = group.Key.firstName,                
+        email = group.Key.email,                 
+        idRole = group.Key.idRole,                
+        Role = group.Key.Role,                   
+        Rooms = string.Join(", ", group.Select(g => g.rb.Rooms.name)), 
+        PhoneNumber = group.Key.phonenumber,    
+        Client =  group.Key.nombrecliente
     })
     .ToList();
                 }
@@ -387,13 +390,15 @@ namespace Business
                     lastName = register.lastName,
                     lastPasswordChangeDate = DateTime.Now,
                     lockoutEnabled = false,
-                    passwordHash = "123456",
+                    passwordHash = register.Password,
                     phonenumber = register.phone,
                     SMS = register.sms,
                     userName = register.email,
                     lockoutEndDateUtc = null,
                     TwoFactorAuthentication = false,
-                    status = true
+                    status = true,
+                    SecondaryEmail = register.emailConfirmation,
+                    futurerooms = false
                 };
                 var cliente = new ClientManager().ObtenerClienteporNombre(register.client);
                 if (cliente != null)
@@ -440,7 +445,7 @@ namespace Business
                     lastName = "",
                     lastPasswordChangeDate = DateTime.Now,
                     lockoutEnabled = false,
-                    passwordHash = "123456",
+                    passwordHash = register.Password,
                     phonenumber = register.PhoneNumber,
                     SMS = false,
                     userName = register.Email,
@@ -479,9 +484,55 @@ namespace Business
                     var usuarer = ctx.Users.Where(u => u.Id == register.IdUsuario).FirstOrDefault();
                     usuarer.firstName = register.FirstName;
                     usuarer.phonenumber = register.PhoneNumber;
-
                     usuarer.idRole = ctx.Roles.Where(x => x.Role == register.Profile.ToLower()).Select(x => x.id).FirstOrDefault();
 
+
+                    ctx.SaveChanges();
+                }
+
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+        public bool UpdateUserRegistration(UserFinishRegistrationDTO register)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var usuarer = ctx.Users.Where(u => u.email == register.Email).FirstOrDefault();
+                    usuarer.firstName = register.FirstName;
+                    usuarer.phonenumber = register.Phonenumber;
+                    usuarer.lastName = register.LastName;
+                    usuarer.emailConfirmed = true;
+
+                    ctx.SaveChanges();
+                }
+
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+        public bool UpdateLogUser(UpdateUser update)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var usuarer = ctx.Users.Where(u => u.email == update.Email).FirstOrDefault();
+                    usuarer.firstName = update.FirstName;
+                    usuarer.phonenumber = update.PhoneNumber;
+                    usuarer.passwordHash = update.Password;
+                    usuarer.lastName = update.LastName;
+                    usuarer.lastPasswordChangeDate = DateTime.Now;
 
                     ctx.SaveChanges();
                 }
