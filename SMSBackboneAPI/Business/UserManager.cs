@@ -104,21 +104,33 @@ namespace Business
           combined => combined.u.IdCliente, // Clave foránea en users
           c => c.id,                        // Clave primaria en clients
           (combined, c) => new { combined.rb, combined.u, c }) // Combina users con clients
+    .Join(ctx.Roles,
+          combined => combined.u.idRole,   // Clave foránea en users
+          r => r.id,                       // Clave primaria en Roles
+          (combined, r) => new { combined.rb, combined.u, combined.c, r }) // Combina con Roles
     .Where(x => x.c.id == Client) // Filtra por id del cliente aquí
-    .GroupBy(x => new { x.u.Id, x.u.userName, x.u.email, x.u.status }) // Agrupa por usuario
+    .GroupBy(x => new
+    {
+        x.u.Id,
+        x.u.userName,
+        x.u.email,
+        x.u.status,
+        x.u.idRole,
+        x.r.Role // Incluye el nombre del rol desde la tabla Roles
+    })
     .Select(group => new UserAdministrationDTO
     {
         id = group.Key.Id,                        // ID del usuario
         name = group.Key.userName,                // Nombre del usuario
         email = group.Key.email,                  // Correo electrónico
-        Conecctions = string.Join(", ", group.Select(g => g.rb.Rooms.name)), // Concatena los nombres de las salas
-        Restricctions = "",                       // Asigna restricciones según lógica
-        status = group.Key.status                 // Estado del usuario
+        idRole = group.Key.idRole,                // ID del rol
+        Role = group.Key.Role,                    // Nombre del rol
+        Rooms = string.Join(", ", group.Select(g => g.rb.Rooms.name)), // Concatena los nombres de las salas
     })
     .ToList();
                 }
 
-
+                userDtoList = userDtoList.Where(x => x.Role != "Root" && x.Role != "Telco").ToList();
 
                 return userDtoList;
             }
@@ -417,32 +429,37 @@ namespace Business
                 var user = new Users
                 {
                     accessFailedCount = 0,
-                    Call =false,
+                    Call = false,
                     clauseAccepted = false,
                     createDate = DateTime.Now,
                     email = register.Email,
                     emailConfirmed = false,
                     firstName = register.FirstName,
-                    idRole = 2,
-                    lastName = register.LastName,
+                    lastName = "",
                     lastPasswordChangeDate = DateTime.Now,
                     lockoutEnabled = false,
-                    passwordHash = register.Password,
+                    passwordHash = "123456",
                     phonenumber = register.PhoneNumber,
                     SMS = false,
                     userName = register.Email,
                     lockoutEndDateUtc = null,
                     TwoFactorAuthentication = false,
                     status = true,
-                    IdCliente = register.IdCliente
+                    IdCliente = register.IdCliente,
+                    futurerooms = register.FutureRooms,
+                    SecondaryEmail = register.ConfirmationEmail
                 };
-                    using (var ctx = new Entities())
-                    {
-                        ctx.Users.Add(user);
-                        ctx.SaveChanges();
-                    }
 
-                    return user.Id;
+
+
+                using (var ctx = new Entities())
+                {
+                    user.idRole = ctx.Roles.Where(x => x.Role == register.Profile.ToLower()).Select(x => x.id).FirstOrDefault();
+                            ctx.Users.Add(user);
+                    ctx.SaveChanges();
+                }
+
+                return user.Id;
 
             }
             catch (Exception e)
@@ -458,7 +475,7 @@ namespace Business
                 using (var ctx = new Entities())
                 {
                     var usuarer = ctx.Users.Where(u => u.email == register.Email).FirstOrDefault();
-                    usuarer.passwordHash = register.Password;
+                    //usuarer.passwordHash = register.Password;
                     ctx.SaveChanges();
                 }
 

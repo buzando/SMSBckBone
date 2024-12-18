@@ -35,6 +35,9 @@ namespace Modal.Model.Model
         [ForeignKey("IdCliente")]
         public virtual clients Client { get; set; }
 
+        public string SecondaryEmail { get; set; }
+        public bool? futurerooms { get; set; }
+
         //[ForeignKey("IdRole")]
         //public virtual Roles Role { get; set; }
 

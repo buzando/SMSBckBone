@@ -11,8 +11,8 @@ namespace Contract.Response
         public int id { get; set; }
         public string name { get; set; }
         public string email { get; set; }
-        public string Conecctions { get; set; }
-        public string Restricctions { get; set; }
-        public bool status { get; set; }
+        public string Rooms { get; set; }
+        public int idRole { get; set; }
+        public string Role { get; set; }
     }
 }

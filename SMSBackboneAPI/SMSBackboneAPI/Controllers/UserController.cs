@@ -507,7 +507,7 @@ namespace SMSBackboneAPI.Controllers
             if (usuario != 0)
             {
 
-                var room = new roomsManager().ManageroomBystring(user.Conecctions, usuario);
+                var room = new roomsManager().ManageroomBystring(user.Rooms, usuario);
 
                 if (room)
                 {
@@ -549,7 +549,7 @@ namespace SMSBackboneAPI.Controllers
             if (usuario)
             {
 
-                var room = new roomsManager().ManageroomBystring(user.Conecctions, user.IdUsuario);
+                var room = new roomsManager().ManageroomBystring(user.Rooms, user.IdUsuario);
 
                 if (room)
                 {

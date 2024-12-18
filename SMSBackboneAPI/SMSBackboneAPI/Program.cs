@@ -21,13 +21,9 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    // Habilitar Swagger
-    app.UseSwagger();
-    app.UseSwaggerUI(); // Esto habilita la interfaz en el navegador
-}
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors(x => x
                     .AllowAnyMethod()
@@ -43,6 +39,15 @@ app.UseAuthorization();
 app.MapControllers();
 
 var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+
+var logConfigFile = new FileInfo("log4net.config");
+if (logConfigFile.Exists)
+{
+    XmlConfigurator.Configure(logRepository, logConfigFile);
+}
+else
+{
+    Console.WriteLine("El archivo log4net.config no se encontró.");
+}
 
 app.Run();

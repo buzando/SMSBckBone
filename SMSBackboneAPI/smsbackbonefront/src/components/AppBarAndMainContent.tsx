@@ -46,6 +46,9 @@ import StoreIcon from '@mui/icons-material/Store';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 import HomeIcon from '@mui/icons-material/Home';
 import EditIcon from "@mui/icons-material/Edit";
+import Fab from "@mui/material/Fab";
+import HelpIcon from "@mui/icons-material/Help";
+import Modal from "@mui/material/Modal";
 
 const drawerWidth = 280;
 
@@ -194,6 +197,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const { contextState, setContextState } = useContext(AppContext)
     const { user } = contextState
     const [openSubMenu, setOpenSubMenu] = useState(false); // Submenú de administración
+
+    const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
+    const openHelpModal = () => setHelpModalIsOpen(true);
+    const closeHelpModal = () => setHelpModalIsOpen(false);
+
+
     const handleDrawerOpen = () => {
         setOpenDrawer(true);
     };
@@ -492,8 +501,84 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         {' Nuxiba. Todos los derechos reservados. Se prohíbe el uso no autorizado.'}
                     </Typography>
                     <img src={nuxiba_svg} alt="Nuxiba Logo" width="80" />
+                    {/* Botón circular con el icono de ayuda */}
+                    <Fab
+                        color="primary"
+                        aria-label="help"
+                        onClick={openHelpModal} // Llamada correcta sin parámetros
+                        sx={{
+                            position: "fixed",
+                            bottom: 70,
+                            right: 30,
+                            zIndex: 1500,
+                        }}
+                    >
+                        <HelpIcon />
+                    </Fab>
                 </Box>
             </footer>
+            {/* Modal de ayuda */}
+            <Modal
+                open={helpModalIsOpen} // Controla si el modal está abierto
+                onClose={closeHelpModal} // Cierra el modal cuando se hace clic afuera o presiona Escape
+                aria-labelledby="modal-title"
+                aria-describedby="modal-description"
+            >
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "90%",
+                        maxWidth: "500px",
+                        bgcolor: "background.paper",
+                        borderRadius: "10px",
+                        boxShadow: 24,
+                        p: 4,
+                    }}
+                >
+                    <Typography id="modal-title" variant="h6" align="center" gutterBottom>
+                        Ayuda
+                    </Typography>
+                    <Typography id="modal-description" variant="body1" gutterBottom>
+                        Por favor, contáctenos:
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Horarios de atención</strong>
+                    </Typography>
+                    <Typography variant="body2">
+                        Lunes a viernes<br />
+                        Teléfono: 55 1107 8510 Opción 3<br />
+                        <br />
+                        Sábado<br />
+                        9:00-18:00 CST<br />
+                        Teléfono: 55 1107 8510 Opción 3<br />
+                        <br />
+                        Domingo<br />
+                        9:00-15:00 CST<br />
+                        Teléfono: 55 1107 8510 Opción 3<br />
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Línea de emergencia</strong>
+                    </Typography>
+                    <Typography variant="body2">
+                        Lunes a viernes 21:00 - 07:00<br />
+                        Teléfono: 55 5437 6175<br />
+                        <br />
+                        Sábado y domingo<br />
+                        Teléfono: 55 5437 6175<br />
+                    </Typography>
+                    <Typography variant="body2" style={{ marginTop: "10px" }}>
+                        Soporte: cwsoporte@nuxiba.com
+                    </Typography>
+                    <Box sx={{ marginTop: "20px", textAlign: "right" }}>
+                        <Button onClick={closeHelpModal} variant="contained" color="primary">
+                            Cerrar
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
 
         </>
     )

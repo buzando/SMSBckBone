@@ -115,21 +115,14 @@ const Login: React.FC = () => {
             if (response.status === 200) {
                 const { user, token, expiration } = await response.data;
                 setLoading(false);
-                if (
-                    user.idRole === Role.ROOT ||
-                    user.idRole === Role.ADMIN ||
-                    user.idRole === Role.SUPPORT
-                ) {
-                    // root or admin
-                    setContextState({ user, token, expiration });
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('expirationDate', expiration);
-                    localStorage.setItem('userData', JSON.stringify(user));
-                    navigate('/Autentification');
-                } else {
-                    setMessageAlert('Privilegios insuficientes para acceder');
-                    setOpenAlert(true);
-                }
+
+                // root or admin
+                setContextState({ user, token, expiration });
+                localStorage.setItem('token', token);
+                localStorage.setItem('expirationDate', expiration);
+                localStorage.setItem('userData', JSON.stringify(user));
+                navigate('/Autentification');
+
             }
         } catch (error) {
             setLoading(false);
@@ -353,7 +346,7 @@ const Login: React.FC = () => {
                                 </Box>
                                 <Box display="flex" justifyContent="center" py={2}>
                                     <ButtonLoadingSubmit
-                                        label="Iniciar sesión pvtos"
+                                        label="Iniciar sesión"
                                         loading={loading}
 
                                     />

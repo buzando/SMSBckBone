@@ -61,7 +61,7 @@ const Autentification: React.FC = () => {
             const obj = JSON.parse(usuario);
 
             if (obj.twoFactorAuthentication) {
-               navigate('/chooseroom');
+            /*   navigate('/chooseroom');*/
             }
 
             if (obj.lockoutEnabled) {
@@ -513,79 +513,7 @@ const Autentification: React.FC = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-            {/* Botón flotante */}
-            <Button
-                className="floating-button"
-                onClick={openHelpModal}
-            >
-                <span style={{ fontSize: '24px', fontWeight: 'bold' }}>?</span>
-            </Button>
 
-
-            {/* Modal de Ayuda */}
-            <Modal
-                isOpen={helpModalIsOpen}
-                onRequestClose={closeHelpModal}
-                style={{
-                    content: {
-                        top: '50%',
-                        left: '50%',
-                        right: 'auto',
-                        bottom: 'auto',
-                        marginRight: '-50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '90%',
-                        maxWidth: '500px',
-                        borderRadius: '10px',
-                        padding: '20px',
-                    },
-                    overlay: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    },
-                }}
-            >
-                <Box>
-                    <Typography variant="h6" align="center" gutterBottom>
-                        Ayuda
-                    </Typography>
-                    <Typography variant="body1" gutterBottom>
-                        Por favor, contáctenos:
-                    </Typography>
-                    <Typography variant="subtitle1" gutterBottom>
-                        <strong>Horarios de atención</strong>
-                    </Typography>
-                    <Typography variant="body2">
-                        Lunes a viernes<br />
-                        Teléfono: 55 1107 8510 Opción 3<br />
-                        <br />
-                        Sábado<br />
-                        9:00-18:00 CST<br />
-                        Teléfono: 55 1107 8510 Opción 3<br />
-                        <br />
-                        Domingo<br />
-                        9:00-15:00 CST<br />
-                        Teléfono: 55 1107 8510 Opción 3<br />
-                    </Typography>
-                    <Typography variant="subtitle1" gutterBottom>
-                        <strong>Línea de emergencia</strong>
-                    </Typography>
-                    <Typography variant="body2">
-                        Lunes a viernes 21:00 - 07:00<br />
-                        Teléfono: 55 5437 6175<br />
-                        <br />
-                        Sábado y domingo<br />
-                        Teléfono: 55 5437 6175<br />
-                    </Typography>
-                    <Typography variant="body2" style={{ marginTop: '10px' }}>
-                        Soporte: cwsoporte@nuxiba.com
-                    </Typography>
-                    <Box style={{ marginTop: '20px', textAlign: 'right' }}>
-                        <Button onClick={closeHelpModal} variant="contained" color="primary">
-                            Cerrar
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
 
 
         </Box>
