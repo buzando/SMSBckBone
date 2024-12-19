@@ -1,24 +1,27 @@
 import { Navigate, Outlet } from "react-router-dom";
 import Layout from './Layout';
 
-type props = {
-    isAllowed: boolean;
-    redirectTo: string;
-    children: React.ReactNode;
-}
+type Props = {
+    isAllowed?: boolean; // Hacer opcional si es necesario
+    redirectTo?: string; // Hacer opcional si es necesario
+    children?: React.ReactNode; // children es opcional
+};
 
-const PrivateRoute: React.FC<props> = () => {
-
+const PrivateRoute: React.FC<Props> = ({
+    redirectTo = "/login",
+    children,
+}) => {
     const isLogin = (): boolean => !!localStorage.getItem('token');
 
     if (!isLogin()) {
-        return <Navigate to={"/login"} />;
+        return <Navigate to={redirectTo} />;
     }
+
     return (
         <Layout>
-            <Outlet />
+            {children ? children : <Outlet />} {/* Renderiza children o usa <Outlet /> */}
         </Layout>
-    )
+    );
 };
 
-export default PrivateRoute
+export default PrivateRoute;

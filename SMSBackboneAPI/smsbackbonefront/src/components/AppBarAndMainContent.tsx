@@ -25,7 +25,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import CssBaseline from '@mui/material/CssBaseline';
-import ListSubheader from '@mui/material/ListSubheader';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
@@ -67,11 +66,7 @@ type SubMenu = {
     icon: React.ReactNode,
 }
 
-type userMenu = {
-    idMenu: number;
-    title: string;
-    enable: boolean;
-}
+
 
 const pages: Page[] = [
     { id: 0, title: 'Inicio', path: '/', icon: <HomeIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
@@ -95,11 +90,7 @@ const pages: Page[] = [
     { id: 5, title: 'Prueba de API', path: '/apitest', icon: <CloudSyncIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 6, title: 'Ayuda', path: '/help', icon: <HelpOutlineIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
 ];
-const userSettings: userMenu[] = [
-    { idMenu: 1, title: 'Perfil', enable: false },
-    { idMenu: 2, title: 'Cuenta', enable: false },
-    { idMenu: 3, title: 'Cerrar sesión', enable: true }
-];
+
 
 type Props = {
     children: React.ReactNode;
@@ -248,13 +239,6 @@ const NavBarAndDrawer: React.FC<Props> = props => {
         }
     };
 
-    const getToggleFunction = (pageId: number) => {
-        if (pageId === 2) {
-            return () => setOpenSubMenuBilling(!openSubMenuBilling);
-        } else if (pageId === 4) {
-            return () => setOpenSubMenuNumbers(!openSubMenuNumbers);
-        }
-    }
 
     const handleSubMenuToggle = () => {
         setOpenSubMenu(!openSubMenu);

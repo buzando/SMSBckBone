@@ -13,6 +13,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import axios from "axios";
 import "../chooseroom.css"
 
 
@@ -21,8 +22,6 @@ const Autentification: React.FC = () => {
     const [SendType, setSendType] = useState('');
     const [loading, setLoading] = useState(false);
     const [token, settoken] = useState('');
-    const [tokenuser, settokenuser] = useState('');
-    const [messageAlert, setmessageAlert] = useState('');
     const [isCodeValid, setIsCodeValid] = useState(true);
     const [countdownTime, setCountdownTime] = useState(60000);
     const [step, setStep] = useState(1);
@@ -33,7 +32,6 @@ const Autentification: React.FC = () => {
     const maxResendAttempts = 5; // Límite de reenvíos
     const [lockoutEndTime, setLockoutEndTime] = useState<Date | null>(null);
     const [codeExpired, setCodeExpired] = useState(false);
-    const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
     useEffect(() => {
         const checkLockout = async () => {
             const usuario = localStorage.getItem("userData");
@@ -94,12 +92,9 @@ const Autentification: React.FC = () => {
     }, []);
 
 
-    function onChangeValue(event) {
-        
+    function onChangeValue(event: React.ChangeEvent<HTMLInputElement>) {
         setSendType(event.target.value);
-        return true;
     }
-
 
     const handleCodeChange = (index: number, value: string) => {
         if (value.length <= 1 && /^\d*$/.test(value)) {
@@ -115,13 +110,14 @@ const Autentification: React.FC = () => {
         }
     };
 
-    const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (index: number, event: React.KeyboardEvent) => {
+        //const target = event.target as HTMLInputElement;
+
         if (event.key === "Backspace" && !authCode[index] && index > 0) {
             // Retroceder al cuadro anterior si está vacío
             inputRefs.current[index - 1]?.focus();
         }
     };
-
     const Return = async (event: React.FormEvent) => {
         event.preventDefault();
         setStep(1);
@@ -201,7 +197,7 @@ const Autentification: React.FC = () => {
 
             const usuario = localStorage.getItem("userData");
 
-            const obj = JSON.parse(usuario);
+            const obj = JSON.parse(usuario!);
             let dato = "";
             if (SendType == "SMS") {
                 dato = obj.phonenumber;
@@ -234,15 +230,7 @@ const Autentification: React.FC = () => {
         }
     }
 
-    // Abrir el modal ayuda
-    const openHelpModal = () => {
-        setHelpModalIsOpen(true);
-    };
 
-    // Cerrar el modal ayuda
-    const closeHelpModal = () => {
-        setHelpModalIsOpen(false);
-    };
 
     return (
         <Box
@@ -279,7 +267,7 @@ const Autentification: React.FC = () => {
                         value={SendType}
                         onChange={onChangeValue}
                         sx={{
-                            display: "flex",
+                            display: "flex",  
                             justifyContent: "space-between",
                             marginTop: "20px",
                             padding: "0 20px",
@@ -453,7 +441,7 @@ const Autentification: React.FC = () => {
                                 }}
                             >
                                 <Countdown
-                                    date={lockoutEndTime}
+                                    date={lockoutEndTime ? lockoutEndTime : undefined}
                                     renderer={({ hours, minutes, seconds, completed }) =>
                                         completed ? (
                                             <span>¡El bloqueo ha terminado! Intente nuevamente.</span>

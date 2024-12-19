@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link as LinkDom, Await } from 'react-router-dom';
+import { useNavigate, Link as LinkDom } from 'react-router-dom';
 import {
-    Container, Divider, Typography, Box, TextField, Button, Link, Paper, Stepper,
+    Container, Typography, Box, TextField, Button, Link, Paper, Stepper,
     Step,
     StepLabel,
     Checkbox,
     FormControlLabel, } from '@mui/material';
 import PublicLayout from '../components/PublicLayout';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import Countdown from 'react-countdown';
+import CircularProgress from '@mui/material/CircularProgress';
 import "../chooseroom.css"
 
 const TermsAndConditions: React.FC = () => {
@@ -18,7 +19,6 @@ const TermsAndConditions: React.FC = () => {
     const [activeStep, setActiveStep] = useState(0); // Estado del paso actual
     const [SendType, setSendType] = useState('');
     const [token, settoken] = useState('');
-    const [StarCountdown, setStarCountdown] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,8 +33,6 @@ const TermsAndConditions: React.FC = () => {
     const [countdownTime, setCountdownTime] = useState(60000);
     const [codeExpired, setCodeExpired] = useState(false);
     const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
-    const [errorModalOpen, setErrorModalOpen] = useState(false);
-    const handleNext = () => setActiveStep((prev) => prev + 1);
     const [phoneDigits, setPhoneDigits] = useState<string[]>(Array(4).fill(""));
     const [isPhoneDigitsValid, setIsPhoneDigitsValid] = useState(false);
 
@@ -93,8 +91,7 @@ const TermsAndConditions: React.FC = () => {
         checkLockout(); // Llamar la función async
     }, []);
 
-    // Retroceder al paso anterior
-    const handleBack =  () => setActiveStep((prev) => prev - 1);
+
 
     const handleSendNewPassword = async () => {
         if (password !== confirmPassword) {
@@ -130,11 +127,11 @@ const TermsAndConditions: React.FC = () => {
 
     };
 
-    function onChangeValue(event) {
-
+    function onChangeValue(event: React.ChangeEvent<HTMLInputElement>) {
         setSendType(event.target.value);
         return true;
     }
+
 
     const SendToken = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -190,7 +187,7 @@ const TermsAndConditions: React.FC = () => {
 
             const usuario = localStorage.getItem("userData");
 
-            const obj = JSON.parse(usuario);
+            const obj = JSON.parse(usuario!);
             let dato = "";
             if (SendType == "SMS") {
                 dato = obj.phonenumber;
@@ -217,11 +214,7 @@ const TermsAndConditions: React.FC = () => {
                 setLoading(false);
             }
             catch (error) {
-                if (axios.isAxiosError(error) && error.response?.status === 400) {
-                    setErrorModalOpen(true); // Mostrar el modal en caso de error BadRequest
-                } else {
-                    console.error("Error inesperado:", error);
-                }
+                console.log(error);
             }
 
         }
@@ -256,42 +249,6 @@ const TermsAndConditions: React.FC = () => {
 
     }
 
-    const SendNewPassword = async (event: React.FormEvent) => {
-        event.preventDefault();
-        setLoading(true);
-
-
-        try {
-
-
-            const data = {
-                email,
-                password,
-            };
-
-            const headers = {
-                'Content-Type': 'application/json',
-                "Access-Control-Allow-Headers": "X-Requested-With",
-                "Access-Control-Allow-Origin": "*"
-            };
-
-
-            const response = await axios.post(
-                `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_NEWPASSWORD_USER}`,
-                data,
-                { headers },
-            );
-
-            if (response.status === 200) {
-                navigate("/chooseroom");
-            }
-         
-        }
-        catch {
-            console.log(`MODE: ${import.meta.env.MODE}`)
-        }
-
-    }
 
 
     const handleCodeChange = (index: number, value: string) => {
@@ -309,8 +266,7 @@ const TermsAndConditions: React.FC = () => {
     };
 
     const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Backspace" && !authCode[index] && index > 0) {
-            // Retroceder al cuadro anterior si está vacío
+        if (event.key === "Backspace" && index > 0 && !authCode[index]) {
             inputRefs.current[index - 1]?.focus();
         }
     };
@@ -362,15 +318,6 @@ const TermsAndConditions: React.FC = () => {
         }
     };
 
-    // Función para manejar navegación entre inputs con Backspace
-    const handlePhoneDigitsKeyDown = (
-        index: number,
-        event: React.KeyboardEvent<HTMLInputElement>
-    ) => {
-        if (event.key === "Backspace" && !phoneDigits[index] && index > 0) {
-            inputRefs.current[index - 1]?.focus();
-        }
-    };
 
     const handleValidatePhoneDigits = () => {
         const userData = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -434,10 +381,10 @@ const TermsAndConditions: React.FC = () => {
                                     <Button
                                         variant="contained"
                                         sx={{ marginLeft: 2 }}
-                                        loading={loading}
-                                        onClick={handleSubmit} // Avanzar al siguiente paso
+                                        onClick={handleSubmit}
+                                        disabled={loading} // Deshabilita el botón mientras está en estado de carga
                                     >
-                                        Recuperar
+                                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Recuperar'}
                                     </Button>
                                 </Box>
                             </Box>
@@ -574,7 +521,7 @@ const TermsAndConditions: React.FC = () => {
                                             key={index}
                                             value={digit}
                                             onChange={(e) => handleCodeChange(index, e.target.value)}
-                                            onKeyDown={(e) => handleKeyDown(index, e)}
+                                            onKeyDown={(e) => handleKeyDown(index, e as React.KeyboardEvent<HTMLInputElement>)}
                                             inputRef={(el) => (inputRefs.current[index] = el)}
                                             inputProps={{
                                                 maxLength: 1,
@@ -696,7 +643,7 @@ const TermsAndConditions: React.FC = () => {
                                 }}
                             >
                                 <Countdown
-                                    date={lockoutEndTime}
+                                    date={lockoutEndTime || new Date()} 
                                     renderer={({ hours, minutes, seconds, completed }) =>
                                         completed ? (
                                             <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
@@ -746,7 +693,7 @@ const TermsAndConditions: React.FC = () => {
                                         }}
                                         inputRef={(el) => (inputRefs.current[index] = el)} // Asignar referencia
                                         onChange={(e) => handlePhoneDigitsChange(index, e.target.value)} // Manejar cambios
-                                        onKeyDown={(e) => handlePhoneDigitsKeyDown(index, e)} // Manejar navegación
+                                        onKeyDown={(e) => handleKeyDown(index, e as React.KeyboardEvent<HTMLInputElement>)}
                                         error={!isPhoneDigitsValid && digit === ""} // Mostrar error si es inválido
                                         sx={{ width: "50px", height: "50px" }}
                                     />

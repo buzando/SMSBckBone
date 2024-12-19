@@ -94,7 +94,7 @@ const ManageAccount: React.FC = () => {
 
 
 
-        } catch (error) {
+        } catch  {
             setModalMessage("Error al actualizar usuario");
             setModalOpen(true);
         }

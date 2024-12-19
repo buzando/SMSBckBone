@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import { AppContext } from '../hooks/useContextInitialState';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -18,26 +18,36 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Tooltip from '@mui/material/Tooltip';
 
-
-type errorObj = {
-    code: string;
-    description: string;
+type RegisterFormData = {
+    client: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    extension: string;
+    email: string;
+    emailConfirmation: string;
+    sms: boolean;
+    llamada: boolean;
+    password: string;
+    [key: string]: string | boolean; // Firma de índice
 };
 
 const Register: React.FC = () => {
     const { setContextState } = useContext(AppContext);
-    const [formData, setFormData] = useState({
-        client: '',
-        firstName: '',
-        lastName: '',
-        phone: '',
-        extension: '',
-        email: '',
-        emailConfirmation: '',
+    const [formData, setFormData] = useState<RegisterFormData>({
+        client: "",
+        firstName: "",
+        lastName: "",
+        phone: "",
+        extension: "",
+        email: "",
+        emailConfirmation: "",
         sms: false,
         llamada: false,
-        password: '',
+        password: "",
     });
+
+
 
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -67,16 +77,6 @@ const Register: React.FC = () => {
         }
     }, []);
 
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-
-        const isLogin = !!token;
-
-        if (isLogin) {
-            navigate('/');
-        }
-    }, []);
 
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -121,83 +121,7 @@ const Register: React.FC = () => {
                 console.log(response.data);
             }
         } catch (error) {
-            setLoading(false);
-            if (axios.isAxiosError(error)) {
-                const axiosError: AxiosError = error;
-                if (axiosError.response) {
-                    console.log('Error de respuesta:', axiosError.response);
-                    console.log('Código de estado:', axiosError.response.status);
-                    const codes = axiosError.response.data as Array<errorObj>;
-
-                    codes.forEach((codeObj) => {
-                        switch (codeObj.code) {
-                            case 'PasswordTooShort':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    'La contraseña debe tener al menos 6 caracteres.',
-                                ]);
-                                break;
-                            case 'PasswordRequiresNonAlphanumeric':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    'La contraseña debe tener al menos un carácter no alfanumérico.',
-                                ]);
-                                break;
-                            case 'PasswordRequiresDigit':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    "La contraseña debe tener al menos un dígito ('0'-'9').",
-                                ]);
-                                break;
-                            case 'PasswordRequiresUpper':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    "La contraseña debe tener al menos una letra mayúscula ('A'-'Z').",
-                                ]);
-                                break;
-                            case 'PasswordRequiresLower':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    "La contraseña debe tener al menos una letra minúscula ('a'-'z').",
-                                ]);
-                                break;
-                            case 'DuplicateUserName':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    'El correo electrónico ya está en uso.',
-                                ]);
-                                break;
-                            case 'InvalidEmail':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    'El formato o sintaxis del correo electrónico no es correcto.',
-                                ]);
-                                break;
-                            case 'UnverifiedEmail':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    'El dominio no existe o no tiene registro MX.',
-                                ]);
-                                break;
-                            case 'ConfirmationUnsent':
-                                setMessageAlerts((prevState) => [
-                                    ...prevState,
-                                    'No se pudo enviar el correo electrónico de confirmación.',
-                                ]);
-                                break;
-                        }
-                    });
-                    setOpenAlert(true);
-                } else {
-                    console.log('Error de solicitud:', axiosError.message);
-                    setMessageAlerts(['Error de solicitud: ' + axiosError.message]);
-                    setOpenAlert(true);
-                }
-            } else {
-                console.log('Error de conexión en el servidor -> ', error);
-                setMessageAlerts(['Ocurrio un error de conexión con el servidor']);
-                setOpenAlert(true);
-            }
+            console.log(error);
         }
     };
 
@@ -230,9 +154,22 @@ const Register: React.FC = () => {
 
 
     const isFormValid = () => {
-        const requiredFields = ['client', 'firstName', 'lastName', 'phone', 'email', 'emailConfirmation'];
-        const allFieldsFilled = requiredFields.every((field) => formData[field].trim() !== '');
+        const requiredFields: (keyof RegisterFormData)[] = [
+            'client',
+            'firstName',
+            'lastName',
+            'phone',
+            'email',
+            'emailConfirmation',
+        ];
+
+        const allFieldsFilled = requiredFields.every((field) => {
+            const value = formData[field];
+            return typeof value === 'string' && value.trim() !== '';
+        });
+
         const noErrors = !Object.values(errors).some((error) => error);
+
         return allFieldsFilled && noErrors;
     };
 
@@ -252,8 +189,14 @@ const Register: React.FC = () => {
         }
 
         setErrors(newErrors);
-        setFormData((prevState) => ({ ...prevState, [name]: value }));
+
+        // Actualización del estado
+        setFormData((prevState: RegisterFormData) => ({
+            ...prevState,
+            [name]: value,
+        }));
     };
+
 
     const handleOpenModal = () => {
         setModalOpen(true); // Abre el modal
@@ -553,7 +496,7 @@ const Register: React.FC = () => {
                                     variant="outlined"
                                     fullWidth
                                     required
-                                    error={confirmPassword && confirmPassword !== password}
+                                    error={!!(confirmPassword && confirmPassword !== password)}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">

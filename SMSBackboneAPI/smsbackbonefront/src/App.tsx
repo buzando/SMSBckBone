@@ -66,7 +66,7 @@ function App() {
                     <BrowserRouter>
                         <Routes>
                             <Route path="/login" element={<LoginPage />} />
-                            <Route element={<AutentificationRoute isAllowed={true} redirectTo="/login" />} >
+                            <Route element={<AutentificationRoute />}>
                                 <Route path="/Autentification" element={<AutentificationPage />} />
                             </Route>
                             <Route element={<AutentificationRoute />} >

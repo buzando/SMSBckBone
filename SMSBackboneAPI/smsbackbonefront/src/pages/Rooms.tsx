@@ -17,11 +17,9 @@ import {
     MenuItem
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import HomeIcon from "@mui/icons-material/Home";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 
 interface Room {
@@ -46,8 +44,7 @@ const Rooms: React.FC = () => {
         name: false,
         description: false,
     });
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false); // Estado del modal de eliminación
     const [errorModalOpen, setErrorModalOpen] = useState<boolean>(false);
     const [errorTitle, setErrorTitle] = useState<string>("");
@@ -87,7 +84,7 @@ const Rooms: React.FC = () => {
                     console.log(`Room ${selectedRoom.id} eliminado`);
                     GetRooms(); // Refresca la lista de salas
                 }
-            } catch (error) {
+            } catch  {
                 handleOpenErrorModal("Error al eliminar sala");
             } finally {
                 setLoading(false);
@@ -109,7 +106,7 @@ const Rooms: React.FC = () => {
             if (response.status === 200) {
                 setRooms(response.data);
             }
-        } catch (error) {
+        } catch  {
             handleOpenErrorModal("Error al traer sala");
         } finally {
             setLoading(false);
@@ -124,7 +121,7 @@ const Rooms: React.FC = () => {
     const handleCloseModal = () => setModalOpen(false);
 
     const handleOpenEditModal = () => {
-        if (selectedRoom) {
+        if (selectedRoom!) {
             setNewRoom({
                 name: selectedRoom.name,
                 description: selectedRoom.description,
@@ -142,12 +139,12 @@ const Rooms: React.FC = () => {
     const handleUpdateRoom = async () => {
         setLoading(true); // Muestra el loader mientras se procesa la solicitud
         const usuario = localStorage.getItem("userData");
-        const formData = JSON.parse(usuario);
+        const formData = JSON.parse(usuario!);
 
         try {
             // Define los datos que se enviarán en la solicitud
             const data = {
-                id: selectedRoom.id,
+                id: selectedRoom?.id || 0,
                 iduser: formData.id,
                 name: newRoom.name,
                 description: newRoom.description,
@@ -176,7 +173,7 @@ const Rooms: React.FC = () => {
                 // Refresca la lista de salas después de la actualización
                 GetRooms();
             }
-        } catch (error) {
+        } catch  {
             handleOpenErrorModal("Error al actualizar sala");
         } finally {
             setLoading(false); // Detén el loader
@@ -190,7 +187,7 @@ const Rooms: React.FC = () => {
         setLoading(true);
         const usuario = localStorage.getItem("userData");
 
-        const formData = JSON.parse(usuario);
+        const formData = JSON.parse(usuario!);
         try {
             const data = {
                 iduser: formData.id,
@@ -222,7 +219,7 @@ const Rooms: React.FC = () => {
                 setLoading(false);
 
             }
-        } catch (error) {
+        } catch  {
             handleOpenErrorModal("Error al crear sala");
         }
         // Logic to create a new room
@@ -286,7 +283,7 @@ const Rooms: React.FC = () => {
                         .filter((room) =>
                             room.name.toLowerCase().includes(search.toLowerCase())
                         )
-                        .map((room, index) => (
+                        .map((room) => (
                             <Grid item xs={12} md={6} lg={4} key={room.id}>
                                 <Paper elevation={3} sx={{ p: 2, borderRadius: "12px" }}>
                                     <Box display="flex" alignItems="center" mb={1}>

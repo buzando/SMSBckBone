@@ -1,37 +1,17 @@
-﻿import { useState, useContext, useEffect } from 'react';
-import Divider from '@mui/material/Divider';
+﻿import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Avatar from '@mui/material/Avatar';
-import Paper from '@mui/material/Paper';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { AppContext } from '../hooks/useContextInitialState';
-import axios, { AxiosError } from 'axios';
-import ButtonLoadingSubmit from '../components/commons/ButtonLoadingSubmit';
-import Alert from '@mui/material/Alert';
-import IconButton from '@mui/material/IconButton';
-import Collapse from '@mui/material/Collapse';
-import CloseIcon from '@mui/icons-material/Close';
-import { Role } from '../types/Types';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
+import axios from 'axios';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import Tooltip from '@mui/material/Tooltip';
-import Countdown from 'react-countdown';
 import Modal from 'react-modal';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import '../chooseroom.css'
-import { useNavigate, Link as LinkDom } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Backdrop from "@mui/material/Backdrop";
 import HomeIcon from "@mui/icons-material/Home";
 
-type errorObj = {
-    code: string;
-    description: string;
-};
 
 const customStyles = {
     content: {
@@ -44,17 +24,25 @@ const customStyles = {
     },
 };
 
+type Room = {
+    id: string | number;
+    name: string;
+    client: string;
+    description: string; // Ajustado desde "dscription"
+    credits: number;
+    long_sms: number;
+    calls: number;
+};
 
-const chooseroom: React.FC = () => {
+
+const Chooseroom: React.FC = () => {
     const [loading, setLoading] = useState(false);
     Modal.setAppElement('#root');
     /*  let subtitle;*/
     const [modalIsOpen, setIsOpen] = useState(false);
-    const [user, setuser] = useState(false);
-    const [rooms, setrooms] = useState([]);
+    const [rooms, setrooms] = useState<Room[]>([]);
     const [dontAskAgain, setDontAskAgain] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
     function handleCheckboxChange(event: React.ChangeEvent<HTMLInputElement>) {
         setDontAskAgain(event.target.checked);
     }
@@ -69,7 +57,7 @@ const chooseroom: React.FC = () => {
 
                 const usuario = localStorage.getItem("userData");
 
-                const obj = JSON.parse(usuario);
+                const obj = JSON.parse(usuario!);
 
 
                 const request = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_AUTENTIFICATIONSAVE_ENDPOINT}?email=${obj.email}`;
@@ -97,7 +85,7 @@ const chooseroom: React.FC = () => {
         setLoading(true);
         const usuario = localStorage.getItem("userData");
 
-        const obj = JSON.parse(usuario);
+        const obj = JSON.parse(usuario!);
 
         try {
             const request = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GetRooms}?email=${obj.email}`;
@@ -119,7 +107,7 @@ const chooseroom: React.FC = () => {
         setIsOpen(true);
     }
 
-    const handleSearch = (event) => {
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
 
@@ -133,7 +121,7 @@ const chooseroom: React.FC = () => {
         const usuario = localStorage.getItem("userData");
 
         GetRooms();
-        const obj = JSON.parse(usuario);
+        const obj = JSON.parse(usuario!);
         if (!obj.twoFactorAuthentication) {
             openModal();
         }
@@ -142,18 +130,9 @@ const chooseroom: React.FC = () => {
 
     }, [])
 
-    // Abrir el modal ayuda
-    const openHelpModal = () => {
-        setHelpModalIsOpen(true);
-    };
-
-    // Cerrar el modal ayuda
-    const closeHelpModal = () => {
-        setHelpModalIsOpen(false);
-    };
 
     const navigate = useNavigate();
-    const handleRoomSelection = (room: any) => {
+    const handleRoomSelection = (room: Room) => {
         // Guardar la sala seleccionada en localStorage
         localStorage.setItem('selectedRoom', JSON.stringify(room));
 
@@ -193,7 +172,7 @@ const chooseroom: React.FC = () => {
                             <div className="room-details">
                                 <h6>{room.name}</h6>
                                 <p>{room.client}</p>
-                                <p>{room.dscription}</p>
+                                <p>{room.description}</p>
                             </div>
                         </div>
                         <div className="room-extra">
@@ -255,4 +234,4 @@ const chooseroom: React.FC = () => {
     );
 
 };
-export default chooseroom;
+export default Chooseroom;
