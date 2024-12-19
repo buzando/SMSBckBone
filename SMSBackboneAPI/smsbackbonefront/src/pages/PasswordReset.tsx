@@ -113,7 +113,7 @@ const TermsAndConditions: React.FC = () => {
                 "Access-Control-Allow-Origin": "*"
             };
 
-            const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_NEWPASSWORD_USER}`; // Cambia por tu endpoint real
+            const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_NEWPASSWORD_USER}`; 
             const response = await axios.post(apiEndpoint, data, {
                 headers
             });

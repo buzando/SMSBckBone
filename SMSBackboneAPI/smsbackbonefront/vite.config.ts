@@ -1,16 +1,23 @@
 import { defineConfig } from 'vite';
-import plugin from '@vitejs/plugin-react';
-
+import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [plugin()],
-    base: '/SMSWEB/',
+    plugins: [react()],
+    define: {
+        'process.env': process.env, // Si necesitas acceso completo a las variables de proceso
+    },
+    optimizeDeps: {
+        include: ['@mui/material/Tooltip',],
+    },
     build: {
-        outDir: 'dist',
+        outDir: 'build',
         sourcemap: true,
-        chunkSizeWarningLimit: 1000
+        chunkSizeWarningLimit: 1000,
+       
     },
     server: {
         port: 55578,
+        host: true, // Permite acceso desde la red local
     },
+     base:'',
 })
