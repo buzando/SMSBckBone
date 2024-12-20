@@ -64,7 +64,7 @@ function App() {
                 <ThemeProvider theme={theme}>
                     <CssBaseline />
                     <BrowserRouter>
-                        <Routes>
+                        <Routes basename='/SMS/'>
                             <Route path="/login" element={<LoginPage />} />
                             <Route element={<AutentificationRoute />}>
                                 <Route path="/Autentification" element={<AutentificationPage />} />
