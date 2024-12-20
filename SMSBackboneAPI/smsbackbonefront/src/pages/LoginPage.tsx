@@ -3,9 +3,7 @@ import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Avatar from '@mui/material/Avatar';
 import Paper from '@mui/material/Paper';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { AppContext } from '../hooks/useContextInitialState';
 import axios, { AxiosError } from 'axios';
 import { useNavigate, Link as LinkDom } from 'react-router-dom';
@@ -21,6 +19,9 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import "../Logincss.css";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import InputAdornment from "@mui/material/InputAdornment";
 
 type errorObj = {
     code: string;
@@ -44,6 +45,7 @@ const Login: React.FC = () => {
     const [messageAlert, setMessageAlert] = useState('Ocurrio un error');
     const [openAlert, setOpenAlert] = useState(false);
     const [spinner, setSpinner] = useState(false);
+
     const [UnconfirmedEmail, setUnconfirmedEmail] = useState<UnconfirmeEmail>({
         sending: false,
         isUnconfirmed: false,
@@ -51,7 +53,11 @@ const Login: React.FC = () => {
         isMailSent: false,
     });
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
 
+    const handleTogglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
     useEffect(() => {
         const token = localStorage.getItem('token');
 
@@ -255,14 +261,6 @@ const Login: React.FC = () => {
                                 <Typography variant="h2" fontWeight="bold" align="center">
                                     Bienvenído
                                 </Typography>
-                                <Avatar
-                                    sx={(theme) => ({
-                                        backgroundColor: theme.palette.primary.main,
-                                        margin: 'auto',
-                                    })}
-                                >
-                                    <LockOutlinedIcon />
-                                </Avatar>
                                 <Typography variant="h5" align="center">
                                     Iniciar sesión
                                 </Typography>
@@ -282,16 +280,36 @@ const Login: React.FC = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     variant="outlined"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"} // Cambia entre "text" y "password"
                                     fullWidth
                                     required
                                     margin="normal"
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={handleTogglePasswordVisibility}
+                                                    edge="end"
+                                                >
+                                                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 />
                                 <Box display="flex" justifyContent="right">
                                     <Link
                                         component={LinkDom}
                                         variant="caption"
                                         to={'/password_reset'}
+                                        sx={{
+                                            textAlign: 'center',
+                                            textDecoration: 'underline',
+                                            font: 'normal normal 600 14px/54px Poppins',
+                                            letterSpacing: '0px',
+                                            color: '#8F4D63',
+                                            opacity: 1,
+                                        }}
                                     >
                                         ¿Olvidaste tu contraseña?
                                     </Link>
@@ -372,10 +390,21 @@ const Login: React.FC = () => {
                                 </Box>
                                 <Divider />
                                 <Box display="flex" justifyContent="center" marginTop={1}>
-                                    <Typography variant="caption" marginRight={1}>
+                                    <Typography variant="caption" marginRight={1} sx={{
+                                        textAlign: 'center',
+                                        font: 'normal normal 600 14px/54px Poppins',
+                                        letterSpacing: '0px',
+                                        color: '#330F1B',
+                                    }}>
                                         ¿Aún no tienes cuenta?
                                     </Typography>
-                                    <Link component={LinkDom} variant="caption" to={'/register'}>
+                                    <Link component={LinkDom} variant="caption" to={'/register'} sx={{
+                                        textAlign: 'center',
+                                        textDecoration: 'underline',
+                                        font: 'normal normal 600 14px/54px Poppins',
+                                        letterSpacing: '0px',
+                                        color: '#8F4D63',
+                                    }}>
                                         Registrate
                                     </Link>
                                 </Box>

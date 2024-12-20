@@ -13,6 +13,13 @@ const ButtonLoading: React.FC<props> = ({ label, loading }) => {
                 variant="contained"
                 color="primary"
                 disabled={loading}
+                sx={{
+                    background: "#833A53 0% 0% no-repeat padding-box",
+                    border: "1px solid #60293C",
+                    borderRadius: "4px",
+                    opacity: 0.9,
+                    color: "#FFFFFF",
+                }}
                 type="submit">
                 {label}
             </Button>

@@ -32,10 +32,10 @@ interface Room {
 const Rooms: React.FC = () => {
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [search, setSearch] = useState<string>("");
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const [newRoom, setNewRoom] = useState({
         name: "",
         description: "",
@@ -48,6 +48,11 @@ const Rooms: React.FC = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false); // Estado del modal de eliminación
     const [errorModalOpen, setErrorModalOpen] = useState<boolean>(false);
     const [errorTitle, setErrorTitle] = useState<string>("");
+
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(event.target.value);
+    };
+
 
     const handleOpenErrorModal = (title: string) => {
         setErrorTitle(title);
@@ -265,57 +270,64 @@ const Rooms: React.FC = () => {
                 >
                     Añadir Sala
                 </Button>
-                <TextField
-                    placeholder="Buscar"
-                    variant="outlined"
-                    size="small"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+                <div className="search-container">
+                    <span className="material-icons">search</span>
+                    <input
+                        type="text"
+                        placeholder="Buscar"
+                        value={searchTerm}
+                        onChange={handleSearch}
+                    />
+                </div>
             </Box>
             {loading ? (
                 <Box display="flex" justifyContent="center" mt={5}>
                     <CircularProgress />
                 </Box>
             ) : (
-                <Grid container spacing={2}>
-                    {rooms
-                        .filter((room) =>
-                            room.name.toLowerCase().includes(search.toLowerCase())
-                        )
-                        .map((room) => (
-                            <Grid item xs={12} md={6} lg={4} key={room.id}>
-                                <Paper elevation={3} sx={{ p: 2, borderRadius: "12px" }}>
-                                    <Box display="flex" alignItems="center" mb={1}>
-                                        <HomeIcon sx={{ fontSize: 40, mr: 2, color: "#A05B71" }} />
-                                        <Box>
-                                            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                                                {room.name}
-                                            </Typography>
-                                            <Typography variant="body2" color="textSecondary">
-                                                Cliente: {room.client}
-                                            </Typography>
-                                        </Box>
-                                        <Box flexGrow={1} />
-                                        <IconButton onClick={(e) => handleMenuOpen(e, room)}>
-                                            <MoreVertIcon />
-                                        </IconButton>
-                                        <Menu
-                                            anchorEl={menuAnchorEl}
-                                            open={Boolean(menuAnchorEl)}
-                                            onClose={handleMenuClose}
+                    <Grid container spacing={2}>
+                        {rooms.filter((room) => {
+                            const term = searchTerm.toLowerCase();
+                            const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
+                            return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
+                        }).length === 0 ? (
+                            <Typography variant="body1" sx={{ textAlign: "center", marginTop: "20px", color: "#833A53" }}>
+                                No se encontraron resultados.
+                            </Typography>
+                        ) : (
+                            rooms
+                                .filter((room) => {
+                                    const term = searchTerm.toLowerCase();
+                                    const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
+                                    return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
+                                })
+                                .map((room) => (
+                                    <div key={room.id} className="room-box">
+                                        <div className="room-info">
+                                            <HomeIcon style={{ color: "#B56576", fontSize: "30px", marginRight: "10px" }} />
+                                            <div className="room-details">
+                                                <h6>{room.name}</h6>
+                                                <p>{room.client}</p>
+                                                <p>{room.description}</p>
+                                            </div>
+                                        </div>
+                                        <div className="room-extra">
+                                            <span>Créditos: {room.credits}</span>
+                                            <span>SMS largos: {room.long_sms}</span>
+                                            <span>Llamadas: {room.calls}</span>
+                                        </div>
+                                        {/* Botón para seleccionar la sala */}
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => handleRoomSelection(room)}
                                         >
-                                            <MenuItem onClick={handleOpenEditModal}>Editar</MenuItem>
-                                            <MenuItem onClick={() => handleOpenDeleteModal(room)}>Eliminar</MenuItem>
-                                        </Menu>
+                                            &gt;
+                                        </Button>
+                                    </div>
+                                ))
+                        )}
 
-                                    </Box>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Descripción: {room.description}
-                                    </Typography>
-                                </Paper>
-                            </Grid>
-                        ))}
                 </Grid>
             )}
 

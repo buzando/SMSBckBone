@@ -296,7 +296,24 @@ namespace SMSBackboneAPI.Controllers
             }
             else
             {
-                var response = Ok();
+                var user = userManager.FindEmail(Login.Email);
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var byteKey = Encoding.UTF8.GetBytes(configuration.GetSection("SecretKey").Value);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim("User", JsonConvert.SerializeObject(responseDto))
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(1),
+                    Issuer = JwtIssuer,
+                    Audience = JwtAudience,
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(byteKey), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var respuesta = new ResponseDTO { user = user, token = token.ToString(), expiration = DateTime.Now.AddDays(1) };
+                var response = Ok(respuesta);
                 return response;
             }
         }
@@ -346,12 +363,6 @@ namespace SMSBackboneAPI.Controllers
                         var room = new roomsManager().addroomByNewUser(usuario.Id, usuario.IdCliente);
                         if (room)
                         {
-                            //var enviomail = new  UserManager().EnvioCodigo(user.email, "EMAIL");
-                            //if (string.IsNullOrEmpty(enviomail))
-                            //{
-                            //    return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });
-
-                            //}
                             var tokenHandler = new JwtSecurityTokenHandler();
                             var byteKey = Encoding.UTF8.GetBytes(configuration.GetSection("SecretKey").Value);
 

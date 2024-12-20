@@ -161,36 +161,48 @@ const Chooseroom: React.FC = () => {
                 />
             </div>
             {/* Lista de salas */}
-            {rooms
-                .filter((room) =>
-                    room.name.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((room) => (
-                    <div key={room.id} className="room-box">
-                        <div className="room-info">
-                            <HomeIcon style={{ color: "#B56576", fontSize: "30px", marginRight: "10px" }} />
-                            <div className="room-details">
-                                <h6>{room.name}</h6>
-                                <p>{room.client}</p>
-                                <p>{room.description}</p>
+            {rooms.filter((room) => {
+                const term = searchTerm.toLowerCase();
+                const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
+                return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
+            }).length === 0 ? (
+                <Typography variant="body1" sx={{ textAlign: "center", marginTop: "20px", color: "#833A53" }}>
+                    No se encontraron resultados.
+                </Typography>
+            ) : (
+                rooms
+                    .filter((room) => {
+                        const term = searchTerm.toLowerCase();
+                        const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
+                        return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
+                    })
+                    .map((room) => (
+                        <div key={room.id} className="room-box">
+                            <div className="room-info">
+                                <HomeIcon style={{ color: "#B56576", fontSize: "30px", marginRight: "10px" }} />
+                                <div className="room-details">
+                                    <h6>{room.name}</h6>
+                                    <p>{room.client}</p>
+                                    <p>{room.description}</p>
+                                </div>
                             </div>
+                            <div className="room-extra">
+                                <span>Créditos: {room.credits}</span>
+                                <span>SMS largos: {room.long_sms}</span>
+                                <span>Llamadas: {room.calls}</span>
+                            </div>
+                            {/* Botón para seleccionar la sala */}
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleRoomSelection(room)}
+                            >
+                                &gt;
+                            </Button>
                         </div>
-                        <div className="room-extra">
-                            <span>Créditos: {room.credits}</span>
-                            <span>SMS largos: {room.long_sms}</span>
-                            <span>Llamadas: {room.calls}</span>
-                        </div>
-                        {/* Botón para seleccionar la sala */}
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleRoomSelection(room)}
-                        >
-                            &gt;
-                        </Button>
+                    ))
+            )}
 
-                    </div>
-                ))}
 
             <div>
                 <Modal
@@ -199,10 +211,21 @@ const Chooseroom: React.FC = () => {
                     style={customStyles}
                     contentLabel="Guardar Información Modal"
                 >
-                    <Typography variant="h6" align="center">
+                    <Typography variant="h6" align="center" sx={{
+                        textAlign: "left",
+                        font: "normal normal medium 20px/22px Poppins",
+                        letterSpacing: "0px",
+                        color: "#330F1B",
+                        opacity: 1,
+                    }}>
                         Guardar información
                     </Typography>
-                    <Typography variant="body1" align="center" sx={{ marginBottom: '20px' }}>
+                    <Typography variant="body1" align="center" sx={{
+                        textAlign: "left",
+                        font: "normal normal normal 16px/20px Poppins",
+                        letterSpacing: "0px",
+                        color: "#330F1B",
+                        opacity: 1, }}>
                         ¿Desea que guardemos su información para la próxima vez que inicie sesión en este dispositivo?
                     </Typography>
 
@@ -215,20 +238,37 @@ const Chooseroom: React.FC = () => {
                             />
                         }
                         label="No preguntar esto de nuevo"
-                        sx={{ marginBottom: '20px' }}
+                        sx={{ marginBottom: '20px', color: "#8F4D63" }}
                     />
 
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Button onClick={closeModal} variant="outlined" color="secondary">
+                        <Button onClick={closeModal} variant="outlined" color="secondary" sx={{
+                            border: "1px solid #60293C",
+                            borderRadius: "4px",
+                            color: "#833A53",
+                            backgroundColor: "transparent",
+                            "&:hover": {
+                                backgroundColor: "#f3e6eb",
+                            },
+                        }}>
                             Cancelar
                         </Button>
-                        <Button onClick={SaveAutenticator} variant="contained" color="primary">
+                        <Button onClick={SaveAutenticator} variant="contained" color="primary" sx={{
+                            background: "#833A53 0% 0% no-repeat padding-box",
+                            border: "1px solid #60293C",
+                            borderRadius: "4px",
+                            opacity: 0.9,
+                            color: "#FFFFFF",
+                            "&:hover": {
+                                backgroundColor: "#a54261",
+                            },
+                        }}>
                             Guardar
                         </Button>
                     </div>
                 </Modal>
             </div>
-       
+
 
         </Box>
     );

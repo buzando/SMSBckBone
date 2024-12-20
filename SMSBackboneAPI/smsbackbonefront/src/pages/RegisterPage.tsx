@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, ChangeEvent } from 'react';
+import { useState, useContext, ChangeEvent, useRef } from 'react';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -66,17 +66,35 @@ const Register: React.FC = () => {
         number: false,
     });
 
+    const [errorModalOpen, setErrorModalOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+    const [hasPasswordInput, setHasPasswordInput] = useState(false);
+    const termsContainerRef = useRef<HTMLDivElement>(null);
+    const handleScroll = () => {
+        const container = termsContainerRef.current;
+        if (container) {
+            const { scrollTop, scrollHeight, clientHeight } = container;
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
+            console.log(`scrollTop: ${scrollTop}, clientHeight: ${clientHeight}, scrollHeight: ${scrollHeight}`);
 
-        const isLogin = !!token;
+            // Margen amplio para tolerancia
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50;
 
-        if (isLogin) {
-            navigate('/');
+            console.log(`isAtBottom: ${isAtBottom}`);
+            setIsButtonEnabled(isAtBottom);
         }
-    }, []);
+    };
 
+
+    const handleOpenErrorModal = (message: string) => {
+        setErrorMessage(message);
+        setErrorModalOpen(true);
+    };
+
+    const handleErrorModalClose = () => {
+        setErrorModalOpen(false);
+    };
 
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -116,18 +134,22 @@ const Register: React.FC = () => {
                 localStorage.setItem('token', token);
                 localStorage.setItem('expirationDate', expiration);
                 localStorage.setItem('userData', JSON.stringify(user));
-                navigate('/chooseroom'); 
+                navigate('/chooseroom');
                 console.log('-----------------');
                 console.log(response.data);
             }
         } catch (error) {
             console.log(error);
+            handleOpenErrorModal("Ocurrió un error al intentar registrar al usuario. Por favor, inténtelo de nuevo.");
         }
     };
 
     const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setPassword(value);
+        if (!hasPasswordInput) {
+            setHasPasswordInput(true); // Activar la bandera solo la primera vez que se escribe
+        }
         validatePassword(value);
     };
 
@@ -199,12 +221,39 @@ const Register: React.FC = () => {
 
 
     const handleOpenModal = () => {
-        setModalOpen(true); // Abre el modal
+        setModalOpen(true);
+        setTimeout(() => initializeScrollListener(), 0); // Espera el renderizado del modal
+    };
+    const handleModalClose = () => {
+        setModalOpen(false);
+        removeScrollListener(); // Elimina el evento de scroll al cerrar el modal
+    };
+    const initializeScrollListener = () => {
+        setTimeout(() => {
+            const container = termsContainerRef.current;
+            if (container) {
+                console.log("Scroll listener añadido.");
+                console.log("Contenedor actual:", container);
+                console.log("scrollHeight inicial:", container.scrollHeight);
+                console.log("clientHeight inicial:", container.clientHeight);
+
+                container.addEventListener("scroll", handleScroll);
+            } else {
+                console.error("No se encontró el contenedor para el scroll.");
+            }
+        }, 0); // Espera el siguiente ciclo de renderizado
     };
 
-    const handleModalClose = () => {
-        setModalOpen(false); // Cierra el modal
+    const removeScrollListener = () => {
+        const container = termsContainerRef.current;
+        if (container) {
+            console.log("Scroll listener eliminado.");
+            container.removeEventListener("scroll", handleScroll);
+        } else {
+            console.error("No se encontró el contenedor para eliminar el scroll listener.");
+        }
     };
+
 
 
     return (
@@ -456,25 +505,67 @@ const Register: React.FC = () => {
                                     variant="outlined"
                                     fullWidth
                                     required
+                                    error={hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid)} // Mostrar error solo si ha tipeado
+                                    helperText={
+                                        hasPasswordInput && ( // Mostrar los errores solo si se ha tipeado
+                                            <>
+                                                {!passwordErrors.minLength && (
+                                                    <Typography variant="caption" color="error">
+                                                        - La contraseña debe tener al menos 8 caracteres.
+                                                    </Typography>
+                                                )}
+                                                {!passwordErrors.uppercase && (
+                                                    <Typography variant="caption" color="error">
+                                                        - Debe contener al menos una letra mayúscula.
+                                                    </Typography>
+                                                )}
+                                                {!passwordErrors.lowercase && (
+                                                    <Typography variant="caption" color="error">
+                                                        - Debe contener al menos una letra minúscula.
+                                                    </Typography>
+                                                )}
+                                                {!passwordErrors.number && (
+                                                    <Typography variant="caption" color="error">
+                                                        - Debe contener al menos un número.
+                                                    </Typography>
+                                                )}
+                                            </>
+                                        )
+                                    }
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <>
-                                                            <Typography variant="caption" color={passwordErrors.minLength ? "green" : "red"}>
-                                                                - Mínimo 8 caracteres
-                                                            </Typography><br />
-                                                            <Typography variant="caption" color={passwordErrors.uppercase ? "green" : "red"}>
-                                                                - Una letra mayúscula
-                                                            </Typography><br />
-                                                            <Typography variant="caption" color={passwordErrors.lowercase ? "green" : "red"}>
-                                                                - Una letra minúscula
-                                                            </Typography><br />
-                                                            <Typography variant="caption" color={passwordErrors.number ? "green" : "red"}>
-                                                                - Un número
+                                                        <Box>
+                                                            <Typography
+                                                                variant="caption"
+                                                                color={passwordErrors.minLength ? "green" : "red"}
+                                                            >
+                                                                - Mínimo 8 caracteres.
                                                             </Typography>
-                                                        </>
+                                                            <br />
+                                                            <Typography
+                                                                variant="caption"
+                                                                color={passwordErrors.uppercase ? "green" : "red"}
+                                                            >
+                                                                - Una letra mayúscula.
+                                                            </Typography>
+                                                            <br />
+                                                            <Typography
+                                                                variant="caption"
+                                                                color={passwordErrors.lowercase ? "green" : "red"}
+                                                            >
+                                                                - Una letra minúscula.
+                                                            </Typography>
+                                                            <br />
+                                                            <Typography
+                                                                variant="caption"
+                                                                color={passwordErrors.number ? "green" : "red"}
+                                                            >
+                                                                - Un número.
+                                                            </Typography>
+                                                        </Box>
                                                     }
                                                 >
                                                     <IconButton>
@@ -486,6 +577,7 @@ const Register: React.FC = () => {
                                     }}
                                 />
                             </Grid>
+
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     label="Confirmar Contraseña"
@@ -517,7 +609,13 @@ const Register: React.FC = () => {
                                 />
                             </Grid>
 
-
+                            <Grid item xs={12}>
+                                {password && confirmPassword && !arePasswordsValid() && (
+                                    <Typography variant="caption" color="red" sx={{ marginBottom: 2 }}>
+                                        Asegúrate de cumplir con los requisitos de contraseña y que coincidan.
+                                    </Typography>
+                                )}
+                            </Grid>
 
                             {/* Services */}
                             <Grid item xs={12}>
@@ -575,20 +673,25 @@ const Register: React.FC = () => {
                                         Cancelar
                                     </Button>
                                     <Box display="flex" flexDirection="column" alignItems="flex-start">
+                                        {/* Botón de registro */}
                                         <Button
                                             variant="contained"
                                             color="primary"
                                             disabled={!isFormValid() || !arePasswordsValid()}
                                             onClick={handleOpenModal}
+                                            sx={{
+                                                background: "#833A53 0% 0% no-repeat padding-box",
+                                                border: "1px solid #60293C",
+                                                borderRadius: "4px",
+                                                opacity: 0.9,
+                                                color: "#FFFFFF", // Letra blanca
+                                            }}
                                         >
                                             Registrarse
                                         </Button>
-                                        {!arePasswordsValid() && (
-                                            <Typography variant="caption" color="red" mt={1}>
-                                                Asegúrate de cumplir con los requisitos de contraseña y que coincidan.
-                                            </Typography>
-                                        )}
                                     </Box>
+
+
                                 </Box>
                             </Grid>
 
@@ -609,23 +712,26 @@ const Register: React.FC = () => {
                     <Fade in={modalOpen}>
                         <Box
                             sx={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                width: '80%',
-                                bgcolor: 'background.paper',
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                width: "80%",
+                                bgcolor: "background.paper",
                                 boxShadow: 24,
                                 p: 4,
-                                borderRadius: '12px',
+                                borderRadius: "12px",
                             }}
                         >
-                            <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
+                            <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
                                 Términos y condiciones
                             </Typography>
                             <Divider sx={{ marginBottom: 3 }} />
-                            <Box sx={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                {/* Primera parte */}
+                            <Box
+                                ref={termsContainerRef}
+                                sx={{ maxHeight: "400px", overflowY: "auto", paddingRight: 2 }}
+                            >
+                                {/* Contenido de los términos y condiciones */}
                                 <Typography variant="body1" paragraph>
                                     Aparte del crédito disponible en su cuenta, no establecemos un tope en el número de mensajes que puede enviar a través de nuestro servicio.
                                 </Typography>
@@ -667,16 +773,38 @@ const Register: React.FC = () => {
                                 <Typography variant="body1" paragraph>
                                     Para todos los servicios de mensajería SMS, le proporcionaremos un nombre de usuario y contraseña. Cualquier medida de seguridad adicional, incluyendo pero no limitado a la gestión de accesos y contraseñas, uso indebido, etc., quedará bajo responsabilidad del usuario.
                                 </Typography>
-                                {/* Última sección */}
                                 <Typography variant="body1" paragraph>
                                     EL CLIENTE será responsable totalmente de la gestión de las contraseñas y acceso al sistema donde se utiliza el servicio de SMS. CENTERNEXT quedará exento de cualquier uso inapropiado o indebido realizado por cuentas que gestionan el SMS.
                                 </Typography>
                             </Box>
                             <Box display="flex" justifyContent="space-between" mt={3}>
-                                <Button variant="outlined" onClick={handleModalClose}>
+                                <Button variant="outlined" onClick={handleModalClose} sx={{
+                                    border: "1px solid #60293C",
+                                    borderRadius: "4px",
+                                    color: "#833A53",
+                                    backgroundColor: "transparent",
+                                    "&:hover": {
+                                        backgroundColor: "#f3e6eb",
+                                    },
+                                }}>
                                     Cancelar
                                 </Button>
-                                <Button variant="contained" color="primary" onClick={handleSubmit}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleSubmit}
+                                    disabled={!isButtonEnabled}
+                                    sx={{
+                                        background: "#833A53 0% 0% no-repeat padding-box",
+                                        border: "1px solid #60293C",
+                                        borderRadius: "4px",
+                                        opacity: 0.9,
+                                        color: "#FFFFFF",
+                                        "&:hover": {
+                                            backgroundColor: "#a54261",
+                                        },
+                                    }}
+                                >
                                     Aceptar
                                 </Button>
                             </Box>
@@ -684,7 +812,54 @@ const Register: React.FC = () => {
                     </Fade>
                 </Modal>
 
-
+                <Modal
+                    open={errorModalOpen}
+                    onClose={handleErrorModalClose}
+                    closeAfterTransition
+                    BackdropComponent={Backdrop}
+                    BackdropProps={{
+                        timeout: 500,
+                    }}
+                >
+                    <Fade in={errorModalOpen}>
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                width: '40%',
+                                bgcolor: 'background.paper',
+                                boxShadow: 24,
+                                p: 4,
+                                borderRadius: '12px',
+                            }}
+                        >
+                            <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
+                                Error al registrar usuario
+                            </Typography>
+                            <Divider sx={{ marginBottom: 3 }} />
+                            <Typography variant="body1" sx={{ marginBottom: 3 }}>
+                                {errorMessage}
+                            </Typography>
+                            <Box display="flex" justifyContent="flex-end">
+                                <Button
+                                    variant="contained"
+                                    sx={{
+                                        backgroundColor: "#833A53",
+                                        color: "#FFF",
+                                    }}
+                                    onClick={() => {
+                                        handleErrorModalClose();
+                                        navigate('/login');
+                                    }}
+                                >
+                                    Aceptar
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Fade>
+                </Modal>
 
 
             </Container>

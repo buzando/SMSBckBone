@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [react()],
+    base: './',
     define: {
         'process.env': process.env, // Si necesitas acceso completo a las variables de proceso
     },
@@ -18,6 +19,5 @@ export default defineConfig({
     server: {
         port: 55578,
         host: true, // Permite acceso desde la red local
-    },
-     base:'',
+    }
 })

@@ -32,6 +32,8 @@ const Autentification: React.FC = () => {
     const maxResendAttempts = 5; // Límite de reenvíos
     const [lockoutEndTime, setLockoutEndTime] = useState<Date | null>(null);
     const [codeExpired, setCodeExpired] = useState(false);
+    const [isResendDisabled, setIsResendDisabled] = useState(false);
+    const [startTime, setStartTime] = useState(Date.now());
     useEffect(() => {
         const checkLockout = async () => {
             const usuario = localStorage.getItem("userData");
@@ -40,7 +42,7 @@ const Autentification: React.FC = () => {
             const obj = JSON.parse(usuario);
 
             if (obj.twoFactorAuthentication) {
-               navigate('/chooseroom');
+                /*  navigate('/chooseroom');*/
             }
 
             if (obj.lockoutEnabled) {
@@ -144,6 +146,13 @@ const Autentification: React.FC = () => {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
+        if (isResendDisabled) return;
+        if (resendAttempts !== 0) {
+
+        setIsResendDisabled(true); 
+        }
+
+
         setLoading(true);
         if (resendAttempts + 1 >= maxResendAttempts) {
             // Activar bloqueo
@@ -213,7 +222,7 @@ const Autentification: React.FC = () => {
 
                 if (response.status === 200) {
                     settoken(response.data);
-                    setStep(2);
+                    setStep(2); setStartTime(Date.now()); 
                     setCountdownTime(60000);
                     setResendAttempts(resendAttempts + 1);
                 }
@@ -225,6 +234,9 @@ const Autentification: React.FC = () => {
                 } else {
                     console.error("Error inesperado:", error);
                 }
+            }
+            finally {
+                setTimeout(() => setIsResendDisabled(false), 60000);
             }
 
         }
@@ -254,77 +266,125 @@ const Autentification: React.FC = () => {
                         border: "1px solid #ccc",
                         borderRadius: "8px",
                         padding: "20px",
-                        maxWidth: "400px",
+                        maxWidth: "500px",
                         textAlign: "center",
                         marginTop: "20px",
                     }}
                 >
-                    <Typography variant="body1" gutterBottom>
-                        Selecciona el canal por el cual prefiere recibir su código de
-                        autentificación
-                    </Typography>
-                    <RadioGroup
-                        value={SendType}
-                        onChange={onChangeValue}
+                    <Typography
+                        variant="body1"
+                        gutterBottom
                         sx={{
-                            display: "flex",  
-                            justifyContent: "space-between",
-                            marginTop: "20px",
-                            padding: "0 20px",
+                            textAlign: "left",
+                            font: "normal normal normal 16px/20px Poppins",
+                            letterSpacing: "0px",
+                            color: "#330F1B",
+                            opacity: 1,
                         }}
                     >
-                        <FormControlLabel
-                            value="SMS"
-                            control={<Radio />}
-                            label="SMS"
-                            sx={{ textAlign: "left" }}
-                        />
-                        <FormControlLabel
-                            value="EMAIL"
-                            control={<Radio />}
-                            label="Email"
-                            sx={{ textAlign: "right" }}
-                        />
-                    </RadioGroup>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        disabled={loading}
-                        onClick={handleSubmit}
-                        sx={{ marginTop: "20px" }}
+                        Seleccione el canal por el cual prefiere recibir su código de autenticación
+                    </Typography>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginTop: "20px",
+                        }}
                     >
-                        Aceptar
-                    </Button>
+                        <RadioGroup
+                            row
+                            value={SendType}
+                            onChange={onChangeValue}
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                marginTop: "20px",
+                                padding: "0 20px",
+                            }}
+                        >
+                            <FormControlLabel
+                                value="SMS"
+                                control={<Radio sx={{
+                                    color: "#833A53",
+                                    '&.Mui-checked': {
+                                        color: "#833A53",
+                                    },
+                                }} />}
+                                label="SMS"
+                                sx={{ textAlign: "left" }}
+                            />
+                            <FormControlLabel
+                                value="EMAIL"
+                                control={<Radio sx={{
+                                    color: "#833A53",
+                                    '&.Mui-checked': {
+                                        color: "#833A53",
+                                    },
+                                }} />}
+                                label="Correo electrónico"
+                                sx={{ textAlign: "right" }}
+                            />
+                        </RadioGroup>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            disabled={loading}
+                            onClick={handleSubmit}
+                            sx={{
+                                textAlign: "center",
+                                font: "normal normal 600 14px/54px Poppins",
+                                letterSpacing: "1.12px",
+                                color: "#FFFFFF",
+                                textTransform: "uppercase",
+                                opacity: 1,
+                                backgroundColor: "#833A53",
+                                padding: "0 20px",
+                            }}
+                        >
+                            Aceptar
+                        </Button>
+                    </Box>
                 </Box>
             ) : step === 2 ? (
                 <Box
-                    sx={{
-                        border: "1px solid #ccc",
-                        borderRadius: "8px",
-                        padding: "20px",
-                        maxWidth: "500px",
-                        width: "40%",
-                        textAlign: "center",
-                        marginTop: "20px",
-                    }}
+                        sx={{
+                            border: "1px solid #ccc",
+                            borderRadius: "8px",
+                            padding: "20px",
+                            maxWidth: "600px",
+                            width: "90%",
+                            textAlign: "center",
+                            marginTop: "20px",
+                        }}
                 >
                     {/* Parte 1: Reenviar código */}
                     <Box
-                        sx={{
-                            borderBottom: "1px solid #ddd",
-                            paddingBottom: "10px",
-                            marginBottom: "10px",
+                            sx={{
+                                borderBottom: "1px solid #ddd",
+                                paddingBottom: "10px",
+                                marginBottom: "10px",
 
-                        }}
+                            }}
                     >
-                        <Typography variant="body2">
+                            <Typography variant="body2" sx={{
+                                textAlign: "left",
+                                font: "normal normal 600 16px/20px Poppins",
+                                letterSpacing: "0px",
+                                opacity: 1,
+                            }}>
                             ¿El código no fue recibido o caduco?{" "}
                             <Link
                                 component="button"
                                 onClick={handleSubmit}
-                                sx={{ fontWeight: "bold", cursor: "pointer" }}
+                                    disabled={isResendDisabled} // Deshabilita el botón si está bloqueado
+                                    sx={{
+                                        fontWeight: "bold",
+                                        cursor: isResendDisabled ? "not-allowed" : "pointer", // Cambia el cursor si está bloqueado
+                                        color: isResendDisabled ? "#ccc" : "#8F4D63", // Cambia el color si está bloqueado
+                                    }}
                             >
-                                REENVIAR
+                                    {isResendDisabled ? "Espere un minuto para otro Reenvio" : "REENVIAR"}
                             </Link>
                             <Typography sx={{
                                 display: "flex",
@@ -335,14 +395,21 @@ const Autentification: React.FC = () => {
                                 marginTop: "10px", // Separación del texto superior.
                             }}>
                                 <span>Tu código expirará en:</span>
-                                <Countdown
-                                    date={Date.now() + countdownTime}
-                                    renderer={({ minutes, seconds }) => (
-                                        <span>
-                                            {`${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`}
-                                        </span>
-                                    )}
-                                />
+                                    <Countdown
+                                        date={startTime + countdownTime} // Recalcula la fecha final según `startTime`
+                                        renderer={({ minutes, seconds, completed }) => {
+                                            if (completed) {
+                                                setCodeExpired(true); // Mostrar mensaje de expiración
+                                                return <span>00:00</span>;
+                                            }
+                                            return (
+                                                <span>
+                                                    {`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
+                                                </span>
+                                            );
+                                        }}
+                                    />
+
                             </Typography>
 
                         </Typography>
@@ -391,26 +458,56 @@ const Autentification: React.FC = () => {
                                 />
                             ))}
                         </Box>
-                        {!isCodeValid && (
-                            <Typography variant="body2" sx={{ color: "red", fontSize: "12px", marginTop: "50px" }}>
-                                Código Inválido
-                            </Typography>
-                        )}
-                        {codeExpired && (
-                            <Typography
-                                variant="body2"
-                                sx={{ color: "red", fontSize: "12px", marginTop: "10px" }}
-                            >
-                                El código expiró
-                            </Typography>
-                        )}
+                            {!isCodeValid && (
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        color: codeExpired ? "red" : "inherit",
+                                        marginTop: "40px",
+                                    }}
+                                >
+                                    "Código Inválido"
+                                </Typography>
+                            )}
+                            {codeExpired && (
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        color: "red",
+                                        fontSize: "14px",
+                                        marginTop: "40px",
+                                    }}
+                                >
+                                    El tiempo para validar el código expiró. Por favor, solicite un nuevo código.
+                                </Typography>
+                            )}
                     </Box>
                     {/* Parte 3: Botones */}
                     <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "30px" }}>
-                        <Button variant="outlined" onClick={Return}>
+                            <Button variant="outlined" onClick={Return} sx={{
+                                color: "#833A53",
+                                border: "1px solid #CCCFD2",
+                                borderRadius: "4px",
+                                opacity: 1,
+                            }}>
                             Regresar
                         </Button>
-                        <Button variant="contained" color="primary" onClick={ValidateToken}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={ValidateToken}
+                                disabled={authCode.some((digit) => digit === "") || codeExpired} // Desactiva si faltan dígitos o expiró el tiempo
+                                sx={{
+                                    background: "#833A53 0% 0% no-repeat padding-box",
+                                    border: "1px solid #60293C",
+                                    borderRadius: "4px",
+                                    opacity: 0.9,
+                                    color: "#FFFFFF",
+                                    "&:hover": {
+                                        backgroundColor: "#60293C",
+                                    },
+                                }}
+                            >
                             Validar
                         </Button>
                     </Box>
@@ -426,33 +523,33 @@ const Autentification: React.FC = () => {
                         marginTop: "20px",
                     }}
                 >
-                            <Typography variant="h6" gutterBottom>
-                                Se ha llegado al límite de envíos de códigos
-                            </Typography>
-                            <Typography variant="body1" gutterBottom>
-                                El ingreso a la cuenta quedará bloqueado por:
-                            </Typography>
-                            <Typography
-                                variant="h5"
-                                sx={{
-                                    color: "#f44336", // Rojo
-                                    fontWeight: "bold",
-                                    marginTop: "10px",
-                                }}
-                            >
-                                <Countdown
-                                    date={lockoutEndTime ? lockoutEndTime : undefined}
-                                    renderer={({ hours, minutes, seconds, completed }) =>
-                                        completed ? (
-                                            <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
-                                        ) : (
-                                            <span>
-                                                {hours}h {minutes}m {seconds}s
-                                            </span>
-                                        )
-                                    }
-                                />
-                            </Typography>
+                    <Typography variant="h6" gutterBottom>
+                        Se ha llegado al límite de envíos de códigos
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                        El ingreso a la cuenta quedará bloqueado por:
+                    </Typography>
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            color: "#f44336", // Rojo
+                            fontWeight: "bold",
+                            marginTop: "10px",
+                        }}
+                    >
+                        <Countdown
+                            date={lockoutEndTime ? lockoutEndTime : undefined}
+                            renderer={({ hours, minutes, seconds, completed }) =>
+                                completed ? (
+                                    <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
+                                ) : (
+                                    <span>
+                                        {hours}h {minutes}m {seconds}s
+                                    </span>
+                                )
+                            }
+                        />
+                    </Typography>
                 </Box>
             ) : null}
 

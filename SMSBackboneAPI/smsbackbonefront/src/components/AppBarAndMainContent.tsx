@@ -49,6 +49,7 @@ import Fab from "@mui/material/Fab";
 import HelpIcon from "@mui/icons-material/Help";
 import Modal from "@mui/material/Modal";
 
+
 const drawerWidth = 280;
 
 type Page = {
@@ -95,6 +96,7 @@ const pages: Page[] = [
 type Props = {
     children: React.ReactNode;
 }
+
 
 const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
@@ -188,12 +190,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const { contextState, setContextState } = useContext(AppContext)
     const { user } = contextState
     const [openSubMenu, setOpenSubMenu] = useState(false); // Submenú de administración
-
+ 
     const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
     const openHelpModal = () => setHelpModalIsOpen(true);
     const closeHelpModal = () => setHelpModalIsOpen(false);
 
-
+    const isAdmin = user?.rol === 'Administrador'
     const handleDrawerOpen = () => {
         setOpenDrawer(true);
     };
@@ -229,7 +231,11 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                 break;
             case 3:
                 setContextState({
-                    user: {},
+                    user: {
+                        userName: '',
+                        email: '',
+                        rol: ''
+                    },
                     token: '',
                     expiration: ''
                 })
@@ -333,14 +339,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     </Box>
                                 </Typography>
                             </MenuItem>
-                            <MenuItem onClick={() => navigate('/UserAdministration')}>
-                                <Typography textAlign="left">
-                                    <Box display="flex" alignItems="center">
-                                        <PeopleAltIcon sx={{ fontSize: 20, mr: 1 }} />
-                                        Administrar cuentas
-                                    </Box>
-                                </Typography>
-                            </MenuItem>
+                            {isAdmin && (
+                                <MenuItem onClick={() => navigate('/UserAdministration')}>
+                                    <Typography textAlign="left">
+                                        <Box display="flex" alignItems="center">
+                                            <PeopleAltIcon sx={{ fontSize: 20, mr: 1 }} />
+                                            Administrar cuentas
+                                        </Box>
+                                    </Typography>
+                                </MenuItem>
+                            )}
                             <MenuItem onClick={() => console.log("Datos de facturación")}>
                                 <Typography textAlign="left">
                                     <Box display="flex" alignItems="center">
@@ -371,7 +379,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </Box>
                 </Toolbar>
             </AppBar>
-            <Drawer variant="permanent" open={openDrawer} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white' } }}>
+            <Drawer variant="permanent" open={true} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white' } }}>
                 <DrawerHeader />
                 <Box sx={{ display: 'flex', justifyContent: 'center', margin: 2, ...(!openDrawer && { display: 'none' }) }}>
                     <Paper
@@ -460,7 +468,15 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                 </List>
 
             </Drawer >
-            <Container fixed maxWidth="xl" sx={{ marginBottom: 8 }}>
+            <Container
+                fixed
+                maxWidth="xl"
+                sx={{
+                    marginLeft: `${drawerWidth}px`, // Respeta el ancho del Drawer
+                    marginTop: '5px', // Ajusta la altura de la AppBar (64px es el alto estándar)
+                    paddingBottom: '16px', // Opcional: espacio extra para evitar superposición con el footer
+                }}
+            >
                 <Box sx={{ height: '4.5rem' }} />
                 {props.children}
             </Container>

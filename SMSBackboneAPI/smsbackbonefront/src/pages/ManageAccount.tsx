@@ -22,7 +22,9 @@ const ManageAccount: React.FC = () => {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
-
+    const [passwordError, setPasswordError] = useState("");
+    const [confirmPasswordError, setConfirmPasswordError] = useState("");
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     // Load user data from localStorage
     useEffect(() => {
         const userData = localStorage.getItem("userData");
@@ -43,11 +45,32 @@ const ManageAccount: React.FC = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        // Restrict input for phone number to numbers only
+        // Restringir el número de teléfono solo a números
         if (name === "phone" && !/^[0-9]*$/.test(value)) return;
 
         setFormData({ ...formData, [name]: value });
+
+        // Validar la contraseña en tiempo real
+        if (name === "password") {
+            if (!value || passwordRegex.test(value)) {
+                setPasswordError("");
+            } else {
+                setPasswordError(
+                    "La contraseña debe tener mínimo 8 caracteres, una letra mayúscula, una letra minúscula y un número."
+                );
+            }
+        }
+
+        // Validar la confirmación de contraseña en tiempo real
+        if (name === "confirmPassword") {
+            if (!value || value === formData.password) {
+                setConfirmPasswordError("");
+            } else {
+                setConfirmPasswordError("Las contraseñas no coinciden.");
+            }
+        }
     };
+
 
 
     const validateEmail = (email: string): boolean => {
@@ -150,7 +173,8 @@ const ManageAccount: React.FC = () => {
                             type="password"
                             value={formData.password}
                             onChange={handleChange}
-                            required
+                            error={!!passwordError}
+                            helperText={passwordError}
                         />
                     </Tooltip>
                     <Tooltip title="Confirma tu contraseña." arrow>
@@ -160,7 +184,8 @@ const ManageAccount: React.FC = () => {
                             type="password"
                             value={formData.confirmPassword}
                             onChange={handleChange}
-                            required
+                            error={!!confirmPasswordError}
+                            helperText={confirmPasswordError}
                         />
                     </Tooltip>
                 </Box>
@@ -177,10 +202,19 @@ const ManageAccount: React.FC = () => {
                             !formData.firstName ||
                             !formData.lastName ||
                             !formData.phone ||
-                            !formData.alternateEmail ||
-                            !formData.password ||
-                            !formData.confirmPassword
+                            !formData.alternateEmail
                         }
+
+                        sx={{
+                            background: "#833A53 0% 0% no-repeat padding-box",
+                            border: "1px solid #60293C",
+                            borderRadius: "4px",
+                            opacity: 0.9,
+                            color: "#FFFFFF",
+                            "&:hover": {
+                                backgroundColor: "#a54261",
+                            },
+                        }}
                     >
                         Guardar cambios
                     </Button>

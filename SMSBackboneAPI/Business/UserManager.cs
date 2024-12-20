@@ -33,6 +33,7 @@ namespace Business
 ); var mapper = new Mapper(config);
 
                 userdto = mapper.Map<UserDto>(userdb);
+                userdto.rol = context.Roles.Where(x => x.id == userdb.idRole).Select(x => x.Role).FirstOrDefault();
 
             }
 
@@ -68,6 +69,8 @@ namespace Business
 
                     userdto = mapper.Map<UserDto>(userdb);
                     userdto.Client = context.clients.Where(x => x.id == userdb.IdCliente).Select(x => x.nombrecliente).FirstOrDefault();
+                    userdto.rol = context.Roles.Where(x => x.id == userdb.idRole).Select(x => x.Role).FirstOrDefault();
+
                 }
 
                 //UserDto result = new UserDto
@@ -117,20 +120,20 @@ namespace Business
         x.u.email,
         x.u.status,
         x.u.idRole,
-        x.r.Role,         
+        x.r.Role,
         x.u.phonenumber,
         x.c.nombrecliente
     })
     .Select(group => new UserAdministrationDTO
     {
-        id = group.Key.Id,                        
-        name = group.Key.firstName,                
-        email = group.Key.email,                 
-        idRole = group.Key.idRole,                
-        Role = group.Key.Role,                   
-        Rooms = string.Join(", ", group.Select(g => g.rb.Rooms.name)), 
-        PhoneNumber = group.Key.phonenumber,    
-        Client =  group.Key.nombrecliente
+        id = group.Key.Id,
+        name = group.Key.firstName,
+        email = group.Key.email,
+        idRole = group.Key.idRole,
+        Role = group.Key.Role,
+        Rooms = string.Join(", ", group.Select(g => g.rb.Rooms.name)),
+        PhoneNumber = group.Key.phonenumber,
+        Client = group.Key.nombrecliente
     })
     .ToList();
                 }
@@ -305,7 +308,10 @@ namespace Business
               Cliente = c.nombrecliente             // Nombre del cliente
           })
     .ToList();
-
+                    rooms = rooms
+    .GroupBy(x => x.name) // Agrupa por nombre
+    .Select(g => g.First()) // Toma el primer elemento de cada grupo
+    .ToList();
                 }
 
                 return rooms;
@@ -462,7 +468,7 @@ namespace Business
                 using (var ctx = new Entities())
                 {
                     user.idRole = ctx.Roles.Where(x => x.Role == register.Profile.ToLower()).Select(x => x.id).FirstOrDefault();
-                            ctx.Users.Add(user);
+                    ctx.Users.Add(user);
                     ctx.SaveChanges();
                 }
 
@@ -530,7 +536,11 @@ namespace Business
                     var usuarer = ctx.Users.Where(u => u.email == update.Email).FirstOrDefault();
                     usuarer.firstName = update.FirstName;
                     usuarer.phonenumber = update.PhoneNumber;
-                    usuarer.passwordHash = update.Password;
+                    if (!string.IsNullOrEmpty(update.Password))
+                    {
+
+                        usuarer.passwordHash = update.Password;
+                    }
                     usuarer.lastName = update.LastName;
                     usuarer.lastPasswordChangeDate = DateTime.Now;
 

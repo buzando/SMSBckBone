@@ -207,3 +207,24 @@ body {
         color: #FFFFFF; /* Icono blanco al pasar el ratón */
         transform: scale(1.1); /* Efecto de zoom */
     }
+
+
+..custom-checkbox {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background-color: #8F4D63; /* Fondo del checkbox */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none; /* Elimina cualquier borde */
+    color: white; /* Color del check */
+}
+
+.custom-checkbox:hover {
+    background-color: #a25a74; /* Color al pasar el mouse */
+}
+
+.custom-checkbox svg {
+    fill: white; /* Color del check cuando está marcado */
+}

@@ -5,13 +5,18 @@ import {
     Step,
     StepLabel,
     Checkbox,
-    FormControlLabel, } from '@mui/material';
+    FormControlLabel, InputAdornment,
+    Tooltip,
+    IconButton,
+} from '@mui/material';
+import InfoIcon from "@mui/icons-material/Info";
 import PublicLayout from '../components/PublicLayout';
 import axios from 'axios';
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import Countdown from 'react-countdown';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Modal } from "@mui/material";
 import "../chooseroom.css"
 
 const TermsAndConditions: React.FC = () => {
@@ -24,7 +29,7 @@ const TermsAndConditions: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [enableTwoFactor, setEnableTwoFactor] = useState(false); // Checkbox para 2FA
     const navigate = useNavigate();
-   const [resendAttempts, setResendAttempts] = useState(0); // Contador de reenvíos
+    const [resendAttempts, setResendAttempts] = useState(0); // Contador de reenvíos
     const maxResendAttempts = 5; // Límite de reenvíos
     const [lockoutEndTime, setLockoutEndTime] = useState<Date | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -35,74 +40,107 @@ const TermsAndConditions: React.FC = () => {
     const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
     const [phoneDigits, setPhoneDigits] = useState<string[]>(Array(4).fill(""));
     const [isPhoneDigitsValid, setIsPhoneDigitsValid] = useState(false);
+    const [hasAttemptedValidation, setHasAttemptedValidation] = useState(false);
+    const [messageError, setMessageError] = useState("");
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+    const [isResendDisabled, setIsResendDisabled] = useState(false);
+    const [startTime, setStartTime] = useState(Date.now());
 
-    useEffect(() => {
-        const checkLockout = async () => {
-            const usuario = localStorage.getItem("userData");
-            if (!usuario) return;
+    const isEmailValid = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
 
-            const obj = JSON.parse(usuario);
+    const startCountdown = () => {
+        setCountdownTime(60000); // Reinicia a 1 minuto
+        setCodeExpired(false); // Restablece el estado de expiración
+        setStartTime(Date.now());
+    };
+    const handleResendToken = async () => {
+        if (isResendDisabled) return; // Evita reenviar si ya está bloqueado
 
-            if (obj.lockoutEnabled) {
-                const lockoutEnd = new Date(obj.lockoutEndDateUtc);
-                const now = new Date();
-                setLoading(true);
+        setIsResendDisabled(true); 
+        setCodeExpired(false); 
+        setStartTime(Date.now()); 
 
-                if (now < lockoutEnd) {
-                    // Si el bloqueo aún está vigente, calcular tiempo restante
-                    setLockoutEndTime(lockoutEnd);
-                    setActiveStep(4); // Ir al Step 4 directamente
-                } else {
-                    // Si el bloqueo expiró, resetear valores en el usuario
-                    const userObj = { ...obj }; // Clonar objeto usuario para modificarlo
-                    try {
-                        userObj.lockoutEnabled = false;
-                        const data = {
-                            Id: userObj.id, // ID del usuario, asegurarte de que esté presente en el JSON almacenado.
-                            email: userObj.email, // Email del usuario.
-                            lockoutEnabled: userObj.lockoutEnabled, // Indica que el bloqueo está habilitado.
-                            lockoutEndDateUtc: lockoutEnd.toISOString(), // Fecha y hora en formato ISO 8601.
-                        };
+        try {
+            await SendToken(); // Llama a la función que reenvía el token
+        } catch (error) {
+            console.error("Error al reenviar el token:", error);
+        } finally {
+            setTimeout(() => setIsResendDisabled(false), 60000); // Desbloquea tras 1 minuto
+        }
+    };
 
+    const showErrorModal = (message: string) => {
+        setMessageError(message);
+        setIsErrorModalOpen(true);
+    };
 
-                        // Definir encabezados
-                        const headers = {
-                            'Content-Type': 'application/json',
-                            "Access-Control-Allow-Headers": "X-Requested-With",
-                            "Access-Control-Allow-Origin": "*",
-                        };
+    // Función para cerrar el modal de error
+    const closeErrorModal = () => {
+        setIsErrorModalOpen(false);
+    };
 
-                        const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_LOCKOUT_USER}`; // Cambia por tu endpoint real
-                        await axios.post(apiEndpoint, data, {
-                            headers
-                        });
-                    } catch (error) {
-                        console.error("Error al registrar el desbloqueo:", error);
-                    }
+    const checkLockout = async () => {
+        const usuario = localStorage.getItem("userData");
+        if (!usuario) return;
+
+        const obj = JSON.parse(usuario);
+
+        if (obj.lockoutEnabled) {
+            const lockoutEnd = new Date(obj.lockoutEndDateUtc);
+            const now = new Date();
+            setLoading(true);
+
+            if (now < lockoutEnd) {
+                // Si el bloqueo aún está vigente, calcular tiempo restante
+                setLockoutEndTime(lockoutEnd);
+                setActiveStep(4); // Ir al Step 4 directamente
+            } else {
+                // Si el bloqueo expiró, resetear valores en el usuario
+                const userObj = { ...obj }; // Clonar objeto usuario
+                try {
+                    userObj.lockoutEnabled = false;
+                    const data = {
+                        Id: userObj.id,
+                        email: userObj.email,
+                        lockoutEnabled: userObj.lockoutEnabled,
+                        lockoutEndDateUtc: null,
+                    };
+
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        "Access-Control-Allow-Headers": "X-Requested-With",
+                        "Access-Control-Allow-Origin": "*",
+                    };
+
+                    const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_LOCKOUT_USER}`;
+                    await axios.post(apiEndpoint, data, { headers });
 
                     userObj.lockoutEnabled = false;
                     userObj.lockoutEndDateUtc = null;
                     localStorage.setItem("userData", JSON.stringify(userObj));
-                    setLoading(false);
+                } catch (error) {
+                    console.error("Error al registrar el desbloqueo:", error);
                 }
             }
-        };
+        }
+        setLoading(false);
+    };
 
-        checkLockout(); // Llamar la función async
+
+    useEffect(() => {
+        checkLockout();
     }, []);
 
 
-
     const handleSendNewPassword = async () => {
-        if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden');
-            return;
-        }
 
         try {
 
             const data = {
-                Email:  email,
+                Email: email,
                 NewPassword: password,
                 TwoFactorAuthentication: enableTwoFactor
             };
@@ -113,16 +151,21 @@ const TermsAndConditions: React.FC = () => {
                 "Access-Control-Allow-Origin": "*"
             };
 
-            const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_NEWPASSWORD_USER}`; 
+            const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_NEWPASSWORD_USER}`;
             const response = await axios.post(apiEndpoint, data, {
                 headers
             });
             if (response.status === 200) {
+                const { user, token, expiration } = await response.data;
+                setLoading(false);
+                localStorage.setItem('token', token);
+                localStorage.setItem('expirationDate', expiration);
+                localStorage.setItem('userData', JSON.stringify(user));
                 navigate('/chooseroom');
             }
         } catch (error) {
             console.error("Error al registrar el desbloqueo:", error);
-
+            showErrorModal("Hubo un problema al cambiar su contraseña intente más tarde");
         }
 
     };
@@ -133,8 +176,8 @@ const TermsAndConditions: React.FC = () => {
     }
 
 
-    const SendToken = async (event: React.FormEvent) => {
-        event.preventDefault();
+    const SendToken = async (event?: React.FormEvent) => {
+        event?.preventDefault();
         setLoading(true);
         if (resendAttempts + 1 >= maxResendAttempts) {
             // Activar bloqueo
@@ -166,14 +209,14 @@ const TermsAndConditions: React.FC = () => {
                         "Access-Control-Allow-Origin": "*",
                     };
 
-                    const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_LOCKOUT_USER}`; 
+                    const apiEndpoint = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_LOCKOUT_USER}`;
                     await axios.post(apiEndpoint, data, {
                         headers
                     });
                 } catch (error) {
-                    console.error("Error al registrar el bloqueo:", error);
+                    console.error("Error al registrar el desbloqueo:", error);
+                    showErrorModal("Hubo un problema general, Intente más tarde");
                 }
-
             }
 
 
@@ -208,18 +251,19 @@ const TermsAndConditions: React.FC = () => {
                 if (response.status === 200) {
                     settoken(response.data);
                     setActiveStep(2);
-                    setCountdownTime(60000);
+                    startCountdown();
                     setResendAttempts(resendAttempts + 1);
                 }
                 setLoading(false);
             }
             catch (error) {
-                console.log(error);
+                console.error("Error al registrar el desbloqueo:", error);
+                showErrorModal("Hubo un problema al mandar su token");
             }
 
         }
     }
-    
+
 
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -238,6 +282,7 @@ const TermsAndConditions: React.FC = () => {
             if (response.status === 200) {
                 setActiveStep(1);
                 localStorage.setItem('userData', JSON.stringify(response.data));
+                checkLockout();
             }
             setLoading(false);
         }
@@ -249,21 +294,19 @@ const TermsAndConditions: React.FC = () => {
 
     }
 
-
-
     const handleCodeChange = (index: number, value: string) => {
-        if (value.length <= 1 && /^\d*$/.test(value)) {
-            // Permitir solo un número
+        if (/^\d$/.test(value) || value === "") {
             const newCode = [...authCode];
             newCode[index] = value;
             setAuthCode(newCode);
 
-            // Saltar al siguiente cuadro automáticamente
+            // Enfocar automáticamente el siguiente cuadro
             if (value && index < authCode.length - 1) {
                 inputRefs.current[index + 1]?.focus();
             }
         }
     };
+
 
     const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Backspace" && index > 0 && !authCode[index]) {
@@ -279,8 +322,8 @@ const TermsAndConditions: React.FC = () => {
         return true;
     }
 
-    const ValidateToken = async (event: React.FormEvent) => {
-        event.preventDefault();
+    const ValidateToken = async (event?: React.FormEvent) => {
+        event?.preventDefault();
 
         if (countdownTime === 0) { // Verificar si el contador expiró
             setCodeExpired(true); // Mostrar mensaje de expiración
@@ -291,6 +334,7 @@ const TermsAndConditions: React.FC = () => {
         if (authCode.join("") != token) {
             setIsCodeValid(false);
         } else {
+            setIsCodeValid(true);
             setActiveStep(3);
         }
         return true;
@@ -307,17 +351,11 @@ const TermsAndConditions: React.FC = () => {
                 inputRefs.current[index + 1]?.focus();
             }
 
-            // Comprobar si todos los dígitos están llenos y son válidos
-            const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-            const phoneNumber = userData?.phonenumber || "";
-
-            setIsPhoneDigitsValid(
-                updatedDigits.join("") === phoneNumber.slice(-4) &&
-                updatedDigits.every((digit) => digit !== "")
-            );
+            // Resetear estado de error al escribir
+            setIsPhoneDigitsValid(true);
+            setHasAttemptedValidation(false);
         }
     };
-
 
     const handleValidatePhoneDigits = () => {
         const userData = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -326,21 +364,61 @@ const TermsAndConditions: React.FC = () => {
         // Verificar si los 4 últimos dígitos coinciden
         const isValid = phoneDigits.join("") === phoneNumber.slice(-4);
 
+        setIsPhoneDigitsValid(isValid);
+        setHasAttemptedValidation(true);
+
         if (isValid) {
-            setIsPhoneDigitsValid(true);
             setActiveStep(2); // Avanzar al Step 2 si es válido
-        } else {
-            setIsPhoneDigitsValid(false); // Mostrar error en los cuadros
         }
+    };
+
+    const isPasswordValid = (password: string): boolean => {
+        return (
+            password.length >= 8 &&
+            /[A-Z]/.test(password) &&
+            /[a-z]/.test(password) &&
+            /\d/.test(password)
+        );
+    };
+
+    const handleAccept = () => {
+        setIsErrorModalOpen(false);
+        navigate("/login"); // Redirige a la página de login
     };
 
     return (
         <PublicLayout>
             <Container maxWidth="sm" fixed sx={{ marginTop: 2, marginBottom: 8 }}>
-                <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
-                    Recupera tu cuenta
+                <Typography
+                    variant="h4"
+                    align="center"
+                    gutterBottom
+                    sx={{
+                        textAlign: "center",
+                        font: "normal normal medium 28px/55px Poppins",
+                        letterSpacing: "0px",
+                        color: "#330F1B",
+                        opacity: 1,
+                    }}
+                >
+                    Recuperación de la cuenta
                 </Typography>
-                <Stepper activeStep={activeStep} alternativeLabel sx={{ marginBottom: 4 }}>
+                <Stepper
+                    activeStep={activeStep}
+                    alternativeLabel
+                    sx={{
+                        marginBottom: 4,
+                        '.MuiStepIcon-root': {
+                            color: '#833A53', // Color por defecto
+                        },
+                        '.MuiStepIcon-root.Mui-active': {
+                            color: '#833A53', // Color del paso activo
+                        },
+                        '.MuiStepIcon-root.Mui-completed': {
+                            color: '#833A53', // Color del paso completado
+                        }
+                    }}
+                >
                     <Step>
                         <StepLabel>Ingresar correo</StepLabel>
                     </Step>
@@ -358,6 +436,19 @@ const TermsAndConditions: React.FC = () => {
                     {activeStep === 0 && (
                         <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
                             <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal normal 16px/20px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        marginBottom: 1,
+                                    }}
+                                >
+                                    Ingrese el correo electrónico asociado para localizar su cuenta.
+                                </Typography>
                                 <TextField
                                     label="Correo electrónico"
                                     value={email}
@@ -365,6 +456,17 @@ const TermsAndConditions: React.FC = () => {
                                     variant="outlined"
                                     fullWidth
                                     required
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip title="Ingrese su correo registrado en el sistema">
+                                                    <IconButton>
+                                                        <InfoIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 />
                                 {errorMessage && (
                                     <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
@@ -374,17 +476,21 @@ const TermsAndConditions: React.FC = () => {
                                         </Link>
                                     </Typography>
                                 )}
-                                <Box display="flex" justifyContent="right" pt={2}>
-                                    <Button variant="outlined" onClick={() => navigate('/')}>
+                                <Box display="flex" justifyContent="space-between" pt={2}>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => navigate("/")}
+                                        sx={{ color: "#833A53", borderColor: "#833A53" }}
+                                    >
                                         Cancelar
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        sx={{ marginLeft: 2 }}
+                                        sx={{ backgroundColor: "#833A53", color: "#FFF" }}
                                         onClick={handleSubmit}
-                                        disabled={loading} // Deshabilita el botón mientras está en estado de carga
+                                        disabled={!isEmailValid(email) || loading}
                                     >
-                                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Recuperar'}
+                                        {loading ? <CircularProgress size={24} color="inherit" /> : "Recuperar"}
                                     </Button>
                                 </Box>
                             </Box>
@@ -397,47 +503,81 @@ const TermsAndConditions: React.FC = () => {
                                 border: "1px solid #ccc",
                                 borderRadius: "8px",
                                 padding: "20px",
-                                maxWidth: "400px",
+                                maxWidth: "500px",
                                 textAlign: "center",
                                 marginTop: "20px",
                             }}
                         >
-                            <Typography variant="body1" gutterBottom>
-                                Selecciona el canal por el cual prefiere recibir su código de
-                                autentificación
-                            </Typography>
-                            <RadioGroup
-                                value={SendType}
-                                onChange={onChangeValue}
+                            <Typography
+                                variant="body1"
+                                gutterBottom
                                 sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    marginTop: "20px",
-                                    padding: "0 20px",
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/20px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
                                 }}
                             >
-                                <FormControlLabel
-                                    value="SMS"
-                                    control={<Radio />}
-                                    label="SMS"
-                                    sx={{ textAlign: "left" }}
-                                />
-                                <FormControlLabel
-                                    value="EMAIL"
-                                    control={<Radio />}
-                                    label="Email"
-                                    sx={{ textAlign: "right" }}
-                                />
-                            </RadioGroup>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                disabled={loading}
-                                onClick={SendToken}
-                                sx={{ marginTop: "20px" }}
+                                Seleccione el canal por el cual prefiere recibir su código de autenticación
+                            </Typography>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    marginTop: "20px",
+                                }}
                             >
-                                Aceptar
-                            </Button>
+                                <RadioGroup
+                                    row
+                                    value={SendType}
+                                    onChange={onChangeValue}
+                                    sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                                >
+                                    <FormControlLabel
+                                        value="SMS"
+                                        control={<Radio sx={{
+                                            color: "#833A53",
+                                            '&.Mui-checked': {
+                                                color: "#833A53",
+                                            },
+                                        }} />}
+                                        label="SMS"
+                                        sx={{ textAlign: "left" }}
+                                    />
+                                    <FormControlLabel
+                                        value="EMAIL"
+                                        control={<Radio sx={{
+                                            color: "#833A53",
+                                            '&.Mui-checked': {
+                                                color: "#833A53",
+                                            },
+                                        }} />}
+                                        label="Correo electrónico"
+                                        sx={{ textAlign: "right" }}
+                                    />
+                                </RadioGroup>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    disabled={loading}
+                                    onClick={SendToken}
+                                    sx={{
+                                        textAlign: "center",
+                                        font: "normal normal 600 14px/54px Poppins",
+                                        letterSpacing: "1.12px",
+                                        color: "#FFFFFF",
+                                        textTransform: "uppercase",
+                                        opacity: 1,
+                                        backgroundColor: "#833A53",
+                                        padding: "0 20px",
+                                    }}
+                                >
+
+                                    Enviar
+                                </Button>
+                            </Box>
                         </Box>
                     )}
 
@@ -462,35 +602,64 @@ const TermsAndConditions: React.FC = () => {
 
                                 }}
                             >
-                                <Typography variant="body2">
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal 600 16px/20px Poppins",
+                                        letterSpacing: "0px",
+                                        opacity: 1,
+                                    }}
+                                >
                                     ¿El código no fue recibido o caduco?{" "}
                                     <Link
                                         component="button"
-                                        onClick={SendToken}
-                                        sx={{ fontWeight: "bold", cursor: "pointer" }}
+                                        onClick={handleResendToken}
+                                        disabled={isResendDisabled} // Deshabilita el botón si está bloqueado
+                                        sx={{
+                                            fontWeight: "bold",
+                                            cursor: isResendDisabled ? "not-allowed" : "pointer", // Cambia el cursor si está bloqueado
+                                            color: isResendDisabled ? "#ccc" : "#8F4D63", // Cambia el color si está bloqueado
+                                        }}
                                     >
-                                        REENVIAR
+                                        {isResendDisabled ? "Espere un minuto para otro Reenvio" : "REENVIAR"}
                                     </Link>
-                                    <Typography sx={{
+                                </Typography>
+
+                                <Typography
+                                    sx={{
                                         display: "flex",
                                         alignItems: "center",
-                                        justifyContent: "center", // Centra horizontalmente.
-                                        color: "#f44336", // Rojo.
-                                        fontWeight: "bold",
-                                        marginTop: "10px", // Separación del texto superior.
-                                    }}>
-                                        <span>Tu código expirará en:</span>
-                                        <Countdown
-                                            date={Date.now() + countdownTime}
-                                            renderer={({ minutes, seconds }) => (
+                                        justifyContent: "left", // Alineación a la izquierda
+                                        font: "normal normal normal 14px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#8F4D63",
+                                        opacity: 1,
+                                        marginTop: "10px", // Separación del texto superior
+                                    }}
+                                >
+                                    <span>Tiempo de expiración del código:</span>
+                                    <Countdown
+                                        date={startTime + countdownTime} // Recalcula la fecha final según `startTime`
+                                        renderer={({ minutes, seconds, completed }) => {
+                                            if (completed) {
+                                                setCodeExpired(true); // Mostrar mensaje de expiración
+                                                return <span>00:00</span>;
+                                            }
+                                            return (
                                                 <span>
-                                                    {`${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`}
+                                                    {`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
                                                 </span>
-                                            )}
-                                        />
-                                    </Typography>
+                                            );
+                                        }}
+                                    />
+
+
+
+
 
                                 </Typography>
+
                             </Box>
 
                             {/* Parte 2: Cajas de texto y contador */}
@@ -537,27 +706,58 @@ const TermsAndConditions: React.FC = () => {
                                     ))}
                                 </Box>
                                 {!isCodeValid && (
-                                    <Typography variant="body2" sx={{ color: "red", fontSize: "12px", marginTop: "50px" }}>
-                                        Código Inválido
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            color: codeExpired ? "red" : "inherit",
+                                            marginTop: "40px",
+                                        }}
+                                    >
+                                        "Código Inválido"
                                     </Typography>
                                 )}
                                 {codeExpired && (
                                     <Typography
                                         variant="body2"
-                                        sx={{ color: "red", fontSize: "12px", marginTop: "10px" }}
+                                        sx={{
+                                            color: "red",
+                                            fontSize: "14px",
+                                            marginTop: "40px",
+                                        }}
                                     >
-                                        El código expiró
+                                        El tiempo para validar el código expiró. Por favor, solicite un nuevo código.
                                     </Typography>
                                 )}
                             </Box>
                             {/* Parte 3: Botones */}
                             <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "30px" }}>
-                                <Button variant="outlined" onClick={Return}>
+                                <Button variant="outlined" onClick={Return} sx={{
+                                    color: "#833A53",
+                                    border: "1px solid #CCCFD2",
+                                    borderRadius: "4px",
+                                    opacity: 1,
+                                }}>
                                     Regresar
                                 </Button>
-                                <Button variant="contained" color="primary" onClick={ValidateToken}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={ValidateToken}
+                                    disabled={authCode.some((digit) => digit === "") || codeExpired} // Desactiva si faltan dígitos o expiró el tiempo
+                                    sx={{
+                                        background: "#833A53 0% 0% no-repeat padding-box",
+                                        border: "1px solid #60293C",
+                                        borderRadius: "4px",
+                                        opacity: 0.9,
+                                        color: "#FFFFFF",
+                                        "&:hover": {
+                                            backgroundColor: "#60293C",
+                                        },
+                                    }}
+                                >
                                     Validar
                                 </Button>
+
                             </Box>
                         </Box>
                     )}
@@ -565,7 +765,17 @@ const TermsAndConditions: React.FC = () => {
                     {activeStep === 3 && (
                         <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
                             <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
-                                <Typography variant="h6" gutterBottom>
+                                <Typography
+                                    variant="h6"
+                                    gutterBottom
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal normal 16px/20px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                    }}
+                                >
                                     Ingrese una nueva contraseña
                                 </Typography>
                                 <TextField
@@ -576,8 +786,59 @@ const TermsAndConditions: React.FC = () => {
                                     variant="outlined"
                                     fullWidth
                                     required
-                                    sx={{ marginBottom: 2 }}
+                                    error={!isPasswordValid(password) && password.length > 0}
+                                    helperText={
+                                        !isPasswordValid(password) && password.length > 0
+                                            ? "Debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número."
+                                            : ""
+                                    }
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip
+                                                    title={
+                                                        <Box sx={{ textAlign: "left" }}>
+                                                            <Typography
+                                                                sx={{
+                                                                    color: password.length >= 8 ? "green" : "red",
+                                                                }}
+                                                            >
+                                                                - Ingrese mínimo 8 caracteres
+                                                            </Typography>
+                                                            <Typography
+                                                                sx={{
+                                                                    color: /[A-Z]/.test(password) ? "green" : "red",
+                                                                }}
+                                                            >
+                                                                - Ingrese una letra mayúscula
+                                                            </Typography>
+                                                            <Typography
+                                                                sx={{
+                                                                    color: /[a-z]/.test(password) ? "green" : "red",
+                                                                }}
+                                                            >
+                                                                - Ingrese una letra minúscula
+                                                            </Typography>
+                                                            <Typography
+                                                                sx={{
+                                                                    color: /\d/.test(password) ? "green" : "red",
+                                                                }}
+                                                            >
+                                                                - Ingrese un número
+                                                            </Typography>
+                                                        </Box>
+                                                    }
+                                                    arrow
+                                                >
+                                                    <IconButton>
+                                                        <InfoIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 />
+
                                 <TextField
                                     label="Confirmar nueva contraseña"
                                     type="password"
@@ -586,8 +847,16 @@ const TermsAndConditions: React.FC = () => {
                                     variant="outlined"
                                     fullWidth
                                     required
-                                    sx={{ marginBottom: 2 }}
+                                    error={confirmPassword.length > 0 && confirmPassword !== password}
+                                    helperText={
+                                        confirmPassword.length > 0 && confirmPassword !== password
+                                            ? "La confirmación no coincide con la nueva contraseña."
+                                            : ""
+                                    }
+                                    sx={{ marginTop: 3 }} // Aquí se agrega un margen superior para separarlo
                                 />
+
+
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -601,18 +870,40 @@ const TermsAndConditions: React.FC = () => {
                                 <Box display="flex" justifyContent="space-between" pt={2}>
                                     <Button
                                         variant="outlined"
-                                        color="secondary"
-                                        onClick={() => setActiveStep(0)} 
+                                        onClick={() => {
+                                            setActiveStep(1);
+                                            setIsPhoneDigitsValid(true);
+                                            setLoading(false);
+                                        }}
+                                        sx={{
+                                            color: "#833A53",
+                                            border: "1px solid #CCCFD2",
+                                            borderRadius: "4px",
+                                            opacity: 1,
+                                        }}
                                     >
                                         Regresar
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        color="primary"
-                                        onClick={handleSendNewPassword} 
+                                        onClick={handleSendNewPassword}
+                                        disabled={
+                                            !isPasswordValid(password) ||
+                                            password !== confirmPassword ||
+                                            password === "" ||
+                                            confirmPassword === ""
+                                        }
+                                        sx={{
+                                            background: "#833A53 0% 0% no-repeat padding-box",
+                                            border: "1px solid #60293C",
+                                            borderRadius: "4px",
+                                            opacity: 0.9,
+                                            color: "#FFFFFF",
+                                        }}
                                     >
                                         Validar
                                     </Button>
+
                                 </Box>
                             </Box>
                         </Paper>
@@ -643,7 +934,7 @@ const TermsAndConditions: React.FC = () => {
                                 }}
                             >
                                 <Countdown
-                                    date={lockoutEndTime || new Date()} 
+                                    date={lockoutEndTime || new Date()}
                                     renderer={({ hours, minutes, seconds, completed }) =>
                                         completed ? (
                                             <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
@@ -668,10 +959,13 @@ const TermsAndConditions: React.FC = () => {
                                 marginTop: "20px",
                             }}
                         >
-                            <Typography variant="h5" gutterBottom>
-                                Recuperación de la cuenta
-                            </Typography>
-                            <Typography variant="body1" gutterBottom>
+                            <Typography variant="body1" gutterBottom sx={{
+                                textAlign: 'left',
+                                font: 'normal normal medium 16px/54px Poppins',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                opacity: 1,
+                            }} >
                                 Ingresa los 4 últimos dígitos del teléfono configurado
                             </Typography>
                             <Box
@@ -689,18 +983,28 @@ const TermsAndConditions: React.FC = () => {
                                         type="text"
                                         inputProps={{
                                             maxLength: 1,
-                                            style: { textAlign: "center" },
+                                            style: {
+                                                textAlign: "center",
+                                                font: "normal normal medium 26px/54px Poppins",
+                                                letterSpacing: "0px",
+                                                color: "#330F1B",
+                                                opacity: 1,
+                                            },
                                         }}
                                         inputRef={(el) => (inputRefs.current[index] = el)} // Asignar referencia
                                         onChange={(e) => handlePhoneDigitsChange(index, e.target.value)} // Manejar cambios
-                                        onKeyDown={(e) => handleKeyDown(index, e as React.KeyboardEvent<HTMLInputElement>)}
-                                        error={!isPhoneDigitsValid && digit === ""} // Mostrar error si es inválido
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Backspace" && !digit && index > 0) {
+                                                inputRefs.current[index - 1]?.focus(); // Enfocar cuadro anterior
+                                            }
+                                        }}
+                                        error={hasAttemptedValidation && !isPhoneDigitsValid} // Mostrar error solo después de intentar validar
                                         sx={{ width: "50px", height: "50px" }}
                                     />
                                 ))}
                             </Box>
 
-                            {!isPhoneDigitsValid && (
+                            {hasAttemptedValidation && !isPhoneDigitsValid && (
                                 <Typography variant="body2" color="error" sx={{ marginTop: 2 }}>
                                     Los dígitos ingresados son incorrectos. Por favor, inténtalo nuevamente.
                                 </Typography>
@@ -712,13 +1016,41 @@ const TermsAndConditions: React.FC = () => {
                                     marginTop: "20px",
                                 }}
                             >
-                                <Button variant="outlined" onClick={() => setActiveStep(1)}>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => {
+                                        setActiveStep(1);
+                                        setIsPhoneDigitsValid(true);
+                                        setLoading(false);
+                                    }}
+                                    sx={{
+                                        color: '#833A53',
+                                        border: '1px solid #CCCFD2',
+                                        borderRadius: '4px',
+                                        opacity: 1,
+                                    }}
+                                >
                                     Regresar
                                 </Button>
                                 <Button
                                     variant="contained"
-                                    color="primary"
-                                    onClick={handleValidatePhoneDigits}
+                                    onClick={() => {
+                                        handleValidatePhoneDigits();
+                                        SendToken();
+                                    }}
+                                    disabled={
+                                        phoneDigits.some(
+                                            digit => digit === '' ||
+                                                phoneDigits.join('') !== JSON.parse(localStorage.getItem('userData') || '{}')?.phonenumber?.slice(-4)
+                                        )
+                                    }
+                                    sx={{
+                                        background: '#833A53 0% 0% no-repeat padding-box',
+                                        border: '1px solid #60293C',
+                                        borderRadius: '4px',
+                                        opacity: 0.9,
+                                        color: '#FFFFFF',
+                                    }}
                                 >
                                     Validar
                                 </Button>
@@ -728,6 +1060,48 @@ const TermsAndConditions: React.FC = () => {
 
 
                 </Box>
+                <Modal
+                    open={isErrorModalOpen}
+                    onClose={closeErrorModal}
+                    aria-labelledby="error-modal-title"
+                    aria-describedby="error-modal-description"
+                >
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: 400,
+                            bgcolor: "background.paper",
+                            border: "2px solid #ccc",
+                            borderRadius: "8px",
+                            boxShadow: 24,
+                            p: 4,
+                        }}
+                    >
+                        <Typography id="error-modal-title" variant="h6" component="h2">
+                            Error en la recuperación de cuenta
+                        </Typography>
+                        <Typography id="error-modal-description" sx={{ mt: 2 }}>
+                            {messageError}
+                        </Typography>
+                        <Button
+                            onClick={handleAccept}
+                            sx={{
+                                background: "#833A53 0% 0% no-repeat padding-box",
+                                border: "1px solid #60293C",
+                                borderRadius: "4px",
+                                opacity: 0.9,
+                                color: "#FFFFFF",
+                                width: "100%",
+                                "&:hover": { backgroundColor: "#60293C" },
+                            }}
+                        >
+                            Aceptar
+                        </Button>
+                    </Box>
+                </Modal>
             </Container>
         </PublicLayout>
     );

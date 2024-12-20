@@ -30,5 +30,6 @@ namespace Contract.Response
         public string SecondaryEmail { get; set; }
         public bool? futurerooms { get; set; }
         public string Client { get; set; }
+        public string rol { get; set; }
     }
 }
