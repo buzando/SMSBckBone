@@ -188,13 +188,13 @@ namespace SMSBackboneAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("SendConfirmation")]
-        public IActionResult sendConfirmationMail(string dato, string tipo)
+        public IActionResult sendConfirmationMail(string dato, string tipo, string reason)
         {
             GeneralErrorResponseDto errorResponse = new GeneralErrorResponseDto();
 
 
             var userManager = new Business.UserManager();
-            var token = userManager.EnvioCodigo(dato, tipo);
+            var token = userManager.EnvioCodigo(dato, tipo, reason);
             if (!string.IsNullOrEmpty(token))
             {
                 var response = Ok(token);
@@ -522,7 +522,7 @@ namespace SMSBackboneAPI.Controllers
 
                 if (room)
                 {
-                    var enviomail = new UserManager().EnvioCodigo(user.ConfirmationEmail, "EMAIL");
+                    var enviomail = new UserManager().EnvioCodigo(user.Email, "EMAIL", "Register");
                     if (string.IsNullOrEmpty(enviomail))
                     {
                         return BadRequest(new GeneralErrorResponseDto() { code = "ConfirmationUnsent", description = "ConfirmationUnsent" });

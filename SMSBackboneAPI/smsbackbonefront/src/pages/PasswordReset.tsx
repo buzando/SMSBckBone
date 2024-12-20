@@ -243,7 +243,7 @@ const TermsAndConditions: React.FC = () => {
                 dato = obj.email;
             }
             try {
-                const request = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_AUTENTIFICATION_ENDPOINT}?dato=${dato}&tipo=${SendType}`;
+                const request = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_AUTENTIFICATION_ENDPOINT}?dato=${dato}&tipo=${SendType}&reason=Code`;
                 const response = await axios.get(
                     request
                 );

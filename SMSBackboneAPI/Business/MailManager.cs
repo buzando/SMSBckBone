@@ -66,9 +66,9 @@ namespace Business
                     break;
                 case "Register":
                    var sitiofront = Common.ConfigurationManagerJson("UrlSitio");
-                    link =  $"{url}?email={email}";
+                    link =  $"{sitiofront.Replace("Login", "ConfigurationAccount")}?email={email}";
                     msgBody = $"<h1>Register user</h1>" + $"Please click on the following link to finish your register:<p>" +
-                       $"<a href=\"{link}\">Recover Password</a></p>";
+                       $"<a href=\"{link}\">Finish Register</a></p>";
                     break;
                 default:
                     msgBody = "";

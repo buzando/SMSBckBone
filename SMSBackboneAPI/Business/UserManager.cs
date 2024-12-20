@@ -216,7 +216,7 @@ namespace Business
             return token;
         }
 
-        public string EnvioCodigo(string dato, string tipo)
+        public string EnvioCodigo(string dato, string tipo, string type)
         {
 
             var token = string.Empty;
@@ -230,7 +230,7 @@ namespace Business
 
                     token = randomNumber.ToString();
 
-                    var body = MailManager.GenerateMailMessage(dato, token, "", "confirmation");
+                    var body = MailManager.GenerateMailMessage(dato, token, "", type);
                     bool emailResponse = MailManager.SendEmail(dato, "Confirm your email", body);
 
                 }
