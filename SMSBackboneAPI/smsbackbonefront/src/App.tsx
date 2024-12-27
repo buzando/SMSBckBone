@@ -63,8 +63,8 @@ function App() {
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='es-mx'>
                 <ThemeProvider theme={theme}>
                     <CssBaseline />
-                    <BrowserRouter>
-                        <Routes basename='/SMS/'>
+                    <BrowserRouter basename='/SMS/'>
+                        <Routes>
                             <Route path="/login" element={<LoginPage />} />
                             <Route element={<AutentificationRoute />}>
                                 <Route path="/Autentification" element={<AutentificationPage />} />

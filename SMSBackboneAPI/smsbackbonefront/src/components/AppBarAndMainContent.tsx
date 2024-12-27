@@ -1,37 +1,25 @@
 ﻿import React, { useState, useContext, useEffect } from 'react';
 import { styled, Theme, CSSObject } from '@mui/material/styles';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { AppContext } from '../hooks/useContextInitialState'
 import { getColorRole } from '../types/Types';
-import appIcon_svg from '../assets/AppIcon.svg'
 import nuxiba_svg from '../assets/nuxiba.svg'
 import MuiDrawer from '@mui/material/Drawer';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import CssBaseline from '@mui/material/CssBaseline';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SmartphoneIcon from '@mui/icons-material/Smartphone';
-import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -41,14 +29,26 @@ import HistoryIcon from '@mui/icons-material/History';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
-import StoreIcon from '@mui/icons-material/Store';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
-import HomeIcon from '@mui/icons-material/Home';
 import EditIcon from "@mui/icons-material/Edit";
 import Fab from "@mui/material/Fab";
 import HelpIcon from "@mui/icons-material/Help";
 import Modal from "@mui/material/Modal";
-
+import {
+    Box,
+    IconButton,
+    Typography,
+    Menu,
+    MenuItem,
+    Avatar,
+    Tooltip,
+    Button,
+    TextField,
+    Portal,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import DropDownIcon from '../assets/icon-punta-flecha-bottom.svg';
+import HomeIcon from '@mui/icons-material/Home';
 
 const drawerWidth = 280;
 
@@ -73,7 +73,13 @@ const pages: Page[] = [
     { id: 0, title: 'Inicio', path: '/', icon: <HomeIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 1, title: 'Usuarios', path: '/users', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 2, title: 'Facturación', path: '/billing', icon: <LocalAtmIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 2, title: 'Administración', path: '', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+            { id: 1, title: 'Usuarios', path: '/users', icon: <PeopleAltIcon sx={{ color: 'white' }} /> },
+            { id: 2, title: 'Salas', path: '/rooms', icon: <HomeIcon sx={{ color: 'white' }} /> },
+        ]
+    },
+    {
+        id: 3, title: 'Facturación', path: '/billing', icon: <LocalAtmIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Historial de pagos', path: '/billing/paymenthistory', icon: <HistoryIcon sx={{ color: 'white' }} /> },
             { id: 2, title: 'Métodos de pago', path: '/billing/paymentmethods', icon: <PaymentIcon sx={{ color: 'white' }} /> },
             { id: 3, title: 'Uso', path: '/billing/paymentusage', icon: <DataUsageIcon sx={{ color: 'white' }} /> },
@@ -81,17 +87,29 @@ const pages: Page[] = [
             { id: 5, title: 'Ajustes de pago', path: '/billing/paymentsettings', icon: <SettingsSuggestIcon sx={{ color: 'white' }} /> },
         ]
     },
-    { id: 3, title: 'Reportes', path: '/reports', icon: <AssessmentIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 4, title: 'Reportes', path: '/reports', icon: <AssessmentIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 4, title: 'Números', path: '/numbers', icon: <SmartphoneIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
-            { id: 1, title: 'Mis números', path: '/numbers/mynumbers', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
-            { id: 2, title: 'Comprar números', path: '/numbers/buynumbers', icon: <StoreIcon sx={{ color: 'white' }} /> },
+        id: 5, title: 'SMS', path: '/numbers', icon: <SmartphoneIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+            { id: 1, title: 'Configuración SMS', path: '/sms', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
         ]
     },
-    { id: 5, title: 'Prueba de API', path: '/apitest', icon: <CloudSyncIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 6, title: 'Ayuda', path: '/help', icon: <HelpOutlineIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+
+    // Opciones del botón de usuario
+    { id: 7, title: 'Editar cuenta', path: '/ManageAccount', icon: <EditIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 8, title: 'Administrar cuentas', path: '/UserAdministration', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 9, title: 'Cerrar sesión', path: '', icon: <Avatar sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
 ];
 
+type Room = {
+    id: string | number;
+    name: string;
+    client: string;
+    description: string; // Ajustado desde "dscription"
+    credits: number;
+    long_sms: number;
+    calls: number;
+};
 
 type Props = {
     children: React.ReactNode;
@@ -181,44 +199,115 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 
 const NavBarAndDrawer: React.FC<Props> = props => {
+    const [searchOpen, setSearchOpen] = useState(false);
+
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const[selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const [rooms, setRooms] = useState<Room[]>([]);
+    const [userName, setUserName] = useState<string>('');
+    const [filteredPages, setFilteredPages] = useState<Page[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
-    const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-    const [openDrawer, setOpenDrawer] = React.useState(false);
     const [openSubMenuBilling, setOpenSubMenuBilling] = useState(false);
     const [openSubMenuNumbers, setOpenSubMenuNumbers] = useState(false);
     const { contextState, setContextState } = useContext(AppContext)
     const { user } = contextState
     const [openSubMenu, setOpenSubMenu] = useState(false); // Submenú de administración
- 
     const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
+
+
+
     const openHelpModal = () => setHelpModalIsOpen(true);
     const closeHelpModal = () => setHelpModalIsOpen(false);
 
     const isAdmin = user?.rol === 'Administrador'
-    const handleDrawerOpen = () => {
-        setOpenDrawer(true);
-    };
-
-    const handleDrawerClose = () => {
-        setOpenDrawer(false);
-        setOpenSubMenuBilling(false);
-        setOpenSubMenuNumbers(false);
-    };
 
     useEffect(() => {
-        if (openSubMenuBilling || openSubMenuNumbers) {
-            setOpenDrawer(true);
+        // Cargar datos desde localStorage
+        const storedRooms = localStorage.getItem('ListRooms');
+        const usuario = localStorage.getItem("userData");
+
+        const obj = JSON.parse(usuario!);
+
+
+        const currentRoom = localStorage.getItem('selectedRoom');
+
+        if (storedRooms) {
+            try {
+                const parsedRooms = JSON.parse(storedRooms);
+                if (Array.isArray(parsedRooms)) {
+                    setRooms(parsedRooms);
+                } else {
+                    console.error('Los datos de las salas no están en el formato correcto.');
+                }
+            } catch (error) {
+                console.error('Error al parsear las salas desde localStorage', error);
+            }
         }
-    }, [openSubMenuBilling, openSubMenuNumbers]);
+        if (usuario) {
+            setUserName(obj.firstName);
+        }
+        if (currentRoom) {
+            try {
+                const room = JSON.parse(currentRoom);
+                setSelectedRoom(room);  // Esto debería ser un solo objeto Room, no un array
+            } catch (error) {
+                console.error('Error al parsear la sala seleccionada desde localStorage', error);
+            }
+        }
+        setFilteredPages([]);
+
+        // Actualizar los resultados de búsqueda
+        const results: Page[] = pages
+            .flatMap((page) =>
+                // Solo considerar páginas que no tengan submenús
+                !page.hasSubMenus
+                    ? [page]
+                    : [] // No agregamos las páginas con submenús
+            )
+            .filter((item) =>
+                searchTerm && item.title.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .sort((a, b) => {
+                const search = searchTerm.toLowerCase();
+                const aTitle = a.title.toLowerCase();
+                const bTitle = b.title.toLowerCase();
+
+                const aStartsWith = aTitle.startsWith(search);
+                const bStartsWith = bTitle.startsWith(search);
+
+                // Priorizar los resultados que comienzan con el término buscado
+                if (aStartsWith && !bStartsWith) return -1;
+                if (!aStartsWith && bStartsWith) return 1;
+
+                // Ordenar alfabéticamente los demás resultados
+                return aTitle.localeCompare(bTitle);
+            });
+
+        setFilteredPages(results);
+    }, [searchTerm, openSubMenuBilling, openSubMenuNumbers]);
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);  // Establecer correctamente el anchorEl
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    // Función para seleccionar una sala
+    const handleRoomChange = (room: Room) => {
+        setSelectedRoom(room);
+        localStorage.setItem('selectedRoom', JSON.stringify(room));
+        setAnchorEl(null);
+    };
+
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
 
     const handleCloseUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(null);
@@ -253,173 +342,522 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     return (
         <>
             <CssBaseline />
-            <AppBar position="fixed" open={openDrawer} sx={{ borderBottom: 1, borderColor: 'primary.main' }}>
+            <AppBar position="fixed" sx={{ bgcolor: '#290013' }}>
                 <Toolbar>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
-                        <IconButton
-                            color="inherit"
-                            onClick={handleDrawerOpen}
-                            edge="start"
-                            sx={{
-                                marginRight: 2,
-                                ...(openDrawer && { display: 'none' }),
-                            }}
-                        >
+                    {/* Sección Izquierda */}
+                    <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+                        <IconButton color="inherit" onClick={() => console.log('Drawer opened')}>
                             <MenuIcon />
                         </IconButton>
-                        <IconButton
-                            color='inherit'
-                            onClick={handleDrawerClose}
-                            edge="start"
-                            sx={{
-                                marginRight: 2,
-                                ...(!openDrawer && { display: 'none' }),
-                            }}>
-                            <ChevronLeftIcon />
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{
-                                display: { xs: 'block', md: 'block' },
-                            }}
-                        >
-                            {pages.map((page) => (
-                                <Link to={page.path} key={page.id} style={{ textDecoration: 'none', color: 'currentColor' }}>
-                                    <MenuItem key={page.id} onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">{page.title}</Typography>
-                                    </MenuItem>
-                                </Link>
-                            ))}
-                        </Menu>
-                        <IconButton edge="start" color="inherit" aria-label="menu" onClick={() => navigate('/')}>
-                            <img src={appIcon_svg} alt="App Icon" width="170" />
-                        </IconButton>
+                        <Typography variant="h6" color="inherit" sx={{ ml: 2 }}>
+                            connectSMS
+                        </Typography>
                     </Box>
-
-                    {/* Información y menú del Usuario */}
-                    <Box sx={{ flexGrow: 0 }}>
-                        <Tooltip title={user.userName}>
-                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt={user.userName} sx={{ bgcolor: getColorRole(user.rol) }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Menu
-                            sx={{ mt: '45px' }}
-                            id="menu-appbar"
-                            anchorEl={anchorElUser}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
+                    {/* Buscador */}
+                    {!searchOpen ? (
+                        <IconButton color="inherit" onClick={() => setSearchOpen(true)}>
+                            <SearchIcon />
+                        </IconButton>
+                    ) : (
+                        <Box
+                            sx={{
+                                position: 'relative',
+                                display: 'flex',
+                                alignItems: 'center',
+                                bgcolor: 'background.paper',
+                                borderRadius: '5px',
+                                boxShadow: 2,
+                                border: '1px solid #7B354D', // Borde del mismo color que las letras
+                                height: '40px',
+                                width: '300px',
                             }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean(anchorElUser)}
-                            onClose={handleCloseUserMenu}
                         >
-                            <MenuItem onClick={() => navigate('/ManageAccount')}>
-                                <Typography textAlign="left">
-                                    <Box display="flex" alignItems="center">
-                                        <EditIcon sx={{ fontSize: 20, mr: 1 }} />
-                                        Editar cuenta
-                                    </Box>
-                                </Typography>
-                            </MenuItem>
-                            {isAdmin && (
-                                <MenuItem onClick={() => navigate('/UserAdministration')}>
-                                    <Typography textAlign="left">
-                                        <Box display="flex" alignItems="center">
-                                            <PeopleAltIcon sx={{ fontSize: 20, mr: 1 }} />
-                                            Administrar cuentas
+                            {/* Campo de texto para búsqueda */}
+                            <TextField
+                                fullWidth
+                                placeholder="Buscar"
+                                variant="outlined"
+                                size="small"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <SearchIcon sx={{ color: '#7B354D', marginRight: 1 }} />
+                                    ),
+                                    endAdornment: (
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => {
+                                                setSearchTerm('');
+                                                setFilteredPages([]);
+                                            }}
+                                            sx={{ color: '#7B354D' }} // Color del ícono de limpiar
+                                        >
+                                            ✖
+                                        </IconButton>
+                                    ),
+                                    style: {
+                                        height: '100%',
+                                        textAlign: 'left',
+                                        fontFamily: 'Poppins, sans-serif',
+                                        fontSize: '16px',
+                                        lineHeight: '25px',
+                                        letterSpacing: '0px',
+                                        color: '#7B354D',
+                                        opacity: 1,
+                                    },
+                                }}
+                            />
+                            {/* Mostrar resultados filtrados */}
+                                {searchTerm ? (
+                                    filteredPages.length > 0 ? (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: '40px',
+                                                left: 0,
+                                                width: '100%',
+                                                bgcolor: 'background.paper',
+                                                boxShadow: 3,
+                                                zIndex: 1500,
+                                                borderRadius: '0 0 5px 5px',
+                                                border: '1px solid #7B354D',
+                                                borderTop: 'none',
+                                                maxHeight: '200px',
+                                                overflowY: 'auto',
+                                                padding: 2,
+                                            }}
+                                        >
+                                            {filteredPages.map((page) => (
+                                                <MenuItem
+                                                    key={page.id}
+                                                    onClick={() => {
+                                                        navigate(page.path);
+                                                        setSearchOpen(false);
+                                                        setSearchTerm('');
+                                                    }}
+                                                >
+                                                    <Typography
+                                                        sx={{
+                                                            textAlign: 'left',
+                                                            fontFamily: 'Poppins, sans-serif',
+                                                            fontSize: '16px',
+                                                            lineHeight: '25px',
+                                                            color: '#7B354D', // Color del texto
+                                                        }}
+                                                    >
+                                                        {page.title}
+                                                    </Typography>
+                                                </MenuItem>
+                                            ))}
                                         </Box>
-                                    </Typography>
-                                </MenuItem>
-                            )}
-                            <MenuItem onClick={() => console.log("Datos de facturación")}>
-                                <Typography textAlign="left">
-                                    <Box display="flex" alignItems="center">
-                                        <LocalAtmIcon sx={{ fontSize: 20, mr: 1 }} />
-                                        Datos de facturación
-                                    </Box>
-                                </Typography>
-                            </MenuItem>
-                            <MenuItem onClick={() => console.log("Términos y condiciones")}>
-                                <Typography textAlign="left">
-                                    <Box display="flex" alignItems="center">
-                                        <ChecklistRtlIcon sx={{ fontSize: 20, mr: 1 }} />
-                                        Términos y condiciones
-                                    </Box>
-                                </Typography>
-                            </MenuItem>
-                            <MenuItem id="3" onClick={handleCloseUserMenu}>
-                                <Typography textAlign="left">
-                                    <Box display="flex" alignItems="center">
-                                        <Avatar sx={{ fontSize: 20, mr: 1 }} />
-                                        Cerrar sesión
-                                    </Box>
-                                </Typography>
-                            </MenuItem>
-                        </Menu>
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: '40px',
+                                                left: 0,
+                                                width: '100%',
+                                                bgcolor: 'background.paper',
+                                                boxShadow: 3,
+                                                zIndex: 1500,
+                                                borderRadius: '0 0 5px 5px',
+                                                border: '1px solid #7B354D',
+                                                borderTop: 'none',
+                                                maxHeight: '200px',
+                                                overflowY: 'auto',
+                                                padding: 2,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    textAlign: 'center',
+                                                    fontFamily: 'Poppins, sans-serif',
+                                                    fontSize: '16px',
+                                                    lineHeight: '25px',
+                                                    color: '#7B354D',
+                                                    opacity: 1,
+                                                }}
+                                            >
+                                                No se encontraron resultados
+                                            </Typography>
+                                        </Box>
+                                    )
+                                ) : null}
 
 
-                    </Box>
-                </Toolbar>
-            </AppBar>
-            <Drawer variant="permanent" open={true} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white' } }}>
-                <DrawerHeader />
-                <Box sx={{ display: 'flex', justifyContent: 'center', margin: 2, ...(!openDrawer && { display: 'none' }) }}>
-                    <Paper
-                        elevation={20}
+                        </Box>
+                    )}
+
+
+                    {/* Selector de salas */}
+                    <Box
+                        display="flex"
+                        alignItems="center"
                         sx={{
-                            width: '90%',
+                            ml: 2,
+                            padding: '4px 8px',
+                            backgroundColor: '#fff',
                             borderRadius: '16px',
-                            border: '1px solid gray',
-                            backgroundColor: '#FFFFFF',
+                            border: '1px solid #ddd',
+                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                            justifyContent: 'space-between',
+                            minWidth: '300px',
+                            maxWidth: '350px',
+                            height: '50px',
                         }}
                     >
-                        <Box sx={{ padding: '16px' }}>
-                            <Typography variant="subtitle2" fontWeight="bold" align="left" color="#574B4F">
-                                Créditos SMS
+                        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+                            {/* Ícono de la casa */}
+                            <HomeIcon
+                                sx={{
+                                    backgroundColor: '#B0B0B0',
+                                    borderRadius: '50%',
+                                    padding: '8px',
+                                    fontSize: 35,
+                                    color: 'white',
+                                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                                }}
+                            />
+                            <Box sx={{ marginLeft: '10px' }}>
+                                {/* Nombre de la sala */}
+                                <Typography
+                                    variant="body1"
+                                    color="inherit"
+                                    sx={{
+                                        fontWeight: 'bold',
+                                        fontSize: '14px',
+                                        color: '#000',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                >
+                                    {selectedRoom && selectedRoom.name ? selectedRoom.name : 'Seleccione una sala'}
+                                </Typography>
+                                {/* Descripción */}
+                                <Typography
+                                    variant="body2"
+                                    color="textSecondary"
+                                    sx={{
+                                        fontSize: '12px',
+                                        color: '#888',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                >
+                                    {selectedRoom && selectedRoom.description ? `Descripción: ${selectedRoom.description}` : 'Sin descripción'}
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        {/* Ícono del menú */}
+                        <IconButton
+                            color="inherit"
+                            onClick={handleMenuOpen}
+                            sx={{ color: 'black' }}
+                        >
+                            <img src={DropDownIcon} alt="dropdown" width="24" height="24" />
+                        </IconButton>
+                    </Box>
+
+                    {/* Menú desplegable */}
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleMenuClose}
+                        sx={{
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            zIndex: 1300, // Asegura que el menú esté encima de otros elementos
+                        }}
+                    >
+                        {/* Mostrar las salas en el menú */}
+                        {rooms.map((room) => (
+                            <MenuItem key={room.id} onClick={() => handleRoomSelect(room)}>
+                                <Typography variant="body1">{room.name}</Typography>
+                            </MenuItem>
+                        ))}
+                    </Menu>
+
+
+
+                    {/* Usuario */}
+                    <Tooltip title={user.userName || 'Usuario'}>
+                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, ml: 2 }}>
+                            <Avatar alt={user.userName} sx={{ bgcolor: getColorRole(user.rol) }} />
+                        </IconButton>
+                    </Tooltip>
+                    <Menu
+                        anchorEl={anchorElUser}
+                        open={Boolean(anchorElUser)}
+                        onClose={handleCloseUserMenu}
+                        sx={{ mt: 1 }} // Espaciado opcional entre el avatar y el menú
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center', // Anclar el menú al centro horizontal del avatar
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center', // El inicio del menú se alinea con el centro del avatar
+                        }}
+                    >
+                        <MenuItem onClick={() => navigate('/ManageAccount')}>
+                            <Typography textAlign="center">
+                                <Box display="flex" alignItems="center">
+                                    <EditIcon sx={{ fontSize: 20, mr: 1 }} />
+                                    Editar cuenta
+                                </Box>
+                            </Typography>
+                        </MenuItem>
+                        {isAdmin && (
+                            <MenuItem onClick={() => navigate('/UserAdministration')}>
+                                <Typography textAlign="center">
+                                    <Box display="flex" alignItems="center">
+                                        <PeopleAltIcon sx={{ fontSize: 20, mr: 1 }} />
+                                        Administrar cuentas
+                                    </Box>
+                                </Typography>
+                            </MenuItem>
+                        )}
+                        <MenuItem onClick={() => console.log('Cerrar sesión')}>
+                            <Typography textAlign="center">
+                                <Box display="flex" alignItems="center">
+                                    <Avatar sx={{ fontSize: 20, mr: 1 }} />
+                                    Cerrar sesión
+                                </Box>
+                            </Typography>
+                        </MenuItem>
+                    </Menu>
+                </Toolbar>
+            </AppBar>
+
+
+
+            <Drawer variant="permanent" open={true} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white' } }}>
+                <DrawerHeader />
+
+                <Box
+                    sx={{
+                        background: '#FFFFFF', // Fondo blanco
+                        border: '1px solid #DDD8DA',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '90%', // Mantener el ancho del contenedor principal
+                        marginX: 'auto',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Sombra general
+                    }}
+                >
+                    {/* Contenedor para el encabezado y los botones */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between', // Asegura que los elementos se separen
+                            alignItems: 'center',
+                            marginBottom: '16px',
+                        }}
+                    >
+                        {/* Créditos totales con sombra */}
+                        <Box
+                            sx={{
+                                background: '#DDD8D933', // Fondo semitransparente
+                                border: '1px solid #DDD8DA',
+                                borderRadius: '8px',
+                                padding: '12px',
+                                width: '80%', // Más pequeño y pegado a la izquierda
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal bold 14px/20px Poppins',
+                                    color: '#833A53',
+                                }}
+                            >
+                                Créditos Totales SMS
                             </Typography>
                             <Typography
-                                variant="h4"
-                                fontWeight="bold"
-                                align="center"
-                                my={1}
-                                color="#330F1B"
+                                sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal bold 24px/32px Poppins',
+                                    color: '#833A53',
+                                    marginTop: '4px',
+                                }}
                             >
                                 10,000
                             </Typography>
-                            <Box display="flex" justifyContent="space-between">
-                                <Button variant="outlined" color="primary" size="small">
-                                    Gestionar
-                                </Button>
-                                <Button variant="outlined" color="primary" size="small">
-                                    Recargar
-                                </Button>
+                            {/* Créditos cortos y largos */}
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginTop: '8px',
+                                }}
+                            >
+                                <Box sx={{ textAlign: 'left', flex: 1 }}>
+                                    <Typography
+                                        sx={{
+                                            font: 'normal normal 500 12px Poppins',
+                                            color: '#833A53',
+                                        }}
+                                    >
+                                        # Cortos
+                                    </Typography>
+                                    <Typography
+                                        sx={{
+                                            font: 'normal normal bold 14px Poppins',
+                                            color: '#833A53',
+                                            marginTop: '4px',
+                                        }}
+                                    >
+                                        5,000
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ textAlign: 'left', flex: 1 }}>
+                                    <Typography
+                                        sx={{
+                                            font: 'normal normal 500 12px Poppins',
+                                            color: '#833A53',
+                                        }}
+                                    >
+                                        # Largos
+                                    </Typography>
+                                    <Typography
+                                        sx={{
+                                            font: 'normal normal bold 14px Poppins',
+                                            color: '#833A53',
+                                            marginTop: '4px',
+                                        }}
+                                    >
+                                        5,000
+                                    </Typography>
+                                </Box>
                             </Box>
                         </Box>
-                    </Paper>
+
+                        {/* Botones redondos */}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '8px', // Espacio entre los botones
+                                alignItems: 'center',
+                            }}
+                        >
+                            {/* Botón circular con ícono de cambio */}
+                            <IconButton
+                                sx={{
+                                    background: '#FFFFFF',
+                                    border: '1px solid #DDD8DA',
+                                    borderRadius: '50%', // Botón redondo
+                                    padding: '8px',
+                                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Sombra
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <img
+                                    src="/path-to-icon" // Reemplaza con el ícono correcto
+                                    alt="Icono"
+                                    style={{ width: '20px', height: '20px' }}
+                                />
+                            </IconButton>
+
+                            <IconButton
+                                sx={{
+                                    background: 'transparent', // Fondo transparente
+                                    border: 'none', // Sin borde
+                                    borderRadius: '50%', // Botón redondo
+                                    padding: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#833A53', // Color del texto
+                                    boxShadow: 'none', // Sin sombra
+                                    '&:hover': {
+                                        background: '#F5F5F5', // Fondo suave al pasar el mouse
+                                    },
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        font: 'normal normal bold 16px Poppins',
+                                        color: '#833A53', // Color del texto
+                                    }}
+                                >
+                                    {'>'}
+                                </Typography>
+                            </IconButton>
+
+                        </Box>
+                    </Box>
+
+                    {/* Botones Gestionar y Recargar */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            marginTop: '16px',
+                        }}
+                    >
+                        <Button
+                            variant="contained"
+                            sx={{
+                                textAlign: 'center',
+                                font: 'normal normal 600 14px/20px Poppins',
+                                color: '#833A53',
+                                background: '#FFF',
+                                borderRadius: '8px',
+                                padding: '6px 16px',
+                                boxShadow: 'none',
+                                '&:hover': {
+                                    background: '#F5F5F5',
+                                },
+                            }}
+                        >
+                            Gestionar
+                        </Button>
+                        <Button
+                            variant="contained"
+                            sx={{
+                                textAlign: 'center',
+                                font: 'normal normal 600 14px/20px Poppins',
+                                color: '#833A53',
+                                background: '#FFF',
+                                borderRadius: '8px',
+                                padding: '6px 16px',
+                                boxShadow: 'none',
+                                '&:hover': {
+                                    background: '#F5F5F5',
+                                },
+                            }}
+                        >
+                            Recargar
+                        </Button>
+                    </Box>
                 </Box>
+
+
+
+
+
+
                 <List>
+                    {/* Menú de Administración */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
                             <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                <HomeIcon />
+                                <PeopleAltIcon />
                             </ListItemIcon>
                             <ListItemText
                                 primary="Administración"
@@ -465,7 +903,110 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             </Link>
                         </List>
                     </Collapse>
+
+                    {/* Menú de SMS */}
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => setOpenSubMenuNumbers(!openSubMenuNumbers)} sx={{ borderRadius: '8px' }}>
+                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                <SmartphoneIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="SMS"
+                                primaryTypographyProps={{
+                                    fontWeight: 'bold',
+                                    color: '#FFFFFF',
+                                }}
+                            />
+                            {openSubMenuNumbers ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                    </ListItem>
+                    <Collapse in={openSubMenuNumbers} timeout="auto">
+                        <List component="div" disablePadding>
+                            <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/sms')}>
+                                <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                    <ChecklistRtlIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Configuración SMS"
+                                    primaryTypographyProps={{
+                                        fontWeight: 'bold',
+                                        fontSize: '0.9rem',
+                                        color: '#FFFFFF',
+                                    }}
+                                />
+                            </ListItemButton>
+                        </List>
+                    </Collapse>
+
+                    {/* Menú de Reportes */}
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => navigate('/reports')} sx={{ borderRadius: '8px' }}>
+                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                <AssessmentIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Reportes"
+                                primaryTypographyProps={{
+                                    fontWeight: 'bold',
+                                    color: '#FFFFFF',
+                                }}
+                            />
+                        </ListItemButton>
+                    </ListItem>
+
+                    {/* Menú de Facturación */}
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => setOpenSubMenuBilling(!openSubMenuBilling)} sx={{ borderRadius: '8px' }}>
+                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                <LocalAtmIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Facturación"
+                                primaryTypographyProps={{
+                                    fontWeight: 'bold',
+                                    color: '#FFFFFF',
+                                }}
+                            />
+                            {openSubMenuBilling ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                    </ListItem>
+                    <Collapse in={openSubMenuBilling} timeout="auto">
+                        <List component="div" disablePadding>
+                            {pages[2].subMenus.map((subMenu) => (
+                                <ListItemButton key={subMenu.id} sx={{ pl: 4 }} onClick={() => navigate(subMenu.path)}>
+                                    <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                        {subMenu.icon}
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={subMenu.title}
+                                        primaryTypographyProps={{
+                                            fontWeight: 'bold',
+                                            fontSize: '0.9rem',
+                                            color: '#FFFFFF',
+                                        }}
+                                    />
+                                </ListItemButton>
+                            ))}
+                        </List>
+                    </Collapse>
+
+                    {/* Menú de Ayuda */}
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => navigate('/help')} sx={{ borderRadius: '8px' }}>
+                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                <HelpOutlineIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Ayuda"
+                                primaryTypographyProps={{
+                                    fontWeight: 'bold',
+                                    color: '#FFFFFF',
+                                }}
+                            />
+                        </ListItemButton>
+                    </ListItem>
                 </List>
+
 
             </Drawer >
             <Container

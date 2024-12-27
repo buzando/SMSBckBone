@@ -76,12 +76,10 @@ const Register: React.FC = () => {
         if (container) {
             const { scrollTop, scrollHeight, clientHeight } = container;
 
-            console.log(`scrollTop: ${scrollTop}, clientHeight: ${clientHeight}, scrollHeight: ${scrollHeight}`);
 
             // Margen amplio para tolerancia
             const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50;
 
-            console.log(`isAtBottom: ${isAtBottom}`);
             setIsButtonEnabled(isAtBottom);
         }
     };
@@ -99,7 +97,7 @@ const Register: React.FC = () => {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-
+        setIsButtonEnabled(false);
         try {
             const data = {
                 client: formData.client,
@@ -127,7 +125,7 @@ const Register: React.FC = () => {
                 { headers },
             );
 
-            console.log(`Response: ${response}`);
+        
             if (response.status === 200) {
                 const { user, token, expiration } = await response.data;
                 setContextState({ user, token, expiration });
@@ -135,11 +133,10 @@ const Register: React.FC = () => {
                 localStorage.setItem('expirationDate', expiration);
                 localStorage.setItem('userData', JSON.stringify(user));
                 navigate('/chooseroom');
-                console.log('-----------------');
-                console.log(response.data);
             }
-        } catch (error) {
-            console.log(error);
+        } catch {
+
+            setIsButtonEnabled(true);
             handleOpenErrorModal("Ocurrió un error al intentar registrar al usuario. Por favor, inténtelo de nuevo.");
         }
     };
@@ -232,14 +229,8 @@ const Register: React.FC = () => {
         setTimeout(() => {
             const container = termsContainerRef.current;
             if (container) {
-                console.log("Scroll listener añadido.");
-                console.log("Contenedor actual:", container);
-                console.log("scrollHeight inicial:", container.scrollHeight);
-                console.log("clientHeight inicial:", container.clientHeight);
 
                 container.addEventListener("scroll", handleScroll);
-            } else {
-                console.error("No se encontró el contenedor para el scroll.");
             }
         }, 0); // Espera el siguiente ciclo de renderizado
     };
@@ -247,10 +238,8 @@ const Register: React.FC = () => {
     const removeScrollListener = () => {
         const container = termsContainerRef.current;
         if (container) {
-            console.log("Scroll listener eliminado.");
+         
             container.removeEventListener("scroll", handleScroll);
-        } else {
-            console.error("No se encontró el contenedor para eliminar el scroll listener.");
         }
     };
 

@@ -42,7 +42,7 @@ const Autentification: React.FC = () => {
             const obj = JSON.parse(usuario);
 
             if (obj.twoFactorAuthentication) {
-                /*  navigate('/chooseroom');*/
+                  navigate('/chooseroom');
             }
 
             if (obj.lockoutEnabled) {

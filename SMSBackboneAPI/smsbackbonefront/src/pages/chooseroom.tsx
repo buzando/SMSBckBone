@@ -95,6 +95,7 @@ const Chooseroom: React.FC = () => {
 
             if (response.status === 200) {
                 setrooms(response.data);
+                localStorage.setItem('ListRooms', JSON.stringify(response.data));
             }
         } catch (error) {
             console.error("Error al obtener las salas", error);
