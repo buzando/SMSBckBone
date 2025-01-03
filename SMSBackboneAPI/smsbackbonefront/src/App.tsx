@@ -14,6 +14,7 @@ import Rooms from './pages/Rooms'
 import UserAdministration from './pages/UserAdministration'
 import ManageAccount from './pages/ManageAccount'
 import ConfigurationAccount from './pages/ConfigurationAccount'
+import TermsAndConditions from './pages/TermsAndConditions'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -78,6 +79,9 @@ function App() {
                             {/*<Route path="/legan/terms" element={<TermsAndConditions />} />*/}
                             <Route element={<PrivateRoute />}>
                                 <Route path='/' element={<HomePage />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/TermsAndConditions' element={<TermsAndConditions />} />
                             </Route>
                             {/*<Route element={<PrivateRoute />}>*/}
                             {/*    <Route path='/users' element={<UsersPage />} />*/}

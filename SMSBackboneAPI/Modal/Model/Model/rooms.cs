@@ -21,8 +21,8 @@ namespace Modal.Model.Model
 
         public string description { get; set; } 
 
-        public int long_sms { get; set; } = 0; 
+        public int long_sms { get; set; } = 0;
 
-
+        public int short_sms { get; set; } = 0;
     }
 }

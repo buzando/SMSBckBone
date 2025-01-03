@@ -41,15 +41,16 @@ import {
     Menu,
     MenuItem,
     Avatar,
-    Tooltip,
     Button,
     TextField,
-    Portal,
+    MenuList,
+    Popper
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import DropDownIcon from '../assets/icon-punta-flecha-bottom.svg';
 import HomeIcon from '@mui/icons-material/Home';
-
+import ClearIcon from '@mui/icons-material/Clear';
+import DescriptionIcon from '@mui/icons-material/Description';
 const drawerWidth = 280;
 
 type Page = {
@@ -109,6 +110,7 @@ type Room = {
     credits: number;
     long_sms: number;
     calls: number;
+    short_sms: number;
 };
 
 type Props = {
@@ -202,9 +204,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const [searchOpen, setSearchOpen] = useState(false);
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const[selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
-    const [userName, setUserName] = useState<string>('');
     const [filteredPages, setFilteredPages] = useState<Page[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
@@ -223,13 +224,19 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
     const isAdmin = user?.rol === 'Administrador'
 
+    const handleLogout = () => {
+        // Limpiar localStorage y sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Redirigir al login
+        navigate('/login');
+    };
+
+
     useEffect(() => {
         // Cargar datos desde localStorage
         const storedRooms = localStorage.getItem('ListRooms');
-        const usuario = localStorage.getItem("userData");
-
-        const obj = JSON.parse(usuario!);
-
 
         const currentRoom = localStorage.getItem('selectedRoom');
 
@@ -244,9 +251,6 @@ const NavBarAndDrawer: React.FC<Props> = props => {
             } catch (error) {
                 console.error('Error al parsear las salas desde localStorage', error);
             }
-        }
-        if (usuario) {
-            setUserName(obj.firstName);
         }
         if (currentRoom) {
             try {
@@ -292,9 +296,9 @@ const NavBarAndDrawer: React.FC<Props> = props => {
         setAnchorEl(event.currentTarget);  // Establecer correctamente el anchorEl
     };
 
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-    };
+    //const handleMenuClose = () => {
+    //    setAnchorEl(null);
+    //};
 
     // Función para seleccionar una sala
     const handleRoomChange = (room: Room) => {
@@ -339,6 +343,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
         setOpenSubMenu(!openSubMenu);
     };
 
+
     return (
         <>
             <CssBaseline />
@@ -353,62 +358,70 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             connectSMS
                         </Typography>
                     </Box>
-                    {/* Buscador */}
-                    {!searchOpen ? (
-                        <IconButton color="inherit" onClick={() => setSearchOpen(true)}>
-                            <SearchIcon />
-                        </IconButton>
-                    ) : (
-                        <Box
-                            sx={{
-                                position: 'relative',
-                                display: 'flex',
-                                alignItems: 'center',
-                                bgcolor: 'background.paper',
-                                borderRadius: '5px',
-                                boxShadow: 2,
-                                border: '1px solid #7B354D', // Borde del mismo color que las letras
-                                height: '40px',
-                                width: '300px',
-                            }}
-                        >
-                            {/* Campo de texto para búsqueda */}
-                            <TextField
-                                fullWidth
-                                placeholder="Buscar"
-                                variant="outlined"
-                                size="small"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                InputProps={{
-                                    startAdornment: (
-                                        <SearchIcon sx={{ color: '#7B354D', marginRight: 1 }} />
-                                    ),
-                                    endAdornment: (
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => {
-                                                setSearchTerm('');
-                                                setFilteredPages([]);
-                                            }}
-                                            sx={{ color: '#7B354D' }} // Color del ícono de limpiar
-                                        >
-                                            ✖
-                                        </IconButton>
-                                    ),
-                                    style: {
-                                        height: '100%',
-                                        textAlign: 'left',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '16px',
-                                        lineHeight: '25px',
-                                        letterSpacing: '0px',
-                                        color: '#7B354D',
-                                        opacity: 1,
-                                    },
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            position: 'relative',
+                            marginRight: '50px', // Ajusta este valor para mover toda la sección hacia la izquierda
+                        }}
+                    >
+                        {/* Buscador */}
+                        {!searchOpen ? (
+                            <IconButton color="inherit" onClick={() => setSearchOpen(true)}>
+                                <SearchIcon />
+                            </IconButton>
+                        ) : (
+                            <Box
+                                sx={{
+                                    position: 'relative',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    bgcolor: 'background.paper',
+                                    borderRadius: '5px',
+                                    boxShadow: 2,
+                                    border: '1px solid #7B354D', // Borde del mismo color que las letras
+                                    height: '40px',
+                                    width: '300px',
                                 }}
-                            />
-                            {/* Mostrar resultados filtrados */}
+                            >
+                                {/* Campo de texto para búsqueda */}
+                                <TextField
+                                    fullWidth
+                                    placeholder="Buscar"
+                                    variant="outlined"
+                                    size="small"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <SearchIcon sx={{ color: '#7B354D', marginRight: 1 }} />
+                                        ),
+                                        endAdornment: (
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => {
+                                                    setSearchTerm('');
+                                                    setFilteredPages([]);
+                                                }}
+                                                sx={{ color: '#7B354D' }} // Color del ícono de limpiar
+                                            >
+                                                ✖
+                                            </IconButton>
+                                        ),
+                                        style: {
+                                            height: '100%',
+                                            textAlign: 'left',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '16px',
+                                            lineHeight: '25px',
+                                            letterSpacing: '0px',
+                                            color: '#7B354D',
+                                            opacity: 1,
+                                        },
+                                    }}
+                                />
+                                {/* Mostrar resultados filtrados */}
                                 {searchTerm ? (
                                     filteredPages.length > 0 ? (
                                         <Box
@@ -490,9 +503,9 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 ) : null}
 
 
-                        </Box>
-                    )}
-
+                            </Box>
+                        )}
+                    </Box>
 
                     {/* Selector de salas */}
                     <Box
@@ -509,6 +522,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             minWidth: '300px',
                             maxWidth: '350px',
                             height: '50px',
+                            position: 'relative', // Es importante mantener esto para el Popper
+                            marginLeft: '-5px'
                         }}
                     >
                         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
@@ -524,7 +539,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 }}
                             />
                             <Box sx={{ marginLeft: '10px' }}>
-                                {/* Nombre de la sala */}
+                                {/* Nombre y Descripción de la sala */}
                                 <Typography
                                     variant="body1"
                                     color="inherit"
@@ -537,9 +552,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         whiteSpace: 'nowrap',
                                     }}
                                 >
-                                    {selectedRoom && selectedRoom.name ? selectedRoom.name : 'Seleccione una sala'}
+                                    {selectedRoom && selectedRoom.name ? selectedRoom.name : 'Sin nombre'}
                                 </Typography>
-                                {/* Descripción */}
                                 <Typography
                                     variant="body2"
                                     color="textSecondary"
@@ -551,7 +565,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         whiteSpace: 'nowrap',
                                     }}
                                 >
-                                    {selectedRoom && selectedRoom.description ? `Descripción: ${selectedRoom.description}` : 'Sin descripción'}
+                                    {selectedRoom && selectedRoom.description ? selectedRoom.description : 'Sin descripción'}
                                 </Typography>
                             </Box>
                         </Box>
@@ -564,35 +578,154 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         >
                             <img src={DropDownIcon} alt="dropdown" width="24" height="24" />
                         </IconButton>
+
+                        {/* Usamos Popper para controlar el posicionamiento */}
+                        <Popper
+                            open={Boolean(anchorEl)}
+                            anchorEl={anchorEl}
+                            placement="bottom"
+                            modifiers={[
+                                {
+                                    name: 'offset',
+                                    options: {
+                                        offset: [-120, 8], // Ajusta el desplazamiento (horizontal, vertical)
+                                    },
+                                },
+                                {
+                                    name: 'preventOverflow',
+                                    options: {
+                                        boundary: 'window', // Evita que se salga de los bordes de la ventana
+                                    },
+                                },
+                            ]}
+                            sx={{
+                                zIndex: 1300,
+                                backgroundColor: 'white',
+                                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.2)',
+                                borderRadius: '8px',
+                                width: '100%',
+                                maxWidth: '300px',
+                                marginTop: '8px',
+                            }}
+                        >
+                            {/* Buscador */}
+                            <Box sx={{ padding: '8px', display: 'flex', alignItems: 'center' }}>
+                                <TextField
+                                    fullWidth
+                                    placeholder="Buscar sala..."
+                                    variant="outlined"
+                                    size="small"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            padding: '2px 8px',
+                                            '& .MuiInputAdornment-root': {
+                                                position: 'absolute',
+                                                right: 0, // Lupa alineada a la derecha dentro del recuadro
+                                                marginRight: '8px',
+                                            },
+                                        },
+                                    }}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <SearchIcon sx={{ color: '#7B354D', marginRight: 1 }} />
+                                        ),
+                                        endAdornment: (
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => {
+                                                    setSearchTerm('');  // Limpiar el término de búsqueda
+                                                    setFilteredPages([]); // Opcional, para limpiar los resultados filtrados
+                                                }}
+                                                sx={{ color: '#7B354D' }} // Color del tache
+                                            >
+                                                <ClearIcon sx={{ color: '#7B354D' }} />
+                                            </IconButton>
+                                        ),
+                                        style: {
+                                            height: '100%',
+                                            textAlign: 'left',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '16px',
+                                            lineHeight: '25px',
+                                            letterSpacing: '0px',
+                                            color: '#7B354D',
+                                            opacity: 1,
+                                        },
+                                    }}
+                                />
+                            </Box>
+
+                            {/* Resultados de la lista de salas */}
+                            <MenuList sx={{ paddingLeft: 0 }}>
+                                {rooms
+                                    .filter((room) =>
+                                        room.name.toLowerCase().includes(searchTerm.toLowerCase())
+                                    )
+                                    .map((room, index) => (
+                                        <MenuItem
+                                            key={index}
+                                            onClick={() => handleRoomChange(room)}
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                padding: '8px 16px',
+                                            }}
+                                        >
+                                            <HomeIcon
+                                                sx={{
+                                                    backgroundColor: '#B0B0B0',
+                                                    borderRadius: '50%',
+                                                    padding: '8px',
+                                                    fontSize: 32,
+                                                    color: 'white',
+                                                    marginRight: '8px',
+                                                }}
+                                            />
+                                            <Box sx={{ textAlign: 'left' }}>
+                                                <Typography
+                                                    variant="body1"
+                                                    sx={{
+                                                        fontWeight: 'bold',
+                                                        fontSize: '14px',
+                                                        color: '#000',
+                                                    }}
+                                                >
+                                                    {room.name}
+                                                </Typography>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        fontSize: '12px',
+                                                        color: '#888',
+                                                    }}
+                                                >
+                                                    {room.description}
+                                                </Typography>
+                                            </Box>
+                                        </MenuItem>
+                                    ))}
+                            </MenuList>
+                        </Popper>
+
+
                     </Box>
 
-                    {/* Menú desplegable */}
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleMenuClose}
-                        sx={{
-                            maxHeight: '200px',
-                            overflowY: 'auto',
-                            zIndex: 1300, // Asegura que el menú esté encima de otros elementos
-                        }}
-                    >
-                        {/* Mostrar las salas en el menú */}
-                        {rooms.map((room) => (
-                            <MenuItem key={room.id} onClick={() => handleRoomSelect(room)}>
-                                <Typography variant="body1">{room.name}</Typography>
-                            </MenuItem>
-                        ))}
-                    </Menu>
+
+
 
 
 
                     {/* Usuario */}
-                    <Tooltip title={user.userName || 'Usuario'}>
-                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, ml: 2 }}>
-                            <Avatar alt={user.userName} sx={{ bgcolor: getColorRole(user.rol) }} />
-                        </IconButton>
-                    </Tooltip>
+                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, ml: 2 }}>
+                        <Avatar alt={user.userName} sx={{ bgcolor: getColorRole(user.rol) }} />
+                    </IconButton>
+
+                    {/* Nombre del usuario */}
+                    <Typography variant="body2" sx={{ color: '#fff', marginLeft: '8px' }}>
+                        {user.userName || 'Usuario'}
+                    </Typography>
                     <Menu
                         anchorEl={anchorElUser}
                         open={Boolean(anchorElUser)}
@@ -625,7 +758,15 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 </Typography>
                             </MenuItem>
                         )}
-                        <MenuItem onClick={() => console.log('Cerrar sesión')}>
+                        <MenuItem onClick={() => navigate('/TermsAndConditions')}>
+                            <Typography textAlign="center">
+                                <Box display="flex" alignItems="center">
+                                    <DescriptionIcon sx={{ fontSize: 20, mr: 1 }} />
+                                    Términos y condiciones
+                                </Box>
+                            </Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleLogout}>
                             <Typography textAlign="center">
                                 <Box display="flex" alignItems="center">
                                     <Avatar sx={{ fontSize: 20, mr: 1 }} />
@@ -691,7 +832,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     marginTop: '4px',
                                 }}
                             >
-                                10,000
+                                {selectedRoom?.credits || 0}
                             </Typography>
                             {/* Créditos cortos y largos */}
                             <Box
@@ -718,7 +859,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             marginTop: '4px',
                                         }}
                                     >
-                                        5,000
+                                        {selectedRoom?.short_sms || 0}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ textAlign: 'left', flex: 1 }}>
@@ -737,7 +878,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             marginTop: '4px',
                                         }}
                                     >
-                                        5,000
+                                        {selectedRoom?.long_sms || 0}
                                     </Typography>
                                 </Box>
                             </Box>

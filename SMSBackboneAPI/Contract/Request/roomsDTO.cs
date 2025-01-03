@@ -14,6 +14,7 @@ namespace Contract.Request
         public string description { get; set; }
         public decimal credits { get; set; }
         public Int64 long_sms { get; set; }
+        public Int64 short_sms { get; set; }
         public Int64 calls { get; set; }
         public int idClient { get; set; }
     }

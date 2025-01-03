@@ -19,7 +19,7 @@ namespace Business
             {
                 using (var ctx = new Entities())
                 {
-                    var room = new Modal.Model.Model.rooms { name = "Default", calls = 0, credits = 0, description = "Room default", long_sms = 0 };
+                    var room = new Modal.Model.Model.rooms { name = "Default", calls = 0, credits = 0, description = "Room default", long_sms = 0, short_sms = 0 };
                     ctx.Rooms.Add(room);
                     ctx.SaveChanges();
 
@@ -120,7 +120,7 @@ namespace Business
             {
                 using (var ctx = new Entities())
                 {
-                    var room = new Modal.Model.Model.rooms { name = Newroom.name, calls = 0, credits = 0, description = Newroom.description, long_sms = 0 };
+                    var room = new Modal.Model.Model.rooms { name = Newroom.name, calls = 0, credits = 0, description = Newroom.description, long_sms = 0, short_sms = 0 };
                     ctx.Rooms.Add(room);
                     ctx.SaveChanges();
 
@@ -227,7 +227,8 @@ namespace Business
         credits = result.combined.r.credits,
         long_sms = result.combined.r.long_sms,
         calls = result.combined.r.calls,
-        idClient = result.c.id
+        idClient = result.c.id,
+        short_sms = result.combined.r.short_sms
     })
     .AsEnumerable() // Cambia a evaluación en cliente
     .GroupBy(room => room.name) // Agrupamos por 'name'
