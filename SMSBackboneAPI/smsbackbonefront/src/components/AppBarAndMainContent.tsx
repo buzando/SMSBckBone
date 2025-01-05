@@ -965,6 +965,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     background: '#F5F5F5',
                                 },
                             }}
+                            onClick={() => navigate('/CreditManagement')}
                         >
                             Gestionar
                         </Button>

@@ -5,7 +5,6 @@ import {
     Typography,
     TextField,
     Grid,
-    Paper,
     IconButton,
     CircularProgress,
     Divider,
@@ -20,14 +19,20 @@ import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import HomeIcon from "@mui/icons-material/Home";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from "axios";
 
-interface Room {
-    id: number;
+type Room = {
+    id: string | number;
     name: string;
-    client: string;
+    cliente: string;
     description: string;
-}
+    credits: number;
+    short_sms: number;
+    long_sms: number;
+    calls: number;
+};
 
 const Rooms: React.FC = () => {
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -112,7 +117,7 @@ const Rooms: React.FC = () => {
                 setRooms(response.data);
             }
         } catch  {
-            handleOpenErrorModal("Error al traer sala");
+            handleOpenErrorModal("Error al traer las salas");
         } finally {
             setLoading(false);
         }
@@ -261,25 +266,53 @@ const Rooms: React.FC = () => {
                 Salas
             </Typography>
             <Divider sx={{ mb: 3 }} />
-            <Box display="flex" alignItems="center" mb={2}>
+            <Box display="flex" alignItems="center" justifyContent="flex-start" mb={2}>
+                {/* Botón de Añadir Sala */}
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
-                    sx={{ mr: 2, backgroundColor: "#A05B71" }}
+                    sx={{
+                        backgroundColor: "#A05B71",
+                        height: "100%", // Asegura que coincida con la altura del input
+                        marginRight: "16px", // Espacio entre el botón y el buscador
+                    }}
                     onClick={handleOpenModal}
                 >
                     Añadir Sala
                 </Button>
-                <div className="search-container">
-                    <span className="material-icons">search</span>
+
+                {/* Contenedor del Buscador */}
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    sx={{
+                        backgroundColor: "#f5f5f5",
+                        borderRadius: "8px",
+                        padding: "8px 12px",
+                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        width: "400px", // Ancho fijo como estaba antes
+                    }}
+                >
+                    <span className="material-icons" style={{ color: "#A05B71", marginRight: "8px" }}>
+                        search
+                    </span>
                     <input
                         type="text"
                         placeholder="Buscar"
                         value={searchTerm}
                         onChange={handleSearch}
+                        style={{
+                            border: "none",
+                            outline: "none",
+                            width: "100%",
+                            fontSize: "14px",
+                            fontFamily: "Poppins, sans-serif",
+                            backgroundColor: "transparent",
+                        }}
                     />
-                </div>
+                </Box>
             </Box>
+
             {loading ? (
                 <Box display="flex" justifyContent="center" mt={5}>
                     <CircularProgress />
@@ -291,9 +324,18 @@ const Rooms: React.FC = () => {
                             const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
                             return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
                         }).length === 0 ? (
-                            <Typography variant="body1" sx={{ textAlign: "center", marginTop: "20px", color: "#833A53" }}>
-                                No se encontraron resultados.
-                            </Typography>
+                            <Grid item xs={12}>
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        textAlign: "center",
+                                        marginTop: "20px",
+                                        color: "#833A53",
+                                    }}
+                                >
+                                    No se encontraron resultados.
+                                </Typography>
+                            </Grid>
                         ) : (
                             rooms
                                 .filter((room) => {
@@ -302,33 +344,130 @@ const Rooms: React.FC = () => {
                                     return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
                                 })
                                 .map((room) => (
-                                    <div key={room.id} className="room-box">
-                                        <div className="room-info">
-                                            <HomeIcon style={{ color: "#B56576", fontSize: "30px", marginRight: "10px" }} />
-                                            <div className="room-details">
-                                                <h6>{room.name}</h6>
-                                                <p>{room.client}</p>
-                                                <p>{room.description}</p>
-                                            </div>
-                                        </div>
-                                        <div className="room-extra">
-                                            <span>Créditos: {room.credits}</span>
-                                            <span>SMS largos: {room.long_sms}</span>
-                                            <span>Llamadas: {room.calls}</span>
-                                        </div>
-                                        {/* Botón para seleccionar la sala */}
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => handleRoomSelection(room)}
+                                    <Grid
+                                        item
+                                        xs={12}
+                                        sm={6}
+                                        md={4}
+                                        key={room.id}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                backgroundColor: '#FFFFFF',
+                                                borderRadius: '8px',
+                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                                padding: '16px',
+                                                height: '100%',
+                                            }}
                                         >
-                                            &gt;
-                                        </Button>
-                                    </div>
+                                            {/* Left Section: Icon and Room Details */}
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <HomeIcon
+                                                    sx={{
+                                                        backgroundColor: '#B0B0B0',
+                                                        borderRadius: '50%',
+                                                        padding: '8px',
+                                                        fontSize: 40,
+                                                        color: 'white',
+                                                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                                                        marginRight: '16px',
+                                                    }}
+                                                />
+                                                <Box>
+                                                    <Typography
+                                                        variant="h6"
+                                                        sx={{ fontWeight: 'bold', fontSize: '16px', color: '#000' }}
+                                                    >
+                                                        {room.name}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{ fontSize: '14px', color: '#888' }}
+                                                    >
+                                                        Cliente: {room.cliente}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            fontSize: '14px',
+                                                            color: '#888',
+                                                            fontStyle: 'italic',
+                                                        }}
+                                                    >
+                                                        {room.description}
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
+
+                                            {/* Right Section: Metrics and Button */}
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Box sx={{ textAlign: 'right', marginRight: '16px' }}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            fontSize: '14px',
+                                                            color: '#833A53',
+                                                            fontWeight: 'bold',
+                                                        }}
+                                                    >
+                                                        SMS cortos: {room.short_sms.toLocaleString()}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            fontSize: '14px',
+                                                            color: '#833A53',
+                                                            fontWeight: 'bold',
+                                                        }}
+                                                    >
+                                                        SMS largos: {room.long_sms.toLocaleString()}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            fontSize: '14px',
+                                                            color: '#833A53',
+                                                            fontWeight: 'bold',
+                                                        }}
+                                                    >
+                                                        Llamada: {room.calls.toLocaleString()}
+                                                    </Typography>
+                                                </Box>
+                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                    <IconButton onClick={(event) => handleMenuOpen(event, room)}>
+                                                        <MoreVertIcon />
+                                                    </IconButton>
+                                                    <Menu
+                                                        anchorEl={menuAnchorEl}
+                                                        open={Boolean(menuAnchorEl)}
+                                                        onClose={handleMenuClose}
+                                                        PaperProps={{
+                                                            sx: {
+                                                                borderRadius: '8px',
+                                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                            },
+                                                        }}
+                                                    >
+                                                        <MenuItem onClick={handleOpenEditModal}>
+                                                            <EditIcon sx={{ marginRight: 1, color: '#A05B71' }} />
+                                                            <Typography>Editar</Typography>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={() => handleOpenDeleteModal(room)}>
+                                                            <DeleteIcon sx={{ marginRight: 1, color: '#A05B71' }} />
+                                                            <Typography>Eliminar</Typography>
+                                                        </MenuItem>
+                                                    </Menu>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Grid>
                                 ))
                         )}
+                    </Grid>
 
-                </Grid>
             )}
 
             {/* Modal for adding room */}
@@ -404,6 +543,15 @@ const Rooms: React.FC = () => {
                                 color="primary"
                                 onClick={handleCreateRoom}
                                 disabled={!newRoom.name || !newRoom.description}
+                                sx={{
+                                    backgroundColor: "#A05B71", // Mismo color que el botón "Añadir Sala"
+                                    color: "#fff",
+                                    "&:hover": {
+                                        backgroundColor: "#8B4D61", // Color más oscuro para el hover
+                                    },
+                                    height: "100%",
+                                    marginLeft: "8px", // Espaciado opcional si se requiere
+                                }}
                             >
                                 Crear
                             </Button>
@@ -487,6 +635,15 @@ const Rooms: React.FC = () => {
                                 disabled={
                                     !newRoom.name || !newRoom.description || errors.name || errors.description
                                 } // Desactiva si hay errores o campos vacíos
+                                sx={{
+                                    backgroundColor: "#A05B71", // Mismo color que el botón "Añadir Sala"
+                                    color: "#fff",
+                                    "&:hover": {
+                                        backgroundColor: "#8B4D61", // Color más oscuro para el hover
+                                    },
+                                    height: "100%",
+                                    marginLeft: "8px", // Espaciado opcional si se requiere
+                                }}
                             >
                                 Guardar cambios
                             </Button>

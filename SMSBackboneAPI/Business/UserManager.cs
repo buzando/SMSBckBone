@@ -305,7 +305,8 @@ namespace Business
               long_sms = combined.rb.Rooms.long_sms,// SMS largos
               calls = combined.rb.Rooms.calls,      // Llamadas
               idClient = combined.u.IdCliente,      // ID del cliente
-              Cliente = c.nombrecliente             // Nombre del cliente
+              Cliente = c.nombrecliente,             // Nombre del cliente
+              short_sms = combined.rb.Rooms.short_sms
           })
     .ToList();
                     rooms = rooms

@@ -32,6 +32,7 @@ type Room = {
     credits: number;
     long_sms: number;
     calls: number;
+    short_sms: number;
 };
 
 

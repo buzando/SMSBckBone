@@ -15,6 +15,7 @@ import UserAdministration from './pages/UserAdministration'
 import ManageAccount from './pages/ManageAccount'
 import ConfigurationAccount from './pages/ConfigurationAccount'
 import TermsAndConditions from './pages/TermsAndConditions'
+import CreditManagement from './pages/CreditManagement'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -82,6 +83,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/TermsAndConditions' element={<TermsAndConditions />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/CreditManagement' element={<CreditManagement />} />
                             </Route>
                             {/*<Route element={<PrivateRoute />}>*/}
                             {/*    <Route path='/users' element={<UsersPage />} />*/}
