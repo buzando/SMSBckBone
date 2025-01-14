@@ -12,6 +12,7 @@ import PasswordReset from './pages/PasswordReset'
 import RegisterPage from './pages/RegisterPage'
 import Rooms from './pages/Rooms'
 import UserAdministration from './pages/UserAdministration'
+import AccountRecharge from './pages/AccountRecharge'
 import ManageAccount from './pages/ManageAccount'
 import ConfigurationAccount from './pages/ConfigurationAccount'
 import TermsAndConditions from './pages/TermsAndConditions'
@@ -86,6 +87,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/CreditManagement' element={<CreditManagement />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/AccountRecharge' element={<AccountRecharge />} />
                             </Route>
                             {/*<Route element={<PrivateRoute />}>*/}
                             {/*    <Route path='/users' element={<UsersPage />} />*/}

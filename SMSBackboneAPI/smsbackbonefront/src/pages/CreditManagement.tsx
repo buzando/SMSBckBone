@@ -15,13 +15,20 @@ import {
     Select,
     CircularProgress,
     MenuItem as MuiMenuItem,
+      List,
+    ListItem,
+    ListItemText,
+    InputAdornment,
+    ClickAwayListener,
+    Paper,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import HomeIcon from "@mui/icons-material/Home";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import TrashIcon from "../assets/Icon-trash.svg";
-
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ClearIcon from "@mui/icons-material/Clear";
 type Rooms = {
     id: string | number;
     name: string;
@@ -39,15 +46,22 @@ const CreditManagement: React.FC = () => {
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRoom, setSelectedRoom] = useState<Rooms | null>(null);
+    const [selectedRoom2, setSelectedRoom2] = useState<Rooms | null>(null);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [selectedChannel, setSelectedChannel] = useState<string>("");
     const [transferAmount, setTransferAmount] = useState<number | null>(null);
-    const [transferRoom, setTransferRoom] = useState<Rooms | null>(null);
     const [selectedNewChannel, setSelectedNewChannel] = useState<string>("");
+    const [searchTerm2, setSearchTerm2] = useState("");
+    const [openDropdown, setOpenDropdown] = useState<boolean>(false);
+    const [openDropdown2, setOpenDropdown2] = useState<boolean>(false);
+    const [searchTerm3, setSearchTerm3] = useState(""); 
+
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
+
+
 
     const GetCredits = async () => {
         setLoading(true);
@@ -75,7 +89,7 @@ const CreditManagement: React.FC = () => {
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, room: Rooms) => {
         setMenuAnchorEl(event.currentTarget);
-        setSelectedRoom(room);
+        setSelectedRoom2(room);
     };
 
     const handleMenuClose = () => {
@@ -83,6 +97,9 @@ const CreditManagement: React.FC = () => {
     };
 
     const handleOpenModal = () => {
+        if (selectedRoom2) {
+            setSearchTerm3(selectedRoom2.name); // Preselecciona el nombre en el campo de búsqueda
+        }
         setModalOpen(true);
         setMenuAnchorEl(null); // Cierra el menú al abrir el modal
     };
@@ -90,6 +107,7 @@ const CreditManagement: React.FC = () => {
     const handleCloseModal = () => {
         setModalOpen(false);
         setSelectedRoom(null); // Limpia el room seleccionado al cerrar el modal
+        setSelectedRoom2(null);
     };
 
     const handleTransferClick = () => {
@@ -99,6 +117,57 @@ const CreditManagement: React.FC = () => {
             setLoading(false);
             alert("Transferencia completada"); // O maneja el resultado de la transferencia.
         }, 2000);
+    };
+
+
+    const handleSelectRoom = (room: Rooms) => {
+        setSelectedRoom(room);
+        setSearchTerm2(room.name);
+        handleCloseDropdown();
+    };
+
+    const filteredRooms = rooms.filter(
+        (room) =>
+            room.id !== selectedRoom2?.id && // Excluye la sala destino seleccionada
+            room.name.toLowerCase().includes(searchTerm2.toLowerCase()) // Aplica el filtro de búsqueda
+    );
+
+    const handleOpenDropdown = () => {
+        setOpenDropdown(true);
+    };
+
+    const handleCloseDropdown = () => {
+        setOpenDropdown(false);
+    };
+
+    const filteredRooms2 = rooms.filter((room) =>
+        room.name.toLowerCase().includes(searchTerm3.toLowerCase())
+    );
+
+    const handleSelectRoom2 = (room: Rooms) => {
+        setSelectedRoom2(room); // Actualiza la sala seleccionada
+        setSearchTerm3(room.name); // Muestra el nombre de la sala seleccionada en el campo de texto
+        setOpenDropdown2(false); // Cierra el desplegable
+    };
+
+    const handleOpenDropdown2 = () => {
+        setOpenDropdown2(true); // Abre el desplegable
+    };
+
+    const handleCloseDropdown2 = () => {
+        setOpenDropdown2(false); // Cierra el desplegable
+    };
+
+    const getAvailableCredits = () => {
+        if (!selectedRoom2) return 0; // Si no hay sala seleccionada, retorna 0
+
+        if (selectedChannel === "SMS Cortos") {
+            return selectedRoom2.short_sms || 0; // Créditos de SMS Cortos
+        } else if (selectedChannel === "SMS Largos") {
+            return selectedRoom2.long_sms || 0; // Créditos de SMS Largos
+        }
+
+        return 0; // Por defecto, 0 créditos si no hay un canal válido seleccionado
     };
 
 
@@ -229,18 +298,6 @@ const CreditManagement: React.FC = () => {
                                                         opacity: 1,
                                                     }}
                                                 >
-                                                    Créditos: {room.credits.toLocaleString()}
-                                                </Typography>
-                                                <Typography
-                                                    variant="body2"
-                                                    sx={{
-                                                        textAlign: 'right',
-                                                        font: 'normal normal medium 12px/54px Poppins',
-                                                        letterSpacing: '0px',
-                                                        color: '#8D4B62',
-                                                        opacity: 1,
-                                                    }}
-                                                >
                                                     SMS # Cortos: {room.long_sms.toLocaleString()}
                                                 </Typography>
                                                 <Typography
@@ -334,19 +391,109 @@ const CreditManagement: React.FC = () => {
                             </IconButton>
                         </Box>
                         <Divider sx={{ my: 2 }} />
-                        <Typography variant="body2" sx={{ mb: 1, fontWeight: "bold" }}>
-                            Seleccionar sala origen
+                        <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
+                            Seleccionar sala destino
                         </Typography>
-                        <Select
-                            fullWidth
-                            value={selectedRoom?.name || ""}
-                            disabled // Hace que el Select esté deshabilitado
-                        >
-                            {/* Solo muestra el selectedRoom en la lista, ya que está deshabilitado */}
-                            <MuiMenuItem value={selectedRoom?.name || ""}>
-                                {selectedRoom?.name || ""}
-                            </MuiMenuItem>
-                        </Select>
+                        <ClickAwayListener onClickAway={handleCloseDropdown2}>
+                            <Box>
+                                <TextField
+                                    fullWidth
+                                    placeholder="Seleccionar sala destino"
+                                    value={searchTerm3}
+                                    onClick={handleOpenDropdown2}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <ArrowDropDownIcon style={{ color: "#A05B71" }} />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            borderRadius: "8px",
+                                            border: "1px solid #A05B71",
+                                            backgroundColor: "#f5f5f5",
+                                            "&:hover fieldset": {
+                                                borderColor: "#833A53",
+                                            },
+                                        },
+                                    }}
+                                />
+                                {openDropdown2 && (
+                                    <Paper
+                                        elevation={3}
+                                        sx={{
+                                            position: "absolute",
+                                            zIndex: 10,
+                                            width: "87%",
+                                            maxHeight: 300,
+                                            overflowY: "auto",
+                                            mt: 1,
+                                            borderRadius: "8px",
+                                        }}
+                                    >
+                                        <Box p={2} display="flex" alignItems="center">
+                                            <TextField
+                                                fullWidth
+                                                placeholder="Buscar sala..."
+                                                value={searchTerm3}
+                                                onChange={(e) => setSearchTerm3(e.target.value)}
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <HomeIcon style={{ color: "#A05B71" }} />
+                                                        </InputAdornment>
+                                                    ),
+                                                    endAdornment: (
+                                                        <InputAdornment position="end">
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => setSearchTerm3("")}
+                                                            >
+                                                                <ClearIcon style={{ color: "#A05B71" }} />
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                                sx={{
+                                                    mb: 2,
+                                                    "& .MuiOutlinedInput-root": {
+                                                        borderRadius: "8px",
+                                                        border: "1px solid #A05B71",
+                                                        backgroundColor: "#f5f5f5",
+                                                        "&:hover fieldset": {
+                                                            borderColor: "#833A53",
+                                                        },
+                                                    },
+                                                }}
+                                            />
+                                        </Box>
+                                        <List>
+                                            {filteredRooms2.length > 0 ? (
+                                                filteredRooms2.map((room) => (
+                                                    <ListItem
+                                                        key={room.id}
+                                                        component="button"
+                                                        onClick={() => handleSelectRoom2(room)}
+                                                    >
+                                                        <HomeIcon style={{ color: "#A05B71", marginRight: 10 }} />
+                                                        <ListItemText
+                                                            primary={room.name}
+                                                            secondary={room.description}
+                                                        />
+                                                    </ListItem>
+                                                ))
+                                            ) : (
+                                                <ListItem>
+                                                    <ListItemText primary="No se encontraron resultados" />
+                                                </ListItem>
+                                            )}
+                                        </List>
+                                    </Paper>
+                                )}
+                            </Box>
+                        </ClickAwayListener>
+
                         <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
                             Seleccionar canal
                         </Typography>
@@ -359,13 +506,24 @@ const CreditManagement: React.FC = () => {
                             <MuiMenuItem value="SMS Largos">SMS # Largos</MuiMenuItem>
                         </Select>
                         <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
-                            Créditos disponibles
+                            Créditos disponibles (sala destino)
                         </Typography>
                         <TextField
                             fullWidth
-                            value={selectedRoom?.credits || 0}
-                            InputProps={{ readOnly: true }}
+                            value={getAvailableCredits()} // Valor dinámico calculado
+                            InputProps={{ readOnly: true }} // Hace el campo de solo lectura
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                    borderRadius: "8px",
+                                    border: "1px solid #A05B71",
+                                    backgroundColor: "#f5f5f5",
+                                    "&:hover fieldset": {
+                                        borderColor: "#833A53",
+                                    },
+                                },
+                            }}
                         />
+
                         <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
                             Créditos a transferir
                         </Typography>
@@ -375,7 +533,7 @@ const CreditManagement: React.FC = () => {
                             value={transferAmount}
                             onChange={(e) => {
                                 const value = parseInt(e.target.value, 10);
-                                if (value <= (selectedRoom?.credits || 0)) {
+                                if (value <= (getAvailableCredits())) {
                                     setTransferAmount(value);
                                 }
                             }}
@@ -388,50 +546,104 @@ const CreditManagement: React.FC = () => {
                         <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
                             Seleccionar nueva sala
                         </Typography>
-                        <Select
-                            fullWidth
-                            value={transferRoom?.name || ""}
-                            onChange={(e) =>
-                                setTransferRoom(rooms.find((room) => room.name === e.target.value) || null)
-                            }
-                            MenuProps={{
-                                PaperProps: {
-                                    style: {
-                                        maxHeight: 300, // Limitar la altura del menú desplegable
-                                        width: 250,
-                                    },
-                                },
-                            }}
-                        >
-                            {/* Renderizar un buscador en el menú */}
-                            <MuiMenuItem disableRipple style={{ paddingBottom: 0 }}>
+                        <ClickAwayListener onClickAway={handleCloseDropdown}>
+                            <Box>
                                 <TextField
-                                    placeholder="Buscar sala..."
                                     fullWidth
-                                    variant="standard"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Seleccionar nueva sala"
+                                    value={searchTerm2}
+                                    onChange={(e) => setSearchTerm2(e.target.value)}
+                                    onClick={handleOpenDropdown}
                                     InputProps={{
-                                        style: {
-                                            fontSize: 14,
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <ArrowDropDownIcon style={{ color: "#A05B71" }} />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            borderRadius: "8px",
+                                            border: "1px solid #A05B71",
+                                            backgroundColor: "#f5f5f5",
+                                            "&:hover fieldset": {
+                                                borderColor: "#833A53",
+                                            },
                                         },
                                     }}
                                 />
-                            </MuiMenuItem>
 
-                            {/* Filtrar y mostrar las opciones */}
-                            {rooms
-                                .filter(
-                                    (room) =>
-                                        room.name !== selectedRoom?.name &&
-                                        room.name.toLowerCase().includes(searchTerm.toLowerCase())
-                                )
-                                .map((room) => (
-                                    <MuiMenuItem key={room.id} value={room.name}>
-                                        {room.name}
-                                    </MuiMenuItem>
-                                ))}
-                        </Select>
+                                {openDropdown && (
+                                    <Paper
+                                        elevation={3}
+                                        sx={{
+                                            position: "absolute",
+                                            zIndex: 10,
+                                            width: "88%",
+                                            maxHeight: 200,
+                                            overflowY: "auto",
+                                            mt: 1,
+                                            borderRadius: "8px",
+                                        }}
+                                    >
+                                        <Box p={2} display="flex" alignItems="center">
+                                            <TextField
+                                                fullWidth
+                                                placeholder="Buscar sala..."
+                                                value={searchTerm2}
+                                                onChange={(e) => setSearchTerm2(e.target.value)}
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <HomeIcon style={{ color: "#A05B71" }} />
+                                                        </InputAdornment>
+                                                    ),
+                                                    endAdornment: (
+                                                        <InputAdornment position="end">
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => setSearchTerm2("")}
+                                                            >
+                                                                <ClearIcon style={{ color: "#A05B71" }} />
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                                sx={{
+                                                    mb: 2,
+                                                    "& .MuiOutlinedInput-root": {
+                                                        borderRadius: "8px",
+                                                        border: "1px solid #A05B71",
+                                                        backgroundColor: "#f5f5f5",
+                                                        "&:hover fieldset": {
+                                                            borderColor: "#833A53",
+                                                        },
+                                                    },
+                                                }}
+                                            />
+                                        </Box>
+                                        <List>
+                                            {filteredRooms.length > 0 ? (
+                                                filteredRooms.map((room) => (
+                                                    <ListItem
+                                                        key={room.id}
+                                                        component="button"
+                                                        onClick={() => handleSelectRoom(room)}
+                                                    >
+                                                        <ListItemText primary={room.name} />
+                                                    </ListItem>
+                                                ))
+                                            ) : (
+                                                <ListItem>
+                                                    <ListItemText primary="No se encontraron resultados" />
+                                                </ListItem>
+                                            )}
+                                        </List>
+                                    </Paper>
+                                )}
+                            </Box>
+                        </ClickAwayListener>
+
 
                         {/* Nuevo Select Canal */}
                         <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>

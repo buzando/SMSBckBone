@@ -657,5 +657,58 @@ namespace SMSBackboneAPI.Controllers
 
         }
 
+        [HttpGet("GetCreditCardsByUser")]
+        public async Task<IActionResult> GetCreditCardsByUser(string email)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.CreditsCardsManager();
+            var responseDto = UserManager.GetCardsByUser(email);
+            if (responseDto == null)
+            {
+
+
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Creating ROOM" });
+
+
+
+            }
+            else
+            {
+                var response = Ok();
+                return response;
+            }
+        }
+
+        [HttpGet("AddCreditCard")]
+        public async Task<IActionResult> AddCreditCard(CreditCardRequest Creditcard)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.CreditsCardsManager();
+            var responseDto = UserManager.AddCreditCard(Creditcard);
+            if (string.IsNullOrEmpty(responseDto))
+            {
+
+
+                var response = Ok();
+                return response;
+
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "Repedito", description = responseDto });
+
+            }
+
+        }
     }
 }
