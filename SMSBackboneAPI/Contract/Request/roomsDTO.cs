@@ -12,9 +12,9 @@ namespace Contract.Request
         public int iduser { get; set; }
         public string name { get; set; }
         public string description { get; set; }
-        public decimal credits { get; set; }
-        public Int64 long_sms { get; set; }
-        public Int64 short_sms { get; set; }
+        public double credits { get; set; }
+        public double long_sms { get; set; }
+        public double short_sms { get; set; }
         public Int64 calls { get; set; }
         public int idClient { get; set; }
     }

@@ -51,6 +51,8 @@ import DropDownIcon from '../assets/icon-punta-flecha-bottom.svg';
 import HomeIcon from '@mui/icons-material/Home';
 import ClearIcon from '@mui/icons-material/Clear';
 import DescriptionIcon from '@mui/icons-material/Description';
+import rentaNumerosUrl from '../assets/RentaDeNumeros.svg';
+import Tooltip from "@mui/material/Tooltip";
 const drawerWidth = 280;
 
 type Page = {
@@ -906,11 +908,9 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     justifyContent: 'center',
                                 }}
                             >
-                                <img
-                                    src="/path-to-icon" // Reemplaza con el ícono correcto
-                                    alt="Icono"
-                                    style={{ width: '20px', height: '20px' }}
-                                />
+                                <Tooltip title="Mis Números">
+                                    <img src={rentaNumerosUrl} alt="Renta Números" style={{ width: '30px', height: 'auto' }} onClick={() => navigate('/MyNumbers')} />
+                                </Tooltip>
                             </IconButton>
 
                             <IconButton

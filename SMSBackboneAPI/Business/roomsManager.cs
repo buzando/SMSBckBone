@@ -246,5 +246,44 @@ namespace Business
             }
 
         }
+
+        public bool TransferRoom(acountmanagment room)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var oldroomdb = (from r in ctx.Rooms
+                                join rbu in ctx.roomsbyuser on r.id equals rbu.idRoom
+                                where r.name == room.oldRoom && rbu.idUser == room.idUser
+                                select r).FirstOrDefault();
+
+                    oldroomdb.credits = oldroomdb.credits - room.transfer;
+                    if (room.Channel == "SMS Cortos")
+                    {
+                        oldroomdb.short_sms = oldroomdb.short_sms - room.transfer; 
+                    }
+                    if (room.Channel == "SMS Largos")
+                    {
+                        oldroomdb.long_sms = oldroomdb.long_sms - room.transfer;
+
+                    }
+                    ctx.SaveChanges();
+
+                    var newRoom = (from r in ctx.Rooms
+                                   join rbu in ctx.roomsbyuser on r.id equals rbu.idRoom
+                                   where r.name == room.newRoom && rbu.idUser == room.idUser
+                                   select r).FirstOrDefault();
+                    newRoom.credits = newRoom.credits + room.transfer;
+                    ctx.SaveChanges();
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
     }
 }

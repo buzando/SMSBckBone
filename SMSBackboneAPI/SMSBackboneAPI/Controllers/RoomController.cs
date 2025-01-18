@@ -139,5 +139,32 @@ namespace SMSBackboneAPI.Controllers
             }
         }
 
+        [HttpPost("TransferRoom")]
+        public async Task<IActionResult> TransferRoom(acountmanagment rooms)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var RoomManager = new Business.roomsManager();
+            var responseDto = RoomManager.TransferRoom(rooms);
+            if (!responseDto)
+            {
+
+
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Transfering Room" });
+
+
+
+            }
+            else
+            {
+                var response = Ok();
+                return response;
+            }
+        }
+
     }
 }

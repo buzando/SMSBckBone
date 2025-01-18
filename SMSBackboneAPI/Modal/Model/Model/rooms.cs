@@ -17,12 +17,12 @@ namespace Modal.Model.Model
 
         public int calls { get; set; } = 0; 
 
-        public int credits { get; set; } = 0; 
+        public double credits { get; set; } = 0; 
 
         public string description { get; set; } 
 
-        public int long_sms { get; set; } = 0;
+        public double long_sms { get; set; } = 0;
 
-        public int short_sms { get; set; } = 0;
+        public double short_sms { get; set; } = 0;
     }
 }

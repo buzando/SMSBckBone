@@ -1,11 +1,26 @@
 ﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+
+interface CreditCard {
+    id: number;
+    user_id: number;
+    card_number: string;
+    card_name: string;
+    expiration_month: number;
+    expiration_year: number;
+    CVV: string;
+    is_default: boolean;
+    created_at: string;
+    updated_at?: string;
+    Type: string;
+}
+
 const AccountRecharge: React.FC = () => {
     const [selectedChannel, setSelectedChannel] = useState('');
     const [creditAmount, setCreditAmount] = useState('');
     const [rechargeAmount, setRechargeAmount] = useState('');
-    const [creditCards, setCreditCards] = useState<string[]>([]); // Nueva variable para tarjetas de crédito
+    const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false); // Controla la visibilidad del modal
     const [cardDetails, setCardDetails] = useState({
         cardNumber: '',
@@ -13,9 +28,47 @@ const AccountRecharge: React.FC = () => {
         expirationMonth: 0,
         expirationYear: 0,
         cvv: '',
-        isDefault: false
+        isDefault: false,
+        type: ''
     });
+    const [cardType, setCardType] = useState('');
+    const [isCardValid, setIsCardValid] = useState(true);
+    const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null);
+    const [cardToDelete, setCardToDelete] = useState<CreditCard | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [generateInvoice, setGenerateInvoice] = useState(false);
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+    const invoiceData = {
+        name: "Nuxiba",
+        rfc: "VECJ880326",
+        postalCode: "45678",
+        fiscalRegime: "Régimen ejemplo",
+        description: "Régimen ejemplo",
+        credits: "8,000",
+        unitPrice: "$0.10",
+        totalCost: "$0.10",
+        paymentMethod: selectedCard ? `${selectedCard.Type} **${selectedCard.card_number.slice(-4)}, ${selectedCard.card_name}` : 'No seleccionada'
+    };
 
+    const handleGenerateInvoiceCheck = () => {
+        if (generateInvoice) {
+            setGenerateInvoice(false);
+        } else {
+            setIsInvoiceModalOpen(true);
+        }
+    };
+
+    const closeInvoiceModal = () => {
+        setIsInvoiceModalOpen(false);
+        setGenerateInvoice(false);
+    };
+
+    const acceptInvoiceModal = () => {
+        setIsInvoiceModalOpen(false);
+        setGenerateInvoice(true);
+    };
 
     // Funciones para abrir y cerrar el modal
     const handleOpenModal = () => {
@@ -43,29 +96,28 @@ const AccountRecharge: React.FC = () => {
         console.log({ selectedChannel, creditAmount, rechargeAmount });
     };
 
+    const fetchCreditCards = async () => {
+        const usuario = localStorage.getItem("userData");
+        const obj = usuario ? JSON.parse(usuario) : null;
+
+        if (!obj?.id) {
+            console.error("No se encontró el correo electrónico del usuario.");
+            return;
+        }
+
+        try {
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GET_CREDITCARD}${obj.id}`;
+            const response = await axios.get(requestUrl);
+
+            if (response.status === 200) {
+                setCreditCards(response.data); // Asigna las tarjetas de crédito al estado
+            }
+        } catch (error) {
+            console.error("Error al obtener las tarjetas de crédito:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchCreditCards = async () => {
-            const usuario = localStorage.getItem("userData");
-            const obj = usuario ? JSON.parse(usuario) : null;
-
-            if (!obj?.email) {
-                console.error("No se encontró el correo electrónico del usuario.");
-                return;
-            }
-
-            try {
-                const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GET_CREDITCARD}${obj.email}`;
-                const response = await axios.get(requestUrl);
-
-                if (response.status === 200) {
-                    setCreditCards(response.data); // Asigna las tarjetas de crédito al estado
-                }
-            } catch (error) {
-                console.error("Error al obtener las tarjetas de crédito:", error);
-            }
-        };
-
         fetchCreditCards();
     }, []); // Este useEffect se ejecutará solo una vez cuando el componente se monte
 
@@ -74,45 +126,159 @@ const AccountRecharge: React.FC = () => {
         const usuario = localStorage.getItem("userData");
         const obj = usuario ? JSON.parse(usuario) : null;
 
-        if (!obj?.userId) {
+        if (!obj?.id) {
             console.error("No se encontró el ID del usuario.");
             return;
         }
 
         try {
-            const requestUrl = `${import.meta.env.VITE_SMS_API_URL}/credit_cards`;
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_CREDITCARD}`;
             const payload = {
-                userId: obj.userId,
-                cardNumber: cardDetails.cardNumber,
-                cardName: cardDetails.cardName,
-                expirationMonth: cardDetails.expirationMonth,
-                expirationYear: cardDetails.expirationYear,
+                user_id: obj.id,
+                card_number: cardDetails.cardNumber,
+                card_name: cardDetails.cardName,
+                expiration_month: cardDetails.expirationMonth,
+                expiration_year: cardDetails.expirationYear,
                 cvv: cardDetails.cvv,
-                isDefault: cardDetails.isDefault
+                is_default: cardDetails.isDefault,
+                type: cardType
             };
 
             const response = await axios.post(requestUrl, payload);
 
-            if (response.status === 201) {
-                console.log("Tarjeta añadida exitosamente:", response.data);
-                // Aquí puedes actualizar la lista de tarjetas o cerrar el modal
-                setCreditCards((prev) => [...prev, response.data]);
+            if (response.status === 200) {
+                await fetchCreditCards();
                 handleCloseModal();
+                setToastMessage("Tarjeta añadida correctamente.");
             }
-        } catch (error) {
-            console.error("Error al agregar la tarjeta:", error);
+        } catch  {
+            setErrorModal({
+                title: "Error al añadir tarjeta",
+                message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
+            });
+        } finally {
+            handleCloseModal();
+        }
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
+
+        // Validación para `cardName` (solo letras y espacios)
+        if (name === 'cardName' && /[^a-zA-Z\s]/.test(value)) {
+            return; // Evita caracteres no permitidos
+        }
+
+        // Validación para `cvv` (solo números y máximo 3 dígitos)
+        if (name === 'cvv' && (/\\D/.test(value) || value.length > 3)) {
+            return; // Evita caracteres no numéricos o más de 3 dígitos
+        }
+
+        // Verificar si el input es de tipo checkbox
+        if (type === 'checkbox') {
+            setCardDetails((prev) => ({
+                ...prev,
+                [name]: (e.target as HTMLInputElement).checked
+            }));
+        } else {
+            setCardDetails((prev) => ({
+                ...prev,
+                [name]: value
+            }));
         }
     };
 
 
-const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
 
-    setCardDetails((prev) => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-    }));
-};
+    const validateCardNumber = (cardNumber: string): boolean => {
+        const digits = cardNumber.replace(/\D/g, '');
+        let sum = 0;
+        let shouldDouble = false;
+
+        for (let i = digits.length - 1; i >= 0; i--) {
+            let digit = parseInt(digits[i]);
+
+            if (shouldDouble) {
+                digit *= 2;
+                if (digit > 9) digit -= 9;
+            }
+
+            sum += digit;
+            shouldDouble = !shouldDouble;
+        }
+
+        return sum % 10 === 0;
+    };
+
+    const getCardType = (cardNumber: string): string => {
+        const number = cardNumber.replace(/\D/g, "");
+
+        if (/^4[0-9]{12}(?:[0-9]{3})?$/.test(number)) {
+            return "Visa";
+        } else if (/^5[1-5][0-9]{14}$/.test(number)) {
+            return "Mastercard";
+        } else if (/^3[47][0-9]{13}$/.test(number)) {
+            return "American Express";
+        } else if (/^6(?:011|5[0-9]{2})[0-9]{12}$/.test(number)) {
+            return "Discover";
+        } else {
+            return "Unknown";
+        }
+    };
+
+    const handleCardNumberBlur = () => {
+        const valid = validateCardNumber(cardDetails.cardNumber);
+        const type = getCardType(cardDetails.cardNumber);
+        setIsCardValid(valid);
+        setCardType(type);
+    };
+
+
+    const handleDeleteCard = async () => {
+        if (!cardToDelete) return;
+        try {
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_DELETE_CREDITCARD + cardToDelete.id}`;
+            const response = await axios.get(requestUrl);
+
+
+            if (response.status === 200) {
+                await fetchCreditCards();
+                setToastMessage("La tarjeta ha sido eliminada correctamente.");
+            }
+
+         
+        } catch  {
+            setErrorModal({
+                title: "Error al eliminar tarjeta",
+                message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
+            });
+        } finally {
+            closeDeleteModal();
+        }
+    };
+
+
+    const handleSelectCard = (card: CreditCard) => {
+        setSelectedCard(card);
+    };
+
+    const openDeleteModal = (card: CreditCard) => {
+        setCardToDelete(card);
+        setIsDeleteModalOpen(true);
+    };
+
+    const closeDeleteModal = () => {
+        setCardToDelete(null);
+        setIsDeleteModalOpen(false);
+    };
+
+    const closeErrorModal = () => {
+        setErrorModal(null);
+    };
+
+    const closeToast = () => {
+        setToastMessage(null);
+    };
 
     return (
         <div style={{
@@ -122,6 +288,218 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
             fontFamily: 'Arial, sans-serif',
             color: '#4a4a4a'
         }}>
+            {/* Modal de confirmación para eliminar */}
+            {isDeleteModalOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                }}>
+                    <div style={{
+                        backgroundColor: '#fff',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        width: '400px',
+                        textAlign: 'center',
+                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h3 style={{ marginBottom: '10px', color: '#4a4a4a' }}>Eliminar tarjeta</h3>
+                        <p style={{ marginBottom: '20px', color: '#6a6a6a' }}>
+                            ¿Está seguro de que desea eliminar la tarjeta? Esta acción no puede ser revertida.
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <button
+                                onClick={closeDeleteModal}
+                                style={{
+                                    backgroundColor: '#fff',
+                                    color: '#8d406d',
+                                    border: '2px solid #8d406d',
+                                    borderRadius: '5px',
+                                    padding: '10px 20px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleDeleteCard}
+                                style={{
+                                    backgroundColor: '#8d406d',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    padding: '10px 20px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de error */}
+            {errorModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                }}>
+                    <div style={{
+                        backgroundColor: '#fff',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        width: '400px',
+                        textAlign: 'center',
+                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h3 style={{ marginBottom: '10px', color: '#4a4a4a' }}>{errorModal.title}</h3>
+                        <p style={{ marginBottom: '20px', color: '#6a6a6a' }}>
+                            {errorModal.message}
+                        </p>
+                        <button
+                            onClick={closeErrorModal}
+                            style={{
+                                backgroundColor: '#fff',
+                                color: '#8d406d',
+                                border: '2px solid #8d406d',
+                                borderRadius: '5px',
+                                padding: '10px 20px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Toast de éxito */}
+            {toastMessage && (
+                <div style={{
+                    position: 'fixed',
+                    top: '630px', // Ajustado para que no quede al nivel del layout superior
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: '#333',
+                    color: '#fff',
+                    padding: '15px 20px',
+                    borderRadius: '5px',
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                    minWidth: '300px',
+                }}>
+                    <span>{toastMessage}</span>
+                    <button
+                        onClick={closeToast}
+                        style={{
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        Cerrar
+                    </button>
+                </div>
+            )}
+
+            {isInvoiceModalOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                }}>
+                    <div style={{
+                        backgroundColor: '#fff',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        width: '500px',
+                        textAlign: 'center',
+                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h3 style={{ marginBottom: '10px', color: '#4a4a4a' }}>Datos de factura</h3>
+                        <div style={{
+                            backgroundColor: '#f9f9f9',
+                            padding: '15px',
+                            borderRadius: '5px',
+                            textAlign: 'left',
+                            fontSize: '0.9rem',
+                            color: '#6a6a6a'
+                        }}>
+                            <p><strong>Nombre o razón social:</strong> {invoiceData.name}</p>
+                            <p><strong>RFC:</strong> {invoiceData.rfc}</p>
+                            <p><strong>Código postal:</strong> {invoiceData.postalCode}</p>
+                            <p><strong>Régimen fiscal:</strong> {invoiceData.fiscalRegime}</p>
+                            <p><strong>Descripción de los bienes o servicios:</strong> {invoiceData.description}</p>
+                            <p><strong>Créditos:</strong> {invoiceData.credits}</p>
+                            <p><strong>Precio unitario:</strong> {invoiceData.unitPrice}</p>
+                            <p><strong>Costo total:</strong> {invoiceData.totalCost}</p>
+                            <p><strong>Método de pago:</strong> {invoiceData.paymentMethod}</p>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+                            <button
+                                onClick={closeInvoiceModal}
+                                style={{
+                                    backgroundColor: '#fff',
+                                    color: '#8d406d',
+                                    border: '2px solid #8d406d',
+                                    borderRadius: '5px',
+                                    padding: '10px 20px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={acceptInvoiceModal}
+                                style={{
+                                    backgroundColor: '#8d406d',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    padding: '10px 20px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <h2 style={{
                 position: 'relative',
                 top: '0',
@@ -254,26 +632,73 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
                     <span style={{ fontSize: '1.5rem', lineHeight: '1' }}>+</span> Agregar Tarjeta
                 </button>
 
-                <div style={{
-                    height: '150px',
-                    width: '100%',
-                    border: '1px dashed #dcdcdc',
-                    marginBottom: '20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1rem',
-                    color: '#6a6a6a',
-                    flexDirection: 'column'
-                }}> {/* Espacio reservado para tarjetas */}
-                    {creditCards.length === 0 ? (
-                        <div>Ninguna tarjeta registrada</div>
-                    ) : null}
+                <div style={{ display: 'flex', gap: '20px', margin: '20px 0', flexWrap: 'wrap' }}>
+                    {creditCards.map((card) => (
+                        <div
+                            key={card.id}
+                            style={{
+                                border: selectedCard?.id === card.id ? '2px solid #8d406d' : '1px solid #dcdcdc',
+                                borderRadius: '8px',
+                                padding: '15px',
+                                width: '250px',
+                                position: 'relative',
+                                backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
+                            }}
+                        >
+                            {/* Marca de la tarjeta */}
+                            <div style={{ marginBottom: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <img
+                                    src={`/${card.Type}.png`} // Asegúrate de tener imágenes para Visa/Mastercard
+                                    alt={card.Type}
+                                    style={{ height: '30px' }}
+                                />
+                                {card.card_name}
+                            </div>
+
+                            {/* Detalles */}
+                            <div style={{ fontSize: '0.9rem', marginBottom: '10px' }}>
+                                <div>Terminación: •••• {card.card_number.slice(-4)}</div>
+                                <div>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</div>
+                            </div>
+
+                            {/* Radio para seleccionar */}
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px' }}>
+                                <input
+                                    type="radio"
+                                    name="selectedCard"
+                                    checked={selectedCard?.id === card.id}
+                                    onChange={() => handleSelectCard(card)}
+                                    style={{ cursor: 'pointer' }}
+                                />
+                                {selectedCard?.user_id === card.user_id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}
+                            </label>
+
+                            {/* Botón para eliminar */}
+                            <button
+                                onClick={() => openDeleteModal(card)}
+                                style={{
+                                    position: 'absolute',
+                                    top: '10px',
+                                    right: '10px',
+                                    backgroundColor: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                🗑️
+                            </button>
+                        </div>
+                    ))}
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', width: '100%' }}> {/* Facturar automáticamente y botones */}
                     <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1rem', color: '#6a6a6a' }}>
-                        <input type="checkbox" style={{ cursor: 'pointer' }} />
+                        <input
+                            type="checkbox"
+                            checked={generateInvoice}
+                            onChange={handleGenerateInvoiceCheck}
+                            style={{ cursor: 'pointer' }}
+                        />
                         Generar factura automáticamente
                     </label>
 
@@ -351,14 +776,20 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
                                     placeholder="1234 5678 9012 3456"
                                     value={cardDetails.cardNumber}
                                     onChange={handleInputChange}
+                                    onBlur={handleCardNumberBlur}
                                     style={{
                                         width: '100%',
                                         padding: '8px',
-                                        border: '1px solid #dcdcdc',
+                                        border: isCardValid ? '1px solid #dcdcdc' : '1px solid red',
                                         borderRadius: '4px',
                                     }}
                                     required
                                 />
+                                {!isCardValid && (
+                                    <span style={{ color: 'red', marginTop: '5px', display: 'block' }}>
+                                        Tarjeta inválida
+                                    </span>
+                                )}
                             </div>
 
                             <div style={{ marginBottom: '10px' }}>

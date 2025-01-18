@@ -11,20 +11,20 @@ namespace Contract.Request
     {
         public int Id { get; set; }
 
-        public int UserId { get; set; }
+        public int user_id { get; set; }
 
-        public string CardNumber { get; set; }
+        public string card_number { get; set; }
 
-        public string CardName { get; set; }
+        public string card_name { get; set; }
 
-        public byte ExpirationMonth { get; set; }
+        public byte expiration_month { get; set; }
 
-        public int ExpirationYear { get; set; }
+        public short expiration_year { get; set; }
 
         public string CVV { get; set; }
 
-        public bool IsDefault { get; set; }
+        public bool is_default { get; set; }
 
-
+        public string Type { get; set; }
     }
 }

@@ -50,12 +50,12 @@ const CreditManagement: React.FC = () => {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [selectedChannel, setSelectedChannel] = useState<string>("");
     const [transferAmount, setTransferAmount] = useState<number | null>(null);
-    const [selectedNewChannel, setSelectedNewChannel] = useState<string>("");
     const [searchTerm2, setSearchTerm2] = useState("");
     const [openDropdown, setOpenDropdown] = useState<boolean>(false);
     const [openDropdown2, setOpenDropdown2] = useState<boolean>(false);
     const [searchTerm3, setSearchTerm3] = useState(""); 
-
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
@@ -74,7 +74,8 @@ const CreditManagement: React.FC = () => {
             const response = await axios.get(request);
 
             if (response.status === 200) {
-               setrooms(response.data);
+                setrooms(response.data);
+                localStorage.setItem('ListRooms', JSON.stringify(response.data));
             }
         } catch {
             console.error("Error al traer los créditos");
@@ -106,17 +107,15 @@ const CreditManagement: React.FC = () => {
 
     const handleCloseModal = () => {
         setModalOpen(false);
-        setSelectedRoom(null); // Limpia el room seleccionado al cerrar el modal
-        setSelectedRoom2(null);
-    };
-
-    const handleTransferClick = () => {
-        setLoading(true);
-        // Simula una operación asincrónica, como una llamada a la API.
-        setTimeout(() => {
-            setLoading(false);
-            alert("Transferencia completada"); // O maneja el resultado de la transferencia.
-        }, 2000);
+        setSelectedRoom(null); // Clear selected room
+        setSelectedRoom2(null); // Clear selected room2
+        setSelectedChannel(""); // Reset the channel selection
+        setTransferAmount(null); // Clear the transfer amount
+        setSearchTerm2(""); // Clear search term for room
+        setSearchTerm3(""); // Clear search term for room2
+        setOpenDropdown(false); // Close any open dropdowns
+        setOpenDropdown2(false);
+        setModalOpen(false);
     };
 
 
@@ -168,6 +167,63 @@ const CreditManagement: React.FC = () => {
         }
 
         return 0; // Por defecto, 0 créditos si no hay un canal válido seleccionado
+    };
+
+    const handleTransferSubmit = async () => {
+        if (!selectedRoom2 || !selectedRoom || !selectedChannel || !transferAmount) {
+            
+            return;
+        }
+
+        setLoading(true);
+
+        const usuario = localStorage.getItem("userData");
+        const obj = usuario ? JSON.parse(usuario) : null;
+
+        if (!obj?.id) {
+            console.error("No se encontró el ID del usuario.");
+            setLoading(false);
+            return;
+        }
+
+        const payload = {
+            oldRoom: selectedRoom2.name,
+            Channel: selectedChannel,
+            transfer: transferAmount,
+            newRoom: selectedRoom.name,
+            idUser: obj.id,
+        };
+
+        try {
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_TRANSFER_ROOMS}`;
+            const response = await axios.post(requestUrl, payload);
+
+            if (response.status === 200) {
+                setToastMessage("La transferencia de créditos fue realizada correctamente.");
+                GetCredits();
+                handleCloseModal();
+            } else {
+                setErrorModal({
+                    title: "Error al transferir créditos",
+                    message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
+                });
+            }
+        } catch {
+            setErrorModal({
+                title: "Error al transferir créditos",
+                message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const closeToast = () => {
+        setToastMessage(null);
+    };
+
+    const closeErrorModal = () => {
+        setErrorModal(null);
     };
 
 
@@ -298,7 +354,7 @@ const CreditManagement: React.FC = () => {
                                                         opacity: 1,
                                                     }}
                                                 >
-                                                    SMS # Cortos: {room.long_sms.toLocaleString()}
+                                                    SMS # Cortos: {room.short_sms.toLocaleString()}
                                                 </Typography>
                                                 <Typography
                                                     variant="body2"
@@ -310,7 +366,7 @@ const CreditManagement: React.FC = () => {
                                                         opacity: 1,
                                                     }}
                                                 >
-                                                    SMS # Largos: {room.short_sms.toLocaleString()}
+                                                    SMS # Largos: {room.long_sms.toLocaleString()}
                                                 </Typography>
                                             </Box>
                                             <IconButton onClick={(event) => handleMenuOpen(event, room)}>
@@ -646,17 +702,17 @@ const CreditManagement: React.FC = () => {
 
 
                         {/* Nuevo Select Canal */}
-                        <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
-                            Seleccionar nuevo canal
-                        </Typography>
-                        <Select
-                            fullWidth
-                            value={selectedNewChannel}
-                            onChange={(e) => setSelectedNewChannel(e.target.value)}
-                        >
-                            <MuiMenuItem value="SMS Cortos">SMS # Cortos</MuiMenuItem>
-                            <MuiMenuItem value="SMS Largos">SMS # Largos</MuiMenuItem>
-                        </Select>
+                        {/*<Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>*/}
+                        {/*    Seleccionar nuevo canal*/}
+                        {/*</Typography>*/}
+                        {/*<Select*/}
+                        {/*    fullWidth*/}
+                        {/*    value={selectedNewChannel}*/}
+                        {/*    onChange={(e) => setSelectedNewChannel(e.target.value)}*/}
+                        {/*>*/}
+                        {/*    <MuiMenuItem value="SMS Cortos">SMS # Cortos</MuiMenuItem>*/}
+                        {/*    <MuiMenuItem value="SMS Largos">SMS # Largos</MuiMenuItem>*/}
+                        {/*</Select>*/}
                         <Box display="flex" justifyContent="space-between" mt={3}>
                             <Button
                                 variant="outlined"
@@ -668,7 +724,7 @@ const CreditManagement: React.FC = () => {
                             <Button
                                 variant="contained"
                                 disabled={loading} // Evita múltiples clics mientras se transfiere.
-                                onClick={handleTransferClick}
+                                onClick={handleTransferSubmit}
                                 sx={{
                                     background: "#833A53 0% 0% no-repeat padding-box",
                                     border: "1px solid #60293C",
@@ -697,6 +753,83 @@ const CreditManagement: React.FC = () => {
                     </Box>
                 </Fade>
             </Modal>
+            {/* Toast de éxito */}
+            {toastMessage && (
+                <div style={{
+                    position: 'fixed',
+                    top: '630px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: '#333',
+                    color: '#fff',
+                    padding: '15px 20px',
+                    borderRadius: '5px',
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                    minWidth: '300px',
+                }}>
+                    <span>{toastMessage}</span>
+                    <button
+                        onClick={closeToast}
+                        style={{
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        Cerrar
+                    </button>
+                </div>
+            )}
+
+            {/* Modal de error */}
+            {errorModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                }}>
+                    <div style={{
+                        backgroundColor: '#fff',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        width: '400px',
+                        textAlign: 'center',
+                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                    }}>
+                        <h3 style={{ marginBottom: '10px', color: '#4a4a4a' }}>{errorModal.title}</h3>
+                        <p style={{ marginBottom: '20px', color: '#6a6a6a' }}>
+                            {errorModal.message}
+                        </p>
+                        <button
+                            onClick={closeErrorModal}
+                            style={{
+                                backgroundColor: '#fff',
+                                color: '#8d406d',
+                                border: '2px solid #8d406d',
+                                borderRadius: '5px',
+                                padding: '10px 20px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            )}
 
 
         </Box>
