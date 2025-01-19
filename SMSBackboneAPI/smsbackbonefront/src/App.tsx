@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+﻿import { useEffect } from 'react'
 import CssBaseline from '@mui/material/CssBaseline';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material'
@@ -18,6 +18,7 @@ import ConfigurationAccount from './pages/ConfigurationAccount'
 import TermsAndConditions from './pages/TermsAndConditions'
 import CreditManagement from './pages/CreditManagement'
 import MyNumbers from './pages/MyNumbers'
+import Help from './pages/Help'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -106,6 +107,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/ManageAccount' element={<ManageAccount />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/Help' element={<Help />} />
                             </Route>
                             {/*<Route element={<PrivateRoute />}>*/}
                             {/*    <Route path='/billing/paymenthistory' element={<PaymentHistoryPage />} />*/}

@@ -13,15 +13,14 @@ import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from '@mui/material/Link';
-import AppIconByNuxiba from '../assets/AppIconByNuxiba.svg';
+import AppIconByNuxiba from '../assets/conect.svg';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import "../Logincss.css";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
+import InfoIcon from '@mui/icons-material/Info';
 
 type errorObj = {
     code: string;
@@ -53,11 +52,12 @@ const Login: React.FC = () => {
         isMailSent: false,
     });
     const navigate = useNavigate();
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword] = useState(false);
 
-    const handleTogglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
+    //const handleTogglePasswordVisibility = () => {
+    //    setShowPassword(!showPassword);
+    //};
+
     useEffect(() => {
         const token = localStorage.getItem('token');
 
@@ -89,7 +89,6 @@ const Login: React.FC = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setLoading(true);
-        setSpinner(true);
         setUnconfirmedEmail({
             sending: false,
             isUnconfirmed: false,
@@ -121,7 +120,6 @@ const Login: React.FC = () => {
             if (response.status === 200) {
                 const { user, token, expiration } = await response.data;
                 setLoading(false);
-                setSpinner(false);
                 // root or admin
                 setContextState({ user, token, expiration });
                 localStorage.setItem('token', token);
@@ -256,48 +254,121 @@ const Login: React.FC = () => {
                     }}
                 >
                     <form onSubmit={handleSubmit} id="formlogin">
-                        <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
+                        <Paper elevation={0} sx={{ width: '100%', borderRadius: '20px' }}>
                             <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
-                                <Typography variant="h2" fontWeight="bold" align="center">
-                                    Bienvenído
-                                </Typography>
-                                <Typography variant="h5" align="center">
-                                    Iniciar sesión
-                                </Typography>
-                                <TextField
-                                    label="Correo electrónico"
-                                    value={email}
-                                    onChange={handleInputChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    margin="normal"
-                                    error={!emailErr}
-                                    helperText={!emailErr ? "Email inválido." : ""}
-                                    required
-                                />
-                                <TextField
-                                    label="Contraseña"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    variant="outlined"
-                                    type={showPassword ? "text" : "password"} // Cambia entre "text" y "password"
-                                    fullWidth
-                                    required
-                                    margin="normal"
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    onClick={handleTogglePasswordVisibility}
-                                                    edge="end"
-                                                >
-                                                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
+                                <Typography
+                                    variant="h2"
+                                    align="center"
+                                    sx={{
+                                        fontSize: '28px', // Tamaño del texto en píxeles
+                                        fontWeight: 'bold',
+                                        color: '#330F1B',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '1px',
+                                        marginBottom: '50px', // Ajustamos márgenes
                                     }}
-                                />
-                                <Box display="flex" justifyContent="right">
+                                >
+                                    ¡Bienvenida!
+                                </Typography>
+                                <Typography
+                                    variant="h5"
+                                    sx={{
+                                        font: "normal normal medium 22px/55px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        marginTop: "20px", // Añadimos un margen superior
+                                    }}
+                                >
+                                    Inicio de sesión
+                                </Typography>
+                                <Box>
+                                    <Typography
+                                        sx={{
+                                            textAlign: 'left', // Alineación a la izquierda
+                                            fontFamily: 'Poppins', // Fuente personalizada
+                                            fontWeight: '500', // Peso medium
+                                            fontSize: '16px', // Tamaño de fuente
+                                            lineHeight: '54px', // Altura de línea
+                                            letterSpacing: '0px', // Sin espaciado adicional
+                                            color: '#330F1B', // Color del texto
+                                            opacity: 1, // Opacidad
+                                        }}
+                                    >
+                                        Correo electrónico
+                                    </Typography>
+                                    <TextField
+                                        label="Correo electrónico"
+                                        value={email}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        fullWidth
+                                        margin="dense"
+                                        error={!emailErr}
+                                        helperText={!emailErr ? "Por favor, ingrese un correo válido" : ""}
+                                        InputProps={{
+                                            sx: {
+                                                "& input": {
+                                                    backgroundColor: "transparent !important",
+                                                },
+                                                "& input:focus": {
+                                                    backgroundColor: "transparent !important",
+                                                    boxShadow: "none !important",
+                                                    outline: "none !important",
+                                                },
+                                            },
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip title="Ingrese un correo válido" arrow>
+                                                        <IconButton>
+                                                            <InfoIcon sx={{ color: '#b3b3b3' }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        required
+                                    />
+
+
+
+                                </Box>
+
+                                <Box>
+                                    <Typography
+                                        sx={{
+                                            textAlign: 'left',
+                                            fontFamily: 'Poppins',
+                                            fontWeight: '500',
+                                            fontSize: '16px',
+                                            lineHeight: '54px',
+                                            letterSpacing: '0px',
+                                            color: '#330F1B',
+                                            opacity: 1,
+                                        }}
+                                    >
+                                        Contraseña
+                                    </Typography>
+                                    <TextField
+                                        label="Contraseña"
+                                        type={showPassword ? "text" : "password"} // Cambia entre texto y contraseña
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        variant="outlined"
+                                        fullWidth
+                                        margin="normal"
+                                        
+                                    />
+
+
+
+                                </Box>
+
+                                <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={2}>
+                                    <ButtonLoadingSubmit
+                                        label="Ingresar"
+                                        loading={loading}
+                                    />
                                     <Link
                                         component={LinkDom}
                                         variant="caption"
@@ -314,6 +385,7 @@ const Login: React.FC = () => {
                                         ¿Olvidaste tu contraseña?
                                     </Link>
                                 </Box>
+
                                 <Box sx={{ width: '100%', marginTop: 1 }}>
                                     <Collapse in={openAlert}>
                                         <Alert
@@ -381,13 +453,7 @@ const Login: React.FC = () => {
                                         </Alert>
                                     </Collapse>
                                 </Box>
-                                <Box display="flex" justifyContent="center" py={2}>
-                                    <ButtonLoadingSubmit
-                                        label="Iniciar sesión"
-                                        loading={loading}
-                                        
-                                    />
-                                </Box>
+
                                 <Divider />
                                 <Box display="flex" justifyContent="center" marginTop={1}>
                                     <Typography variant="caption" marginRight={1} sx={{
@@ -396,7 +462,7 @@ const Login: React.FC = () => {
                                         letterSpacing: '0px',
                                         color: '#330F1B',
                                     }}>
-                                        ¿Aún no tienes cuenta?
+                                        ¿Aún no tienes una cuenta?
                                     </Typography>
                                     <Link component={LinkDom} variant="caption" to={'/register'} sx={{
                                         textAlign: 'center',
