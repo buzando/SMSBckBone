@@ -32,7 +32,7 @@ import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 import EditIcon from "@mui/icons-material/Edit";
 import Fab from "@mui/material/Fab";
-import HelpIcon from "@mui/icons-material/Help";
+import helpicon from "../assets/Iconoayuda.svg";
 import Modal from "@mui/material/Modal";
 import {
     Box,
@@ -1187,26 +1187,64 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     <img src={nuxiba_svg} alt="Nuxiba Logo" width="80" />
                     {/* Botón circular con el icono de ayuda */}
                     <Fab
-                        color="primary"
                         aria-label="help"
-                        onClick={openHelpModal} // Llamada correcta sin parámetros
+                        onClick={openHelpModal}
                         sx={{
                             position: "fixed",
                             bottom: 70,
                             right: 30,
                             zIndex: 1500,
+                            width: "60px", // Tamaño personalizado
+                            height: "60px", // Tamaño personalizado
+                            backgroundColor: "#FFFFFF", // Fondo blanco
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Sombra normal
+                            border: "1px solid #D9C5CB", // Borde del botón
+                            "&:hover": {
+                                background: "#EBE5E7 0% 0% no-repeat padding-box",
+                                boxShadow: "0px 8px 16px #00131F14", // Sombra en hover
+                                border: "1px solid #D9C5CB", // Borde en hover
+                            },
                         }}
                     >
-                        <HelpIcon />
+                        <Tooltip
+                            title="Ayuda"
+                            arrow
+                            placement="top" // Aparece arriba
+                            sx={{
+                                "& .MuiTooltip-tooltip": {
+                                    backgroundColor: "#330F1B", // Fondo del tooltip
+                                    color: "#FFFFFF", // Texto blanco
+                                    fontSize: "12px", // Tamaño de fuente
+                                    fontFamily: "Poppins, sans-serif", // Fuente personalizada
+                                    fontWeight: "medium", // Peso de texto
+                                },
+                                "& .MuiTooltip-arrow": {
+                                    color: "#330F1B", // Color de la flecha del tooltip
+                                },
+                            }}
+                        >
+                            <img
+                                src={helpicon} // Usar el ícono importado
+                                alt="Ícono de ayuda"
+                                style={{
+                                    width: "24px", // Tamaño del ícono
+                                    height: "24px", // Tamaño del ícono
+                                }}
+                            />
+                        </Tooltip>
                     </Fab>
                 </Box>
             </footer>
             {/* Modal de ayuda */}
             <Modal
-                open={helpModalIsOpen} // Controla si el modal está abierto
-                onClose={closeHelpModal} // Cierra el modal cuando se hace clic afuera o presiona Escape
+                open={helpModalIsOpen}
+                onClose={closeHelpModal}
                 aria-labelledby="modal-title"
                 aria-describedby="modal-description"
+                sx={{
+                    backdropFilter: "blur(4px)", // Fondo desenfocado
+                    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo gris semitransparente
+                }}
             >
                 <Box
                     sx={{
@@ -1215,55 +1253,250 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                         width: "90%",
-                        maxWidth: "500px",
+                        maxWidth: "600px",
+                        maxHeight: "550px",
                         bgcolor: "background.paper",
                         borderRadius: "10px",
                         boxShadow: 24,
-                        p: 4,
+                        p: 3,
                     }}
                 >
-                    <Typography id="modal-title" variant="h6" align="center" gutterBottom>
+                    <Typography
+                        id="modal-title"
+                        sx={{
+                            textAlign: "left",
+                            font: "normal normal medium 26px/55px Poppins",
+                            letterSpacing: "0px",
+                            color: "#330F1B",
+                            opacity: 1,
+                            fontSize: "26px",
+                            mb: 1,
+                        }}
+                    >
                         Ayuda
                     </Typography>
-                    <Typography id="modal-description" variant="body1" gutterBottom>
+
+                    {/* Línea horizontal */}
+                    <Box
+                        sx={{
+                            width: "100%",
+                            height: "1px",
+                            backgroundColor: "#E0E0E0",
+                            my: 1,
+                        }}
+                    />
+
+                    <Typography
+                        id="modal-description"
+                        sx={{
+                            textAlign: "left",
+                            font: "normal normal medium 18px/22px Poppins",
+                            letterSpacing: "0px",
+                            color: "#330F1B",
+                            opacity: 1,
+                            fontSize: "18px", // Tamaño ajustado a 18px
+                            marginBottom: "10px",
+                        }}
+                    >
                         Por favor, contáctenos:
                     </Typography>
-                    <Typography variant="subtitle1" gutterBottom>
-                        <strong>Horarios de atención</strong>
-                    </Typography>
-                    <Typography variant="body2">
-                        Lunes a viernes<br />
-                        Teléfono: 55 1107 8510 Opción 3<br />
-                        <br />
-                        Sábado<br />
-                        9:00-18:00 CST<br />
-                        Teléfono: 55 1107 8510 Opción 3<br />
-                        <br />
-                        Domingo<br />
-                        9:00-15:00 CST<br />
-                        Teléfono: 55 1107 8510 Opción 3<br />
-                    </Typography>
-                    <Typography variant="subtitle1" gutterBottom>
-                        <strong>Línea de emergencia</strong>
-                    </Typography>
-                    <Typography variant="body2">
-                        Lunes a viernes 21:00 - 07:00<br />
-                        Teléfono: 55 5437 6175<br />
-                        <br />
-                        Sábado y domingo<br />
-                        Teléfono: 55 5437 6175<br />
-                    </Typography>
-                    <Typography variant="body2" style={{ marginTop: "10px" }}>
+
+                    <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1}> {/* Reducir espacio entre columnas */}
+                        {/* Horarios de atención */}
+                        <Box>
+                            <Typography
+                                sx={{
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    color: "#574B4F",
+                                    mb: 0.5, // Reducir margen inferior
+                                }}
+                            >
+                                Horarios de atención
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
+                                    color: "#574B4F",
+                                    mb: 0.5, // Reducir margen entre elementos
+                                }}
+                            >
+                                Lunes a viernes
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
+                                    color: "#574B4F",
+                                }}
+                            >
+                                Teléfono: 55 1107 8510 Opción 3
+                            </Typography>
+                        </Box>
+
+                        {/* Línea de emergencia */}
+                        <Box>
+                            <Typography
+                                sx={{
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    color: "#574B4F",
+                                    mb: 0.5, // Reducir margen inferior
+                                }}
+                            >
+                                Línea de emergencia
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
+                                    color: "#574B4F",
+                                    mb: 0.5, // Reducir margen entre elementos
+                                }}
+                            >
+                                Lunes a viernes 21:00-07:00
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins",
+                                    color: "#574B4F",
+                                }}
+                            >
+                                Teléfono: 55 5437 6175
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    {/* Línea horizontal */}
+                    <Box
+                        sx={{
+                            borderBottom: "1px solid #E6E4E4",
+                            my: 1,
+                        }}
+                    />
+
+                    <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1}>
+                        <Box>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins",
+                                    color: "#574B4F",
+                                    mb: 0.5,
+                                }}
+                            >
+                                Sábado
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins",
+                                    color: "#574B4F",
+                                    mb: 0.5,
+                                }}
+                            >
+                                9:00-18:00 CST
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins",
+                                    color: "#574B4F",
+                                }}
+                            >
+                                Teléfono: 55 1107 8510 Opción 3
+                            </Typography>
+                        </Box>
+
+                        <Box>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins",
+                                    color: "#574B4F",
+                                    mb: 0.5,
+                                }}
+                            >
+                                Sábado y domingo
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    font: "normal normal normal 14px/20px Poppins",
+                                    color: "#574B4F",
+                                }}
+                            >
+                                Teléfono: 55 5437 6175
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    {/* Línea horizontal */}
+                    <Box
+                        sx={{
+                            borderBottom: "1px solid #E6E4E4",
+                            my: 1,
+                        }}
+                    />
+
+                    <Box>
+                        <Typography
+                            sx={{
+                                font: "normal normal normal 14px/20px Poppins",
+                                color: "#574B4F",
+                                mb: 0.5,
+                            }}
+                        >
+                            Domingo
+                        </Typography>
+                        <Typography
+                            sx={{
+                                font: "normal normal normal 14px/20px Poppins",
+                                color: "#574B4F",
+                                mb: 0.5,
+                            }}
+                        >
+                            9:00-15:00 CST
+                        </Typography>
+                        <Typography
+                            sx={{
+                                font: "normal normal normal 14px/20px Poppins",
+                                color: "#574B4F",
+                            }}
+                        >
+                            Teléfono: 55 1107 8510 Opción 3
+                        </Typography>
+                    </Box>
+
+                    <Box
+                        sx={{
+                            borderBottom: "1px solid #E6E4E4",
+                            my: 1,
+                        }}
+                    />
+
+                    <Typography
+                        sx={{
+                            font: "normal normal medium 16px/54px Poppins",
+                            color: "#574B4F",
+                            mb: 1,
+                        }}
+                    >
                         Soporte: cwsoporte@nuxiba.com
                     </Typography>
-                    <Box sx={{ marginTop: "20px", textAlign: "right" }}>
-                        <Button onClick={closeHelpModal} variant="contained" color="primary">
+
+                    <Box sx={{ textAlign: "right", mt: 2 }}>
+                        <Button
+                            onClick={closeHelpModal}
+                            variant="contained"
+                            color="primary"
+                            sx={{
+                                font: "normal normal medium 26px/55px Poppins",
+                                backgroundColor: "#833A53",
+                                color: "#FFFFFF",
+                                borderRadius: "8px",
+                                padding: "6px 16px",
+                                "&:hover": {
+                                    backgroundColor: "#A54261",
+                                },
+                            }}
+                        >
                             Cerrar
                         </Button>
                     </Box>
                 </Box>
             </Modal>
-
         </>
     )
 }

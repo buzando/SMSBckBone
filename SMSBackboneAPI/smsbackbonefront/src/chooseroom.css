@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
 
 body {
-    background-color: #F8F8F8; /* Cambia a #FFFFFF si lo deseas completamente blanco */
+    background-color: #FFFFFF; 
 }
 
 /* Estilo para el botón de búsqueda */
@@ -71,8 +71,9 @@ body {
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #FFFFFF; /* Fondo similar al mostrado */
+    background-color: #FFFFFF; /* Fondo blanco puro */
 }
+
 
 /* Campo de búsqueda */
 .search-container {
@@ -227,4 +228,29 @@ body {
 
 .custom-checkbox svg {
     fill: white; /* Color del check cuando está marcado */
+}
+.icon-container {
+    width: 50px; /* Reducimos el tamaño del círculo */
+    height: 50px;
+    background-color: #6E6E6E; /* Fondo gris */
+    border-radius: 50%; /* Mantiene el contenedor circular */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    .icon-container svg {
+        color: #FFFFFF; /* Color blanco para el ícono */
+        font-size: 28px; /* Ajustamos el tamaño del ícono para que sea proporcional */
+    }
+
+.repeat-box {
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    box-shadow: 0px 4px 4px #E1E4E6;
+    border: 1px solid #CED2D54D;
+    border-radius: 4px;
+    opacity: 1;
+    width: 430px; /* Ancho del recuadro */
+    padding: 20px; /* Espaciado interno opcional */
+    margin: 10px auto; /* Centrado horizontal y margen opcional */
 }

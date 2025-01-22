@@ -14,10 +14,10 @@ import { Divider, Modal, Fade, Backdrop } from '@mui/material';
 import PublicLayout from '../components/PublicLayout';
 import Checkbox from '@mui/material/Checkbox';
 import InputAdornment from '@mui/material/InputAdornment';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Tooltip from '@mui/material/Tooltip';
-
+import infoicon from '../assets/Icon-info.svg'
+import infoiconerror from '../assets/Icon-infoerror.svg'
 type RegisterFormData = {
     client: string;
     firstName: string;
@@ -125,7 +125,7 @@ const Register: React.FC = () => {
                 { headers },
             );
 
-        
+
             if (response.status === 200) {
                 const { user, token, expiration } = await response.data;
                 setContextState({ user, token, expiration });
@@ -238,7 +238,7 @@ const Register: React.FC = () => {
     const removeScrollListener = () => {
         const container = termsContainerRef.current;
         if (container) {
-         
+
             container.removeEventListener("scroll", handleScroll);
         }
     };
@@ -252,35 +252,92 @@ const Register: React.FC = () => {
                     <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 2 }}>
                         Registro
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#888", marginBottom: 3 }}>
-                        <span style={{ fontWeight: "bold" }}>*</span> Los campos con asterisco son obligatorios.
-                    </Typography>
                     <Divider sx={{ marginBottom: 3 }} />
                     <Paper elevation={3} sx={{ padding: 4, borderRadius: "12px" }}>
+                        <Typography
+                            sx={{
+                                textAlign: "right", // Alineado a la derecha
+                                font: "normal normal normal 14px/22px Poppins",
+                                letterSpacing: "0px",
+                                color: "#330F1B",
+                                opacity: 0.7,
+                                marginBottom: 3, // Espaciado inferior
+                            }}
+                        >
+                            *Los campos con asterisco son obligatorios.
+                        </Typography>
                         <Grid container spacing={2}>
+                          
+
                             {/* Client - Solo en la parte superior */}
                             <Grid item xs={12} md={6}>
+                               
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                        color: !formData.client || (formData.client.length <= 40 && /^[a-zA-Z]+$/.test(formData.client))
+                                            ? "black"
+                                            : "red",
+                                    }}
+                                >
+                                    Cliente
+                                </Typography>
                                 <TextField
-                                    label="Cliente"
                                     name="client"
                                     value={formData.client}
                                     onChange={handleInputChange}
                                     variant="outlined"
                                     fullWidth
                                     required
+                                    error={
+                                        !!(formData.client && (formData.client.length > 40 || !/^[a-zA-Z]+$/.test(formData.client)))
+                                    } // Aseguramos que el resultado sea booleano
+                                    helperText={
+                                        formData.client && formData.client.length > 40
+                                            ? "Máximo 40 caracteres"
+                                            : formData.client && !/^[a-zA-Z]+$/.test(formData.client)
+                                                ? "Solo se permiten caracteres alfabéticos"
+                                                : ""
+                                    }
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <>
-                                                            - Solo caracteres alfabéticos<br />
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                padding: "8px 12px",
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000",
+                                                                whiteSpace: "pre-line",
+                                                            }}
+                                                        >
+                                                            - Solo caracteres alfabéticos
+                                                            <br />
                                                             - Longitud máxima de 40 caracteres
-                                                        </>
+                                                        </Box>
                                                     }
+                                                    arrow
+                                                    placement="top"
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color="action" />
+                                                        <img
+                                                            src={
+                                                                formData.client &&
+                                                                    (formData.client.length > 40 || !/^[a-zA-Z]+$/.test(formData.client))
+                                                                    ? infoiconerror
+                                                                    : infoicon
+                                                            }
+                                                            alt="info-icon"
+                                                            style={{ width: 20, height: 20 }}
+                                                        />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -293,27 +350,66 @@ const Register: React.FC = () => {
 
                             {/* Name and Last Name */}
                             <Grid item xs={12} md={6}>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName) ? "#D01247" : "#red",
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                    }}
+                                >
+                                    Nombre
+                                </Typography>
                                 <TextField
-                                    label="Nombre"
                                     name="firstName"
                                     value={formData.firstName}
                                     onChange={handleInputChange}
                                     variant="outlined"
                                     fullWidth
                                     required
+                                    error={!!(formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName))}
+                                    helperText={
+                                        formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName)
+                                            ? "Solo se permiten caracteres alfabéticos"
+                                            : ""
+                                    }
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <>
-                                                            - Solo caracteres alfabéticos<br />
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                padding: "8px 12px",
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000",
+                                                                whiteSpace: "pre-line",
+                                                            }}
+                                                        >
+                                                            - Solo caracteres alfabéticos
+                                                            <br />
                                                             - Longitud máxima de 40 caracteres
-                                                        </>
+                                                        </Box>
                                                     }
+                                                    arrow
+                                                    placement="top"
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color="action" />
+                                                        <img
+                                                            src={
+                                                                formData.firstName &&
+                                                                    !/^[a-zA-Z]+$/.test(formData.firstName)
+                                                                    ? infoiconerror
+                                                                    : infoicon
+                                                            }
+                                                            alt="info-icon"
+                                                            style={{ width: 20, height: 20 }}
+                                                        />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -323,27 +419,66 @@ const Register: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12} md={6}>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName) ? "red" : "black",
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                    }}
+                                >
+                                    Apellido Paterno
+                                </Typography>
                                 <TextField
-                                    label="Apellido Paterno"
                                     name="lastName"
                                     value={formData.lastName}
                                     onChange={handleInputChange}
                                     variant="outlined"
                                     fullWidth
                                     required
+                                    error={!!(formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName))}
+                                    helperText={
+                                        formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName)
+                                            ? "Solo se permiten caracteres alfabéticos"
+                                            : ""
+                                    }
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <>
-                                                            - Solo caracteres alfabéticos<br />
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                padding: "8px 12px",
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000",
+                                                                whiteSpace: "pre-line",
+                                                            }}
+                                                        >
+                                                            - Solo caracteres alfabéticos
+                                                            <br />
                                                             - Longitud máxima de 40 caracteres
-                                                        </>
+                                                        </Box>
                                                     }
+                                                    arrow
+                                                    placement="top"
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color="action" />
+                                                        <img
+                                                            src={
+                                                                formData.lastName &&
+                                                                    !/^[a-zA-Z]+$/.test(formData.lastName)
+                                                                    ? infoiconerror
+                                                                    : infoicon
+                                                            }
+                                                            alt="info-icon"
+                                                            style={{ width: 20, height: 20 }}
+                                                        />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -354,8 +489,19 @@ const Register: React.FC = () => {
 
                             {/* Phone and Extension */}
                             <Grid item xs={12} md={6}>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: errors.phone ? "red" : "black",
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                    }}
+                                >
+                                    Telefono
+                                </Typography>
                                 <TextField
-                                    label="Teléfono"
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleInputChange}
@@ -363,20 +509,42 @@ const Register: React.FC = () => {
                                     fullWidth
                                     required
                                     error={errors.phone}
-                                    helperText={errors.phone ? "Debe tener 10 dígitos" : ""}
+                                    helperText={errors.phone ? "Formato Inválido" : ""}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <>
-                                                            - Solo caracteres numéricos<br />
-                                                            - Longitud exacta de 10 caracteres
-                                                        </>
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF", // Set background to white
+                                                                borderRadius: "8px", // Rounded corners
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                padding: "8px 12px", // Padding for better spacing
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000", // Black font color
+                                                                whiteSpace: "pre-line", // Line breaks
+                                                            }}
+                                                        >
+                                                            <>
+                                                                - Solo caracteres numéricos<br />
+                                                                - Longitud exacta de 10 caracteres
+                                                            </>
+                                                        </Box>
                                                     }
+                                                    arrow
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color="action" />
+                                                        <img src={errors.phone ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -389,26 +557,76 @@ const Register: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12} md={6}>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color:
+                                            formData.extension && !/^\d{1,5}$/.test(formData.extension)
+                                                ? "red" // Rojo si hay error
+                                                : "black", // Predeterminado si no hay error
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                    }}
+                                >
+                                    Extensión
+                                </Typography>
                                 <TextField
-                                    label="Extensión"
                                     name="extension"
                                     value={formData.extension}
                                     onChange={handleInputChange}
                                     variant="outlined"
+                                    error={!!(formData.extension && !/^\d{1,5}$/.test(formData.extension))} // Error si no cumple la validación
+                                    helperText={
+                                        formData.extension && !/^\d{1,5}$/.test(formData.extension)
+                                            ? "Solo números con máximo 5 dígitos."
+                                            : ""
+                                    }
                                     fullWidth
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <>
-                                                            - Solo caracteres numéricos<br />
-                                                            - Longitud máxima de 5 caracteres
-                                                        </>
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF", // Set background to white
+                                                                borderRadius: "8px", // Rounded corners
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                padding: "8px 12px", // Padding for better spacing
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000", // Black font color
+                                                                whiteSpace: "pre-line", // Line breaks
+                                                            }}
+                                                        >
+                                                            <>
+                                                                - Solo caracteres numéricos<br />
+                                                                - Longitud máxima de 5 caracteres
+                                                            </>
+                                                        </Box>
                                                     }
+                                                    arrow
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color="action" />
+                                                        <img
+                                                            src={
+                                                                formData.extension && !/^\d{1,5}$/.test(formData.extension)
+                                                                    ? infoiconerror
+                                                                    : infoicon
+                                                            } // Cambia el ícono según el estado de error
+                                                            alt="info-icon"
+                                                            style={{ width: 20, height: 20 }}
+                                                        />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -422,8 +640,19 @@ const Register: React.FC = () => {
 
                             {/* Email and Email Confirmation */}
                             <Grid item xs={12} md={6}>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: errors.email ? "red" : "black",
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                    }}
+                                >
+                                    Email
+                                </Typography>
                                 <TextField
-                                    label="Correo Electrónico"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleInputChange}
@@ -431,20 +660,42 @@ const Register: React.FC = () => {
                                     fullWidth
                                     required
                                     error={errors.email}
-                                    helperText={errors.email ? "Ingrese un correo válido" : ""}
+                                    helperText={errors.email ? "Fomarto inválido" : ""}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <>
-                                                            - Debe contener un formato válido<br />
-                                                            - Ejemplo: usuario@dominio.com
-                                                        </>
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF", // Set background to white
+                                                                borderRadius: "8px", // Rounded corners
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                padding: "8px 12px", // Padding for better spacing
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000", // Black font color
+                                                                whiteSpace: "pre-line", // Line breaks
+                                                            }}
+                                                        >
+                                                            <>
+                                                                - Debe contener un formato válido<br />
+                                                                - Ejemplo: usuario@dominio.com
+                                                            </>
+                                                        </Box>
                                                     }
+                                                    arrow
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color="action" />
+                                                        <img src={errors.email ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -454,8 +705,19 @@ const Register: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12} md={6}>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: errors.emailConfirmation ? "red" : "black",
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                    }}
+                                >
+                                    Confirmar Email
+                                </Typography>
                                 <TextField
-                                    label="Confirmar Correo Electrónico"
                                     name="emailConfirmation"
                                     value={formData.emailConfirmation}
                                     onChange={handleInputChange}
@@ -469,14 +731,36 @@ const Register: React.FC = () => {
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <>
-                                                            - Debe coincidir con el correo electrónico<br />
-                                                            - Ejemplo: usuario@dominio.com
-                                                        </>
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF", // Set background to white
+                                                                borderRadius: "8px", // Rounded corners
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                padding: "8px 12px", // Padding for better spacing
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000", // Black font color
+                                                                whiteSpace: "pre-line", // Line breaks
+                                                            }}
+                                                        >
+                                                            <>
+                                                                - Debe coincidir con el correo electrónico<br />
+                                                                - Ejemplo: usuario@dominio.com
+                                                            </>
+                                                        </Box>
                                                     }
+                                                    arrow
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color="action" />
+                                                        <img src={errors.emailConfirmation ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -485,8 +769,19 @@ const Register: React.FC = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} md={6}>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color:hasPasswordInput ? "red" : "black",
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                    }}
+                                >
+                                    Contraseña
+                                </Typography>
                                 <TextField
-                                    label="Contraseña"
                                     name="password"
                                     type="password"
                                     value={password}
@@ -526,39 +821,39 @@ const Register: React.FC = () => {
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <Box>
-                                                            <Typography
-                                                                variant="caption"
-                                                                color={passwordErrors.minLength ? "green" : "red"}
-                                                            >
-                                                                - Mínimo 8 caracteres.
-                                                            </Typography>
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF", // Set background to white
+                                                                borderRadius: "8px", // Rounded corners
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                padding: "8px 12px", // Padding for better spacing
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000", // Black font color
+                                                                whiteSpace: "pre-line", // Line breaks
+                                                            }}
+                                                        >
+                                                            - Mínimo 8 caracteres.
                                                             <br />
-                                                            <Typography
-                                                                variant="caption"
-                                                                color={passwordErrors.uppercase ? "green" : "red"}
-                                                            >
-                                                                - Una letra mayúscula.
-                                                            </Typography>
+                                                            - Una letra mayúscula.
                                                             <br />
-                                                            <Typography
-                                                                variant="caption"
-                                                                color={passwordErrors.lowercase ? "green" : "red"}
-                                                            >
-                                                                - Una letra minúscula.
-                                                            </Typography>
+                                                            - Una letra minúscula.
                                                             <br />
-                                                            <Typography
-                                                                variant="caption"
-                                                                color={passwordErrors.number ? "green" : "red"}
-                                                            >
-                                                                - Un número.
-                                                            </Typography>
+                                                            - Un número.
                                                         </Box>
                                                     }
+                                                    arrow
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color="action" />
+                                                        <img src={hasPasswordInput ? infoiconerror:infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -568,8 +863,19 @@ const Register: React.FC = () => {
                             </Grid>
 
                             <Grid item xs={12} md={6}>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: (confirmPassword && confirmPassword !== password) ? "red" : "black",
+                                        opacity: 1,
+                                        marginBottom: "4px",
+                                    }}
+                                >
+                                    Confirmar Contraseña
+                                </Typography>
                                 <TextField
-                                    label="Confirmar Contraseña"
                                     name="confirmPassword"
                                     type="password"
                                     value={confirmPassword}
@@ -583,13 +889,35 @@ const Register: React.FC = () => {
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        confirmPassword && confirmPassword !== password
-                                                            ? "Las contraseñas no coinciden"
-                                                            : "Las contraseñas coinciden"
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF", // Set background to white
+                                                                borderRadius: "8px", // Rounded corners
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                padding: "8px 12px", // Padding for better spacing
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                color: "#000000", // Black font color
+                                                                whiteSpace: "pre-line", // Line breaks
+                                                            }}
+                                                        >
+                                                            { confirmPassword && confirmPassword !== password
+                                                                ? "Las contraseñas no coinciden"
+                                                                : "Las contraseñas coinciden"}
+                                                        </Box>
                                                     }
+                                                    arrow
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
-                                                        <InfoOutlinedIcon color={confirmPassword && confirmPassword !== password ? "error" : "success"} />
+                                                        <img src={(confirmPassword && confirmPassword !== password) ? infoiconerror: infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -712,13 +1040,44 @@ const Register: React.FC = () => {
                                 borderRadius: "12px",
                             }}
                         >
+                            {/* Botón de cierre (tache) */}
+                            <IconButton
+                                onClick={handleModalClose}
+                                sx={{
+                                    position: "absolute",
+                                    top: 8,
+                                    right: 8,
+                                    color: "#000",
+                                }}
+                            >
+                                ✕
+                            </IconButton>
                             <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
                                 Términos y condiciones
                             </Typography>
                             <Divider sx={{ marginBottom: 3 }} />
                             <Box
                                 ref={termsContainerRef}
-                                sx={{ maxHeight: "400px", overflowY: "auto", paddingRight: 2 }}
+                                sx={{
+                                    maxHeight: "400px",
+                                    overflowY: "auto",
+                                    paddingRight: 2,
+                                    scrollbarWidth: "thin", // Para navegadores compatibles
+                                    scrollbarColor: "#d9d9d9 transparent", // Colores para Firefox
+                                    "&::-webkit-scrollbar": {
+                                        width: "8px",
+                                    },
+                                    "&::-webkit-scrollbar-track": {
+                                        background: "transparent",
+                                    },
+                                    "&::-webkit-scrollbar-thumb": {
+                                        background: "#d9d9d9",
+                                        borderRadius: "4px",
+                                    },
+                                    "&::-webkit-scrollbar-button": {
+                                        display: "none", // Ocultar flechas del scroll
+                                    },
+                                }}
                             >
                                 {/* Contenido de los términos y condiciones */}
                                 <Typography variant="body1" paragraph>
