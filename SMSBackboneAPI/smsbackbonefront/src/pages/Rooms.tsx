@@ -15,14 +15,18 @@ import {
     Menu,
     MenuItem
 } from "@mui/material";
+import ChipBar from "../components/commons/ChipBar";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import HomeIcon from "@mui/icons-material/Home";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from "axios";
-
+import iconlupa from "../assets/icon-lupa.svg";
+import ClearIcon from "@mui/icons-material/Clear";
+import infoicon from '../assets/Icon-info.svg'
+import infoiconerror from '../assets/Icon-infoerror.svg'
+import NoResult from '../assets/NoResultados.svg'
 type Room = {
     id: string | number;
     name: string;
@@ -53,7 +57,9 @@ const Rooms: React.FC = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false); // Estado del modal de eliminación
     const [errorModalOpen, setErrorModalOpen] = useState<boolean>(false);
     const [errorTitle, setErrorTitle] = useState<string>("");
-
+    const [showChipBar, setShowChipBar] = useState(false);
+    const [showEditChipBar, setShowEditChipBar] = useState(false);
+    const [showDeleteChipBar, setShowDeleteChipBar] = useState(false);
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
@@ -91,7 +97,8 @@ const Rooms: React.FC = () => {
                 );
 
                 if (response.status === 200) {
-                    console.log(`Room ${selectedRoom.id} eliminado`);
+                    setShowDeleteChipBar(true); // Mostrar ChipBar para eliminación exitosa
+                    setTimeout(() => setShowDeleteChipBar(false), 3000);
                     GetRooms(); // Refresca la lista de salas
                 }
             } catch  {
@@ -180,6 +187,8 @@ const Rooms: React.FC = () => {
 
             console.log(`Response: ${response}`);
             if (response.status === 200) {
+                setShowEditChipBar(true); // Mostrar ChipBar para edición exitosa
+                setTimeout(() => setShowEditChipBar(false), 3000);
                 // Refresca la lista de salas después de la actualización
                 GetRooms();
             }
@@ -225,7 +234,8 @@ const Rooms: React.FC = () => {
 
             console.log(`Response: ${response}`);
             if (response.status === 200) {
-
+                setShowChipBar(true); // Mostrar ChipBar
+                setTimeout(() => setShowChipBar(false), 3000); 
                 setLoading(false);
 
             }
@@ -259,6 +269,9 @@ const Rooms: React.FC = () => {
         setMenuAnchorEl(null); // Cierra el menú
     };
 
+    const clearSearch = () => {
+        setSearchTerm("");
+    };
 
     return (
         <Box p={4}>
@@ -293,9 +306,15 @@ const Rooms: React.FC = () => {
                         width: "400px", // Ancho fijo como estaba antes
                     }}
                 >
-                    <span className="material-icons" style={{ color: "#A05B71", marginRight: "8px" }}>
-                        search
-                    </span>
+                    <img
+                        src={iconlupa}
+                        alt="Buscar"
+                        style={{
+                            height: "20px",
+                            width: "20px",
+                            marginRight: "8px",
+                        }}
+                    />
                     <input
                         type="text"
                         placeholder="Buscar"
@@ -310,6 +329,11 @@ const Rooms: React.FC = () => {
                             backgroundColor: "transparent",
                         }}
                     />
+                    {searchTerm && (
+                        <IconButton onClick={clearSearch} size="small" sx={{ color: "#A05B71" }}>
+                            <ClearIcon />
+                        </IconButton>
+                    )}
                 </Box>
             </Box>
 
@@ -324,18 +348,37 @@ const Rooms: React.FC = () => {
                             const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
                             return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
                         }).length === 0 ? (
-                            <Grid item xs={12}>
-                                <Typography
-                                    variant="body1"
-                                    sx={{
-                                        textAlign: "center",
-                                        marginTop: "20px",
-                                        color: "#833A53",
-                                    }}
-                                >
-                                    No se encontraron resultados.
-                                </Typography>
-                            </Grid>
+                                <Grid item xs={12}>
+                                    <Box
+                                        display="flex"
+                                        flexDirection="column"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                        mt={3}
+                                    >
+                                        <img
+                                            src={NoResult}
+                                            alt="No hay resultados"
+                                            style={{
+                                                width: "150px", // Tamaño ajustable
+                                                height: "150px", // Tamaño ajustable
+                                                marginBottom: "16px", // Espacio debajo de la imagen
+                                            }}
+                                        />
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                textAlign: "center",
+                                                color: "#833A53",
+                                                fontWeight: "bold",
+                                                fontSize: "16px",
+                                            }}
+                                        >
+                                            No se encontraron resultados.
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+
                         ) : (
                             rooms
                                 .filter((room) => {
@@ -388,16 +431,6 @@ const Rooms: React.FC = () => {
                                                         sx={{ fontSize: '14px', color: '#888' }}
                                                     >
                                                         Cliente: {room.cliente}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            fontSize: '14px',
-                                                            color: '#888',
-                                                            fontStyle: 'italic',
-                                                        }}
-                                                    >
-                                                        {room.description}
                                                     </Typography>
                                                 </Box>
                                             </Box>
@@ -487,53 +520,114 @@ const Rooms: React.FC = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            width: 400,
+                            width: 500, // Más ancho
+                            height: 430, // Más alto
                             bgcolor: "background.paper",
                             boxShadow: 24,
                             p: 4,
                             borderRadius: "12px",
                         }}
                     >
-                        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal 600 20px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "#574B4F",
+                                opacity: 1,
+                                fontSize: "28px",
+                                marginBottom: "16px", // Separación con el contenido siguiente
+                            }}
+                        >
                             Añadir sala
                         </Typography>
                         <Divider sx={{ mb: 2 }} />
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal medium 16px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "#330F1B",
+                                opacity: 1,
+                                fontSize: "22px",
+                                marginBottom: "8px", // Separación del texto y el input
+                            }}
+                        >
+                            Nombre de la sala
+                        </Typography>
                         <TextField
                             fullWidth
-                            label="Nombre de la sala"
                             variant="outlined"
                             value={newRoom.name}
-                            onChange={(e) =>
-                                setNewRoom((prev) => ({ ...prev, name: e.target.value }))
-                            }
+                            error={errors.name}
+                            helperText={errors.name ? "Nombre inválido, solo caracteres alfabéticos." : ""}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setNewRoom((prev) => ({ ...prev, name: value }));
+                                setErrors((prev) => ({ ...prev, name: !validateInput(value) }));
+                            }}
                             InputProps={{
                                 endAdornment: (
                                     <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
-                                        <InfoOutlinedIcon color="action" />
+                                        <img
+                                            src={errors.name ? infoiconerror : infoicon}
+                                            alt="Info"
+                                            style={{
+                                                width: "24px",
+                                                height: "24px",
+                                                marginLeft: "8px",
+                                            }}
+                                        />
                                     </Tooltip>
                                 ),
                             }}
                             inputProps={{ maxLength: 40 }}
                             sx={{ mb: 2 }}
                         />
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal medium 16px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "#330F1B",
+                                opacity: 1,
+                                fontSize: "22px",
+                                marginBottom: "8px", // Separación del texto y el input
+                            }}
+                        >
+                            Descripción
+                        </Typography>
                         <TextField
                             fullWidth
-                            label="Descripción"
                             variant="outlined"
                             value={newRoom.description}
-                            onChange={(e) =>
-                                setNewRoom((prev) => ({ ...prev, description: e.target.value }))
-                            }
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setNewRoom((prev) => ({ ...prev, description: value }));
+                                setErrors((prev) => ({ ...prev, description: !validateInput(value) }));
+                            }}
+                            error={errors.description}
+                            helperText={errors.description ? "Descripción inválida, solo caracteres alfabéticos." : ""}
                             InputProps={{
                                 endAdornment: (
                                     <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
-                                        <InfoOutlinedIcon color="action" />
+                                        <img
+                                            src={errors.description ? infoiconerror : infoicon}
+                                            alt="Info"
+                                            style={{
+                                                width: "24px",
+                                                height: "24px",
+                                                marginLeft: "8px",
+                                            }}
+                                        />
                                     </Tooltip>
                                 ),
                             }}
                             inputProps={{ maxLength: 40 }}
                             sx={{ mb: 2 }}
                         />
+                        <Divider sx={{ mt: 2, mb: 2 }} />
                         <Box display="flex" justifyContent="space-between">
                             <Button variant="outlined" onClick={handleCloseModal}>
                                 Cancelar
@@ -553,7 +647,16 @@ const Rooms: React.FC = () => {
                                     marginLeft: "8px", // Espaciado opcional si se requiere
                                 }}
                             >
-                                Crear
+                                {loading ? (
+                                    <CircularProgress
+                                        size={24}
+                                        sx={{
+                                            color: "#fff",
+                                        }}
+                                    />
+                                ) : (
+                                    "Crear"
+                                )}
                             </Button>
                         </Box>
                     </Box>
@@ -577,53 +680,115 @@ const Rooms: React.FC = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            width: 400,
+                            width: 500, // Más ancho
+                            height: 430, // Más alto
                             bgcolor: "background.paper",
                             boxShadow: 24,
                             p: 4,
                             borderRadius: "12px",
                         }}
                     >
-                        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal 600 20px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "#574B4F",
+                                opacity: 1,
+                                fontSize: "28px",
+                                marginBottom: "16px", // Separación con el contenido siguiente
+                            }}
+                        >
                             Editar sala
                         </Typography>
                         <Divider sx={{ mb: 2 }} />
-                        <TextField
-                            fullWidth
-                            label="Nombre de la sala"
-                            variant="outlined"
-                            value={newRoom.name}
-                            onChange={(e) => handleInputChange("name", e.target.value)}
-                            error={errors.name}
-                            helperText={errors.name ? "Nombre inválido, solo caracteres alfabéticos." : ""}
-                            InputProps={{
-                                endAdornment: (
-                                    <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
-                                        <InfoOutlinedIcon color="action" />
-                                    </Tooltip>
-                                ),
-                            }}
-                            inputProps={{ maxLength: 40 }}
-                            sx={{ mb: 2 }}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Descripción"
-                            variant="outlined"
-                            value={newRoom.description}
-                            onChange={(e) => handleInputChange("description", e.target.value)}
-                            error={errors.description}
-                            helperText={errors.description ? "Descripción inválida, solo caracteres alfabéticos." : ""}
-                            InputProps={{
-                                endAdornment: (
-                                    <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
-                                        <InfoOutlinedIcon color="action" />
-                                    </Tooltip>
-                                ),
-                            }}
-                            inputProps={{ maxLength: 40 }}
-                            sx={{ mb: 2 }}
-                        />
+                        <Box sx={{ mb: 3 }}>
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "22px",
+                                    marginBottom: "8px", // Separación del texto y el input
+                                }}
+                            >
+                                Nombre de la sala
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                value={newRoom.name}
+                                onChange={(e) => handleInputChange("name", e.target.value)}
+                                error={errors.name}
+                                helperText={
+                                    errors.name ? "Nombre inválido, solo caracteres alfabéticos." : ""
+                                }
+                                InputProps={{
+                                    endAdornment: (
+                                        <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
+                                            <img
+                                                src={errors.name ? infoiconerror : infoicon}
+                                                alt="Info"
+                                                style={{
+                                                    width: "24px",
+                                                    height: "24px",
+                                                    marginLeft: "8px",
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    ),
+                                }}
+                                inputProps={{ maxLength: 40 }}
+                            />
+                        </Box>
+
+                        <Box sx={{ mb: 3 }}>
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "22px",
+                                    marginBottom: "8px", // Separación del texto y el input
+                                }}
+                            >
+                                Descripción
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                value={newRoom.description}
+                                onChange={(e) => handleInputChange("description", e.target.value)}
+                                error={errors.description}
+                                helperText={
+                                    errors.description
+                                        ? "Descripción inválida, solo caracteres alfabéticos."
+                                        : ""
+                                }
+                                InputProps={{
+                                    endAdornment: (
+                                        <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
+                                            <img
+                                                src={errors.description ? infoiconerror : infoicon}
+                                                alt="Info"
+                                                style={{
+                                                    width: "24px",
+                                                    height: "24px",
+                                                    marginLeft: "8px",
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    ),
+                                }}
+                                inputProps={{ maxLength: 40 }}
+                            />
+                        </Box>
+                        <Divider sx={{ mt: 2, mb: 2 }} />
                         <Box display="flex" justifyContent="space-between">
                             <Button variant="outlined" onClick={handleCloseEditModal}>
                                 Cancelar
@@ -645,7 +810,16 @@ const Rooms: React.FC = () => {
                                     marginLeft: "8px", // Espaciado opcional si se requiere
                                 }}
                             >
-                                Guardar cambios
+                                {loading ? (
+                                    <CircularProgress
+                                        size={24}
+                                        sx={{
+                                            color: "#fff",
+                                        }}
+                                    />
+                                ) : (
+                                    "Guardar Cambios"
+                                )}
                             </Button>
                         </Box>
                     </Box>
@@ -668,31 +842,145 @@ const Rooms: React.FC = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            width: 400,
+                            width: 450,
+                            height: 280,
                             bgcolor: "background.paper",
                             boxShadow: 24,
                             p: 4,
                             borderRadius: "12px",
                         }}
                     >
-                        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal 600 20px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "#574B4F",
+                                opacity: 1,
+                                fontSize: "20px", // Aplicación del tamaño de fuente específico
+                                mb: 2, // Margen inferior opcional para espaciar el título del contenido
+                            }}
+                        >
                             Eliminar sala
                         </Typography>
-                        <Typography variant="body2" sx={{ mb: 3 }}>
+
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal normal 16px/22px Poppins",
+                                letterSpacing: "0px",
+                                color: "#574B4F",
+                                opacity: 1,
+                                fontSize: "16px", // Aplicación del tamaño de fuente específico
+                                mb: 3, // Margen inferior opcional para espaciar del contenido posterior
+                            }}
+                        >
                             ¿Está seguro de que desea eliminar la sala? Esta acción no puede ser revertida.
                         </Typography>
-                        <Box display="flex" justifyContent="space-between">
-                            <Button variant="outlined" onClick={handleCloseDeleteModal}>
-                                Cancelar
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="error"
-                                onClick={handleDeleteRoom}
-                            >
-                                Eliminar
-                            </Button>
+                        <Box
+                            sx={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                width: 450,
+                                height: 300,
+                                bgcolor: "background.paper",
+                                boxShadow: 24,
+                                p: 4,
+                                borderRadius: "12px",
+                                display: "flex", // Contenedor flexible
+                                flexDirection: "column", // Dirección de los elementos
+                                justifyContent: "space-between", // Espaciado entre contenido y botones
+                            }}
+                        >
+                            <Box>
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal 600 20px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "20px",
+                                        mb: 2,
+                                    }}
+                                >
+                                    Eliminar sala
+                                </Typography>
+
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal normal 16px/22px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        mb: 3,
+                                    }}
+                                >
+                                    ¿Está seguro de que desea eliminar la sala? Esta acción no puede ser revertida.
+                                </Typography>
+                            </Box>
+
+                            <Box display="flex" justifyContent="flex-end" gap={2}>
+                                <Button
+                                    variant="outlined"
+                                    onClick={handleCloseDeleteModal}
+                                    sx={{
+                                        font: "normal normal 600 12px/16px Poppins",
+                                        letterSpacing: "1.12px",
+                                        color: "#833A53",
+                                        textTransform: "uppercase",
+                                        opacity: 1,
+                                        borderColor: "#833A53",
+                                        padding: "0 12px",
+                                        height: "50px",
+                                        width: "100px",
+                                        minWidth: "80px",
+                                        lineHeight: "16px",
+                                        fontSize: "12px",
+                                        "&:hover": {
+                                            backgroundColor: "#f9f4f5",
+                                        },
+                                    }}
+                                >
+                                    Cancelar
+                                </Button>
+
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={handleDeleteRoom}
+                                    sx={{
+                                        font: "normal normal 600 12px/16px Poppins",
+                                        letterSpacing: "1.12px",
+                                        color: "#fff",
+                                        textTransform: "uppercase",
+                                        opacity: 1,
+                                        backgroundColor: "#833A53",
+                                        padding: "0 12px",
+                                        height: "50px",
+                                        width: "100px",
+                                        minWidth: "80px",
+                                        lineHeight: "16px",
+                                        fontSize: "12px",
+                                        "&:hover": {
+                                            backgroundColor: "#A54261",
+                                        },
+                                    }}
+                                >
+                                    Eliminar
+                                </Button>
+                            </Box>
                         </Box>
+
+
                     </Box>
                 </Fade>
             </Modal>
@@ -738,6 +1026,29 @@ const Rooms: React.FC = () => {
                     </Box>
                 </Fade>
             </Modal>
+            {showChipBar && (
+                <ChipBar
+                    message="La sala ha sido añadida correctamente."
+                    buttonText="Cerrar"
+                    onClose={() => setShowChipBar(false)}
+                />
+            )}
+            {showEditChipBar && (
+                <ChipBar
+                    message="La sala ha sido editada correctamente."
+                    buttonText="Cerrar"
+                    onClose={() => setShowEditChipBar(false)}
+                />
+            )}
+
+            {showDeleteChipBar && (
+                <ChipBar
+                    message="La sala ha sido eliminada correctamente."
+                    buttonText="Cerrar"
+                    onClose={() => setShowDeleteChipBar(false)}
+                />
+            )}
+
         </Box>
     );
 };

@@ -1014,8 +1014,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </ListItem>
                     <Collapse in={openSubMenu} timeout="auto">
                         <List component="div" disablePadding>
-                            <Link to="/users" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/users')}>
+                            <Link to="/UserAdministration" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/UserAdministration')}>
                                     <ListItemIcon sx={{ color: '#FFFFFF' }}>
                                         <PeopleAltIcon />
                                     </ListItemIcon>

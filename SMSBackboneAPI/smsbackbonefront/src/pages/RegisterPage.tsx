@@ -67,7 +67,6 @@ const Register: React.FC = () => {
     });
 
     const [errorModalOpen, setErrorModalOpen] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
     const [isButtonEnabled, setIsButtonEnabled] = useState(false);
     const [hasPasswordInput, setHasPasswordInput] = useState(false);
     const termsContainerRef = useRef<HTMLDivElement>(null);
@@ -85,8 +84,7 @@ const Register: React.FC = () => {
     };
 
 
-    const handleOpenErrorModal = (message: string) => {
-        setErrorMessage(message);
+    const handleOpenErrorModal = () => {
         setErrorModalOpen(true);
     };
 
@@ -137,7 +135,7 @@ const Register: React.FC = () => {
         } catch {
 
             setIsButtonEnabled(true);
-            handleOpenErrorModal("Ocurrió un error al intentar registrar al usuario. Por favor, inténtelo de nuevo.");
+            handleOpenErrorModal();
         }
     };
 
@@ -1052,7 +1050,17 @@ const Register: React.FC = () => {
                             >
                                 ✕
                             </IconButton>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 26px/55px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    marginBottom: 2,
+                                    fontSize: "26px",
+                                }}
+                            >
                                 Términos y condiciones
                             </Typography>
                             <Divider sx={{ marginBottom: 3 }} />
@@ -1080,19 +1088,47 @@ const Register: React.FC = () => {
                                 }}
                             >
                                 {/* Contenido de los términos y condiciones */}
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     Aparte del crédito disponible en su cuenta, no establecemos un tope en el número de mensajes que puede enviar a través de nuestro servicio.
                                 </Typography>
-                                <Typography component="ul" variant="body1">
+                                <Typography component="ul" variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }}>
                                     <li>Siguiendo estos términos y condiciones.</li>
                                     <li>Con fines estrictamente apegados a la ley.</li>
                                     <li>Respetando todas las leyes y normativas aplicables, tanto locales como internacionales.</li>
                                     <li>Para los objetivos por los que fueron creados.</li>
                                 </Typography>
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     Al emplear nuestros servicios, deberá evitar:
                                 </Typography>
-                                <Typography component="ul" variant="body1">
+                                <Typography component="ul" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} variant="body1">
                                     <li>Enviar mensajes SMS no solicitados o spam.</li>
                                     <li>Alterar los detalles de origen en cualquier mensaje electrónico.</li>
                                     <li>
@@ -1103,28 +1139,78 @@ const Register: React.FC = () => {
                                     <li>Transmitir códigos maliciosos como virus o troyanos.</li>
                                     <li>Violar la privacidad de terceros.</li>
                                 </Typography>
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     Además de los términos ya establecidos, esta sección es aplicable si se emplea nuestro servicio de API.
                                 </Typography>
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     Hemos habilitado la posibilidad de que las empresas o los individuos se conecten a nuestro servidor para facilitar el envío de mensajes de texto directamente a nuestro sistema de SMS.
                                 </Typography>
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     Nos reservamos el derecho de aprobar o rechazar conexiones de clientes y APIs según nuestro propio criterio.
                                 </Typography>
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     Promovemos activamente las políticas contra el envío de spam (mensajes no solicitados).
                                 </Typography>
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     Proporcionaremos especificaciones para las conexiones API y nos esforzaremos por mantenerlas actualizadas. Estas especificaciones pueden estar incompletas y estar sujetas a cambios sin previo aviso.
                                 </Typography>
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     Para todos los servicios de mensajería SMS, le proporcionaremos un nombre de usuario y contraseña. Cualquier medida de seguridad adicional, incluyendo pero no limitado a la gestión de accesos y contraseñas, uso indebido, etc., quedará bajo responsabilidad del usuario.
                                 </Typography>
-                                <Typography variant="body1" paragraph>
+                                <Typography variant="body1" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }} paragraph>
                                     EL CLIENTE será responsable totalmente de la gestión de las contraseñas y acceso al sistema donde se utiliza el servicio de SMS. CENTERNEXT quedará exento de cualquier uso inapropiado o indebido realizado por cuentas que gestionan el SMS.
                                 </Typography>
                             </Box>
+                            <Divider sx={{ marginBottom: 3 }} />
                             <Box display="flex" justifyContent="space-between" mt={3}>
                                 <Button variant="outlined" onClick={handleModalClose} sx={{
                                     border: "1px solid #60293C",
@@ -1172,37 +1258,59 @@ const Register: React.FC = () => {
                     <Fade in={errorModalOpen}>
                         <Box
                             sx={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                width: '40%',
-                                bgcolor: 'background.paper',
-                                boxShadow: 24,
-                                p: 4,
-                                borderRadius: '12px',
+                                position: "absolute",
+                                top: "286px", // Posición desde la parte superior
+                                left: "400px", // Posición desde la izquierda
+                                width: "480px", // Ancho del modal
+                                height: "228px", // Alto del modal
+                                bgcolor: "#FFFFFF", // Fondo blanco
+                                boxShadow: "0px 0px 16px #00131F52", // Sombra del modal
+                                borderRadius: "8px", // Bordes redondeados
+                                opacity: 1, // Opacidad completa
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                                p: 3, // Padding interno
                             }}
                         >
-                            <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
-                                Error al registrar usuario
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal 600 20px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    fontSize: "20px", // Tamaño de la fuente
+                                    marginBottom: 2,
+                                }}
+                            >
+                                Error al realizar registro
                             </Typography>
-                            <Divider sx={{ marginBottom: 3 }} />
-                            <Typography variant="body1" sx={{ marginBottom: 3 }}>
-                                {errorMessage}
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/22px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                }}
+                            >
+                                Algo salió mal. Inténtelo de nuevo o regrese más tarde.
                             </Typography>
-                            <Box display="flex" justifyContent="flex-end">
+                            <Box display="flex" justifyContent="flex-end" mt={3}>
                                 <Button
-                                    variant="contained"
+                                    variant="text"
+                                    onClick={handleErrorModalClose}
                                     sx={{
-                                        backgroundColor: "#833A53",
-                                        color: "#FFF",
-                                    }}
-                                    onClick={() => {
-                                        handleErrorModalClose();
-                                        navigate('/login');
+                                        textAlign: "center",
+                                        font: "normal normal 600 14px/54px Poppins",
+                                        letterSpacing: "1.12px",
+                                        color: "#833A53",
+                                        textTransform: "uppercase",
+                                        opacity: 1,
                                     }}
                                 >
-                                    Aceptar
+                                    Cerrar
                                 </Button>
                             </Box>
                         </Box>

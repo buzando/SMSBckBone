@@ -34,6 +34,9 @@ import { useNavigate } from "react-router-dom";
 import usrAdmin from "../assets/usrAdmin.svg";
 import usrSup from "../assets/usrSup.svg";
 import usrMon from "../assets/usrMon.svg"
+import Nousers from "../assets/Nousers.svg"
+import { Divider } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 type Account = {
     id: number;
@@ -464,73 +467,142 @@ const ManageAccounts: React.FC = () => {
                             <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Rol</TableCell>
                             <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Ícono</TableCell>
                             <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Salas</TableCell>
-                            <TableCell align="right">Acciones</TableCell>
+                            <TableCell align="right"></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {accounts.map((account) => (
-                            <TableRow key={account.id}>
-                                <TableCell>{account.name}</TableCell>
-                                <TableCell>{account.email}</TableCell>
-                                <TableCell>{account.role}</TableCell>
-                                {/* Ícono condicional */}
-                                <TableCell>
-                                    {account.role === "Administrador" && (
-                                        <img src={usrAdmin} alt="Administrador" width="32" height="32" />
-                                    )}
-                                    {account.role === "Supervisor" && (
-                                        <img src={usrSup} alt="Supervisor" width="32" height="32" />
-                                    )}
-                                    {account.role === "Monitor" && (
-                                        <img src={usrMon} alt="Monitor" width="32" height="32" />
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    <Tooltip title={account.rooms || "No hay salas asignadas"} arrow>
+                        {accounts.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6} align="center">
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            py: 4,
+                                        }}
+                                    >
+                                        <img src={Nousers} alt="Sin usuarios" width="150" />
                                         <Typography
+                                            variant="h6"
                                             sx={{
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                                whiteSpace: "nowrap",
-                                                maxWidth: 200,
+                                                color: "#A05B71",
+                                                fontWeight: "bold",
+                                                mt: 2,
                                             }}
                                         >
-                                            {account.rooms || "No hay salas asignadas"}
+                                            Agrega un usuario para comenzar
                                         </Typography>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell align="right">
-                                    <IconButton
-                                        onClick={(e) => handleMenuOpen(e, account)}
-                                        aria-label="more"
-                                    >
-                                        <MoreVertIcon />
-                                    </IconButton>
-                                    <Menu
-                                        anchorEl={menuAnchorEl}
-                                        open={Boolean(menuAnchorEl)}
-                                        onClose={handleMenuClose}
-                                    >
-                                        <MenuItem
-                                            onClick={() => {
-                                                handleEditClick(selectedAccount!); // Pasamos el account seleccionado
-                                                handleMenuClose(); // Cerramos el menú
-                                            }}
-                                        >
-                                            Editar
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() => {
-                                                setOpenDeleteModal(true);
-                                                handleMenuClose();
-                                            }}
-                                        >
-                                            Eliminar
-                                        </MenuItem>
-                                    </Menu>
+                                    </Box>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        ) : (
+                            accounts.map((account) => (
+                                <TableRow key={account.id}>
+                                    <TableCell>{account.name}</TableCell>
+                                    <TableCell>{account.email}</TableCell>
+                                    <TableCell>{account.role}</TableCell>
+                                    {/* Ícono condicional */}
+                                    <TableCell>
+                                        {account.role === "Administrador" && (
+                                            <img src={usrAdmin} alt="Administrador" width="32" height="32" />
+                                        )}
+                                        {account.role === "Supervisor" && (
+                                            <img src={usrSup} alt="Supervisor" width="32" height="32" />
+                                        )}
+                                        {account.role === "Monitor" && (
+                                            <img src={usrMon} alt="Monitor" width="32" height="32" />
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {account.rooms.length > 30 ? (
+                                            <Tooltip
+                                                title={account.rooms}
+                                                placement="top"
+                                                arrow
+                                            >
+                                                <Typography
+                                                    noWrap
+                                                    sx={{
+                                                        maxWidth: "200px", // Ajusta el ancho máximo visible
+                                                        overflow: "hidden",
+                                                        textOverflow: "ellipsis",
+                                                        whiteSpace: "nowrap",
+                                                        cursor: "pointer",
+                                                    }}
+                                                >
+                                                    {account.rooms}
+                                                </Typography>
+                                            </Tooltip>
+                                        ) : (
+                                            <Typography
+                                                noWrap
+                                                sx={{
+                                                    maxWidth: "200px", // Ajusta el ancho máximo visible
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    whiteSpace: "nowrap",
+                                                }}
+                                            >
+                                                {account.rooms}
+                                            </Typography>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell
+                                        align="center"
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            position: "relative",
+                                        }}
+                                    >
+                                        <Divider
+                                            orientation="vertical"
+                                            flexItem
+                                            sx={{
+                                                position: "absolute",
+                                                height: "100%", // Ocupa todo el alto de la celda
+                                                left: "10%", // Ajusta la posición hacia la izquierda
+                                                transform: "translateX(-50%)", // Centra la línea respecto a `left`
+                                                backgroundColor: "#ccc", // Color opcional
+                                                zIndex: 1,
+                                            }}
+                                        />
+                                        <IconButton
+                                            onClick={(e) => handleMenuOpen(e, account)}
+                                            aria-label="more"
+                                        >
+                                            <MoreVertIcon />
+                                        </IconButton>
+                                        <Menu
+                                            anchorEl={menuAnchorEl}
+                                            open={Boolean(menuAnchorEl)}
+                                            onClose={handleMenuClose}
+                                        >
+                                            <MenuItem
+                                                onClick={() => {
+                                                    handleEditClick(selectedAccount!); // Pasamos el account seleccionado
+                                                    handleMenuClose(); // Cerramos el menú
+                                                }}
+                                            >
+                                                Editar
+                                            </MenuItem>
+                                            <MenuItem
+                                                onClick={() => {
+                                                    setOpenDeleteModal(true);
+                                                    handleMenuClose();
+                                                }}
+                                            >
+                                                Eliminar
+                                            </MenuItem>
+                                        </Menu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -543,18 +615,38 @@ const ManageAccounts: React.FC = () => {
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                         width: 700,
-                        maxHeight: "80vh", // Altura máxima
-                        overflowY: "auto", // Habilitar scroll vertical
+                        maxHeight: "80vh",
+                        overflowY: "auto",
                         bgcolor: "background.paper",
                         boxShadow: 24,
                         p: 4,
                         borderRadius: 2,
                     }}
                 >
-                    <Typography variant="h6" mb={3}>
+                    {/* Botón de cierre */}
+                    <IconButton
+                        aria-label="close"
+                        onClick={handleCloseModal}
+                        sx={{
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                            color: (theme) => theme.palette.grey[500],
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                    <Typography sx={{
+                        textAlign: "left",
+                        font: "normal normal 600 20px/54px Poppins",
+                        letterSpacing: "0px",
+                        color: "#574B4F",
+                        opacity: 1,
+                        fontSize: "20px",
+                    }}>
                         {isEditing ? "Editar usuario" : "Añadir usuario"}
                     </Typography>
-
+                    <Divider sx={{ my: 2, backgroundColor: "#CCC" }} />
                     {/* Form */}
                     <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
                         {/* Nombre */}

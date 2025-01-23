@@ -625,59 +625,36 @@ const Autentification: React.FC = () => {
                                 borderRadius: "8px",
                                 padding: "20px",
                                 maxWidth: "500px",
-                                textAlign: "left", // Alineación a la izquierda
+                                textAlign: "center",
                                 marginTop: "20px",
                             }}
                         >
-                            <Typography
-                                sx={{
-                                    font: "normal normal medium 14px/20px Poppins", // Estilo uniforme
-                                    letterSpacing: "0px",
-                                    color: "#330F1B", // Color del texto principal
-                                    opacity: 1,
-                                    marginBottom: "10px",
-                                }}
-                            >
-                                Se ha llegado al límite de envíos de códigos, el ingreso a la cuenta quedará bloqueado por:
-                                <span
-                                    style={{
-                                        font: "normal normal bold 16px/20px Poppins", // Mayor peso para el contador
-                                        color: "#f44336", // Rojo para el contador
-                                        marginLeft: "5px",
-                                    }}
-                                >
-                                    <Countdown
-                                        date={lockoutEndTime ? lockoutEndTime : undefined}
-                                        renderer={({ hours, minutes, seconds, completed }) =>
-                                            completed ? (
-                                                <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
-                                            ) : (
-                                                <span>
-                                                    {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
-                                                </span>
-                                            )
-                                        }
-                                    />
-                                </span>
-                                <span
-                                    style={{
-                                        font: "normal normal medium 14px/20px Poppins", // Misma fuente que el texto principal
-                                        color: "#330F1B",
-                                        marginLeft: "5px",
-                                    }}
-                                >
-                                    minutos.
-                                </span>
+                            <Typography variant="h6" gutterBottom>
+                                Se ha llegado al límite de envíos de códigos
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                El ingreso a la cuenta quedará bloqueado por:
                             </Typography>
                             <Typography
+                                variant="h5"
                                 sx={{
-                                    font: "normal normal medium 14px/20px Poppins", // Estilo uniforme
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
+                                    color: "#f44336", // Rojo
+                                    fontWeight: "bold",
+                                    marginTop: "10px",
                                 }}
                             >
-                                Inténtelo más tarde.
+                                <Countdown
+                                    date={lockoutEndTime || new Date()}
+                                    renderer={({ hours, minutes, seconds, completed }) =>
+                                        completed ? (
+                                            <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
+                                        ) : (
+                                            <span>
+                                                {hours}h {minutes}m {seconds}s
+                                            </span>
+                                        )
+                                    }
+                                />
                             </Typography>
                         </Box>
 

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link as LinkDom } from 'react-router-dom';
 import {
-    Container, Typography, Box, TextField, Button, Link, Paper, Stepper,
+    Container, Typography, Box, TextField, Button, Link, Paper, Stepper, StepConnector,
     Step,
     StepLabel,
     Checkbox,
@@ -18,6 +18,7 @@ import Countdown from 'react-countdown';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Modal } from "@mui/material";
 import "../chooseroom.css"
+import { styled } from "@mui/system";
 
 const TermsAndConditions: React.FC = () => {
     const [loading, setLoading] = useState(false);
@@ -45,7 +46,13 @@ const TermsAndConditions: React.FC = () => {
     const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
     const [isResendDisabled, setIsResendDisabled] = useState(false);
     const [startTime, setStartTime] = useState(Date.now());
-
+    const steps = [
+        "Ingresar correo",
+        "Seleccionar canal",
+        "Validar identidad",
+        "Verificar código",
+        "Crear nueva contraseña",
+    ];
     const isEmailValid = (email: string): boolean => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
@@ -96,7 +103,7 @@ const TermsAndConditions: React.FC = () => {
             if (now < lockoutEnd) {
                 // Si el bloqueo aún está vigente, calcular tiempo restante
                 setLockoutEndTime(lockoutEnd);
-                setActiveStep(4); // Ir al Step 4 directamente
+                setActiveStep(5); // Ir al Step 4 directamente
             } else {
                 // Si el bloqueo expiró, resetear valores en el usuario
                 const userObj = { ...obj }; // Clonar objeto usuario
@@ -221,7 +228,7 @@ const TermsAndConditions: React.FC = () => {
 
 
             setLockoutEndTime(lockoutEnd);
-            setActiveStep(4);
+            setActiveStep(5);
 
 
         }
@@ -235,7 +242,7 @@ const TermsAndConditions: React.FC = () => {
             if (SendType == "SMS") {
                 dato = obj.phonenumber;
                 if (activeStep === 1) {
-                    setActiveStep(5);
+                    setActiveStep(2);
                     return;
                 }
             }
@@ -250,7 +257,7 @@ const TermsAndConditions: React.FC = () => {
 
                 if (response.status === 200) {
                     settoken(response.data);
-                    setActiveStep(2);
+                    setActiveStep(3);
                     startCountdown();
                     setResendAttempts(resendAttempts + 1);
                 }
@@ -335,7 +342,7 @@ const TermsAndConditions: React.FC = () => {
             setIsCodeValid(false);
         } else {
             setIsCodeValid(true);
-            setActiveStep(3);
+            setActiveStep(4);
         }
         return true;
     }
@@ -368,7 +375,7 @@ const TermsAndConditions: React.FC = () => {
         setHasAttemptedValidation(true);
 
         if (isValid) {
-            setActiveStep(2); // Avanzar al Step 2 si es válido
+            setActiveStep(3); // Avanzar al Step 2 si es válido
         }
     };
 
@@ -386,6 +393,29 @@ const TermsAndConditions: React.FC = () => {
         navigate("/login"); // Redirige a la página de login
     };
 
+    // Estilo personalizado para los conectores
+    const CustomStepConnector = styled(StepConnector)(() => ({
+        "& .MuiStepConnector-line": {
+            borderColor: "#DADADA",
+            borderTopWidth: 2,
+        },
+    }));
+
+    // Íconos personalizados para los pasos
+    const CustomStepIcon = styled("div")(({ active, completed }) => ({
+        width: 24,
+        height: 24,
+        borderRadius: "50%",
+        border: `2px solid ${active || completed ? "#833A53" : "#DADADA"}`,
+        backgroundColor: active || completed ? "#833A53" : "transparent",
+        color: "#FFFFFF",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: "bold",
+        fontSize: "14px",
+    }));
+
     return (
         <PublicLayout>
             <Container maxWidth="sm" fixed sx={{ marginTop: 2, marginBottom: 8 }}>
@@ -399,43 +429,63 @@ const TermsAndConditions: React.FC = () => {
                         letterSpacing: "0px",
                         color: "#330F1B",
                         opacity: 1,
+                        fontSize: "28px",
                     }}
                 >
                     Recuperación de la cuenta
                 </Typography>
-                <Stepper
-                    activeStep={activeStep}
-                    alternativeLabel
-                    sx={{
-                        marginBottom: 4,
-                        '.MuiStepIcon-root': {
-                            color: '#833A53', // Color por defecto
-                        },
-                        '.MuiStepIcon-root.Mui-active': {
-                            color: '#833A53', // Color del paso activo
-                        },
-                        '.MuiStepIcon-root.Mui-completed': {
-                            color: '#833A53', // Color del paso completado
-                        }
-                    }}
-                >
-                    <Step>
-                        <StepLabel>Ingresar correo</StepLabel>
-                    </Step>
-                    <Step>
-                        <StepLabel>Verificar código</StepLabel>
-                    </Step>
-                    <Step>
-                        <StepLabel>Confirmar identidad</StepLabel>
-                    </Step>
-                    <Step>
-                        <StepLabel>Nueva contraseña</StepLabel>
-                    </Step>
-                </Stepper>
+
+                <Box sx={{ width: "100%", marginBottom: 4 }}>
+                    <Stepper
+                        activeStep={activeStep}
+                        connector={<CustomStepConnector />}
+                        alternativeLabel
+                    >
+                        {steps.map((label, index) => (
+                            <Step key={label}>
+                                <StepLabel
+                                    StepIconComponent={() => (
+                                        <CustomStepIcon
+                                            active={activeStep === index}
+                                            completed={activeStep > index}
+                                        >
+                                            {activeStep >= index ? "✓" : ""}
+                                        </CustomStepIcon>
+                                    )}
+                                >
+                                    {/* Texto debajo del paso */}
+                                    <Typography
+                                        sx={{
+                                            textAlign: "center",
+                                            font: "normal normal 600 14px/22px Poppins",
+                                            color: activeStep === index
+                                                ? "#833A53"
+                                                : activeStep > index
+                                                    ? "#833A53"
+                                                    : "#DADADA",
+                                            marginTop: 1,
+                                        }}
+                                    >
+                                        {label}
+                                    </Typography>
+                                </StepLabel>
+                            </Step>
+                        ))}
+                    </Stepper>
+                </Box>
+
                 <Box padding={1}>
                     {activeStep === 0 && (
-                        <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
-                            <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
+                        <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px', height: '300px' }}>
+                            <Box sx={{
+                                margin: '20px', // Mantener el margen
+                                paddingX: '20px', // Padding horizontal
+                                paddingY: '40px', // Incrementar el padding vertical para mayor espacio interno
+                                height: '100%', // Ajustar el contenido a la altura del Paper
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between', // Espacio uniforme entre elementos
+                            }}>
                                 <Typography
                                     variant="body1"
                                     sx={{
@@ -444,13 +494,32 @@ const TermsAndConditions: React.FC = () => {
                                         letterSpacing: "0px",
                                         color: "#330F1B",
                                         opacity: 1,
-                                        marginBottom: 1,
+                                        fontSize: "16px",
+                                        marginBottom: "8px", // Espaciado inferior normal
+                                        marginTop: "-10px", // Subir el texto al borde superior
                                     }}
                                 >
                                     Ingrese el correo electrónico asociado para localizar su cuenta.
                                 </Typography>
+                                <Box
+                                    sx={{
+                                        marginTop: "20px", // Espaciado adicional para bajar el Typography y el input
+                                    }}
+                                >
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        marginBottom: "12px", // Espaciado entre el título y el input
+                                    }}
+                                >
+                                    Correo Electrónico
+                                </Typography>
                                 <TextField
-                                    label="Correo electrónico"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     variant="outlined"
@@ -467,7 +536,8 @@ const TermsAndConditions: React.FC = () => {
                                             </InputAdornment>
                                         ),
                                     }}
-                                />
+                                    />
+                                </Box>
                                 {errorMessage && (
                                     <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
                                         {errorMessage}{" "}
@@ -476,22 +546,47 @@ const TermsAndConditions: React.FC = () => {
                                         </Link>
                                     </Typography>
                                 )}
-                                <Box display="flex" justifyContent="space-between" pt={2}>
-                                    <Button
-                                        variant="outlined"
-                                        onClick={() => navigate("/")}
-                                        sx={{ color: "#833A53", borderColor: "#833A53" }}
-                                    >
-                                        Cancelar
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        sx={{ backgroundColor: "#833A53", color: "#FFF" }}
-                                        onClick={handleSubmit}
-                                        disabled={!isEmailValid(email) || loading}
-                                    >
-                                        {loading ? <CircularProgress size={24} color="inherit" /> : "Recuperar"}
-                                    </Button>
+
+                                <Box
+                                    sx={{
+                                        borderTop: "1px solid #DADADA", // Línea gris claro
+                                        marginTop: "32px", // Mayor separación del contenido superior
+                                        paddingTop: "8px", // Menor separación con los botones
+                                    }}
+                                >
+                                    {/* Botones */}
+                                    <Box display="flex" justifyContent="space-between" pt={2}>
+                                        <Button
+                                            variant="outlined"
+                                            onClick={() => navigate("/")}
+                                            sx={{
+                                                color: "#833A53",
+                                                borderColor: "#833A53",
+                                                padding: "10px 20px",
+                                                textTransform: "uppercase",
+                                                fontWeight: "bold",
+                                            }}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            sx={{
+                                                backgroundColor: "#833A53",
+                                                color: "#FFF",
+                                                padding: "10px 20px",
+                                                textTransform: "uppercase",
+                                                fontWeight: "bold",
+                                                "&:hover": {
+                                                    backgroundColor: "#A54261",
+                                                },
+                                            }}
+                                            onClick={handleSubmit}
+                                            disabled={!isEmailValid(email) || loading}
+                                        >
+                                            {loading ? <CircularProgress size={24} color="inherit" /> : "Enviar"}
+                                        </Button>
+                                    </Box>
                                 </Box>
                             </Box>
                         </Paper>
@@ -583,6 +678,117 @@ const TermsAndConditions: React.FC = () => {
 
                     {activeStep === 2 && (
                         <Box
+                            sx={{
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                padding: "20px",
+                                maxWidth: "500px",
+                                textAlign: "center",
+                                marginTop: "20px",
+                            }}
+                        >
+                            <Typography variant="body1" gutterBottom sx={{
+                                textAlign: 'left',
+                                font: 'normal normal medium 16px/54px Poppins',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                opacity: 1,
+                            }} >
+                                Ingresa los 4 últimos dígitos del teléfono configurado
+                            </Typography>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    gap: "10px",
+                                    marginTop: "20px",
+                                }}
+                            >
+                                {phoneDigits.map((digit, index) => (
+                                    <TextField
+                                        key={index}
+                                        value={digit}
+                                        type="text"
+                                        inputProps={{
+                                            maxLength: 1,
+                                            style: {
+                                                textAlign: "center",
+                                                font: "normal normal medium 26px/54px Poppins",
+                                                letterSpacing: "0px",
+                                                color: "#330F1B",
+                                                opacity: 1,
+                                            },
+                                        }}
+                                        inputRef={(el) => (inputRefs.current[index] = el)} // Asignar referencia
+                                        onChange={(e) => handlePhoneDigitsChange(index, e.target.value)} // Manejar cambios
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Backspace" && !digit && index > 0) {
+                                                inputRefs.current[index - 1]?.focus(); // Enfocar cuadro anterior
+                                            }
+                                        }}
+                                        error={hasAttemptedValidation && !isPhoneDigitsValid} // Mostrar error solo después de intentar validar
+                                        sx={{ width: "50px", height: "50px" }}
+                                    />
+                                ))}
+                            </Box>
+
+                            {hasAttemptedValidation && !isPhoneDigitsValid && (
+                                <Typography variant="body2" color="error" sx={{ marginTop: 2 }}>
+                                    Los dígitos ingresados son incorrectos. Por favor, inténtalo nuevamente.
+                                </Typography>
+                            )}
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    marginTop: "20px",
+                                }}
+                            >
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => {
+                                        setActiveStep(1);
+                                        setIsPhoneDigitsValid(true);
+                                        setLoading(false);
+                                    }}
+                                    sx={{
+                                        color: '#833A53',
+                                        border: '1px solid #CCCFD2',
+                                        borderRadius: '4px',
+                                        opacity: 1,
+                                    }}
+                                >
+                                    Regresar
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => {
+                                        handleValidatePhoneDigits();
+                                        SendToken();
+                                    }}
+                                    disabled={
+                                        phoneDigits.some(
+                                            digit => digit === '' ||
+                                                phoneDigits.join('') !== JSON.parse(localStorage.getItem('userData') || '{}')?.phonenumber?.slice(-4)
+                                        )
+                                    }
+                                    sx={{
+                                        background: '#833A53 0% 0% no-repeat padding-box',
+                                        border: '1px solid #60293C',
+                                        borderRadius: '4px',
+                                        opacity: 0.9,
+                                        color: '#FFFFFF',
+                                    }}
+                                >
+                                    Validar
+                                </Button>
+                            </Box>
+                        </Box>
+                     
+                    )}
+
+                    {activeStep === 3 && (
+                           <Box
                             sx={{
                                 border: "1px solid #ccc",
                                 borderRadius: "8px",
@@ -760,9 +966,9 @@ const TermsAndConditions: React.FC = () => {
 
                             </Box>
                         </Box>
+                        
                     )}
-
-                    {activeStep === 3 && (
+                    {activeStep === 4 && (
                         <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
                             <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
                                 <Typography
@@ -907,8 +1113,9 @@ const TermsAndConditions: React.FC = () => {
                                 </Box>
                             </Box>
                         </Paper>
+                       
                     )}
-                    {activeStep === 4 && (
+                    {activeStep === 5 && (
                         <Box
                             sx={{
                                 border: "1px solid #ccc",
@@ -946,115 +1153,6 @@ const TermsAndConditions: React.FC = () => {
                                     }
                                 />
                             </Typography>
-                        </Box>
-                    )}
-                    {activeStep === 5 && (
-                        <Box
-                            sx={{
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                padding: "20px",
-                                maxWidth: "500px",
-                                textAlign: "center",
-                                marginTop: "20px",
-                            }}
-                        >
-                            <Typography variant="body1" gutterBottom sx={{
-                                textAlign: 'left',
-                                font: 'normal normal medium 16px/54px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1,
-                            }} >
-                                Ingresa los 4 últimos dígitos del teléfono configurado
-                            </Typography>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    gap: "10px",
-                                    marginTop: "20px",
-                                }}
-                            >
-                                {phoneDigits.map((digit, index) => (
-                                    <TextField
-                                        key={index}
-                                        value={digit}
-                                        type="text"
-                                        inputProps={{
-                                            maxLength: 1,
-                                            style: {
-                                                textAlign: "center",
-                                                font: "normal normal medium 26px/54px Poppins",
-                                                letterSpacing: "0px",
-                                                color: "#330F1B",
-                                                opacity: 1,
-                                            },
-                                        }}
-                                        inputRef={(el) => (inputRefs.current[index] = el)} // Asignar referencia
-                                        onChange={(e) => handlePhoneDigitsChange(index, e.target.value)} // Manejar cambios
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Backspace" && !digit && index > 0) {
-                                                inputRefs.current[index - 1]?.focus(); // Enfocar cuadro anterior
-                                            }
-                                        }}
-                                        error={hasAttemptedValidation && !isPhoneDigitsValid} // Mostrar error solo después de intentar validar
-                                        sx={{ width: "50px", height: "50px" }}
-                                    />
-                                ))}
-                            </Box>
-
-                            {hasAttemptedValidation && !isPhoneDigitsValid && (
-                                <Typography variant="body2" color="error" sx={{ marginTop: 2 }}>
-                                    Los dígitos ingresados son incorrectos. Por favor, inténtalo nuevamente.
-                                </Typography>
-                            )}
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    marginTop: "20px",
-                                }}
-                            >
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => {
-                                        setActiveStep(1);
-                                        setIsPhoneDigitsValid(true);
-                                        setLoading(false);
-                                    }}
-                                    sx={{
-                                        color: '#833A53',
-                                        border: '1px solid #CCCFD2',
-                                        borderRadius: '4px',
-                                        opacity: 1,
-                                    }}
-                                >
-                                    Regresar
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => {
-                                        handleValidatePhoneDigits();
-                                        SendToken();
-                                    }}
-                                    disabled={
-                                        phoneDigits.some(
-                                            digit => digit === '' ||
-                                                phoneDigits.join('') !== JSON.parse(localStorage.getItem('userData') || '{}')?.phonenumber?.slice(-4)
-                                        )
-                                    }
-                                    sx={{
-                                        background: '#833A53 0% 0% no-repeat padding-box',
-                                        border: '1px solid #60293C',
-                                        borderRadius: '4px',
-                                        opacity: 0.9,
-                                        color: '#FFFFFF',
-                                    }}
-                                >
-                                    Validar
-                                </Button>
-                            </Box>
                         </Box>
                     )}
 
