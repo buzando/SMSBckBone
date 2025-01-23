@@ -224,7 +224,6 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const openHelpModal = () => setHelpModalIsOpen(true);
     const closeHelpModal = () => setHelpModalIsOpen(false);
 
-    const isAdmin = user?.rol === 'Administrador'
 
     const handleLogout = () => {
         // Limpiar localStorage y sessionStorage
@@ -750,16 +749,6 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 </Box>
                             </Typography>
                         </MenuItem>
-                        {isAdmin && (
-                            <MenuItem onClick={() => navigate('/UserAdministration')}>
-                                <Typography textAlign="center">
-                                    <Box display="flex" alignItems="center">
-                                        <PeopleAltIcon sx={{ fontSize: 20, mr: 1 }} />
-                                        Administrar cuentas
-                                    </Box>
-                                </Typography>
-                            </MenuItem>
-                        )}
                         <MenuItem onClick={() => navigate('/TermsAndConditions')}>
                             <Typography textAlign="center">
                                 <Box display="flex" alignItems="center">

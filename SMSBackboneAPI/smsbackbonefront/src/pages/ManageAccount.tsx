@@ -9,6 +9,11 @@ import {
     Modal,
 } from "@mui/material";
 import axios from "axios";
+import { Divider } from "@mui/material";
+import infoicon from '../assets/Icon-info.svg'
+import infoiconerror from '../assets/Icon-infoerror.svg'
+import { InputAdornment } from "@mui/material";
+import ChipBar from "../components/commons/ChipBar";
 const ManageAccount: React.FC = () => {
     const [formData, setFormData] = useState({
         firstName: "",
@@ -24,6 +29,7 @@ const ManageAccount: React.FC = () => {
     const [modalMessage, setModalMessage] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [confirmPasswordError, setConfirmPasswordError] = useState("");
+    const [showChipBarAdd, setshowChipBarAdd] = useState(false);
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     // Load user data from localStorage
     useEffect(() => {
@@ -112,12 +118,13 @@ const ManageAccount: React.FC = () => {
 
             if (response.status === 200) {
 
-                alert("Usuario actualizado con éxito");
+                setshowChipBarAdd(true); // Mostrar ChipBar para edición exitosa
+                setTimeout(() => setshowChipBarAdd(false), 3000);
             }
 
 
 
-        } catch  {
+        } catch {
             setModalMessage("Error al actualizar usuario");
             setModalOpen(true);
         }
@@ -128,45 +135,173 @@ const ManageAccount: React.FC = () => {
             <Typography variant="h5" fontWeight="bold" mb={3}>
                 Editar cuenta
             </Typography>
+            <Divider sx={{ mb: 3, backgroundColor: "#CCC" }} />
             <Paper sx={{ p: 3 }}>
                 <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
-                    <Tooltip title="Introduce tu nombre." arrow>
+                    <Box>
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal medium 16px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "black",
+                                opacity: 1,
+                                fontSize: "16px",
+                            }}
+                        >
+                            Nombre
+                        </Typography>
                         <TextField
-                            label="Nombre"
                             name="firstName"
                             value={formData.firstName}
                             onChange={handleChange}
                             required
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Nombre del usuario">
+                                            <img
+                                                src={
+                                                    formData.firstName.trim() === ""
+                                                        ? infoiconerror // Mostrar ícono de error si está vacío
+                                                        : infoicon // Ícono normal si no hay error
+                                                }
+                                                alt="Info"
+                                                style={{ width: 16, height: 16 }}
+                                            />
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                    </Tooltip>
-                    <Tooltip title="Introduce tu apellido." arrow>
+                    </Box>
+                    <Box>
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal medium 16px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "black",
+                                opacity: 1,
+                                fontSize: "16px",
+                            }}
+                        >
+                            Apellido
+                        </Typography>
                         <TextField
-                            label="Apellido"
+                            label=""
                             name="lastName"
                             value={formData.lastName}
                             onChange={handleChange}
                             required
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Apellido del usuario">
+                                            <img
+                                                src={
+                                                    formData.firstName.trim() === ""
+                                                        ? infoiconerror // Mostrar ícono de error si está vacío
+                                                        : infoicon // Ícono normal si no hay error
+                                                }
+                                                alt="Info"
+                                                style={{ width: 16, height: 16 }}
+                                            />
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                    </Tooltip>
-                    <Tooltip title="Introduce tu número de teléfono." arrow>
+                    </Box>
+                    <Box>
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal medium 16px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "black",
+                                opacity: 1,
+                                fontSize: "16px",
+                            }}
+                        >
+                            Teléfono
+                        </Typography>
                         <TextField
-                            label="Teléfono"
+                            label=""
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
                             required
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Introduzca 10 valores numericos">
+                                            <img
+                                                src={
+                                                    formData.firstName.trim() === ""
+                                                        ? infoiconerror // Mostrar ícono de error si está vacío
+                                                        : infoicon // Ícono normal si no hay error
+                                                }
+                                                alt="Info"
+                                                style={{ width: 16, height: 16 }}
+                                            />
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                    </Tooltip>
-                    <Tooltip title="Introduce tu correo alternativo." arrow>
+                    </Box>
+                    <Box>
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal medium 16px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "black",
+                                opacity: 1,
+                                fontSize: "16px",
+                            }}
+                        >
+                            Correo Alternativo
+                        </Typography>
                         <TextField
-                            label="Correo alternativo"
+                            label=""
                             name="alternateEmail"
                             value={formData.alternateEmail}
                             onChange={handleChange}
                             required
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Introduzca un correo electronico valido">
+                                            <img
+                                                src={
+                                                    formData.firstName.trim() === ""
+                                                        ? infoiconerror // Mostrar ícono de error si está vacío
+                                                        : infoicon // Ícono normal si no hay error
+                                                }
+                                                alt="Info"
+                                                style={{ width: 16, height: 16 }}
+                                            />
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                    </Tooltip>
-                    <Tooltip title="Introduce una contraseña segura." arrow>
+                    </Box>
+                    <Box>
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal medium 16px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "black",
+                                opacity: 1,
+                                fontSize: "16px",
+                            }}
+                        >
+                            Contraseña
+                        </Typography>
                         <TextField
                             label="Contraseña"
                             name="password"
@@ -175,9 +310,40 @@ const ManageAccount: React.FC = () => {
                             onChange={handleChange}
                             error={!!passwordError}
                             helperText={passwordError}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Introduzca una contraseña valida">
+                                            <img
+                                                src={
+                                                    passwordError
+                                                        ? infoiconerror // Mostrar ícono de error si está vacío
+                                                        : infoicon // Ícono normal si no hay error
+                                                }
+                                                alt="Info"
+                                                style={{ width: 16, height: 16 }}
+                                            />
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                    </Tooltip>
-                    <Tooltip title="Confirma tu contraseña." arrow>
+
+                    </Box>
+                    <Box>
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                font: "normal normal medium 16px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "black",
+                                opacity: 1,
+                                fontSize: "16px",
+                            }}
+                        >
+                            Confirma Contraseña
+                        </Typography>
+
                         <TextField
                             label="Confirmar contraseña"
                             name="confirmPassword"
@@ -186,40 +352,62 @@ const ManageAccount: React.FC = () => {
                             onChange={handleChange}
                             error={!!confirmPasswordError}
                             helperText={confirmPasswordError}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Tooltip title="Introduzca una contraseña valida">
+                                            <img
+                                                src={
+                                                    confirmPasswordError
+                                                        ? infoiconerror // Mostrar ícono de error si está vacío
+                                                        : infoicon // Ícono normal si no hay error
+                                                }
+                                                alt="Info"
+                                                style={{ width: 16, height: 16 }}
+                                            />
+                                        </Tooltip>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                    </Tooltip>
+                    </Box>
+
+
                 </Box>
                 <Typography variant="body2" color="textSecondary" mt={2}>
                     *El asterisco indica los campos obligatorios.
                 </Typography>
-                <Box display="flex" justifyContent="space-between" mt={3}>
-
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSubmit}
-                        disabled={
-                            !formData.firstName ||
-                            !formData.lastName ||
-                            !formData.phone ||
-                            !formData.alternateEmail
-                        }
-
-                        sx={{
-                            background: "#833A53 0% 0% no-repeat padding-box",
-                            border: "1px solid #60293C",
-                            borderRadius: "4px",
-                            opacity: 0.9,
-                            color: "#FFFFFF",
-                            "&:hover": {
-                                backgroundColor: "#a54261",
-                            },
-                        }}
-                    >
-                        Guardar cambios
-                    </Button>
-                </Box>
+               
             </Paper>
+            <Box
+                display="flex"
+                justifyContent="flex-end"
+                mt={3}
+            >
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                    disabled={
+                        !formData.firstName ||
+                        !formData.lastName ||
+                        !formData.phone ||
+                        !formData.alternateEmail
+                    }
+                    sx={{
+                        background: "#833A53 0% 0% no-repeat padding-box",
+                        border: "1px solid #60293C",
+                        borderRadius: "4px",
+                        opacity: 0.9,
+                        color: "#FFFFFF",
+                        "&:hover": {
+                            backgroundColor: "#a54261",
+                        },
+                    }}
+                >
+                    Guardar cambios
+                </Button>
+            </Box>
 
             {/* Modal de error */}
             <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
@@ -242,8 +430,20 @@ const ManageAccount: React.FC = () => {
                     <Typography>{modalMessage}</Typography>
                     <Box display="flex" justifyContent="flex-end" mt={3}>
                         <Button
-                            variant="contained"
-                            color="primary"
+                            sx={{
+                                color: "#8F4D63", // Color del texto
+                                fontWeight: "bold", // Negrita
+                                backgroundColor: "transparent", // Fondo transparente
+                                border: "none", // Sin bordes
+                                fontSize: "16px", // Tamaño del texto
+                                letterSpacing: "2px", // Espaciado entre letras
+                                textTransform: "uppercase", // Texto en mayúsculas
+                                boxShadow: "none", // Sin sombra
+                                '&:hover': {
+                                    backgroundColor: "transparent", // Fondo transparente en hover
+                                    textDecoration: "underline", // Subrayado en hover
+                                },
+                            }}
                             onClick={() => setModalOpen(false)}
                         >
                             Cerrar
@@ -251,6 +451,14 @@ const ManageAccount: React.FC = () => {
                     </Box>
                 </Box>
             </Modal>
+
+            {showChipBarAdd && (
+                <ChipBar
+                    message="La cuenta ha sido editado correctamente."
+                    buttonText="Cerrar"
+                    onClose={() => setshowChipBarAdd(false)}
+                />
+            )}
         </Box>
     );
 };
