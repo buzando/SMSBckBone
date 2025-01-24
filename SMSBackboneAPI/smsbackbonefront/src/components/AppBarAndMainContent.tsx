@@ -984,7 +984,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
 
 
-                <List>
+                <List component="nav">
                     {/* Menú de Administración */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
@@ -1001,41 +1001,74 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             {openSubMenu ? <ExpandLess /> : <ExpandMore />}
                         </ListItemButton>
                     </ListItem>
-                    <Collapse in={openSubMenu} timeout="auto">
+                    <Collapse in={openSubMenu} timeout="auto" unmountOnExit>
                         <List component="div" disablePadding>
+                            {/* Usuarios */}
                             <Link to="/UserAdministration" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/UserAdministration')}>
-                                    <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                        <PeopleAltIcon />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary="Usuarios"
-                                        primaryTypographyProps={{
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/UserAdministration'}
+                                >
+                                    <Typography
+                                        sx={{
                                             fontWeight: 'bold',
                                             fontSize: '0.9rem',
-                                            color: '#FFFFFF',
                                         }}
-                                    />
+                                    >
+                                        Usuarios
+                                    </Typography>
                                 </ListItemButton>
                             </Link>
+                            {/* Salas */}
                             <Link to="/rooms" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/rooms')}>
-                                    <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                        <HomeIcon />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary="Salas"
-                                        primaryTypographyProps={{
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/rooms'}
+                                >
+                                    <Typography
+                                        sx={{
                                             fontWeight: 'bold',
                                             fontSize: '0.9rem',
-                                            color: '#FFFFFF',
                                         }}
-                                    />
+                                    >
+                                        Salas
+                                    </Typography>
                                 </ListItemButton>
                             </Link>
                         </List>
                     </Collapse>
-
                     {/* Menú de SMS */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => setOpenSubMenuNumbers(!openSubMenuNumbers)} sx={{ borderRadius: '8px' }}>

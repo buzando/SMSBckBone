@@ -737,5 +737,32 @@ namespace SMSBackboneAPI.Controllers
                 return response;
             }
         }
+
+        [HttpGet("GetNumbersByUser")]
+        public async Task<IActionResult> GetNumbersByUser(string email)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.MyNumbersManager();
+            var responseDto = UserManager.NumbersByUser(email);
+            if (responseDto.Count() == 0)
+            {
+
+
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Getting Numbers" });
+
+
+
+            }
+            else
+            {
+                var response = Ok(responseDto);
+                return response;
+            }
+        }
     }
 }
