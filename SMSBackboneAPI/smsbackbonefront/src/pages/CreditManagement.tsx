@@ -29,6 +29,9 @@ import axios from "axios";
 import TrashIcon from "../assets/Icon-trash.svg";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ClearIcon from "@mui/icons-material/Clear";
+import seachicon from '../assets/icon-lupa.svg'
+import NoResult from '../assets/NoResultados.svg'
+import ChipBar from "../components/commons/ChipBar";
 type Rooms = {
     id: string | number;
     name: string;
@@ -54,8 +57,8 @@ const CreditManagement: React.FC = () => {
     const [openDropdown, setOpenDropdown] = useState<boolean>(false);
     const [openDropdown2, setOpenDropdown2] = useState<boolean>(false);
     const [searchTerm3, setSearchTerm3] = useState(""); 
-    const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
+    const [showChipBarAdd, setshowChipBarAdd] = useState(false);
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
@@ -199,7 +202,8 @@ const CreditManagement: React.FC = () => {
             const response = await axios.post(requestUrl, payload);
 
             if (response.status === 200) {
-                setToastMessage("La transferencia de créditos fue realizada correctamente.");
+                setshowChipBarAdd(true); // Mostrar ChipBar para edición exitosa
+                setTimeout(() => setshowChipBarAdd(false), 3000);
                 GetCredits();
                 handleCloseModal();
             } else {
@@ -218,10 +222,6 @@ const CreditManagement: React.FC = () => {
         }
     };
 
-    const closeToast = () => {
-        setToastMessage(null);
-    };
-
     const closeErrorModal = () => {
         setErrorModal(null);
     };
@@ -238,31 +238,41 @@ const CreditManagement: React.FC = () => {
                     display="flex"
                     alignItems="center"
                     sx={{
-                        backgroundColor: "#f5f5f5",
-                        borderRadius: "8px",
-                        padding: "8px 12px",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                        width: "400px",
+                        backgroundColor: "#FFFFFF", // Fondo blanco
+                        border: "1px solid #9B9295", // Borde
+                        borderRadius: "4px", // Bordes redondeados
+                        padding: "8px 12px", // Espaciado interno
+                        width: "218px", // Ancho según la imagen
+                        height: "40px", // Altura según la imagen
+                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Sombra sutil
                     }}
                 >
-                    <span className="material-icons" style={{ color: "#A05B71", marginRight: "8px" }}>
-                        search
-                    </span>
+                    <img
+                        src={seachicon}
+                        alt="Buscar"
+                        style={{
+                            marginRight: "8px", // Espaciado entre el ícono y el input
+                            width: "16px", // Tamaño del ícono
+                            height: "16px",
+                        }}
+                    />
                     <input
                         type="text"
                         placeholder="Buscar"
-                        value={searchTerm}
-                        onChange={handleSearch}
+                        value={searchTerm} // Variable de estado para el valor del input
+                        onChange={handleSearch} // Función que maneja el cambio en el input
                         style={{
-                            border: "none",
-                            outline: "none",
-                            width: "100%",
-                            fontSize: "14px",
-                            fontFamily: "Poppins, sans-serif",
-                            backgroundColor: "transparent",
+                            border: "none", // Sin borde
+                            outline: "none", // Sin borde al enfocar
+                            width: "100%", // Ocupa todo el espacio restante
+                            fontSize: "16px", // Tamaño de la fuente
+                            fontFamily: "Poppins, sans-serif", // Fuente según especificación
+                            color: "#9B9295", // Color del texto
+                            backgroundColor: "transparent", // Fondo transparente para evitar interferencias
                         }}
                     />
                 </Box>
+
             </Box>
 
             {loading ? (
@@ -270,23 +280,50 @@ const CreditManagement: React.FC = () => {
                     <CircularProgress />
                 </Box>
             ) : (
-                <Grid container spacing={2}>
+                    <Box
+                        sx={{
+                            display: 'grid', // Cambiamos el diseño a grid
+                            gap: '5px', // Espaciado entre los recuadros
+                            gridTemplateColumns: '430px 430px', // Dos columnas con ancho fijo
+                            columnGap: '10px', // Espacio horizontal entre columnas
+                        }}
+                    >
                     {rooms.filter((rooms) => {
                         const term = searchTerm.toLowerCase();
                         const nameWords = rooms.name.toLowerCase().split(" ");
                         return nameWords.some((word) => word.startsWith(term));
                     }).length === 0 ? (
                         <Grid item xs={12}>
-                            <Typography
-                                variant="body1"
-                                sx={{
-                                    textAlign: "center",
-                                    marginTop: "20px",
-                                    color: "#833A53",
-                                }}
-                            >
-                                No se encontraron resultados.
-                            </Typography>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginTop: "20px",
+                                        }}
+                                    >
+                                        <img
+                                            src={NoResult}
+                                            alt="Sin resultados"
+                                            style={{
+                                                width: "150px", // Ajusta el tamaño de la imagen si es necesario
+                                                marginBottom: "16px",
+                                            }}
+                                        />
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                textAlign: "center",
+                                                color: "#833A53",
+                                                fontSize: "16px",
+                                                fontFamily: "Poppins, sans-serif",
+                                                fontWeight: "medium",
+                                            }}
+                                        >
+                                            No se encontraron resultados.
+                                        </Typography>
+                                    </Box>
                         </Grid>
                     ) : (
                         rooms
@@ -305,6 +342,8 @@ const CreditManagement: React.FC = () => {
                                 >
                                     <Box
                                         sx={{
+                                            width: '430px', // Ancho especificado
+                                            height: '101px', // Alto especificado
                                             display: 'flex',
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
@@ -312,7 +351,6 @@ const CreditManagement: React.FC = () => {
                                             borderRadius: '8px',
                                             boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                                             padding: '16px',
-                                            height: '100%',
                                         }}
                                     >
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -347,11 +385,13 @@ const CreditManagement: React.FC = () => {
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        textAlign: 'right',
-                                                        font: 'normal normal medium 12px/54px Poppins',
-                                                        letterSpacing: '0px',
-                                                        color: '#8D4B62',
+                                                        background: '#FFFFFF 0% 0% no-repeat padding-box',
                                                         opacity: 1,
+                                                        fontSize: '12px',
+                                                        textAlign: 'right',
+                                                        padding: '4px 8px',
+                                                        display: 'inline-block', // Para mantener el diseño limpio
+                                                        color: '#8D4B62', // Nuevo color
                                                     }}
                                                 >
                                                     SMS # Cortos: {room.short_sms.toLocaleString()}
@@ -359,11 +399,15 @@ const CreditManagement: React.FC = () => {
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        textAlign: 'right',
-                                                        font: 'normal normal medium 12px/54px Poppins',
-                                                        letterSpacing: '0px',
-                                                        color: '#8D4B62',
+                                                        background: '#FFFFFF 0% 0% no-repeat padding-box',
                                                         opacity: 1,
+                                                        fontSize: '12px',
+                                                        textAlign: 'right',
+                                                        padding: '4px 8px',
+                                                        display: 'inline-block', // Para mantener el diseño limpio
+                                                        marginTop: '8px', // Espaciado entre los textos
+                                                        color: '#8D4B62', // Nuevo color
+                                                        margin: '4px 0',
                                                     }}
                                                 >
                                                     SMS # Largos: {room.long_sms.toLocaleString()}
@@ -408,8 +452,9 @@ const CreditManagement: React.FC = () => {
                                     </Box>
                                 </Grid>
                             ))
+
                     )}
-                </Grid>
+                </Box>
             )}
             
             {/* Modal */}
@@ -754,37 +799,12 @@ const CreditManagement: React.FC = () => {
                 </Fade>
             </Modal>
             {/* Toast de éxito */}
-            {toastMessage && (
-                <div style={{
-                    position: 'fixed',
-                    top: '630px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: '#333',
-                    color: '#fff',
-                    padding: '15px 20px',
-                    borderRadius: '5px',
-                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    zIndex: 1000,
-                    minWidth: '300px',
-                }}>
-                    <span>{toastMessage}</span>
-                    <button
-                        onClick={closeToast}
-                        style={{
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            color: '#fff',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        Cerrar
-                    </button>
-                </div>
+            {showChipBarAdd && (
+                <ChipBar
+                    message="Los creditos han sido transferidos correctamente."
+                    buttonText="Cerrar"
+                    onClose={() => setshowChipBarAdd(false)}
+                />
             )}
 
             {/* Modal de error */}

@@ -11,6 +11,9 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Snackbar, Alert } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import NoResult from '../assets/NoResultados.svg'
+import backarrow from '../assets/MoveTable.svg'
+import backarrowD from '../assets/MoveTabledesactivated.svg'
+import NextArrow from '../assets/MoveTableRight.svg'
 interface CreditCard {
     id: number;
     user_id: number;
@@ -2555,69 +2558,98 @@ const MyNumbers: React.FC = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
                             {/* Controles de paginación */}
                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                <span style={{ color: '#6a6a6a' }}>
-                                    {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredData.length)} de {filteredData.length}
+                                <span
+                                    style={{
+                                        textAlign: 'right',
+                                        font: 'normal normal medium 14px/54px Poppins',
+                                        letterSpacing: '0px',
+                                        color: '#6F565E',
+                                        opacity: 1,
+                                        fontSize: '14px',
+                                    }}
+                                >
+                                    {startIndex + 1}-{Math.min(startIndex + itemsPerPage, setcurrentItems.length)} de {setcurrentItems.length}
                                 </span>
+
                                 <div style={{ display: 'flex', gap: '5px' }}>
                                     {/* Botón para ir a la primera página */}
-                                    <button
+                                    <IconButton
                                         onClick={() => setCurrentPage(1)}
                                         disabled={currentPage === 1}
-                                        style={{
-                                            padding: '5px 10px',
-                                            border: 'none', // Eliminamos el marco
-                                            borderRadius: '4px',
-                                            backgroundColor: currentPage === 1 ? '#f0f0f0' : '#fff',
-                                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                        sx={{
+                                            p: 0, // Sin padding en el botón
+                                            display: 'flex', // Asegúrate de alinear las imágenes
+                                            gap: 0, // Sin espacio entre elementos
                                         }}
                                     >
-                                        {'|<<'}
-                                    </button>
+                                        <Box display="flex" alignItems="center" gap={0}>
+                                            <img
+                                                src={currentPage === 1 ? backarrowD : backarrow}
+                                                alt="Primera página"
+                                                style={{ marginRight: '-16px' }} // Ajusta el margen negativo para unir las imágenes
+                                            />
+                                            <img
+                                                src={currentPage === 1 ? backarrowD : backarrow}
+                                                alt="Primera página"
+                                            />
+                                        </Box>
+                                    </IconButton>
 
-                                    {/* Botón para ir a la página anterior */}
-                                    <button
-                                        onClick={() => handlePageChange('prev')}
+                                    <IconButton
+                                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                                         disabled={currentPage === 1}
-                                        style={{
-                                            padding: '5px 10px',
-                                            border: 'none', // Eliminamos el marco
-                                            borderRadius: '4px',
-                                            backgroundColor: currentPage === 1 ? '#f0f0f0' : '#fff',
-                                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                                        }}
+                                        sx={{ p: 0 }}
                                     >
-                                        {'<<'}
-                                    </button>
+                                        <img
+                                            src={currentPage === 1 ? backarrowD : backarrow}
+                                            alt="Página anterior"
+                                        />
+                                    </IconButton>
 
-                                    {/* Botón para ir a la siguiente página */}
-                                    <button
-                                        onClick={() => handlePageChange('next')}
+                                    <IconButton
+                                        onClick={handleNextPage} // Acción para avanzar una página
                                         disabled={currentPage === totalPages}
-                                        style={{
-                                            padding: '5px 10px',
-                                            border: 'none', // Eliminamos el marco
-                                            borderRadius: '4px',
-                                            backgroundColor: currentPage === totalPages ? '#f0f0f0' : '#fff',
-                                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                        sx={{
+                                            p: 0, // Sin padding en el botón
+                                            display: 'flex', // Asegúrate de alinear las imágenes
+                                            gap: 0, // Sin espacio entre elementos
                                         }}
                                     >
-                                        {'>>'}
-                                    </button>
-
+                                        <Box display="flex" alignItems="center" gap={0}>
+                                            <img
+                                                src={currentPage === 1 ? backarrow : backarrowD}
+                                                alt="Primera página"
+                                                style={{
+                                                    transform: 'scaleX(-1)', // Voltear horizontalmente
+                                                    marginRight: '-4px', // Juntar las flechas
+                                                }}
+                                            />
+                                        </Box>
+                                    </IconButton>
                                     {/* Botón para ir a la última página */}
-                                    <button
-                                        onClick={() => setCurrentPage(totalPages)}
+                                    <IconButton
+                                        onClick={() => setCurrentPage(totalPages)} // Acción para ir a la última página
                                         disabled={currentPage === totalPages}
-                                        style={{
-                                            padding: '5px 10px',
-                                            border: 'none', // Eliminamos el marco
-                                            borderRadius: '4px',
-                                            backgroundColor: currentPage === totalPages ? '#f0f0f0' : '#fff',
-                                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                        sx={{
+                                            p: 0, // Sin padding en el botón
+                                            display: 'flex', // Asegúrate de alinear las imágenes
+                                            gap: 0, // Sin espacio entre elementos
                                         }}
                                     >
-                                        {'>>|'}
-                                    </button>
+                                        <Box display="flex" alignItems="center" gap={0}>
+                                            <img
+                                                src={currentPage === totalPages ? backarrowD : backarrow}
+                                                alt="Última página"
+                                                style={{ marginRight: '-4px', transform: 'scaleX(-1)' }} // Ajusta el margen negativo para unir las imágenes
+                                            />
+                                            <img
+                                                src={currentPage === totalPages ? backarrowD : backarrow}
+                                                alt="Última página"
+                                                style={{ marginLeft: '-12px', transform: 'scaleX(-1)' }} // Ajusta el margen negativo para unir las imágenes
+                                            />
+                                        </Box>
+                                    </IconButton>
+
                                 </div>
                             </div>
 
@@ -2652,7 +2684,7 @@ const MyNumbers: React.FC = () => {
 
                     {/* Tabla */}
                     <div style={{ border: '1px solid #dcdcdc', borderRadius: '8px', overflow: 'hidden' }}>
-                            {currentItems.length === 0 ? (
+                        {currentItems.length === 0 ? (
                             <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" p={2}>
                                 <img src={NoResult} alt="No results" style={{ width: '150px', marginBottom: '16px' }} />
                                 <Typography
@@ -2713,19 +2745,83 @@ const MyNumbers: React.FC = () => {
                                                     onChange={handleSelectAllRows}
                                                 />
                                             </th>
-                                            <th style={{ textAlign: 'left', padding: '10px' }}>Número</th>
-                                            <th style={{ textAlign: 'left', padding: '10px' }}>Tipo</th>
-                                            <th style={{ textAlign: 'left', padding: '10px' }}>Servicio</th>
-                                            <th style={{ textAlign: 'left', padding: '10px' }}>Costo</th>
-                                            <th style={{ textAlign: 'left', padding: '10px', borderRight: '1px solid #dcdcdc' }}>
+                                            <th
+                                                style={{
+                                                    textAlign: 'left',
+                                                    padding: '10px',
+                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    letterSpacing: '0px',
+                                                    color: '#330F1B',
+                                                    opacity: 1,
+                                                    fontSize: '13px',
+                                                    backgroundColor: '#FFFFFF', // Fondo blanco
+                                                }}
+                                            >
+                                                Número
+                                            </th>
+                                            <th
+                                                style={{
+                                                    textAlign: 'left',
+                                                    padding: '10px',
+                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    letterSpacing: '0px',
+                                                    color: '#330F1B',
+                                                    opacity: 1,
+                                                    fontSize: '13px',
+                                                    backgroundColor: '#FFFFFF', // Fondo blanco
+                                                }}
+                                            >
+                                                Tipo
+                                            </th>
+                                            <th
+                                                style={{
+                                                    textAlign: 'left',
+                                                    padding: '10px',
+                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    letterSpacing: '0px',
+                                                    color: '#330F1B',
+                                                    opacity: 1,
+                                                    fontSize: '13px',
+                                                    backgroundColor: '#FFFFFF', // Fondo blanco
+                                                }}
+                                            >
+                                                Servicio
+                                            </th>
+                                            <th
+                                                style={{
+                                                    textAlign: 'left',
+                                                    padding: '10px',
+                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    letterSpacing: '0px',
+                                                    color: '#330F1B',
+                                                    opacity: 1,
+                                                    fontSize: '13px',
+                                                    backgroundColor: '#FFFFFF', // Fondo blanco
+                                                }}
+                                            >
+                                                Costo
+                                            </th>
+                                            <th
+                                                style={{
+                                                    textAlign: 'left',
+                                                    padding: '10px',
+                                                    borderRight: '1px solid #dcdcdc',
+                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    letterSpacing: '0px',
+                                                    color: '#330F1B',
+                                                    opacity: 1,
+                                                    fontSize: '13px',
+                                                    backgroundColor: '#FFFFFF', // Fondo blanco
+                                                }}
+                                            >
                                                 Fecha del próx. pago
                                             </th>
-                                            <th style={{ textAlign: 'center', padding: '10px' }}>Acciones</th>
+
                                         </tr>
                                     )}
-                                </thead>;
+                                </thead>
                                 <tbody>
-                                            {currentItems.map((number) => (
+                                    {currentItems.map((number) => (
                                         <tr key={number.id} style={{ borderBottom: '1px solid #dcdcdc' }}>
                                             <td style={{ textAlign: 'center', padding: '10px' }}>
                                                 <Checkbox
@@ -2737,7 +2833,7 @@ const MyNumbers: React.FC = () => {
                                             <td style={{ padding: '10px' }}>{number.type}</td>
                                             <td style={{ padding: '10px' }}>{number.service}</td>
                                             <td style={{ padding: '10px' }}>{number.cost}</td>
-                                            <td style={{ padding: '10px' }}>{number.nextPaymentDate}</td>
+                                            <td style={{ padding: '10px', borderRight: '1px solid #dcdcdc' }}>{number.nextPaymentDate}</td>
                                             <td style={{ textAlign: 'center', padding: '10px' }}>
                                                 <IconButton
                                                     aria-label="more"

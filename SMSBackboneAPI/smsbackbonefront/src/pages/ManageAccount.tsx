@@ -14,6 +14,8 @@ import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 import { InputAdornment } from "@mui/material";
 import ChipBar from "../components/commons/ChipBar";
+import CircularProgress from "@mui/material/CircularProgress";
+
 const ManageAccount: React.FC = () => {
     const [formData, setFormData] = useState({
         firstName: "",
@@ -31,6 +33,8 @@ const ManageAccount: React.FC = () => {
     const [confirmPasswordError, setConfirmPasswordError] = useState("");
     const [showChipBarAdd, setshowChipBarAdd] = useState(false);
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const [loading, setLoading] = useState(false);
+
     // Load user data from localStorage
     useEffect(() => {
         const userData = localStorage.getItem("userData");
@@ -95,6 +99,7 @@ const ManageAccount: React.FC = () => {
             setModalOpen(true);
             return;
         }
+        setLoading(true); // Activa el estado de carga
         try {
 
             const data = {
@@ -128,13 +133,26 @@ const ManageAccount: React.FC = () => {
             setModalMessage("Error al actualizar usuario");
             setModalOpen(true);
         }
+        finally {
+            setLoading(false); // Desactiva el estado de carga
+        }
     };
 
     return (
         <Box p={4} maxWidth={600} mx="auto">
-            <Typography variant="h5" fontWeight="bold" mb={3}>
+            <Typography
+                sx={{
+                    textAlign: "left",
+                    font: "normal normal medium 26px/55px Poppins",
+                    letterSpacing: "0px",
+                    color: "#330F1B",
+                    opacity: 1,
+                    fontSize: "26px",
+                }}
+            >
                 Editar cuenta
             </Typography>
+
             <Divider sx={{ mb: 3, backgroundColor: "#CCC" }} />
             <Paper sx={{ p: 3 }}>
                 <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
@@ -251,6 +269,7 @@ const ManageAccount: React.FC = () => {
                             }}
                         />
                     </Box>
+                    <Box></Box>
                     <Box>
                         <Typography
                             sx={{
@@ -289,6 +308,7 @@ const ManageAccount: React.FC = () => {
                             }}
                         />
                     </Box>
+                    <Box></Box>
                     <Box>
                         <Typography
                             sx={{
@@ -395,17 +415,25 @@ const ManageAccount: React.FC = () => {
                         !formData.alternateEmail
                     }
                     sx={{
-                        background: "#833A53 0% 0% no-repeat padding-box",
-                        border: "1px solid #60293C",
-                        borderRadius: "4px",
-                        opacity: 0.9,
-                        color: "#FFFFFF",
+                        position: "relative",
+                        backgroundColor: "#8D4B62",
+                        color: "#fff",
                         "&:hover": {
-                            backgroundColor: "#a54261",
+                            backgroundColor: "#6F3C4F",
                         },
                     }}
                 >
-                    Guardar cambios
+                    {loading ? (
+                        <CircularProgress
+                            size={24}
+                            sx={{
+                                color: "#fff",
+                                position: "absolute",
+                            }}
+                        />
+                    ) : (
+                        "Guardar cambios"
+                    )}
                 </Button>
             </Box>
 

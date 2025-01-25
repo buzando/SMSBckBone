@@ -74,7 +74,7 @@ type SubMenu = {
 
 const pages: Page[] = [
     { id: 0, title: 'Inicio', path: '/', icon: <HomeIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
-    { id: 1, title: 'Usuarios', path: '/users', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 1, title: 'Usuarios', path: '/UserAdministration', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
         id: 2, title: 'Administración', path: '', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Usuarios', path: '/users', icon: <PeopleAltIcon sx={{ color: 'white' }} /> },
@@ -102,6 +102,7 @@ const pages: Page[] = [
     { id: 7, title: 'Editar cuenta', path: '/ManageAccount', icon: <EditIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 8, title: 'Administrar cuentas', path: '/UserAdministration', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 9, title: 'Cerrar sesión', path: '', icon: <Avatar sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 10, title: 'Salas', path: '/rooms', icon: <Avatar sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
 ];
 
 type Room = {
@@ -731,18 +732,36 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         anchorEl={anchorElUser}
                         open={Boolean(anchorElUser)}
                         onClose={handleCloseUserMenu}
-                        sx={{ mt: 1 }} // Espaciado opcional entre el avatar y el menú
+                        sx={{
+                            mt: 1,
+                            '& .MuiMenuItem-root': {
+                                padding: '8px 16px', // Reduce el padding interno superior e inferior
+                                margin: 0, // Elimina márgenes entre los elementos
+                            },
+                            '& .MuiTypography-root': {
+                                lineHeight: '1.2', // Ajusta la altura de línea para textos más compactos
+                            },
+                        }}
                         anchorOrigin={{
                             vertical: 'bottom',
-                            horizontal: 'center', // Anclar el menú al centro horizontal del avatar
+                            horizontal: 'center',
                         }}
                         transformOrigin={{
                             vertical: 'top',
-                            horizontal: 'center', // El inicio del menú se alinea con el centro del avatar
+                            horizontal: 'center',
                         }}
                     >
                         <MenuItem onClick={() => navigate('/ManageAccount')}>
-                            <Typography textAlign="center">
+                            <Typography
+                                sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal normal 14px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    fontSize: '14px',
+                                }}
+                            >
                                 <Box display="flex" alignItems="center">
                                     <EditIcon sx={{ fontSize: 20, mr: 1 }} />
                                     Editar cuenta
@@ -750,7 +769,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             </Typography>
                         </MenuItem>
                         <MenuItem onClick={() => navigate('/TermsAndConditions')}>
-                            <Typography textAlign="center">
+                            <Typography
+                                sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal normal 14px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    fontSize: '14px',
+                                }}
+                            >
                                 <Box display="flex" alignItems="center">
                                     <DescriptionIcon sx={{ fontSize: 20, mr: 1 }} />
                                     Términos y condiciones
@@ -758,9 +786,18 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             </Typography>
                         </MenuItem>
                         <MenuItem onClick={handleLogout}>
-                            <Typography textAlign="center">
+                            <Typography
+                                sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal normal 14px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    fontSize: '14px',
+                                }}
+                            >
                                 <Box display="flex" alignItems="center">
-                                    <Avatar sx={{ fontSize: 20, mr: 1 }} />
+                                    <DescriptionIcon sx={{ fontSize: 20, mr: 1 }} />
                                     Cerrar sesión
                                 </Box>
                             </Typography>

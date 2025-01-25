@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import ChipBar from "../components/commons/ChipBar";
 
 
 interface CreditCard {
@@ -37,7 +38,6 @@ const AccountRecharge: React.FC = () => {
     const [cardToDelete, setCardToDelete] = useState<CreditCard | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
-    const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [generateInvoice, setGenerateInvoice] = useState(false);
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
     const invoiceData = {
@@ -51,7 +51,9 @@ const AccountRecharge: React.FC = () => {
         totalCost: "$0.10",
         paymentMethod: selectedCard ? `${selectedCard.Type} **${selectedCard.card_number.slice(-4)}, ${selectedCard.card_name}` : 'No seleccionada'
     };
-
+    const [showChipBarAdd, setshowChipBarAdd] = useState(false);
+    const [showChipBarCard, setshowChipBarCard] = useState(false);
+    const [showChipBarDelete, setshowChipBarDelete] = useState(false);
     const handleGenerateInvoiceCheck = () => {
         if (generateInvoice) {
             setGenerateInvoice(false);
@@ -59,7 +61,7 @@ const AccountRecharge: React.FC = () => {
             setIsInvoiceModalOpen(true);
         }
     };
-
+    const multiplier = 80;
     const closeInvoiceModal = () => {
         setIsInvoiceModalOpen(false);
         setGenerateInvoice(false);
@@ -93,7 +95,8 @@ const AccountRecharge: React.FC = () => {
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        console.log({ selectedChannel, creditAmount, rechargeAmount });
+        setshowChipBarAdd(true); // Mostrar ChipBar para edición exitosa
+        setTimeout(() => setshowChipBarAdd(false), 3000);
     };
 
     const fetchCreditCards = async () => {
@@ -147,9 +150,10 @@ const AccountRecharge: React.FC = () => {
             const response = await axios.post(requestUrl, payload);
 
             if (response.status === 200) {
+                setshowChipBarCard(true);
+                setTimeout(() => setshowChipBarCard(false), 3000);
                 await fetchCreditCards();
                 handleCloseModal();
-                setToastMessage("Tarjeta añadida correctamente.");
             }
         } catch  {
             setErrorModal({
@@ -243,7 +247,8 @@ const AccountRecharge: React.FC = () => {
 
             if (response.status === 200) {
                 await fetchCreditCards();
-                setToastMessage("La tarjeta ha sido eliminada correctamente.");
+                setshowChipBarDelete(true);
+                setTimeout(() => setshowChipBarDelete(false), 3000);
             }
 
          
@@ -276,8 +281,9 @@ const AccountRecharge: React.FC = () => {
         setErrorModal(null);
     };
 
-    const closeToast = () => {
-        setToastMessage(null);
+    const handleCreditBlur = () => {
+        const calculatedAmount = parseInt(creditAmount, 10) * multiplier;
+        setRechargeAmount(calculatedAmount); // Actualiza el monto a recargar
     };
 
     return (
@@ -392,39 +398,6 @@ const AccountRecharge: React.FC = () => {
                 </div>
             )}
 
-            {/* Toast de éxito */}
-            {toastMessage && (
-                <div style={{
-                    position: 'fixed',
-                    top: '630px', // Ajustado para que no quede al nivel del layout superior
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: '#333',
-                    color: '#fff',
-                    padding: '15px 20px',
-                    borderRadius: '5px',
-                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    zIndex: 1000,
-                    minWidth: '300px',
-                }}>
-                    <span>{toastMessage}</span>
-                    <button
-                        onClick={closeToast}
-                        style={{
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            color: '#fff',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        Cerrar
-                    </button>
-                </div>
-            )}
 
             {isInvoiceModalOpen && (
                 <div style={{
@@ -546,7 +519,7 @@ const AccountRecharge: React.FC = () => {
                             fontSize: '1rem'
                         }}
                     >
-                        <option value="">SMS, números cortos</option>
+                        <option value="">Seleccionar canal</option>
                         <option value="short_sms">SMS, números cortos</option>
                         <option value="long_sms">SMS, números largos</option>
                     </select>
@@ -566,6 +539,7 @@ const AccountRecharge: React.FC = () => {
                             type="number"
                             value={creditAmount}
                             onChange={handleCreditChange}
+                            onBlur={handleCreditBlur}
                             style={{
                                 width: '100%',
                                 padding: '12px',
@@ -587,6 +561,7 @@ const AccountRecharge: React.FC = () => {
                         <input
                             id="amount"
                             type="text"
+                            disabled
                             value={rechargeAmount}
                             onChange={handleRechargeChange}
                             style={{
@@ -647,11 +622,9 @@ const AccountRecharge: React.FC = () => {
                         >
                             {/* Marca de la tarjeta */}
                             <div style={{ marginBottom: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <img
-                                    src={`/${card.Type}.png`} // Asegúrate de tener imágenes para Visa/Mastercard
-                                    alt={card.Type}
-                                    style={{ height: '30px' }}
-                                />
+                                <div>
+                                    {card.Type}
+                                </div>
                                 {card.card_name}
                             </div>
 
@@ -918,7 +891,27 @@ const AccountRecharge: React.FC = () => {
                     </div>
                 </div>
             )}
-
+            {showChipBarAdd && (
+                <ChipBar
+                    message="Se ha recargado saldo con exito"
+                    buttonText="Cerrar"
+                    onClose={() => setshowChipBarAdd(false)}
+                />
+            )}
+            {showChipBarCard && (
+                <ChipBar
+                    message="Se ha agregado la tarjeta con exito"
+                    buttonText="Cerrar"
+                    onClose={() => setshowChipBarAdd(false)}
+                />
+            )}
+            {showChipBarDelete && (
+                <ChipBar
+                    message="Se ha eliminado la tarjeta con exito"
+                    buttonText="Cerrar"
+                    onClose={() => setshowChipBarAdd(false)}
+                />
+            )}
         </div>
     );
 };
