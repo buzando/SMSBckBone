@@ -18,7 +18,10 @@ import ConfigurationAccount from './pages/ConfigurationAccount'
 import TermsAndConditions from './pages/TermsAndConditions'
 import CreditManagement from './pages/CreditManagement'
 import MyNumbers from './pages/MyNumbers'
+import PaymentSettings from './pages/PaymentSettings'
+import PaymentMethods from './pages/PaymentMethods'
 import Help from './pages/Help'
+import BillingInformation from './pages/BillingInformation'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -86,6 +89,15 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/TermsAndConditions' element={<TermsAndConditions />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/PaymentMethods' element={<PaymentMethods />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/PaymentSettings' element={<PaymentSettings />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/BillingInformation' element={<BillingInformation />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/CreditManagement' element={<CreditManagement />} />

@@ -711,6 +711,33 @@ namespace SMSBackboneAPI.Controllers
 
         }
 
+        [HttpPost("DefaultCreditCard")]
+        public async Task<IActionResult> DefaultCreditCard(DefaultCreditCard Creditcard)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.CreditsCardsManager();
+            var responseDto = UserManager.DefaultCreditCard(Creditcard.id);
+            if (responseDto)
+            {
+
+
+                var response = Ok();
+                return response;
+
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "Repedito", description = "Error al actualizar tarjeta" });
+
+            }
+
+        }
+
         [HttpGet("DeleteCreditCard")]
         public async Task<IActionResult> DeleteCreditCard(int id)
         {
@@ -764,5 +791,92 @@ namespace SMSBackboneAPI.Controllers
                 return response;
             }
         }
+
+        #region billingInformatión
+
+        [HttpPost("AddBilling")]
+        public async Task<IActionResult> AddBillingInformationUser(BillingInformationDto Billing)
+        {
+
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+
+
+            var usuario = new UserManager().AddBillingInformation(Billing);
+            if (usuario)
+            {
+
+                return Ok();
+
+
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "AgregarBilling", description = "Error al guardar billing intente más tarde" });
+
+            }
+
+
+        }
+
+        [HttpPost("UpdateBilling")]
+        public async Task<IActionResult> UpdateBillingUser(BillingInformationDto Billing)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+
+            var usuario = new UserManager().UpdateBillingInformation(Billing);
+            if (usuario)
+            {
+
+
+                return Ok();
+
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "agregarusuario", description = "Error al guardar usuario intente más tarde" });
+
+            }
+
+
+        }
+
+        [HttpGet("GetBillingByUser")]
+        public async Task<IActionResult> GetBillingByUser(string email)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.UserManager();
+            var responseDto = UserManager.GetBillingInformation(email);
+            if (responseDto == null)
+            {
+
+
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Getting Billing Information ROOM" });
+
+
+
+            }
+            else
+            {
+                var response = Ok(responseDto);
+                return response;
+            }
+        }
+        #endregion
     }
 }

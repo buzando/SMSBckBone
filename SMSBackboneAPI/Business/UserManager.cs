@@ -583,5 +583,101 @@ namespace Business
                 return false;
             }
         }
+
+        #region billing
+
+        public bool AddBillingInformation(BillingInformationDto billing)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var iduser = ctx.Users.Where(x => x.email == billing.Email).FirstOrDefault();
+                    var exist = ctx.BillingInformation.Where(x => x.User.email == billing.Email).FirstOrDefault();
+                    if (exist == null)
+                    {
+
+                        var newbilling = new BillingInformation
+                        {
+                            userId = iduser.Id,
+                            BusinessName = billing.BusinessName,
+                            Cfdi = billing.Cfdi,
+                            PostalCode = billing.Cfdi,
+                            TaxId = billing.TaxId,
+                            TaxRegime = billing.TaxRegime,
+                            CreatedAt = DateTime.Now
+                        };
+                        ctx.BillingInformation.Add(newbilling);
+                    }
+                    else
+                    {
+                        exist.TaxRegime = billing.TaxRegime;
+                        exist.TaxId = billing.TaxId;
+                        exist.BusinessName = billing.BusinessName;
+                        exist.Cfdi = billing.Cfdi;
+                        exist.PostalCode = billing.PostalCode;
+                        exist.UpdatedAt = DateTime.Now;
+                    }
+
+                    ctx.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public bool UpdateBillingInformation(BillingInformationDto billing)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var BillingInformation = ctx.BillingInformation.Where(u => u.User.email == billing.Email).FirstOrDefault();
+                    BillingInformation.TaxRegime = billing.TaxRegime;
+                    BillingInformation.TaxId = billing.TaxId;
+                    BillingInformation.BusinessName = billing.BusinessName;
+                    BillingInformation.Cfdi = billing.Cfdi;
+                    BillingInformation.PostalCode = billing.PostalCode;
+                    BillingInformation.UpdatedAt = DateTime.Now;
+                    ctx.SaveChanges();
+                }
+
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public BillingInformationDto GetBillingInformation(string Email)
+        {
+            var billing = new BillingInformationDto();
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    billing = ctx.BillingInformation.Select(x => new BillingInformationDto
+                    {
+                        Email = x.User.email,
+                        BusinessName = x.BusinessName,
+                        Cfdi = x.Cfdi,
+                        PostalCode = x.PostalCode,
+                        TaxId = x.TaxId,
+                        TaxRegime = x.TaxRegime
+                    }).FirstOrDefault();
+                }
+                return billing;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+        #endregion
     }
 }

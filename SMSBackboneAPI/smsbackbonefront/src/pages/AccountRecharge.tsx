@@ -283,7 +283,7 @@ const AccountRecharge: React.FC = () => {
 
     const handleCreditBlur = () => {
         const calculatedAmount = parseInt(creditAmount, 10) * multiplier;
-        setRechargeAmount(calculatedAmount); // Actualiza el monto a recargar
+        setRechargeAmount(calculatedAmount.toString()); // Actualiza el monto a recargar
     };
 
     return (

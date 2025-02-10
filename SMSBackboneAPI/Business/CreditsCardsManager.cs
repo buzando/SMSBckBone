@@ -15,18 +15,18 @@ namespace Business
     {
         public List<creditcards> GetCardsByUser(int userid)
         {
-			try
-			{
-				using (var ctx = new Entities())
-				{
-					var creditscard = ctx.creditcards.Where(x => x.user_id == userid).ToList();
-					return creditscard;
-				}
-			}
-			catch (Exception e)
-			{
-				return null;
-			}
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var creditscard = ctx.creditcards.Where(x => x.user_id == userid).ToList();
+                    return creditscard;
+                }
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
 
         }
 
@@ -43,8 +43,18 @@ namespace Business
                     }
                     else
                     {
-                        var creditcarddb = new creditcards {created_at = DateTime.Now, user_id = creditCard.user_id, card_name = creditCard.card_name, card_number = creditCard.card_number, CVV = creditCard.CVV,
-                        expiration_month = creditCard.expiration_month, expiration_year = creditCard.expiration_year, is_default = creditCard.is_default, Type = creditCard.Type};
+                        var creditcarddb = new creditcards
+                        {
+                            created_at = DateTime.Now,
+                            user_id = creditCard.user_id,
+                            card_name = creditCard.card_name,
+                            card_number = creditCard.card_number,
+                            CVV = creditCard.CVV,
+                            expiration_month = creditCard.expiration_month,
+                            expiration_year = creditCard.expiration_year,
+                            is_default = creditCard.is_default,
+                            Type = creditCard.Type
+                        };
                         creditcarddb.created_at = DateTime.Now;
                         ctx.creditcards.Add(creditcarddb);
                         ctx.SaveChanges();
@@ -59,6 +69,38 @@ namespace Business
 
         }
 
+        public bool DefaultCreditCard(int id)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var actualcard = ctx.creditcards.Where(x => x.is_default == true).FirstOrDefault();
+                    if (actualcard?.Id == id)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        if (actualcard != null)
+                        {
+
+                            actualcard.is_default = false;
+                            ctx.SaveChanges();
+                        }
+                    }
+                    var creditscard = ctx.creditcards.Where(x => x.Id == id).FirstOrDefault();
+                    creditscard.is_default = true;
+                    ctx.SaveChanges();
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+
+        }
         public bool DeleteCreditCard(int id)
         {
             try
@@ -69,7 +111,7 @@ namespace Business
                     ctx.creditcards.Remove(creditscard);
                     ctx.SaveChanges();
                 }
-                    return true;
+                return true;
             }
             catch (Exception e)
             {
