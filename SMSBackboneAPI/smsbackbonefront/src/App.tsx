@@ -14,6 +14,7 @@ import Rooms from './pages/Rooms'
 import UserAdministration from './pages/UserAdministration'
 import AccountRecharge from './pages/AccountRecharge'
 import ManageAccount from './pages/ManageAccount'
+import PaymentHistoric from './pages/PaymentHistoric'
 import ConfigurationAccount from './pages/ConfigurationAccount'
 import TermsAndConditions from './pages/TermsAndConditions'
 import CreditManagement from './pages/CreditManagement'
@@ -92,6 +93,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/PaymentMethods' element={<PaymentMethods />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/PaymentHistoric' element={<PaymentHistoric />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/PaymentSettings' element={<PaymentSettings />} />
