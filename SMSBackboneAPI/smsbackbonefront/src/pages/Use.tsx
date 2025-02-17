@@ -2,12 +2,36 @@
 import { Button, Typography, Divider, Box, Popper, Paper, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import BoxEmpty from '../assets/Nousers.svg';
 import MainButton from '../components/commons/MainButton'
+import SecondaryButton from '../components/commons/SecondaryButton'
+import DatePicker from '../components/commons/DatePicker';
+
 const Use: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [selectedOption, setSelectedOption] = useState("sms_cortos");
-
+    const [selectedOption, setSelectedOption] = useState("corto");
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(anchorEl ? null : event.currentTarget);
+    };
+    const [buttonText, setButtonText] = useState("SMS # CORTOS");
+    const [selectedDates, setSelectedDates] = useState({ start: new Date(), end: new Date() });
+    const [datePickerOpen, setDatePickerOpen] = useState(false)
+
+    const handleDateClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget); // Asegurar que el anchor es el botón de fecha
+        setDatePickerOpen(true);
+    };
+
+    const handleCancelDatePicker = () => {
+        setDatePickerOpen(false); // Cierra el DatePicker
+    };
+
+    const handleApply = () => {
+        // Cambiar el texto del botón basado en la selección
+        if (selectedOption === "largo") {
+            setButtonText("SMS # LARGOS");
+        } else {
+            setButtonText("SMS # CORTOS");
+        }
+        setAnchorEl(null); // Cerrar el Popper
     };
 
     const open = Boolean(anchorEl);
@@ -30,39 +54,95 @@ const Use: React.FC = () => {
                     onClick={handleClick}
                     aria-describedby={id}
                 >
-                    SMS # CORTOS
+                    {buttonText}
                 </Button>
 
                 {/* Popper para mostrar opciones */}
                 <Popper id={id} open={open} anchorEl={anchorEl} placement="bottom-start">
-                    <Paper sx={{ padding: '10px', borderRadius: '8px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)' }}>
+                    <Paper sx={{
+                        width: '280px',  // Ancho del Popper
+                        height: '157px', // Alto del Popper
+                        padding: '10px',
+                        borderRadius: '8px',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)'
+                    }}>
                         <RadioGroup
                             value={selectedOption}
                             onChange={(e) => setSelectedOption(e.target.value)}
                         >
                             <FormControlLabel
-                                value="sms_cortos"
-                                control={<Radio sx={{ color: '#8F4D63' }} />}
-                                label={<Typography sx={optionStyle}>SMS # cortos</Typography>}
+                                value="corto"
+                                control={
+                                    <Radio
+                                        sx={{
+                                            color: "#000000",
+                                            "&.Mui-checked": {
+                                                color: "#8F4D63",
+                                            },
+                                            "& .MuiSvgIcon-root": {
+                                                fontSize: 24,
+                                            },
+                                        }}
+                                    />
+                                }
+                                label="SMS # cortos"
+                                sx={{
+                                    color: selectedOption === "corto" ? "#8F4D63" : "#000000",
+                                    fontWeight: selectedOption === "corto" ? "bold" : "normal",
+                                }}
                             />
+
                             <FormControlLabel
-                                value="sms_largos"
-                                control={<Radio sx={{ color: '#8F4D63' }} />}
-                                label={<Typography sx={optionStyle}>SMS # largos</Typography>}
+                                value="largo"
+                                control={
+                                    <Radio
+                                        sx={{
+                                            color: "#000000",
+                                            "&.Mui-checked": {
+                                                color: "#8F4D63",
+                                            },
+                                            "& .MuiSvgIcon-root": {
+                                                fontSize: 24,
+                                            },
+                                        }}
+                                    />
+                                }
+                                label="SMS # largos"
+                                sx={{
+                                    color: selectedOption === "largo" ? "#8F4D63" : "#000000",
+                                    fontWeight: selectedOption === "largo" ? "bold" : "normal",
+                                }}
                             />
                         </RadioGroup>
                         <Divider sx={{ margin: '10px 0' }} />
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Button variant="outlined" sx={cleanButtonStyle}>LIMPIAR</Button>
-                            <Button variant="contained" sx={applyButtonStyle}>APLICAR</Button>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
+                            <SecondaryButton text='Limpiar' onClick={() => setSelectedOption("corto")} />
+                            <MainButton text='Aplicar' onClick={handleApply} />
                         </Box>
                     </Paper>
                 </Popper>
 
-                <Button variant="outlined" sx={buttonStyle}>FECHA</Button>
+                <Button
+                    variant="outlined"
+                    sx={buttonStyle}
+                    onClick={handleDateClick}
+                >
+                    FECHA
+                </Button>
                 <Button variant="outlined" sx={buttonStyle}>CAMPAÑA</Button>
                 <Button variant="outlined" sx={buttonStyle}>USUARIO</Button>
             </Box>
+            <DatePicker
+                open={datePickerOpen}
+                anchorEl={anchorEl}
+                placement="bottom-start"
+                onApply={(start, end) => {
+                    setSelectedDates({ start, end });
+                    setDatePickerOpen(false);
+                }}
+                onClose={() => setDatePickerOpen(false)}
+            />
+
             <Divider sx={{ marginBottom: '20px' }} />
 
             {/* Imagen de vacío y mensaje */}
