@@ -2,10 +2,14 @@
 import { Button, Grid, Paper, Typography, IconButton } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import { useNavigate } from 'react-router-dom';
+
+
+
 
 const HomePage: React.FC = () => {
     const [activeButton, setActiveButton] = useState<string | null>(null);
-
+    const navigate = useNavigate();
     return (
         <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0' }}>
             {/* Header con título */}
@@ -39,6 +43,7 @@ const HomePage: React.FC = () => {
                 {/* Botones de la derecha alineados */}
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <Button
+                        onClick={() => navigate('/Use')}
                         variant="outlined"
                         style={{
                             border: '1px solid #C6BFC2',
