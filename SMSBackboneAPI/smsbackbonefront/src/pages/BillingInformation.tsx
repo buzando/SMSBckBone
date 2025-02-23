@@ -383,7 +383,7 @@ const BillingInformation: React.FC = () => {
                     <SecondaryButton onClick={() => setModal(true)} text="CANCELAR" />
                 </div>
 
-                <MainButton onClick={handleSave} text="GUARDAR" />
+                <MainButton onClick={handleSave} text="GUARDAR"  />
             </div>
             {showChipBarAdd && (
                 <ChipBar

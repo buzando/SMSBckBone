@@ -339,13 +339,26 @@ const PaymentMethods: React.FC = () => {
     };
 
     const handleChange = (e: SelectChangeEvent | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        const parsedValue = name === 'month' || name === 'year' ? parseInt(value, 10) : value; // Convierte mes y año a números
-        const error = validateField(name, parsedValue.toString()); // Valida los datos
+        let name: string, value: string | number | boolean;
 
-        setFormData((prev) => ({ ...prev, [name]: parsedValue }));
-        setErrors((prev) => ({ ...prev, [name]: error }));
+        if ("target" in e) { // 🔥 Verificamos si el evento es de un <select> o un input
+            const target = e.target as HTMLInputElement;
+            name = target.name;
+            value = target.type === "checkbox" ? target.checked : target.value;
+        } else {
+            name = e.target.name;
+            value = e.target.value;
+        }
+
+        // 🔥 Aseguramos que mes y año sean strings
+        if (name === "month" || name === "year") {
+            value = value.toString();
+        }
+
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: validateField(name, value.toString()) }));
     };
+
 
     const handleSelectCard = async (card: CreditCard) => {
         setSelectedCard(card);
@@ -940,11 +953,12 @@ const PaymentMethods: React.FC = () => {
                                 </label>
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <Select
-                                        value={formData.month.toString()}
+                                        name="month" // 🔥 Aseguramos que `name` esté presente
+                                        value={formData.month} // 🔥 `value` debe coincidir con `formData.month`
                                         onChange={handleChange}
                                         required
                                         style={{
-                                            background: "#FFFFFF 0% 0% no-repeat padding-box",
+                                            background: "#FFFFFF",
                                             border: "1px solid #9B9295",
                                             borderRadius: "8px",
                                             width: "87px",
@@ -953,15 +967,17 @@ const PaymentMethods: React.FC = () => {
                                     >
                                         <MenuItem value="" disabled>Mes</MenuItem>
                                         {months.map((month, index) => (
-                                            <MenuItem key={index} value={index + 1}>{month}</MenuItem> 
+                                            <MenuItem key={index} value={(index + 1).toString()}>{month}</MenuItem> // 🔥 Convertimos a `string`
                                         ))}
                                     </Select>
+
                                     <Select
-                                        value={formData.year.toString()} 
+                                        name="year" // 🔥 Aseguramos que `name` esté presente
+                                        value={formData.year} // 🔥 `value` debe coincidir con `formData.year`
                                         onChange={handleChange}
                                         required
                                         style={{
-                                            background: "#FFFFFF 0% 0% no-repeat padding-box",
+                                            background: "#FFFFFF",
                                             border: "1px solid #9B9295",
                                             borderRadius: "8px",
                                             width: "87px",
@@ -970,9 +986,10 @@ const PaymentMethods: React.FC = () => {
                                     >
                                         <MenuItem value="" disabled>Año</MenuItem>
                                         {years.map((year, index) => (
-                                            <MenuItem key={index} value={parseInt(year, 10)}>{year}</MenuItem> 
+                                            <MenuItem key={index} value={year.toString()}>{year}</MenuItem> // 🔥 Convertimos a `string`
                                         ))}
                                     </Select>
+
                                     <TextField
                                         type="number"
                                         name="cvv"
@@ -1008,6 +1025,16 @@ const PaymentMethods: React.FC = () => {
                                     name="isDefault"
                                     checked={formData.isDefault}
                                     onChange={handleChange}
+                                    sx={{
+                                        '&.Mui-checked': {
+                                            color: '#ffffff', // 🔥 Color del check (blanco)
+                                        },
+                                        '&.Mui-checked .MuiSvgIcon-root': {
+                                            backgroundColor: '#8F4D63', // 🔥 Cambia el color de adentro cuando está seleccionado
+                                            borderRadius: '4px',
+                                            color: '#ffffff', // 🔥 Cambia el color de la flecha (check) a blanco
+                                        }
+                                    }}
                                 />
                                 <span style={{
                                     textAlign: "left",
@@ -1027,15 +1054,23 @@ const PaymentMethods: React.FC = () => {
                                 margin: '20px 0',
                             }}
                         />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '16px', width: '100%' }}>
-                            <div style={{ gridColumn: '1 / 2', display: 'flex', justifyContent: 'flex-start' }}>
-                                <SecondaryButton onClick={() => handleCloseAddCardModal()} text="Cancelar" />
+                        <div style={{ display: 'flex', gap: '20px', gridColumn: 'span 2' }}>
+                            <div style={{ flex: 1 }}>
+                                <SecondaryButton
+                                    onClick={() => handleCloseAddCardModal()}
+                                    text="Cancelar"// 🔥 Se asegura que no se expanda
+                                />
                             </div>
-                            <div style={{ gridColumn: '2 / 3', display: 'flex', justifyContent: 'flex-end' }}>
-                                <MainButton text="Agregar" isLoading={Loading} onClick={() => addCreditCard()} disabled={!areRequiredFieldsFilled()} />
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <MainButton
+                                    text="Agregar"
+                                    isLoading={Loading}
+                                    onClick={() => addCreditCard()}
+                                    disabled={!areRequiredFieldsFilled()}
+                                />
                             </div>
                         </div>
-
+                       
 
 
                     </form>

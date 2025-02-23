@@ -1,6 +1,7 @@
 import React from "react";
 import "./Common.css";
 import SecondaryButton from "./SecondaryButton";
+import PrimaryButton from "./MainButton";
 
 interface MainModalProps {
     isOpen: boolean;
@@ -30,7 +31,7 @@ const MainModal: React.FC<MainModalProps> = ({
                 <p className="modal-error-message">{message}</p>
                 <div className="modal-error-footer">
                     <SecondaryButton text={secondaryButtonText} onClick={onSecondaryClick} />
-                    <SecondaryButton text={primaryButtonText} onClick={onPrimaryClick} />
+                    <PrimaryButton text={primaryButtonText} onClick={onPrimaryClick} />
                 </div>
             </div>
         </div>
