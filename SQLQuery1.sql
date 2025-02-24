@@ -127,3 +127,10 @@ create table AmountNotification(
 	IdCreditcard int null, 
 	foreign key (IdCreditcard) references creditcards(id)
 	   )
+
+	   create table AmountNotificationUser
+	   (
+	       id INT PRIMARY KEY IDENTITY(1,1),
+		  userId INT NOT NULL  FOREIGN KEY (userId) REFERENCES Users(id),
+		  NotificationId int not null foreign key(NotificationId) references AmountNotification(id)
+	   )

@@ -53,7 +53,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import DescriptionIcon from '@mui/icons-material/Description';
 import rentaNumerosUrl from '../assets/RentaDeNumeros.svg';
 import Tooltip from "@mui/material/Tooltip";
-const drawerWidth = 280;
+const drawerWidth = 246;
 
 type Page = {
     id: number,
@@ -813,6 +813,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
                 <Box
                     sx={{
+                        position: 'relative', // Esto permite posicionar elementos absolutos dentro
                         background: '#FFFFFF', // Fondo blanco
                         border: '1px solid #DDD8DA',
                         borderRadius: '12px',
@@ -822,6 +823,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         width: '90%', // Mantener el ancho del contenedor principal
                         marginX: 'auto',
                         boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Sombra general
+                        marginTop: '10px',
                     }}
                 >
                     {/* Contenedor para el encabezado y los botones */}
@@ -846,22 +848,29 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             <Typography
                                 sx={{
                                     textAlign: 'left',
-                                    font: 'normal normal bold 14px/20px Poppins',
-                                    color: '#833A53',
+                                    font: 'normal normal medium 14px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    fontSize: '14px', // Esto asegura que el tamaño de fuente sea correcto
                                 }}
                             >
                                 Créditos Totales SMS
                             </Typography>
+
                             <Typography
                                 sx={{
                                     textAlign: 'left',
-                                    font: 'normal normal bold 24px/32px Poppins',
-                                    color: '#833A53',
-                                    marginTop: '4px',
+                                    font: 'normal normal medium 14px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    opacity: 1,
+                                    fontSize: '14px', // Estilo para los valores numéricos debajo
                                 }}
                             >
                                 {selectedRoom?.credits || 0}
                             </Typography>
+
                             {/* Créditos cortos y largos */}
                             <Box
                                 sx={{
@@ -874,17 +883,24 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 <Box sx={{ textAlign: 'left', flex: 1 }}>
                                     <Typography
                                         sx={{
-                                            font: 'normal normal 500 12px Poppins',
-                                            color: '#833A53',
+                                            textAlign: 'left',
+                                            font: 'normal normal medium 12px/54px Poppins',
+                                            letterSpacing: '0px',
+                                            color: '#574B4F',
+                                            opacity: 1,
+                                            fontSize: '12px', // Ajuste preciso del tamaño de fuente
                                         }}
                                     >
                                         # Cortos
                                     </Typography>
                                     <Typography
                                         sx={{
-                                            font: 'normal normal bold 14px Poppins',
-                                            color: '#833A53',
-                                            marginTop: '4px',
+                                            textAlign: 'left',
+                                            font: 'normal normal medium 14px/54px Poppins',
+                                            letterSpacing: '0px',
+                                            color: '#330F1B',
+                                            opacity: 1,
+                                            fontSize: '14px', // Estilo para los valores numéricos debajo
                                         }}
                                     >
                                         {selectedRoom?.short_sms || 0}
@@ -893,8 +909,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 <Box sx={{ textAlign: 'left', flex: 1 }}>
                                     <Typography
                                         sx={{
-                                            font: 'normal normal 500 12px Poppins',
-                                            color: '#833A53',
+                                            textAlign: 'left',
+                                            font: 'normal normal medium 12px/54px Poppins',
+                                            letterSpacing: '0px',
+                                            color: '#574B4F',
+                                            opacity: 1,
+                                            fontSize: '12px', // Ajuste preciso del tamaño de fuente
                                         }}
                                     >
                                         # Largos
@@ -911,61 +931,94 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 </Box>
                             </Box>
                         </Box>
-
-                        {/* Botones redondos */}
+                        {/* Contenedor para el botón redondo */}
+                        {/* Contenedor para los dos botones (el de cambio y el dropdown) */}
                         <Box
                             sx={{
+                                position: 'absolute', // Se posiciona en relación con el contenedor padre
+                                top: '35%', // Lo centra verticalmente
+                                right: '5px', // Se acerca al borde derecho
+                                transform: 'translateY(-50%)', // Corrige la alineación exacta
                                 display: 'flex',
-                                flexDirection: 'column',
-                                gap: '8px', // Espacio entre los botones
+                                flexDirection: 'column', // Asegura que los botones estén alineados en columna
                                 alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px', // Espacio entre los dos botones
+                                zIndex: 10, // Asegura que no se quede detrás de otros elementos
                             }}
                         >
-                            {/* Botón circular con ícono de cambio */}
+                            {/* Botón cuadrado con icono de cambio */}
                             <IconButton
                                 sx={{
-                                    background: '#FFFFFF',
-                                    border: '1px solid #DDD8DA',
-                                    borderRadius: '50%', // Botón redondo
-                                    padding: '8px',
-                                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Sombra
+                                    background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                    boxShadow: '2px 2px 2px #6C64741A', // Sombra según especificaciones
+                                    border: '1px solid #C6BFC299', // Borde con el color exacto
+                                    borderRadius: '8px', // Bordes redondeados pero no circulares
+                                    padding: '10px', // Ajuste de espacio interno
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                }}
-                            >
-                                <Tooltip title="Mis Números">
-                                    <img src={rentaNumerosUrl} alt="Renta Números" style={{ width: '30px', height: 'auto' }} onClick={() => navigate('/MyNumbers')} />
-                                </Tooltip>
-                            </IconButton>
-
-                            <IconButton
-                                sx={{
-                                    background: 'transparent', // Fondo transparente
-                                    border: 'none', // Sin borde
-                                    borderRadius: '50%', // Botón redondo
-                                    padding: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#833A53', // Color del texto
-                                    boxShadow: 'none', // Sin sombra
+                                    width: '44px', // Tamaño cuadrado acorde a la referencia
+                                    height: '44px', // Misma altura para mantener la proporción
+                                    opacity: 1, // Asegura visibilidad
                                     '&:hover': {
-                                        background: '#F5F5F5', // Fondo suave al pasar el mouse
+                                        background: '#EBE5E7 0% 0% no-repeat padding-box',
+                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        border: '1px solid #D9C5CB',
+                                        opacity: 1,
+                                    },
+                                    '&:active': {
+                                        background: '#EBD9DF 0% 0% no-repeat padding-box',
+                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        border: '1px solid #BE93A066',
+                                        opacity: 1,
                                     },
                                 }}
                             >
-                                <Typography
-                                    sx={{
-                                        font: 'normal normal bold 16px Poppins',
-                                        color: '#833A53', // Color del texto
-                                    }}
-                                >
-                                    {'>'}
-                                </Typography>
+                                <Tooltip title="Mis Números">
+                                    <img
+                                        src={rentaNumerosUrl}
+                                        alt="Renta Números"
+                                        style={{ width: '30px', height: 'auto' }}
+                                        onClick={() => navigate('/MyNumbers')}
+                                    />
+                                </Tooltip>
                             </IconButton>
 
+                            {/* Botón de DropDown debajo */}
+                            <IconButton
+                                sx={{
+                                    background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                    boxShadow: '2px 2px 2px #6C64741A',
+                                    border: '1px solid #C6BFC299',
+                                    borderRadius: '8px',
+                                    padding: '6px', // Espacio más pequeño
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '32px', // Tamaño más pequeño que el de arriba
+                                    height: '32px',
+                                    opacity: 1,
+                                    marginTop:'20px',
+                                    '&:hover': {
+                                        background: '#EBE5E7 0% 0% no-repeat padding-box',
+                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        border: '1px solid #D9C5CB',
+                                        opacity: 1,
+                                    },
+                                    '&:active': {
+                                        background: '#EBD9DF 0% 0% no-repeat padding-box',
+                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        border: '1px solid #BE93A066',
+                                        opacity: 1,
+                                    },
+                                }}
+                                onClick={() => console.log("Dropdown clicked")}
+                            >
+                                <img src={DropDownIcon} alt="Dropdown Icon" style={{ width: '20px', height: 'auto', transform: 'rotate(90deg)' }} />
+                            </IconButton>
                         </Box>
+
                     </Box>
 
                     {/* Botones Gestionar y Recargar */}
@@ -974,7 +1027,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             display: 'flex',
                             justifyContent: 'space-between',
                             width: '100%',
-                            marginTop: '16px',
+                            gap:'10px'
                         }}
                     >
                         <Button
@@ -984,11 +1037,21 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 font: 'normal normal 600 14px/20px Poppins',
                                 color: '#833A53',
                                 background: '#FFF',
-                                borderRadius: '8px',
+                                borderRadius: '4px',
                                 padding: '6px 16px',
                                 boxShadow: 'none',
+                                width: '109px',
+                                height: '32px',
                                 '&:hover': {
-                                    background: '#F5F5F5',
+                                    background: '#F2E9EC 0% 0% no-repeat padding-box', // Color al pasar el mouse
+                                    borderRadius: '4px', // Redondeo al hover
+                                    opacity: 1, // Asegura que se vea correctamente
+                                },
+                                '&:active': {
+                                    background: '#E6C2CD 0% 0% no-repeat padding-box', // Color al presionar
+                                    border: '1px solid #BE93A0', // Borde definido
+                                    borderRadius: '4px',
+                                    opacity: 1,
                                 },
                             }}
                             onClick={() => navigate('/CreditManagement')}
@@ -1002,11 +1065,21 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 font: 'normal normal 600 14px/20px Poppins',
                                 color: '#833A53',
                                 background: '#FFF',
-                                borderRadius: '8px',
+                                borderRadius: '4px',
                                 padding: '6px 16px',
                                 boxShadow: 'none',
+                                width: '109px',
+                                height: '32px',
                                 '&:hover': {
-                                    background: '#F5F5F5',
+                                    background: '#F2E9EC 0% 0% no-repeat padding-box', // Color al pasar el mouse
+                                    borderRadius: '4px', // Redondeo al hover
+                                    opacity: 1, // Asegura que se vea correctamente
+                                },
+                                '&:active': {
+                                    background: '#E6C2CD 0% 0% no-repeat padding-box', // Color al presionar
+                                    border: '1px solid #BE93A0', // Borde definido
+                                    borderRadius: '4px',
+                                    opacity: 1,
                                 },
                             }}
                             onClick={() => navigate('/AccountRecharge')}

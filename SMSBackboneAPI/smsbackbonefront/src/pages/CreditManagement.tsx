@@ -32,6 +32,8 @@ import ClearIcon from "@mui/icons-material/Clear";
 import seachicon from '../assets/icon-lupa.svg'
 import NoResult from '../assets/NoResultados.svg'
 import ChipBar from "../components/commons/ChipBar";
+import HouseIcon from "../assets/IconRooms.svg"
+import iconclose from "../assets/icon-close.svg"
 type Rooms = {
     id: string | number;
     name: string;
@@ -238,22 +240,23 @@ const CreditManagement: React.FC = () => {
                     display="flex"
                     alignItems="center"
                     sx={{
-                        backgroundColor: "#FFFFFF", // Fondo blanco
-                        border: "1px solid #9B9295", // Borde
-                        borderRadius: "4px", // Bordes redondeados
-                        padding: "8px 12px", // Espaciado interno
-                        width: "218px", // Ancho según la imagen
-                        height: "40px", // Altura según la imagen
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Sombra sutil
+                        backgroundColor: "#FFFFFF",
+                        border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295", // Cambia el color del borde si hay texto
+                        borderRadius: "4px",
+                        padding: "8px 12px",
+                        width: "218px",
+                        height: "40px",
+                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                     }}
                 >
                     <img
                         src={seachicon}
                         alt="Buscar"
                         style={{
-                            marginRight: "8px", // Espaciado entre el ícono y el input
-                            width: "16px", // Tamaño del ícono
+                            marginRight: "8px",
+                            width: "16px",
                             height: "16px",
+                            filter: searchTerm ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none", // Ajusta el color si hay texto
                         }}
                     />
                     <input
@@ -267,10 +270,24 @@ const CreditManagement: React.FC = () => {
                             width: "100%", // Ocupa todo el espacio restante
                             fontSize: "16px", // Tamaño de la fuente
                             fontFamily: "Poppins, sans-serif", // Fuente según especificación
-                            color: "#9B9295", // Color del texto
+                            color: searchTerm ? "#7B354D" : "#9B9295", // Cambia el color del texto si hay texto
                             backgroundColor: "transparent", // Fondo transparente para evitar interferencias
                         }}
                     />
+                    {/* Ícono de cerrar cuando hay texto */}
+                    {searchTerm && (
+                        <img
+                            src={iconclose}
+                            alt="Limpiar búsqueda"
+                            style={{
+                                marginLeft: "8px",
+                                width: "16px",
+                                height: "16px",
+                                cursor: "pointer",
+                            }}
+                            onClick={() => setSearchTerm("")} // Borra el texto al hacer clic
+                        />
+                    )}
                 </Box>
 
             </Box>
@@ -354,30 +371,48 @@ const CreditManagement: React.FC = () => {
                                         }}
                                     >
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                            <HomeIcon
-                                                sx={{
-                                                    backgroundColor: '#B0B0B0',
-                                                    borderRadius: '50%',
-                                                    padding: '8px',
-                                                    fontSize: 40,
-                                                    color: 'white',
-                                                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                                            <img
+                                                src={HouseIcon}
+                                                alt="Rooms Icon"
+                                                style={{
+                                                    width: '40px', // Ajustado al tamaño del icono anterior
+                                                    height: '40px',
                                                     marginRight: '16px',
                                                 }}
                                             />
                                             <Box>
                                                 <Typography
                                                     variant="h6"
-                                                    sx={{ fontWeight: 'bold', fontSize: '16px', color: '#000' }}
+                                                    sx={{
+                                                        textAlign: 'left',
+                                                        font: 'normal normal medium 16px/54px Poppins',
+                                                        letterSpacing: '0px',
+                                                        color: '#574B4F',
+                                                        opacity: 1,
+                                                        fontSize: '16px',
+                                                        whiteSpace: 'nowrap', // Evita el salto de línea
+                                                        overflow: 'hidden', // Oculta el texto si es muy largo
+                                                    }}
                                                 >
                                                     {room.name}
                                                 </Typography>
+
                                                 <Typography
                                                     variant="body2"
-                                                    sx={{ fontSize: '14px', color: '#888', fontStyle: 'italic' }}
+                                                    sx={{
+                                                        textAlign: 'left',
+                                                        font: 'italic normal normal 14px/18px Poppins',
+                                                        letterSpacing: '0px',
+                                                        color: '#574B4F',
+                                                        opacity: 1,
+                                                        fontSize: '14px',
+                                                        whiteSpace: 'nowrap',
+                                                        maxWidth: '90%',
+                                                    }}
                                                 >
                                                     {room.description}
                                                 </Typography>
+
                                             </Box>
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -385,13 +420,12 @@ const CreditManagement: React.FC = () => {
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                                        textAlign: 'right',
+                                                        font: 'normal normal medium 12px/54px Poppins',
+                                                        letterSpacing: '0px',
+                                                        color: '#8D4B62',
                                                         opacity: 1,
                                                         fontSize: '12px',
-                                                        textAlign: 'right',
-                                                        padding: '4px 8px',
-                                                        display: 'inline-block', // Para mantener el diseño limpio
-                                                        color: '#8D4B62', // Nuevo color
                                                     }}
                                                 >
                                                     SMS # Cortos: {room.short_sms.toLocaleString()}
@@ -399,15 +433,12 @@ const CreditManagement: React.FC = () => {
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                                        textAlign: 'right',
+                                                        font: 'normal normal medium 12px/54px Poppins',
+                                                        letterSpacing: '0px',
+                                                        color: '#8D4B62',
                                                         opacity: 1,
                                                         fontSize: '12px',
-                                                        textAlign: 'right',
-                                                        padding: '4px 8px',
-                                                        display: 'inline-block', // Para mantener el diseño limpio
-                                                        marginTop: '8px', // Espaciado entre los textos
-                                                        color: '#8D4B62', // Nuevo color
-                                                        margin: '4px 0',
                                                     }}
                                                 >
                                                     SMS # Largos: {room.long_sms.toLocaleString()}
@@ -420,6 +451,14 @@ const CreditManagement: React.FC = () => {
                                                 anchorEl={menuAnchorEl}
                                                 open={Boolean(menuAnchorEl)}
                                                 onClose={handleMenuClose}
+                                                anchorOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'left', 
+                                                }}
+                                                transformOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'right', 
+                                                }}
                                                 PaperProps={{
                                                     sx: {
                                                         borderRadius: '8px',
@@ -427,7 +466,17 @@ const CreditManagement: React.FC = () => {
                                                     },
                                                 }}
                                             >
-                                                <MenuItem onClick={handleOpenModal}>
+                                                <MenuItem onClick={handleOpenModal} sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px',
+                                                    padding: '10px 16px',
+                                                    borderRadius: '8px',
+                                                    '&:hover': {
+                                                        background: '#F2EBED 0% 0% no-repeat padding-box',
+                                                        opacity: 1,
+                                                    },
+                                                }}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                         <img
                                                             src={TrashIcon}
@@ -484,7 +533,16 @@ const CreditManagement: React.FC = () => {
                         }}
                     >
                         <Box display="flex" justifyContent="space-between" alignItems="center">
-                            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                            <Typography
+                                sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal 600 20px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    fontSize: '20px',
+                                }}
+                            >
                                 Distribución de créditos
                             </Typography>
                             <IconButton onClick={handleCloseModal}>
