@@ -30,8 +30,15 @@ const ChipBar: React.FC<ChipBarProps> = ({ message, buttonText, onClose }) => {
         >
             <Typography
                 sx={{
+                    textAlign: "left",
+                    fontStyle: "normal",
+                    fontWeight: 500,
                     fontSize: "14px",
-                    fontWeight: 400,
+                    lineHeight: "20px",
+                    fontFamily: "Poppins",
+                    letterSpacing: "0px",
+                    color: "#DEDADA",
+                    opacity: 1,
                     marginRight: "16px",
                 }}
             >

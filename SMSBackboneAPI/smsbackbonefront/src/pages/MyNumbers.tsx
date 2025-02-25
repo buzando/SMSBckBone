@@ -13,7 +13,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import NoResult from '../assets/NoResultados.svg'
 import backarrow from '../assets/MoveTable.svg'
 import backarrowD from '../assets/MoveTabledesactivated.svg'
-import NextArrow from '../assets/MoveTableRight.svg'
 interface CreditCard {
     id: number;
     user_id: number;
@@ -2106,7 +2105,6 @@ const MyNumbers: React.FC = () => {
     };
     const handleStateChange2 = (event: SelectChangeEvent<string[]>) => {
         const value = event.target.value as string[]; // Asegúrate de que sea un arreglo de strings
-        console.log("Valor recibido en onChange:", event.target.value);
         setSelectedStates2(value);
     };
 
@@ -2261,6 +2259,19 @@ const MyNumbers: React.FC = () => {
         setFilteredData(filtered);
     };
 
+    function formatDate(dateString) {
+        const dateObj = new Date(dateString);
+        return dateObj.toLocaleString("es-MX", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true, // Muestra AM/PM
+        });
+    }
+
     return (
         <>
             {loading ? (
@@ -2269,7 +2280,22 @@ const MyNumbers: React.FC = () => {
                 </Box>
             ) : (
                 <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', color: '#4a4a4a' }}>Mis números</h2>
+                    <Typography
+                        sx={{
+                            textAlign: "left",
+                            fontFamily: "Poppins",
+                            fontWeight: 500,  // “medium”
+                            fontSize: "26px",
+                            lineHeight: "55px",
+                            letterSpacing: "0px",
+                            color: "#330F1B",
+                            opacity: 1,
+                            marginBottom: "20px",
+                            // textTransform: "none" // Omitido por completo
+                        }}
+                    >
+                        Mis números
+                    </Typography>
                     <hr style={{
                         border: 'none',
                         height: '1px',
@@ -2292,26 +2318,23 @@ const MyNumbers: React.FC = () => {
                                                 displayEmpty
                                                 value={selectedStates2}
                                                 onChange={(e) => {
-                                                    console.log("Evento recibido en Select:", e);
                                                     handleStateChange2(e);
                                                 }}
                                                 open={stateMenuOpen}
                                                 onOpen={() => setStateMenuOpen(true)}
                                                 onClose={() => setStateMenuOpen(false)}
                                                 renderValue={() => (
-                                                    <span
+                                                    <div
                                                         style={{
-                                                            textAlign: 'center',
-                                                            font: 'normal normal 600 14px/54px Poppins',
-                                                            letterSpacing: '1.12px',
-                                                            color: '#330F1B',
-                                                            textTransform: 'uppercase',
-                                                            opacity: 1,
-                                                            fontSize: '14px',
+                                                            minWidth: "100px",
+                                                            height: "40px",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
                                                         }}
                                                     >
                                                         ESTADO
-                                                    </span>
+                                                    </div>
                                                 )}
                                                 fullWidth
                                                 sx={{
@@ -2408,19 +2431,17 @@ const MyNumbers: React.FC = () => {
                                                 onOpen={() => setMunicipalityMenuOpen(true)}
                                                 onClose={() => setMunicipalityMenuOpen(false)}
                                                 renderValue={() => (
-                                                    <span
+                                                    <div
                                                         style={{
-                                                            textAlign: 'center',
-                                                            font: 'normal normal 600 14px/54px Poppins',
-                                                            letterSpacing: '1.12px',
-                                                            color: '#330F1B',
-                                                            textTransform: 'uppercase',
-                                                            opacity: 1,
-                                                            fontSize: '14px',
+                                                            minWidth: "100px",
+                                                            height: "40px",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
                                                         }}
                                                     >
                                                         MUNICIPIO
-                                                    </span>
+                                                    </div>
                                                 )}
                                                 fullWidth
                                                 sx={{
@@ -2657,26 +2678,55 @@ const MyNumbers: React.FC = () => {
                             <div>
                                 <button
                                     style={{
-                                        backgroundColor: '#f8d7da',
-                                        color: '#8d406d',
-                                        border: '1px solid #8d406d',
-                                        borderRadius: '5px',
-                                        padding: '10px 20px',
-                                        cursor: 'pointer',
-                                        fontWeight: 'bold',
+                                        background: "#FFFFFF 0% 0% no-repeat padding-box",
+                                        border: "1px solid #CCCFD2",
+                                        borderRadius: "4px",
+                                        opacity: 1,
+                                        padding: "10px 20px",
+                                        cursor: "pointer",
+                                        fontWeight: "bold",
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#dba0a8';
+                                        e.currentTarget.style.background =
+                                            "#F2E9EC 0% 0% no-repeat padding-box";
+                                        e.currentTarget.style.border = "1px solid #BE93A066";
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#f8d7da';
+                                        e.currentTarget.style.background =
+                                            "#FFFFFF 0% 0% no-repeat padding-box";
+                                        e.currentTarget.style.border = "1px solid #CCCFD2";
+                                    }}
+                                    onMouseDown={(e) => {
+                                        e.currentTarget.style.background =
+                                            "#E6C2CD 0% 0% no-repeat padding-box";
+                                        e.currentTarget.style.border = "1px solid #BE93A0";
+                                    }}
+                                    onMouseUp={(e) => {
+                                        e.currentTarget.style.background =
+                                            "#F2E9EC 0% 0% no-repeat padding-box";
+                                        e.currentTarget.style.border = "1px solid #BE93A066";
                                     }}
                                     onClick={handleModalAyudaOpen}
                                 >
-
-                                    SERVICIOS ADICIONALES
+                                    <span
+                                        style={{
+                                            textAlign: "center",
+                                            fontFamily: "Poppins",
+                                            fontWeight: 600,
+                                            fontSize: "14px",
+                                            // Se elimina el lineHeight para que no modifique la altura del botón
+                                            // lineHeight: "54px",
+                                            letterSpacing: "1.12px",
+                                            color: "#833A53",
+                                            textTransform: "uppercase",
+                                            opacity: 1,
+                                        }}
+                                    >
+                                        SERVICIOS ADICIONALES
+                                    </span>
                                 </button>
                             </div>
+
                         </div>
 
                     </div>
@@ -2738,7 +2788,7 @@ const MyNumbers: React.FC = () => {
                                         </tr>
                                     ) : (
                                         <tr>
-                                            <th style={{ textAlign: 'center', padding: '10px' }}>
+                                            <th style={{ width: '50px', textAlign: 'left', padding: '10px 10px 10px 0px' }}>
                                                 <Checkbox
                                                     checked={selectedRows.length === currentItems.length && currentItems.length > 0}
                                                     indeterminate={selectedRows.length > 0 && selectedRows.length < currentItems.length}
@@ -2823,7 +2873,7 @@ const MyNumbers: React.FC = () => {
                                 <tbody>
                                     {currentItems.map((number) => (
                                         <tr key={number.id} style={{ borderBottom: '1px solid #dcdcdc' }}>
-                                            <td style={{ textAlign: 'center', padding: '10px' }}>
+                                            <td style={{ textAlign: 'left', padding: '10px 10px 10px 0px' }}>
                                                 <Checkbox
                                                     checked={selectedRows.includes(number.id)}
                                                     onChange={() => handleRowSelection(number.id)}
@@ -2832,8 +2882,8 @@ const MyNumbers: React.FC = () => {
                                             <td style={{ padding: '10px' }}>{number.number}</td>
                                             <td style={{ padding: '10px' }}>{number.type}</td>
                                             <td style={{ padding: '10px' }}>{number.service}</td>
-                                            <td style={{ padding: '10px' }}>{number.cost}</td>
-                                            <td style={{ padding: '10px', borderRight: '1px solid #dcdcdc' }}>{number.nextPaymentDate}</td>
+                                            <td style={{ padding: '10px' }}>${number.cost}</td>
+                                            <td style={{ padding: '10px', borderRight: '1px solid #dcdcdc' }}>{formatDate(number.nextPaymentDate)}</td>
                                             <td style={{ textAlign: 'center', padding: '10px' }}>
                                                 <IconButton
                                                     aria-label="more"

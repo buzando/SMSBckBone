@@ -33,6 +33,7 @@ import HouseIcon from "../assets/IconRooms.svg"
 import iconclose from "../assets/icon-close.svg"
 import MainButton from "../components/commons/MainButton";
 import SecondaryButton from "../components/commons/SecondaryButton";
+import ErrorModal from '../components/commons/ModalError'
 
 type Rooms = {
     id: string | number;
@@ -59,7 +60,7 @@ const CreditManagement: React.FC = () => {
     const [openDropdown, setOpenDropdown] = useState<boolean>(false);
     const [openDropdown2, setOpenDropdown2] = useState<boolean>(false);
     const [searchTerm3, setSearchTerm3] = useState("");
-    const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
+    const [OpenErrorModal, setOpenErrorModal] = useState(false);
     const [showChipBarAdd, setshowChipBarAdd] = useState(false);
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,6 +92,7 @@ const CreditManagement: React.FC = () => {
 
     useEffect(() => {
         GetCredits();
+        setshowChipBarAdd(true);
     }, []);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, room: Rooms) => {
@@ -209,24 +211,15 @@ const CreditManagement: React.FC = () => {
                 GetCredits();
                 handleCloseModal();
             } else {
-                setErrorModal({
-                    title: "Error al transferir créditos",
-                    message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
-                });
+                setOpenErrorModal(true);
             }
         } catch {
-            setErrorModal({
-                title: "Error al transferir créditos",
-                message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
-            });
+            setOpenErrorModal(true);
         } finally {
             setLoading(false);
         }
     };
 
-    const closeErrorModal = () => {
-        setErrorModal(null);
-    };
 
 
     return (
@@ -311,23 +304,25 @@ const CreditManagement: React.FC = () => {
                         return nameWords.some((word) => word.startsWith(term));
                     }).length === 0 ? (
                         <Grid item xs={12}>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    marginTop: "20px",
-                                }}
-                            >
-                                <img
-                                    src={NoResult}
-                                    alt="Sin resultados"
-                                    style={{
-                                        width: "150px", // Ajusta el tamaño de la imagen si es necesario
-                                        marginBottom: "16px",
-                                    }}
-                                />
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "flex-end",    
+                                            justifyContent: "center",  
+                                            height: "300px",          
+                                            marginLeft: "50px",
+                                        }}
+                                    >
+                                        <img
+                                            src={NoResult}
+                                            alt="Sin resultados"
+                                            style={{
+                                                // Ajusta el tamaño a tu gusto
+                                                width: "300px",
+                                                marginBottom: "16px",
+                                            }}
+                                        />
                                 <Typography
                                     variant="body1"
                                     sx={{
@@ -1087,51 +1082,14 @@ const CreditManagement: React.FC = () => {
                 />
             )}
 
-            {/* Modal de error */}
-            {errorModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000,
-                }}>
-                    <div style={{
-                        backgroundColor: '#fff',
-                        padding: '20px',
-                        borderRadius: '8px',
-                        width: '400px',
-                        textAlign: 'center',
-                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                    }}>
-                        <h3 style={{ marginBottom: '10px', color: '#4a4a4a' }}>{errorModal.title}</h3>
-                        <p style={{ marginBottom: '20px', color: '#6a6a6a' }}>
-                            {errorModal.message}
-                        </p>
-                        <button
-                            onClick={closeErrorModal}
-                            style={{
-                                backgroundColor: '#fff',
-                                color: '#8d406d',
-                                border: '2px solid #8d406d',
-                                borderRadius: '5px',
-                                padding: '10px 20px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            Cerrar
-                        </button>
-                    </div>
-                </div>
-            )}
 
-
+            <ErrorModal
+                isOpen={OpenErrorModal}
+                title='Error al transferir créditos'
+                message='Algo salió mal. Inténtelo de nuevo o regrese más tarde.'
+                buttonText="Cerrar"
+                onClose={() => setOpenErrorModal(false)}
+            />
         </Box>
     );
 };
