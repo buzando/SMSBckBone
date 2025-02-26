@@ -2,7 +2,7 @@
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
-import { TextField, InputAdornment, MenuItem, Box, Select, Menu, Modal, Button, Typography, ListItemText, Checkbox, Grid, IconButton } from '@mui/material';
+import { TextField, InputAdornment, MenuItem, Box, Select, Menu, Modal, Button, Typography, ListItemText, Checkbox, Grid, IconButton, Divider } from '@mui/material';
 import HelpIco from '../assets/Icono_ayuda.svg';
 import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 import { SelectChangeEvent } from '@mui/material';
@@ -13,6 +13,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import NoResult from '../assets/NoResultados.svg'
 import backarrow from '../assets/MoveTable.svg'
 import backarrowD from '../assets/MoveTabledesactivated.svg'
+import MainButtonIcon from '../components/commons/MainButtonIcon'
+import seachicon from '../assets/icon-lupa.svg'
+import iconclose from "../assets/icon-close.svg"
+
 interface CreditCard {
     id: number;
     user_id: number;
@@ -85,6 +89,8 @@ const MyNumbers: React.FC = () => {
     const [currentItems, setcurrentItems] = useState<NumberData[]>([]);
     const navigate = useNavigate(); // Inicializa el hook de navegación
     const [filteredData, setFilteredData] = useState<NumberData[]>([]); // Datos filtrados
+    const [searchTerm, setSearchTerm] = useState('');
+
     // Función para manejar la navegación a la página de ayuda
     const handleNavigateToHelp = () => {
         navigate('/help'); // Reemplaza '/help' con la ruta correcta a tu componente Help
@@ -1871,7 +1877,7 @@ const MyNumbers: React.FC = () => {
             ],
         },
     ];
-
+    const [filteredStates, setFilteredStates] = useState(statesOfMexico);
 
     const GetNumbers = async () => {
         setLoading(true);
@@ -2027,17 +2033,11 @@ const MyNumbers: React.FC = () => {
         setSelectedCard(card);
     };
 
-    const filteredStates = statesOfMexico.filter((state) =>
-        state.state.toLowerCase().includes(stateSearch.toLowerCase())
-    );
-
     const filteredMunicipalities = municipalities.filter((municipality) =>
         municipality.name.toLowerCase().includes(municipalitySearch.toLowerCase())
     );
 
-    const filteredStates2 = statesOfMexico.filter((state) =>
-        state.state.toLowerCase().includes(stateSearch2.toLowerCase())
-    );
+
 
     const handleRent = async () => {
         try {
@@ -2259,7 +2259,7 @@ const MyNumbers: React.FC = () => {
         setFilteredData(filtered);
     };
 
-    function formatDate(dateString) {
+    function formatDate(dateString: string) {
         const dateObj = new Date(dateString);
         return dateObj.toLocaleString("es-MX", {
             year: "numeric",
@@ -2271,6 +2271,52 @@ const MyNumbers: React.FC = () => {
             hour12: true, // Muestra AM/PM
         });
     }
+
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value.toLowerCase();
+        setSearchTerm(value);
+
+        if (value.trim() === '') {
+            setFilteredData(currentItems);
+        } else {
+            setFilteredData(
+                currentItems.filter((item) =>
+                    item.number.toLowerCase().includes(value)
+                )
+            );
+        }
+    };
+
+    const handleSearch2 = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value.toLowerCase();
+        setStateSearch2(value); // Actualiza el estado de búsqueda
+
+        if (value.trim() === '') {
+            setFilteredStates(statesOfMexico); // Restaura la lista si el campo está vacío
+        } else {
+            setFilteredStates(
+                statesOfMexico.filter((state) =>
+                    state.state.toLowerCase().includes(value)
+                )
+            );
+        }
+    };
+
+    const handleStateToggle = (state: string) => {
+        setSelectedStates2((prevSelected) =>
+            prevSelected.includes(state)
+                ? prevSelected.filter((s) => s !== state) // Si ya está seleccionado, lo quita
+                : [...prevSelected, state] // Si no está seleccionado, lo agrega
+        );
+    };
+
+    const handleMunicipalityToggle = (municipality: string) => {
+        setSelectedMunicipalities2((prevSelected) =>
+            prevSelected.includes(municipality)
+                ? prevSelected.filter((m) => m !== municipality) // Si ya está seleccionado, lo quita
+                : [...prevSelected, municipality] // Si no está seleccionado, lo agrega
+        );
+    };
 
     return (
         <>
@@ -2312,14 +2358,11 @@ const MyNumbers: React.FC = () => {
                                     <Grid container spacing={2}>
                                         <Grid item xs={6}>
                                             {/* Select de estados con búsqueda */}
-
                                             <Select
                                                 multiple
                                                 displayEmpty
                                                 value={selectedStates2}
-                                                onChange={(e) => {
-                                                    handleStateChange2(e);
-                                                }}
+                                                onChange={(e) => setSelectedStates2(e.target.value as string[])}
                                                 open={stateMenuOpen}
                                                 onOpen={() => setStateMenuOpen(true)}
                                                 onClose={() => setStateMenuOpen(false)}
@@ -2338,56 +2381,151 @@ const MyNumbers: React.FC = () => {
                                                 )}
                                                 fullWidth
                                                 sx={{
-                                                    width: '132px', // Ancho especificado
-                                                    height: '36px', // Alto especificado
-                                                    background: '#FFFFFF 0% 0% no-repeat padding-box',
-                                                    border: '1px solid #C6BFC2',
-                                                    borderRadius: '18px',
-                                                    opacity: 1,
-                                                    '& .MuiSelect-icon': {
-                                                        display: 'none', // Oculta la flecha hacia abajo
-                                                    },
+                                                    width: "132px",
+                                                    height: "36px",
+                                                    background: "#FFFFFF",
+                                                    border: "1px solid #C6BFC2",
+                                                    borderRadius: "18px",
+                                                    "& .MuiSelect-icon": { display: "none" },
                                                 }}
                                                 MenuProps={{
+                                                    anchorOrigin: {
+                                                        vertical: "bottom",
+                                                        horizontal: "right", // Ancla el menú al lado izquierdo del botón
+                                                    },
+                                                    transformOrigin: {
+                                                        vertical: "top",
+                                                        horizontal: "right", // Expande el menú hacia la derecha
+                                                    },
                                                     PaperProps: {
-                                                        style: {
-                                                            maxHeight: '300px', // Límite de altura total
-                                                            overflowY: 'auto', // Habilita solo un scroll interno
-                                                            paddingBottom: 0, // Para evitar espacio extra en los botones
+                                                        sx: {
+                                                            width: "280px",
+                                                            maxHeight: "350px",
+                                                            overflow: "hidden",
+                                                            display: "flex",
+                                                            flexDirection: "column",
+                                                            marginLeft: "150px",
                                                         },
                                                     },
                                                 }}
                                             >
-                                                <Box p={1} sx={{ overflowY: 'auto', maxHeight: '200px' }}>
+                                                {/* Contenedor fijo del buscador */}
+                                                <Box
+                                                    sx={{
+                                                        position: "sticky",
+                                                        top: 0,
+                                                        zIndex: 10,
+                                                        backgroundColor: "#FFFFFF",
+                                                        padding: "8px 12px",
+                                                    }}
+                                                >
                                                     <TextField
-                                                        placeholder="Buscar estado"
-                                                        variant="outlined"
                                                         fullWidth
+                                                        variant="outlined"
+                                                        placeholder="Buscar"
                                                         value={stateSearch2}
-                                                        onChange={handleStateSearchChange2}
+                                                        onChange={handleSearch2}
+                                                        autoFocus
+                                                        onKeyDown={(e) => e.stopPropagation()} // Evita la navegación automática
+                                                        sx={{
+                                                            backgroundColor: "#FFFFFF",
+                                                            borderRadius: "4px",
+                                                            height: "40px",
+                                                            "& .MuiOutlinedInput-root": {
+                                                                padding: "8px 12px",
+                                                                height: "40px",
+                                                                borderColor: stateSearch2 ? "#7B354D" : "#9B9295",
+                                                            },
+                                                            "& .MuiOutlinedInput-input": {
+                                                                fontSize: "16px",
+                                                                fontFamily: "Poppins, sans-serif",
+                                                                color: stateSearch2 ? "#7B354D" : "#9B9295",
+                                                                padding: "8px 12px",
+                                                                height: "100%",
+                                                            },
+                                                        }}
                                                         InputProps={{
                                                             startAdornment: (
                                                                 <InputAdornment position="start">
-                                                                    <SearchIcon />
+                                                                    <img
+                                                                        src={seachicon}
+                                                                        alt="Buscar"
+                                                                        style={{
+                                                                            width: "18px",
+                                                                            height: "18px",
+                                                                            filter: stateSearch2
+                                                                                ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)"
+                                                                                : "none",
+                                                                        }}
+                                                                    />
                                                                 </InputAdornment>
                                                             ),
+                                                            endAdornment: stateSearch2 ? (
+                                                                <InputAdornment position="end">
+                                                                    <img
+                                                                        src={iconclose}
+                                                                        alt="Limpiar búsqueda"
+                                                                        style={{
+                                                                            width: "16px",
+                                                                            height: "16px",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                        onClick={() => setStateSearch2("")} // Borra el texto al hacer clic
+                                                                    />
+                                                                </InputAdornment>
+                                                            ) : null,
                                                         }}
                                                     />
+
                                                 </Box>
-                                                {statesOfMexico.map((state) => (
-                                                    <MenuItem key={state.state} value={state.state}>
-                                                        <Checkbox checked={selectedStates2.includes(state.state)} />
-                                                        <ListItemText primary={state.state} />
-                                                    </MenuItem>
-                                                ))}
+
+                                                {/* Lista de estados con scroll */}
+                                                <Box
+                                                    sx={{
+                                                        maxHeight: "200px",
+                                                        overflowY: "auto",
+                                                        flexGrow: 1,
+                                                        "&::-webkit-scrollbar": {
+                                                            width: "5px",
+                                                            height: "700px",
+                                                        },
+                                                        "&::-webkit-scrollbar-thumb": {
+                                                            background: "#C6BFC2", // Color de la barra
+                                                            borderRadius: "4px", // Bordes redondeados
+                                                            minHeight: "50px",
+                                                        }
+                                                    }}
+                                                >
+                                                    {filteredStates.map((state) => (
+                                                        <MenuItem key={state.state} value={state.state} onClick={() => handleStateToggle(state.state)}>
+                                                            <Checkbox checked={selectedStates2.includes(state.state)}
+                                                                onChange={() => handleStateToggle(state.state)} />
+                                                            <ListItemText primary={state.state} sx={{
+                                                                textAlign: "left",
+                                                                fontFamily: "Poppins, sans-serif",
+                                                                fontSize: "16px",
+                                                                lineHeight: "20px",
+                                                                letterSpacing: "0px",
+                                                                color: "#786E71",
+                                                                opacity: 1,
+                                                                margin: "0",
+                                                                "& .MuiListItemText-root": {
+                                                                    margin: "0",
+                                                                },
+                                                            }} />
+                                                        </MenuItem>
+                                                    ))}
+                                                </Box>
+
+                                                {/* Botones fijos en la parte inferior */}
                                                 <Box
                                                     p={1}
                                                     display="flex"
                                                     justifyContent="space-between"
                                                     sx={{
-                                                        borderTop: '1px solid #e0e0e0',
-                                                        backgroundColor: '#fff',
-                                                        position: 'sticky',
+                                                        borderTop: "1px solid #e0e0e0",
+                                                        backgroundColor: "#fff",
+                                                        position: "sticky",
                                                         bottom: 0,
                                                     }}
                                                 >
@@ -2397,7 +2535,32 @@ const MyNumbers: React.FC = () => {
                                                             e.stopPropagation();
                                                             handleClearSelection();
                                                         }}
-                                                        style={{ color: '#8d406d', borderColor: '#8d406d' }}
+                                                        sx={{
+                                                            width: '116px',
+                                                            height: '36px',
+                                                            color: "#833A53",
+                                                            borderColor: "#833A53",
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            fontSize: "14px",
+                                                            fontWeight: 600,
+                                                            textAlign: "center",
+                                                            letterSpacing: "1.12px",
+                                                            textTransform: "uppercase",
+                                                            lineHeight: "54px",
+                                                            opacity: 1,
+                                                            "&:hover": {
+                                                                background: "#F2E9EC 0% 0% no-repeat padding-box",
+                                                                border: "1px solid #BE93A066",
+                                                                borderRadius: "4px",
+                                                                opacity: 1,
+                                                            },
+                                                            "&:active": {
+                                                                background: "#E6C2CD 0% 0% no-repeat padding-box",
+                                                                border: "1px solid #BE93A0",
+                                                                borderRadius: "4px",
+                                                                opacity: 1,
+                                                            },
+                                                        }}
                                                     >
                                                         LIMPIAR
                                                     </Button>
@@ -2408,7 +2571,32 @@ const MyNumbers: React.FC = () => {
                                                             handleApplySelection();
                                                             handleApplyStateFilter();
                                                         }}
-                                                        style={{ backgroundColor: '#8d406d', color: '#fff' }}
+                                                        sx={{
+                                                            width: '116px',
+                                                            height: '36px',
+                                                            color: "#fff",
+                                                            backgroundColor: "#8d406d",
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            fontSize: "14px",
+                                                            fontWeight: 600,
+                                                            textAlign: "center",
+                                                            letterSpacing: "1.12px",
+                                                            textTransform: "uppercase",
+                                                            lineHeight: "54px",
+                                                            opacity: 1,
+                                                            "&:hover": {
+                                                                background: "#90455F 0% 0% no-repeat padding-box",
+                                                                boxShadow: "0px 0px 12px #C17D91",
+                                                                border: "1px solid #60293C",
+                                                                opacity: 0.85,
+                                                            },
+                                                            "&:active": {
+                                                                background: "#6F1E3A 0% 0% no-repeat padding-box",
+                                                                border: "1px solid #8D4860",
+                                                                borderRadius: "4px",
+                                                                opacity: 0.9,
+                                                            },
+                                                        }}
                                                     >
                                                         APLICAR
                                                     </Button>
@@ -2423,10 +2611,7 @@ const MyNumbers: React.FC = () => {
                                                 multiple
                                                 displayEmpty
                                                 value={selectedMunicipalities2}
-                                                onChange={(e) => {
-                                                    console.log("Evento recibido en Select (MUNICIPIO):", e);
-                                                    handleMunicipalityChange2(e);
-                                                }}
+                                                onChange={(e) => setSelectedMunicipalities2(e.target.value as string[])}
                                                 open={municipalityMenuOpen}
                                                 onOpen={() => setMunicipalityMenuOpen(true)}
                                                 onClose={() => setMunicipalityMenuOpen(false)}
@@ -2445,78 +2630,218 @@ const MyNumbers: React.FC = () => {
                                                 )}
                                                 fullWidth
                                                 sx={{
-                                                    width: '132px', // Ancho especificado
-                                                    height: '36px', // Alto especificado
-                                                    background: '#FFFFFF 0% 0% no-repeat padding-box',
-                                                    border: '1px solid #C6BFC2',
-                                                    borderRadius: '18px',
-                                                    opacity: 1,
-                                                    '& .MuiSelect-icon': {
-                                                        display: 'none', // Oculta la flecha hacia abajo
-                                                    },
+                                                    width: "132px",
+                                                    height: "36px",
+                                                    background: "#FFFFFF",
+                                                    border: "1px solid #C6BFC2",
+                                                    borderRadius: "18px",
+                                                    "& .MuiSelect-icon": { display: "none" },
                                                 }}
                                                 MenuProps={{
                                                     PaperProps: {
-                                                        style: {
-                                                            maxHeight: '300px', // Límite de altura total
-                                                            overflowY: 'auto', // Habilita solo un scroll interno
-                                                            paddingBottom: 0, // Para evitar espacio extra en los botones
+                                                        sx: {
+                                                            width: "300px",
+                                                            maxHeight: "420px",
+                                                            overflow: "hidden",
+                                                            display: "flex",
+                                                            flexDirection: "column",
+                                                            marginLeft: "90px",
                                                         },
                                                     },
                                                 }}
                                             >
-                                                <Box p={1} sx={{ overflowY: 'auto', maxHeight: '200px' }}>
+                                                {/* Contenedor fijo del buscador */}
+                                                <Box
+                                                    sx={{
+                                                        position: "sticky",
+                                                        top: 0,
+                                                        zIndex: 10,
+                                                        backgroundColor: "#FFFFFF",
+                                                        padding: "8px 12px",
+                                                    }}
+                                                >
                                                     <TextField
-                                                        placeholder="Buscar municipio"
-                                                        variant="outlined"
                                                         fullWidth
+                                                        variant="outlined"
+                                                        placeholder="Buscar"
                                                         value={municipalitySearch2}
                                                         onChange={handleMunicipalitySearchChange2}
+                                                        autoFocus
+                                                        onKeyDown={(e) => e.stopPropagation()} // Evita que el Select navegue al escribir
+                                                        sx={{
+                                                            backgroundColor: "#FFFFFF",
+                                                            borderRadius: "4px",
+                                                            height: "40px",
+                                                            "& .MuiOutlinedInput-root": {
+                                                                padding: "8px 12px",
+                                                                height: "40px",
+                                                                borderColor: municipalitySearch2 ? "#7B354D" : "#9B9295",
+                                                            },
+                                                            "& .MuiOutlinedInput-input": {
+                                                                fontSize: "16px",
+                                                                fontFamily: "Poppins, sans-serif",
+                                                                color: municipalitySearch2 ? "#7B354D" : "#9B9295",
+                                                                padding: "8px 12px",
+                                                                height: "100%",
+                                                            },
+                                                        }}
                                                         InputProps={{
                                                             startAdornment: (
                                                                 <InputAdornment position="start">
-                                                                    <SearchIcon />
+                                                                    <img
+                                                                        src={seachicon}
+                                                                        alt="Buscar"
+                                                                        style={{
+                                                                            width: "18px",
+                                                                            height: "18px",
+                                                                            filter: municipalitySearch2
+                                                                                ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)"
+                                                                                : "none",
+                                                                        }}
+                                                                    />
                                                                 </InputAdornment>
                                                             ),
+                                                            endAdornment: municipalitySearch2 ? (
+                                                                <InputAdornment position="end">
+                                                                    <img
+                                                                        src={iconclose}
+                                                                        alt="Limpiar búsqueda"
+                                                                        style={{
+                                                                            width: "16px",
+                                                                            height: "16px",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                        onClick={() => setMunicipalitySearch2("")} // Borra el texto al hacer clic
+                                                                    />
+                                                                </InputAdornment>
+                                                            ) : null,
                                                         }}
                                                     />
                                                 </Box>
-                                                {filteredMunicipalities2.map((municipality) => (
-                                                    <MenuItem key={municipality.name} value={municipality.name}>
-                                                        <Checkbox checked={selectedMunicipalities2.includes(municipality.name)} />
-                                                        <ListItemText primary={municipality.name} />
-                                                    </MenuItem>
-                                                ))}
+
+                                                {/* Lista de municipios con scroll */}
+                                                <Box
+                                                    sx={{
+                                                        maxHeight: "200px",
+                                                        overflowY: "auto",
+                                                        flexGrow: 1,
+                                                        "&::-webkit-scrollbar": {
+                                                            width: "5px",
+                                                        },
+                                                        "&::-webkit-scrollbar-thumb": {
+                                                            background: "#C6BFC2", // Color de la barra
+                                                            borderRadius: "4px", // Bordes redondeados
+                                                            minHeight: "50px",
+                                                        }
+                                                    }}
+                                                >
+                                                    {filteredMunicipalities2.map((municipality) => (
+                                                        <MenuItem
+                                                            key={municipality.name}
+                                                            value={municipality.name}
+                                                            onClick={() => handleMunicipalityToggle(municipality.name)}
+                                                        >
+                                                            <Checkbox
+                                                                checked={selectedMunicipalities2.includes(municipality.name)}
+                                                                onChange={() => handleMunicipalityToggle(municipality.name)}
+                                                            />
+                                                            <ListItemText
+                                                                primary={municipality.name}
+                                                                sx={{
+                                                                    textAlign: "left",
+                                                                    fontFamily: "Poppins, sans-serif",
+                                                                    fontSize: "16px",
+                                                                    lineHeight: "24px",
+                                                                    letterSpacing: "0px",
+                                                                    color: "#786E71",
+                                                                    opacity: 1,
+                                                                    margin: "0",
+                                                                }}
+                                                            />
+                                                        </MenuItem>
+                                                    ))}
+                                                </Box>
+
+                                                {/* Botones fijos en la parte inferior */}
                                                 <Box
                                                     p={1}
                                                     display="flex"
                                                     justifyContent="space-between"
                                                     sx={{
-                                                        borderTop: '1px solid #e0e0e0',
-                                                        backgroundColor: '#fff',
-                                                        position: 'sticky',
+                                                        borderTop: "1px solid #e0e0e0",
+                                                        backgroundColor: "#fff",
+                                                        position: "sticky",
                                                         bottom: 0,
                                                     }}
                                                 >
                                                     <Button
                                                         variant="outlined"
                                                         onClick={(e) => {
-                                                            e.stopPropagation(); // Evita que el botón cierre el menú
+                                                            e.stopPropagation();
                                                             handleClearMunicipalitySelection();
                                                         }}
-                                                        style={{ color: '#8d406d', borderColor: '#8d406d' }}
+                                                        sx={{
+                                                            width: '116px',
+                                                            height: '36px',
+                                                            color: "#833A53",
+                                                            borderColor: "#833A53",
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            fontSize: "14px",
+                                                            fontWeight: 600,
+                                                            textAlign: "center",
+                                                            letterSpacing: "1.12px",
+                                                            textTransform: "uppercase",
+                                                            lineHeight: "54px",
+                                                            opacity: 1,
+                                                            "&:hover": {
+                                                                background: "#F2E9EC 0% 0% no-repeat padding-box",
+                                                                border: "1px solid #BE93A066",
+                                                                borderRadius: "4px",
+                                                                opacity: 1,
+                                                            },
+                                                            "&:active": {
+                                                                background: "#E6C2CD 0% 0% no-repeat padding-box",
+                                                                border: "1px solid #BE93A0",
+                                                                borderRadius: "4px",
+                                                                opacity: 1,
+                                                            },
+                                                        }}
                                                     >
                                                         LIMPIAR
                                                     </Button>
                                                     <Button
                                                         variant="contained"
                                                         onClick={(e) => {
-                                                            e.stopPropagation(); // Evita que el botón cierre el menú
+                                                            e.stopPropagation();
                                                             handleApplyMunicipalitySelection();
                                                             handleApplyMunicipalityFilter();
                                                         }}
-                                                        style={{ backgroundColor: '#8d406d', color: '#fff' }}
-                                                    >
+                                                        sx={{
+                                                            width: '116px',
+                                                            height: '36px',
+                                                            color: "#fff",
+                                                            backgroundColor: "#8d406d",
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            fontSize: "14px",
+                                                            fontWeight: 600,
+                                                            textAlign: "center",
+                                                            letterSpacing: "1.12px",
+                                                            textTransform: "uppercase",
+                                                            lineHeight: "54px",
+                                                            opacity: 1,
+                                                            "&:hover": {
+                                                                background: "#90455F 0% 0% no-repeat padding-box",
+                                                                boxShadow: "0px 0px 12px #C17D91",
+                                                                border: "1px solid #60293C",
+                                                                opacity: 0.85,
+                                                            },
+                                                            "&:active": {
+                                                                background: "#6F1E3A 0% 0% no-repeat padding-box",
+                                                                border: "1px solid #8D4860",
+                                                                borderRadius: "4px",
+                                                                opacity: 0.9,
+                                                            },
+                                                        }}                                                    >
                                                         APLICAR
                                                     </Button>
                                                 </Box>
@@ -2528,42 +2853,62 @@ const MyNumbers: React.FC = () => {
                             </div>
 
                             {/* Buscador y Botón de Rentar Números */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <button onClick={handleOpenModal}
-                                    style={{
-                                        padding: '10px 20px', // Un poco más grande
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        backgroundColor: '#8d406d',
-                                        color: '#fff',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '5px',
-                                        fontSize: '1rem',
-                                        fontWeight: 'bold',
-                                    }}>
-                                    <span style={{ fontSize: '1.5rem', lineHeight: '1' }}>+</span> Rentar Números
-                                </button>
-                                <div style={{ position: 'relative', width: '250px' }}>
-                                    <SearchIcon style={{
-                                        position: 'absolute',
-                                        left: '10px',
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                        color: '#6a6a6a',
-                                    }} />
-                                    <input
-                                        type="text"
-                                        placeholder="Buscar"
-                                        style={{
-                                            width: '100%',
-                                            padding: '8px 12px 8px 32px', // Espacio para la lupa a la izquierda
-                                            border: '1px solid #dcdcdc',
-                                            borderRadius: '4px',
-                                            fontSize: '1rem',
+                            <div style={{ display: 'flex', textAlign: 'right', gap: '25px' }}>
+                                < MainButtonIcon text='Rentar Números' onClick={handleOpenModal} width='200px' />
+                                <div style={{ position: 'relative', width: '220px' }}>
+                                    <Box
+                                        display="flex"
+                                        alignItems="center"
+                                        sx={{
+                                            backgroundColor: "#FFFFFF",
+                                            border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295", // Cambia el color del borde si hay texto
+                                            borderRadius: "4px",
+                                            padding: "8px 12px",
+                                            width: "218px",
+                                            height: "40px",
+                                            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                                         }}
-                                    />
+                                    >
+                                        <img
+                                            src={seachicon}
+                                            alt="Buscar"
+                                            style={{
+                                                marginRight: "8px",
+                                                width: "18px",
+                                                height: "18px",
+                                                filter: searchTerm ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none", // Ajusta el color si hay texto
+                                            }}
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Buscar"
+                                            value={searchTerm} // Variable de estado para el valor del input
+                                            onChange={handleSearch} // Función que maneja el cambio en el input
+                                            style={{
+                                                border: "none", // Sin borde
+                                                outline: "none", // Sin borde al enfocar
+                                                width: "100%", // Ocupa todo el espacio restante
+                                                fontSize: "16px", // Tamaño de la fuente
+                                                fontFamily: "Poppins, sans-serif", // Fuente según especificación
+                                                color: searchTerm ? "#7B354D" : "#9B9295", // Cambia el color del texto si hay texto
+                                                backgroundColor: "transparent", // Fondo transparente para evitar interferencias
+                                            }}
+                                        />
+                                        {/* Ícono de cerrar cuando hay texto */}
+                                        {searchTerm && (
+                                            <img
+                                                src={iconclose}
+                                                alt="Limpiar búsqueda"
+                                                style={{
+                                                    marginLeft: "8px",
+                                                    width: "16px",
+                                                    height: "16px",
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={() => setSearchTerm('')} // Borra el texto al hacer clic
+                                            />
+                                        )}
+                                    </Box>
                                 </div>
                             </div>
                         </div>
@@ -2788,7 +3133,7 @@ const MyNumbers: React.FC = () => {
                                         </tr>
                                     ) : (
                                         <tr>
-                                            <th style={{ width: '50px', textAlign: 'left', padding: '10px 10px 10px 0px' }}>
+                                            <th style={{ width: '50px', textAlign: 'left', padding: '10px 10px 10px 0px', backgroundColor: '#FFFFFF', }}>
                                                 <Checkbox
                                                     checked={selectedRows.length === currentItems.length && currentItems.length > 0}
                                                     indeterminate={selectedRows.length > 0 && selectedRows.length < currentItems.length}
@@ -2797,6 +3142,7 @@ const MyNumbers: React.FC = () => {
                                             </th>
                                             <th
                                                 style={{
+                                                    width: '200px',
                                                     textAlign: 'left',
                                                     padding: '10px',
                                                     font: 'normal normal medium 13px/54px Poppins',
@@ -2811,6 +3157,7 @@ const MyNumbers: React.FC = () => {
                                             </th>
                                             <th
                                                 style={{
+                                                    width: '300px',
                                                     textAlign: 'left',
                                                     padding: '10px',
                                                     font: 'normal normal medium 13px/54px Poppins',
@@ -2825,6 +3172,7 @@ const MyNumbers: React.FC = () => {
                                             </th>
                                             <th
                                                 style={{
+                                                    width: '50px',
                                                     textAlign: 'left',
                                                     padding: '10px',
                                                     font: 'normal normal medium 13px/54px Poppins',
@@ -2839,7 +3187,8 @@ const MyNumbers: React.FC = () => {
                                             </th>
                                             <th
                                                 style={{
-                                                    textAlign: 'left',
+                                                    width: '200px',
+                                                    textAlign: 'right',
                                                     padding: '10px',
                                                     font: 'normal normal medium 13px/54px Poppins',
                                                     letterSpacing: '0px',
@@ -2853,8 +3202,9 @@ const MyNumbers: React.FC = () => {
                                             </th>
                                             <th
                                                 style={{
-                                                    textAlign: 'left',
-                                                    padding: '10px',
+                                                    width: '350px',
+                                                    textAlign: 'right',
+                                                    paddingRight: '70px',
                                                     borderRight: '1px solid #dcdcdc',
                                                     font: 'normal normal medium 13px/54px Poppins',
                                                     letterSpacing: '0px',
@@ -2866,9 +3216,12 @@ const MyNumbers: React.FC = () => {
                                             >
                                                 Fecha del próx. pago
                                             </th>
-
+                                            <th
+                                                style={{ width: '50px', backgroundColor: '#FFFFFF', }}>
+                                            </th>
                                         </tr>
                                     )}
+
                                 </thead>
                                 <tbody>
                                     {currentItems.map((number) => (
@@ -2882,8 +3235,17 @@ const MyNumbers: React.FC = () => {
                                             <td style={{ padding: '10px' }}>{number.number}</td>
                                             <td style={{ padding: '10px' }}>{number.type}</td>
                                             <td style={{ padding: '10px' }}>{number.service}</td>
-                                            <td style={{ padding: '10px' }}>${number.cost}</td>
-                                            <td style={{ padding: '10px', borderRight: '1px solid #dcdcdc' }}>{formatDate(number.nextPaymentDate)}</td>
+                                            <td style={{
+                                                width: '300px',
+                                                textAlign: 'right', padding: '10px'
+                                            }}>${number.cost}</td>
+                                            <td style={{
+                                                width: '350px',
+                                                textAlign: 'right',
+                                                paddingRight: '30px',
+                                                borderRight: '1px solid #dcdcdc'
+                                            }}
+                                            >{formatDate(number.nextPaymentDate)}</td>
                                             <td style={{ textAlign: 'center', padding: '10px' }}>
                                                 <IconButton
                                                     aria-label="more"
@@ -3455,26 +3817,59 @@ const MyNumbers: React.FC = () => {
                                 top: '50%',
                                 left: '50%',
                                 transform: 'translate(-50%, -50%)',
-                                width: 400,
+                                width: '544px',
+                                height: '273px',
                                 bgcolor: 'background.paper',
                                 border: '2px solid #dcdcdc',
                                 boxShadow: 24,
                                 p: 4,
                                 borderRadius: '8px',
                             }}
-                        >
-                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                                <Typography id="modal-ayuda-title" variant="h6" component="h2">
+                            >
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} marginTop='-25px'>
+                                <Typography
+                                    id="modal-ayuda-title"
+                                    variant="h6"
+                                    component="h2"
+                                    sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins, sans-serif",
+                                        fontSize: "20px",
+                                        fontWeight: 600,
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        lineHeight: "54px",
+                                    }}
+                                >
                                     Servicios adicionales
                                 </Typography>
                                 <CloseIcon
                                     onClick={handleModalAyudaClose}
-                                    style={{ cursor: 'pointer', color: '#8d406d' }}
+                                    style={{ cursor: 'pointer', color: 'gray' }}
                                 />
                             </Box>
-                            <Typography id="modal-ayuda-description" sx={{ mt: 2, mb: 4 }}>
+                            <Divider sx={{ backgroundColor: "#E0E0E0", margin: "12px 0" }} />
+
+                            <Typography
+                                id="modal-ayuda-description"
+                                sx={{
+                                    textAlign: "left",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "16px",
+                                    fontWeight: "500",
+                                    lineHeight: "22px",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    mt: 2,
+                                    mb: 4,
+                                }}
+                            >
                                 Si requiere un servicio adicional como compra de troncal, rotación automática o regionalizada de números por troncal entre otros, favor de llamar al ejecutivo de la cuenta.
                             </Typography>
+                            <Divider sx={{ backgroundColor: "#E0E0E0", margin: "12px 0" }} />
+
                             <Box display="flex" justifyContent="space-between">
                                 <Button
                                     variant="outlined"
@@ -3482,10 +3877,19 @@ const MyNumbers: React.FC = () => {
                                     sx={{
                                         borderColor: '#8d406d',
                                         color: '#8d406d',
-                                        '&:hover': {
-                                            backgroundColor: '#f8d7da',
-                                            borderColor: '#8d406d',
+                                        "&:hover": {
+                                            background: "#F2E9EC 0% 0% no-repeat padding-box",
+                                            border: "1px solid #BE93A066",
+                                            borderRadius: "4px",
+                                            opacity: 1,
                                         },
+                                        "&:active": {
+                                            background: "#E6C2CD 0% 0% no-repeat padding-box",
+                                            border: "1px solid #BE93A0",
+                                            borderRadius: "4px",
+                                            opacity: 1,
+                                        },
+
                                     }}
                                 >
                                     CANCELAR
@@ -3494,14 +3898,23 @@ const MyNumbers: React.FC = () => {
                                     variant="contained"
                                     sx={{
                                         backgroundColor: '#8d406d',
-                                        '&:hover': {
-                                            backgroundColor: '#732d57',
+                                        "&:hover": {
+                                            background: "#90455F 0% 0% no-repeat padding-box",
+                                            boxShadow: "0px 0px 12px #C17D91",
+                                            border: "1px solid #60293C",
+                                            opacity: 0.85,
+                                        },
+                                        "&:active": {
+                                            background: "#6F1E3A 0% 0% no-repeat padding-box",
+                                            border: "1px solid #8D4860",
+                                            borderRadius: "4px",
+                                            opacity: 0.9,
                                         },
                                     }}
                                     onClick={handleNavigateToHelp}
                                 >
                                     <img src={HelpIco} alt="Ayuda" style={{ width: '20px', height: '20px' }} />
-                                    ¿AYUDA?
+                                    AYUDA
                                 </Button>
                             </Box>
                         </Box>

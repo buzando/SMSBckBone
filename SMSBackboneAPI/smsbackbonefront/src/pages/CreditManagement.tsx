@@ -92,7 +92,7 @@ const CreditManagement: React.FC = () => {
 
     useEffect(() => {
         GetCredits();
-        setshowChipBarAdd(true);
+        setOpenErrorModal(true);
     }, []);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, room: Rooms) => {
@@ -224,7 +224,7 @@ const CreditManagement: React.FC = () => {
 
     return (
         <Box p={4}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
+            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2, fontFamily: "Poppins, sans-serif", }}>
                 Gestión de Créditos
             </Typography>
             <Divider sx={{ mb: 3 }} />
@@ -380,7 +380,7 @@ const CreditManagement: React.FC = () => {
                                                     variant="h6"
                                                     sx={{
                                                         textAlign: 'left',
-                                                        font: 'normal normal medium 16px/54px Poppins',
+                                                        fontFamily: "Poppins, sans-serif",
                                                         letterSpacing: '0px',
                                                         color: '#574B4F',
                                                         opacity: 1,
@@ -396,7 +396,7 @@ const CreditManagement: React.FC = () => {
                                                     variant="body2"
                                                     sx={{
                                                         textAlign: 'left',
-                                                        font: 'italic normal normal 14px/18px Poppins',
+                                                        fontFamily: "Poppins, sans-serif",
                                                         letterSpacing: '0px',
                                                         color: '#574B4F',
                                                         opacity: 1,
@@ -416,7 +416,7 @@ const CreditManagement: React.FC = () => {
                                                     variant="body2"
                                                     sx={{
                                                         textAlign: 'right',
-                                                        font: 'normal normal medium 12px/54px Poppins',
+                                                        fontFamily: "Poppins, sans-serif",
                                                         letterSpacing: '0px',
                                                         color: '#8D4B62',
                                                         opacity: 1,
@@ -429,7 +429,7 @@ const CreditManagement: React.FC = () => {
                                                     variant="body2"
                                                     sx={{
                                                         textAlign: 'right',
-                                                        font: 'normal normal medium 12px/54px Poppins',
+                                                        fontFamily: "Poppins, sans-serif",
                                                         letterSpacing: '0px',
                                                         color: '#8D4B62',
                                                         opacity: 1,
