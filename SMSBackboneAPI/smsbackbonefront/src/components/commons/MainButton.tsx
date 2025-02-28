@@ -14,7 +14,7 @@ const MainButton: React.FC<MainButtonProps> = ({ text, onClick, isLoading = fals
         <button
             className={`main-button ${disabled ? 'disabled' : ''}`}
             onClick={onClick}
-            disabled={disabled || isLoading}
+            disabled={disabled}
         >
             {isLoading ? <CircularProgress size={20} style={{ color: '#FFFFFF' }} /> : text.toUpperCase()}
         </button>
