@@ -14,6 +14,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import CircularProgress from '@mui/material/CircularProgress';
+import ButtonLoadingSubmit from '../components/commons/MainButton';
 import axios from "axios";
 import "../chooseroom.css"
 
@@ -43,12 +44,12 @@ const Autentification: React.FC = () => {
             if (!usuario) return;
 
             const obj = JSON.parse(usuario);
-            if (obj.rol === 'Root' || obj.rol === 'Telco') {
+            /*if (obj.rol === 'Root' || obj.rol === 'Telco') {
                 navigate('/');
             }
             if (obj.twoFactorAuthentication) {
                   navigate('/chooseroom');
-            }
+            }*/
 
             if (obj.lockoutEnabled) {
                 const lockoutEnd = new Date(obj.lockoutEndDateUtc);
@@ -289,6 +290,7 @@ const Autentification: React.FC = () => {
                 <Box
                     sx={{
                         border: "1px solid #ccc",
+                        backgroundColor: "#FFFFFF",
                         borderRadius: "8px",
                         padding: "30px",
                         maxWidth: "550px",
@@ -340,16 +342,20 @@ const Autentification: React.FC = () => {
                                 control={
                                     <Radio
                                         sx={{
+                                            fontFamily: "Poppins",
                                             color: "#833A53",
                                             "&.Mui-checked": {
-                                                color: "#833A53",
+                                            color: "#833A53",
+                                            
                                             },
                                         }}
                                     />
                                 }
+                                
                                 label="SMS"
                                 sx={{
                                     textAlign: "left",
+                                    
                                 }}
                             />
                             <FormControlLabel
@@ -357,6 +363,7 @@ const Autentification: React.FC = () => {
                                 control={
                                     <Radio
                                         sx={{
+                                            fontFamily: "Poppins",
                                             color: "#833A53",
                                             "&.Mui-checked": {
                                                 color: "#833A53",
@@ -371,43 +378,21 @@ const Autentification: React.FC = () => {
                             />
                         </RadioGroup>
 
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            disabled={loading}
-                            onClick={handleSubmit}
-                            sx={{
-                                textAlign: "center",
-                                font: "normal normal 600 14px/54px Poppins",
-                                letterSpacing: "1.12px",
-                                color: "#FFFFFF",
-                                textTransform: "uppercase",
-                                opacity: 1,
-                                backgroundColor: "#833A53",
-                                padding: "0 20px",
-                                position: "relative", // Para posicionar el spinner
-                                height: "40px", // Altura del botón
-                                "&:hover": {
-                                    backgroundColor: "#732d57",
-                                },
-                            }}
-                        >
-                            {loading ? (
-                                <CircularProgress
-                                    size={24}
-                                    sx={{
-                                        color: "#FFFFFF",
-                                        position: "absolute",
-                                        top: "50%",
-                                        left: "50%",
-                                        marginTop: "-12px",
-                                        marginLeft: "-12px",
-                                    }}
-                                />
-                            ) : (
-                                "Aceptar"
-                            )}
-                        </Button>
+
+
+                        <ButtonLoadingSubmit
+                        text='Aceptar'
+                        isLoading={loading}
+                        disabled={loading || SendType === ""}
+                        onClick={handleSubmit}
+                        
+
+
+                        
+                        />
+
+                        
+
 
                     </Box>
                 </Box>
@@ -417,7 +402,7 @@ const Autentification: React.FC = () => {
                             border: "1px solid #ccc",
                             borderRadius: "8px",
                             padding: "20px",
-                            maxWidth: "505px",
+                            maxWidth: "504px",
                             maxHeight: "328px",
                             width: "90%",
                             textAlign: "center",
@@ -430,7 +415,7 @@ const Autentification: React.FC = () => {
                                 borderBottom: "1px solid #ddd",
                                 paddingBottom: "8px",
                                 marginBottom: "8px",
-
+                                
                             }}
                     >
                             <Typography variant="body2" sx={{
@@ -438,6 +423,7 @@ const Autentification: React.FC = () => {
                                 font: "normal normal 600 16px/20px Poppins",
                                 letterSpacing: "0px",
                                 opacity: 1,
+                                marginBottom: "16px",
                             }}>
                             ¿El código no fue recibido o caduco?{" "}
                             <Link
@@ -448,6 +434,10 @@ const Autentification: React.FC = () => {
                                         fontWeight: "bold",
                                         cursor: isResendDisabled ? "not-allowed" : "pointer", // Cambia el cursor si está bloqueado
                                         color: isResendDisabled ? "#ccc" : "#8F4D63", // Cambia el color si está bloqueado
+                                        textTransform: "none",
+                                        "&:hover": {
+                                        backgroundColor: "transparent", // Evita que cambie de color al hacer hover
+                                        },
                                     }}
                             >
                                     {isResendDisabled ? "Espere un minuto para otro Reenvio" : "Reenviar"}
@@ -460,10 +450,9 @@ const Autentification: React.FC = () => {
                     {/* Parte 2: Cajas de texto y contador */}
                     <Box
                         sx={{
-                            borderBottom: "1px solid #ddd",
-                            paddingBottom: "5px",
+                            paddingBottom: "15px",
                             marginBottom: "5px",
-                            marginTop: "5px",
+                            marginTop: "-15px",
                         }}
                         >
                             <Typography sx={{
@@ -473,7 +462,8 @@ const Autentification: React.FC = () => {
                                 fontWeight: "bold",
                                 marginTop: "0px", // Sin margen superior
                                 marginBottom: "0px", // Sin margen inferior
-                            }}>
+                            }}
+                            >
                                 <span
                                     style={{
                                         textAlign: "left",
@@ -519,19 +509,22 @@ const Autentification: React.FC = () => {
                                     fontSize: "16px", // Font size
                                     lineHeight: "54px",
                                     letterSpacing: "0px",
-                                    color: "#330F1B",
+                                    color: isCodeValid ? "black" : "#D01247",
                                     opacity: 1,
-                                    marginTop: "5px"
+                                    marginTop: "-18px",
+                                    
                                 }}
                             >
                                 Código
                             </Typography>
                         <Box
+                            //Contenedores para el Código
                             sx={{
                                 display: "flex",
-                                justifyContent: "space-between",
-                                    marginTop: "5px",
-                                    gap: "15px",
+                                justifyContent: "space-between 10px",
+                                    marginTop: "1px",
+                                    margin: "0 -4px",
+                                    gap: "10px",
                             }}
                         >
                                 {authCode.map((digit, index) => (
@@ -543,18 +536,25 @@ const Autentification: React.FC = () => {
                                         inputRef={(el) => (inputRefs.current[index] = el)}
                                         inputProps={{
                                             maxLength: 1,
-                                            style: { textAlign: "center" },
+                                            style: { 
+                                                textAlign: "center", 
+                                                fontFamily: "Poppins", 
+                                                fontSize: "26px",
+                                                marginTop: "-8px"
+                                                },
+                                            
                                         }}
                                         error={!isCodeValid}
                                         sx={{
-                                            width: "65px",
-                                            height: "65px",
+                                            width: "54px",
+                                            height: "56px",
                                             margin: "0 3px",
-                                            border: greencode ? "1px solid #28A745" : "1px solid #9B9295",
+                                            marginTop: "-5px",
+                                            border: `2px solid ${greencode ? "#28A745" : isCodeValid ? "#9B9295" : "#D01247"}`, // Verde si es correcto, rojo si es incorrecto
                                             borderRadius: "6px",
                                             opacity: 1,
                                             "& .MuiOutlinedInput-notchedOutline": {
-                                                border: "none", // Elimina el borde predeterminado del componente
+                                                border: "none",
                                             },
                                         }}
                                     />
@@ -564,18 +564,22 @@ const Autentification: React.FC = () => {
                                 <Typography
                                     variant="body2"
                                     sx={{
-                                        color: codeExpired ? "red" : "inherit",
-                                        marginTop: "40px",
+                                        margin: "5px",
+                                        color: codeExpired ? "black" : "#D01247",
+                                        marginBottom: "-4px",
+                                        marginTop: "5px",
+                                        textAlign: "left",
+                                        width: "100%",
                                     }}
                                 >
-                                    "Código Inválido"
+                                    Código Inválido
                                 </Typography>
                             )}
                             {codeExpired && (
                                 <Typography
                                     variant="body2"
                                     sx={{
-                                        color: "red",
+                                        color: "#D01247",
                                         fontSize: "14px",
                                         marginTop: "40px",
                                     }}
@@ -584,13 +588,18 @@ const Autentification: React.FC = () => {
                                 </Typography>
                             )}
                     </Box>
+                        <hr style={{ width: '500px', border: '1px solid #ccc', 
+                                    margin: '10px 0', backgroundColor: "#C6BFC2", 
+                                    marginLeft: "-19px"}} />
                     {/* Parte 3: Botones */}
-                    <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "30px" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between",
+                             marginTop: "6px" }}>
                             <Button variant="outlined" onClick={Return} sx={{
                                 color: "#833A53",
                                 border: "1px solid #CCCFD2",
                                 borderRadius: "4px",
                                 opacity: 1,
+                                
                             }}>
                             Regresar
                         </Button>
@@ -601,12 +610,13 @@ const Autentification: React.FC = () => {
                                 disabled={authCode.some((digit) => digit === "") || codeExpired} // Desactiva si faltan dígitos o expiró el tiempo
                                 sx={{
                                     background: "#833A53 0% 0% no-repeat padding-box",
-                                    border: "1px solid #60293C",
+                                    border: "1px solid #D0CDCD",
                                     borderRadius: "4px",
                                     opacity: 0.9,
                                     color: "#FFFFFF",
                                     "&:hover": {
                                         backgroundColor: "#60293C",
+                                        
                                     },
                                 }}
                             >
@@ -624,38 +634,60 @@ const Autentification: React.FC = () => {
                                 border: "1px solid #ccc",
                                 borderRadius: "8px",
                                 padding: "20px",
-                                maxWidth: "500px",
+                                maxWidth: "610px",
                                 textAlign: "center",
                                 marginTop: "20px",
                             }}
-                        >
-                            <Typography variant="h6" gutterBottom>
-                                Se ha llegado al límite de envíos de códigos
-                            </Typography>
-                            <Typography variant="body1" gutterBottom>
-                                El ingreso a la cuenta quedará bloqueado por:
-                            </Typography>
-                            <Typography
-                                variant="h5"
-                                sx={{
-                                    color: "#f44336", // Rojo
-                                    fontWeight: "bold",
-                                    marginTop: "10px",
-                                }}
                             >
+
+                            <Typography
+                                    variant="h6"
+                                    gutterBottom
+                                sx={{
+                                    fontFamily: "Poppins",
+                                    margin: "5px",
+                                    marginBottom: "5px",
+                                    marginTop: "5px",
+                                    textAlign: "left",
+                                    width: "100%",
+                                    }}
+                                    >
+                                        Se ha llegado al límite de envíos de código, 
+                                        el ingreso a la cuenta quedará bloqueado por :    
+
+                                <Box component="span" sx={{ color: "#f44336", fontWeight: "bold", marginRight: "5px" }}>
                                 <Countdown
                                     date={lockoutEndTime || new Date()}
                                     renderer={({ hours, minutes, seconds, completed }) =>
-                                        completed ? (
-                                            <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
-                                        ) : (
-                                            <span>
-                                                {hours}h {minutes}m {seconds}s
-                                            </span>
-                                        )
-                                    }
-                                />
+                                    completed ? (
+                                    <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
+                                    ) : (
+                                    <span>
+                                    0{hours}:{minutes}:{seconds}
+                                    </span>
+                                    )}
+                                    />
+                                </Box>    
+                                    minutos.
                             </Typography>
+                            
+                            <Typography
+                                    variant="h6"
+                                    gutterBottom
+                                sx={{
+                                    fontFamily: "Poppins",
+                                    margin: "5px",
+                                    marginBottom: "5px",
+                                    marginTop: "5px",
+                                    textAlign: "left",
+                                    width: "100%",
+                                    }}
+                                    >
+                                        Inténtelo más tarde  
+                            </Typography>
+
+
+
                         </Box>
 
             ) : null}
@@ -668,7 +700,7 @@ const Autentification: React.FC = () => {
                 aria-describedby="error-dialog-description"
             >
                 <DialogTitle id="error-dialog-title">
-                    {"Error al enviar el número de identificación"}
+                    {"Error al enviar el código de verificación"}
                 </DialogTitle>
                 <DialogContent>
                     <Typography id="error-dialog-description">

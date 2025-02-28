@@ -7,7 +7,7 @@ import Paper from '@mui/material/Paper';
 import { AppContext } from '../hooks/useContextInitialState';
 import axios, { AxiosError } from 'axios';
 import { useNavigate, Link as LinkDom } from 'react-router-dom';
-import ButtonLoadingSubmit from '../components/commons/ButtonLoadingSubmit';
+import ButtonLoadingSubmit from '../components/commons/MainButton';
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
@@ -20,7 +20,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import "../Logincss.css";
 import InputAdornment from "@mui/material/InputAdornment";
-import InfoIcon from '@mui/icons-material/Info';
+import infoicon from '../assets/Icon-info.svg'
+import infoiconerror from '../assets/Icon-infoerror.svg'
 
 type errorObj = {
     code: string;
@@ -40,10 +41,13 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [emailErr, setEmailErr] = useState(true);
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [messageAlert, setMessageAlert] = useState('Ocurrio un error');
     const [openAlert, setOpenAlert] = useState(false);
     const [spinner, setSpinner] = useState(false);
+    const [disabled, setdisabled] = useState(false);
+    const [passwordErr, setPasswordErr] = useState(true);
+
 
     const [UnconfirmedEmail, setUnconfirmedEmail] = useState<UnconfirmeEmail>({
         sending: false,
@@ -74,16 +78,30 @@ const Login: React.FC = () => {
         setEmail(value);
 
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
         const isValidEmail = emailRegex.test(value);
 
         // Actualizar el estado de error dependiendo de si es válido o no
-        setEmailErr(isValidEmail); // Si no es válido, se pone el error a true
-        if (isValidEmail) {
+        setEmailErr(isValidEmail); 
 
+        // Deshabilitar el botón si el email no es válido
+        setdisabled(!(isValidEmail && passwordErr));
+    
+        if (isValidEmail) {
             setLoading(false);
         }
     };
+
+    const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setPassword(value);
+    
+        const isValidPassword = value.length >= 8;
+        setPasswordErr(isValidPassword);
+    
+        // Deshabilitar el botón si email o contraseña son inválidos
+        setdisabled(!(isValidPassword && emailErr));
+    };
+    
 
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -285,27 +303,28 @@ const Login: React.FC = () => {
                                 <Box>
                                     <Typography
                                         sx={{
+                                            marginTop: '20px',
                                             textAlign: 'left', // Alineación a la izquierda
                                             fontFamily: 'Poppins', // Fuente personalizada
                                             fontWeight: '500', // Peso medium
                                             fontSize: '16px', // Tamaño de fuente
-                                            lineHeight: '54px', // Altura de línea
+                                            lineHeight: '20px', // Altura de línea
                                             letterSpacing: '0px', // Sin espaciado adicional
-                                            color: '#330F1B', // Color del texto
+                                            color: !emailErr ? "red" : "black", // Color del texto
                                             opacity: 1, // Opacidad
                                         }}
                                     >
                                         Correo electrónico
                                     </Typography>
                                     <TextField
-                                        label="Correo electrónico"
+                                        
                                         value={email}
                                         onChange={handleInputChange}
                                         variant="outlined"
                                         fullWidth
                                         margin="dense"
                                         error={!emailErr}
-                                        helperText={!emailErr ? "Por favor, ingrese un correo válido" : ""}
+                                        helperText={!emailErr ? "Ingresa un correo electrónico válido" : ""}
                                         InputProps={{
                                             sx: {
                                                 "& input": {
@@ -320,16 +339,15 @@ const Login: React.FC = () => {
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <Tooltip title="Ingrese un correo válido" arrow>
-                                                        <IconButton>
-                                                            <InfoIcon sx={{ color: '#b3b3b3' }} />
-                                                        </IconButton>
+                                                    <IconButton>
+                                                        <img src={!emailErr ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
+                                                    </IconButton>
                                                     </Tooltip>
                                                 </InputAdornment>
                                             ),
                                         }}
                                         required
                                     />
-
 
 
                                 </Box>
@@ -341,33 +359,31 @@ const Login: React.FC = () => {
                                             fontFamily: 'Poppins',
                                             fontWeight: '500',
                                             fontSize: '16px',
-                                            lineHeight: '54px',
+                                            lineHeight: '20px',
                                             letterSpacing: '0px',
-                                            color: '#330F1B',
+                                            color: !passwordErr ? "red" : "#330F1B", // Cambia a rojo si hay error
                                             opacity: 1,
                                         }}
                                     >
                                         Contraseña
                                     </Typography>
                                     <TextField
-                                        label="Contraseña"
-                                        type={showPassword ? "text" : "password"} // Cambia entre texto y contraseña
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        variant="outlined"
-                                        fullWidth
-                                        margin="normal"
-                                        
-                                    />
-
-
-
+                                            type={showPassword ? "text" : "password"}
+                                            value={password}
+                                            onChange={handlePasswordChange}
+                                            variant="outlined"
+                                            fullWidth
+                                            margin="normal"
+                                            error={!passwordErr} // Muestra error en el campo
+                                            helperText={!passwordErr ? "Ingresa una contraseña válida" : ""} // Mensaje de error
+                                />
                                 </Box>
 
                                 <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={2}>
-                                    <ButtonLoadingSubmit
-                                        label="Ingresar"
-                                        loading={loading}
+                                <ButtonLoadingSubmit
+                                    text="Ingresar"
+                                    isLoading={loading}
+                                    disabled={disabled} // Depende de emailErr y passwordErr
                                     />
                                     <Link
                                         component={LinkDom}
@@ -379,6 +395,7 @@ const Login: React.FC = () => {
                                             font: 'normal normal 600 14px/54px Poppins',
                                             letterSpacing: '0px',
                                             color: '#8F4D63',
+                                            
                                             opacity: 1,
                                         }}
                                     >

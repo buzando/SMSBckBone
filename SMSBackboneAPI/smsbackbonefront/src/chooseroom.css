@@ -4,13 +4,13 @@ body {
     background-color: #FFFFFF; 
 }
 
-/* Estilo para el botón de búsqueda */
+/* Estilo para el botï¿½n de bï¿½squeda */
 .search-button {
-    text-align: left; /* Alineación del texto a la izquierda */
-    font-family: 'Poppins', sans-serif; /* Familia tipográfica Poppins */
+    text-align: left; /* Alineaciï¿½n del texto a la izquierda */
+    font-family: 'Poppins', sans-serif; /* Familia tipogrï¿½fica Poppins */
     font-weight: normal; /* Peso de la fuente */
-    font-size: 16px; /* Tamaño de la fuente */
-    line-height: 25px; /* Altura de línea */
+    font-size: 16px; /* Tamaï¿½o de la fuente */
+    line-height: 25px; /* Altura de lï¿½nea */
     letter-spacing: 0; /* Espaciado entre letras */
     color: #9B9295; /* Color del texto */
     opacity: 1; /* Opacidad */
@@ -18,7 +18,7 @@ body {
 
 /* Estilo para las cajas de "rooms" */
 .room-box {
-    background: #FFFFFF 0% 0% no-repeat padding-box; /* Fondo blanco con propiedades de repetición */
+    background: #FFFFFF 0% 0% no-repeat padding-box; /* Fondo blanco con propiedades de repeticiï¿½n */
     box-shadow: 0px 4px 4px #E1E4E6; /* Sombra sutil */
     border: 1px solid #CED2D54D; /* Borde con un color ligeramente gris */
     border-radius: 4px; /* Bordes redondeados */
@@ -26,33 +26,33 @@ body {
     padding: 20px; /* Relleno interno */
     box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
     width: 100%;
-    max-width: 300px; /* Tamaño máximo para hacerlo más pequeño */
+    max-width: 300px; /* Tamaï¿½o mï¿½ximo para hacerlo mï¿½s pequeï¿½o */
     margin-bottom: 16px; /* Espaciado entre las cajas */
 }
 
     /* Mejorar la apariencia de la caja de "rooms" */
     .room-box .room-name {
-        font-size: 18px; /* Tamaño de la fuente del nombre de la sala */
+        font-size: 18px; /* Tamaï¿½o de la fuente del nombre de la sala */
         font-weight: bold; /* Resaltar el nombre de la sala */
         color: #330F1B; /* Color del texto */
         margin-bottom: 10px; /* Espaciado debajo del nombre */
     }
 
     .room-box .room-details {
-        font-size: 14px; /* Tamaño de la fuente para los detalles */
+        font-size: 14px; /* Tamaï¿½o de la fuente para los detalles */
         color: #9B9295; /* Color gris para los detalles */
         margin-bottom: 12px; /* Espaciado debajo de los detalles */
     }
 
-    /* Estilo del botón para seleccionar la sala */
+    /* Estilo del botï¿½n para seleccionar la sala */
     .room-box .select-button {
-        background-color: #646cff; /* Color de fondo del botón */
-        color: white; /* Color del texto del botón */
-        padding: 8px 16px; /* Relleno del botón */
+        background-color: #646cff; /* Color de fondo del botï¿½n */
+        color: white; /* Color del texto del botï¿½n */
+        padding: 8px 16px; /* Relleno del botï¿½n */
         border: none; /* Sin borde */
         border-radius: 4px; /* Bordes redondeados */
         cursor: pointer; /* Cambio de cursor para mostrar que es clickeable */
-        font-size: 14px; /* Tamaño de la fuente */
+        font-size: 14px; /* Tamaï¿½o de la fuente */
     }
 
         .room-box .select-button:hover {
@@ -75,7 +75,7 @@ body {
 }
 
 
-/* Campo de búsqueda */
+/* Campo de bï¿½squeda */
 .search-container {
     display: flex;
     align-items: center;
@@ -133,7 +133,7 @@ body {
         box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
     }
 
-/* Información de la sala */
+/* Informaciï¿½n de la sala */
 .room-info {
     display: flex;
     align-items: center;
@@ -174,7 +174,7 @@ body {
         display: block;
     }
 
-/* Botón seleccionar o flecha */
+/* Botï¿½n seleccionar o flecha */
 .room-action {
     color: #A77A91;
     font-size: 18px;
@@ -184,28 +184,28 @@ body {
 
 .floating-button {
     position: fixed;
-    bottom: 10px; /* Asegura que esté al fondo */
-    left: 360px; /* Asegura que esté a la derecha */
+    bottom: 10px; /* Asegura que estï¿½ al fondo */
+    left: 360px; /* Asegura que estï¿½ a la derecha */
     background-color: #000; /* Fondo negro */
     color: #FFF; /* Texto blanco */
     border: none; /* Sin bordes */
-    border-radius: 50%; /* Hace que el botón sea circular */
-    width: 60px; /* Ancho del botón */
-    height: 60px; /* Altura del botón */
+    border-radius: 50%; /* Hace que el botï¿½n sea circular */
+    width: 60px; /* Ancho del botï¿½n */
+    height: 60px; /* Altura del botï¿½n */
     display: flex;
     align-items: center; /* Centra el contenido verticalmente */
     justify-content: center; /* Centra el contenido horizontalmente */
-    font-size: 24px; /* Tamaño del signo de interrogación */
+    font-size: 24px; /* Tamaï¿½o del signo de interrogaciï¿½n */
     font-weight: bold; /* Grosor del signo */
-    cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Sombra del botón */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el botï¿½n */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Sombra del botï¿½n */
     transition: transform 0.2s ease-in-out; /* Suaviza el efecto de zoom */
-    z-index: 9999; /* Asegura que esté por encima de otros elementos */
+    z-index: 9999; /* Asegura que estï¿½ por encima de otros elementos */
 }
 
     .floating-button:hover {
-        background-color: #330F1B; /* Fondo oscuro al pasar el ratón */
-        color: #FFFFFF; /* Icono blanco al pasar el ratón */
+        background-color: #330F1B; /* Fondo oscuro al pasar el ratï¿½n */
+        color: #FFFFFF; /* Icono blanco al pasar el ratï¿½n */
         transform: scale(1.1); /* Efecto de zoom */
     }
 
@@ -227,10 +227,10 @@ body {
 }
 
 .custom-checkbox svg {
-    fill: white; /* Color del check cuando está marcado */
+    fill: white; /* Color del check cuando estï¿½ marcado */
 }
 .icon-container {
-    width: 50px; /* Reducimos el tamaño del círculo */
+    width: 50px; /* Reducimos el tamaï¿½o del cï¿½rculo */
     height: 50px;
     background-color: #6E6E6E; /* Fondo gris */
     border-radius: 50%; /* Mantiene el contenedor circular */
@@ -240,8 +240,8 @@ body {
 }
 
     .icon-container svg {
-        color: #FFFFFF; /* Color blanco para el ícono */
-        font-size: 28px; /* Ajustamos el tamaño del ícono para que sea proporcional */
+        color: #FFFFFF; /* Color blanco para el ï¿½cono */
+        font-size: 28px; /* Ajustamos el tamaï¿½o del ï¿½cono para que sea proporcional */
     }
 
 .repeat-box {

@@ -67,6 +67,17 @@ const AutentificationLayout: React.FC<Props> = (props) => {
 
     return (
         <>
+
+<Box
+    sx={{
+        backgroundColor: "#F2F2F2", // Fondo gris
+        minHeight: "100vh", // Asegura que cubra toda la pantalla
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+    }}
+>
+        
             <CssBaseline />
             {/* Barra superior */}
             <AppBar position="fixed" sx={{ borderBottom: 1, borderColor: "primary.main" }}>
@@ -120,10 +131,10 @@ const AutentificationLayout: React.FC<Props> = (props) => {
             </AppBar>
 
             {/* Contenedor principal */}
-            <Container fixed maxWidth="xl" sx={{ marginTop: "4.5rem", marginBottom: "8rem" }}>
+            <Container fixed maxWidth={false} sx={{ marginTop: "4.5rem", marginBottom: "8rem", backgroundColor: "#F2F2F2" }}>
                 {props.children}
             </Container>
-
+</Box>
             {/* Pie de página */}
             <footer>
                 <Box
@@ -228,7 +239,7 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                         id="modal-title"
                         sx={{
                             textAlign: "left",
-                            font: "normal normal medium 26px/55px Poppins",
+                            fontFamily: "Poppins",
                             letterSpacing: "0px",
                             color: "#330F1B",
                             opacity: 1,
@@ -253,12 +264,13 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                         id="modal-description"
                         sx={{
                             textAlign: "left",
-                            font: "normal normal medium 18px/22px Poppins",
+                            fontFamily: "Poppins",
                             letterSpacing: "0px",
                             color: "#330F1B",
                             opacity: 1,
                             fontSize: "18px", // Tamaño ajustado a 18px
-                            marginBottom: "10px",
+                            marginBottom: "20px",
+                            marginTop: "20px",
                         }}
                     >
                         Por favor, contáctenos:
@@ -269,8 +281,10 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                         <Box>
                             <Typography
                                 sx={{
-                                    font: "normal normal medium 16px/54px Poppins",
-                                    color: "#574B4F",
+                                    fontFamily: "Poppins",
+                                    color: "#330F1B",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                     mb: 0.5, // Reducir margen inferior
                                 }}
                             >
@@ -280,6 +294,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                                 sx={{
                                     font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                     mb: 0.5, // Reducir margen entre elementos
                                 }}
                             >
@@ -289,6 +305,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                                 sx={{
                                     font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                 }}
                             >
                                 Teléfono: 55 1107 8510 Opción 3
@@ -299,8 +317,10 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                         <Box>
                             <Typography
                                 sx={{
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                     mb: 0.5, // Reducir margen inferior
                                 }}
                             >
@@ -310,6 +330,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                                 sx={{
                                     font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                     mb: 0.5, // Reducir margen entre elementos
                                 }}
                             >
@@ -319,6 +341,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                                 sx={{
                                     font: "normal normal normal 14px/20px Poppins",
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                 }}
                             >
                                 Teléfono: 55 5437 6175
@@ -340,6 +364,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                                 sx={{
                                     font: "normal normal normal 14px/20px Poppins",
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                     mb: 0.5,
                                 }}
                             >
@@ -349,6 +375,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                                 sx={{
                                     font: "normal normal normal 14px/20px Poppins",
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                     mb: 0.5,
                                 }}
                             >
@@ -358,6 +386,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                                 sx={{
                                     font: "normal normal normal 14px/20px Poppins",
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                 }}
                             >
                                 Teléfono: 55 1107 8510 Opción 3
@@ -367,8 +397,10 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                         <Box>
                             <Typography
                                 sx={{
-                                    font: "normal normal normal 14px/20px Poppins",
+                                    fontFamily: "Poppins",
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                     mb: 0.5,
                                 }}
                             >
@@ -378,6 +410,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                                 sx={{
                                     font: "normal normal normal 14px/20px Poppins",
                                     color: "#574B4F",
+                                    marginBottom: "10px",
+                                    marginTop: "10px",
                                 }}
                             >
                                 Teléfono: 55 5437 6175
@@ -398,6 +432,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                             sx={{
                                 font: "normal normal normal 14px/20px Poppins",
                                 color: "#574B4F",
+                                marginBottom: "10px",
+                                marginTop: "10px",
                                 mb: 0.5,
                             }}
                         >
@@ -407,6 +443,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                             sx={{
                                 font: "normal normal normal 14px/20px Poppins",
                                 color: "#574B4F",
+                                marginBottom: "10px",
+                                    marginTop: "10px",
                                 mb: 0.5,
                             }}
                         >
@@ -416,6 +454,8 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                             sx={{
                                 font: "normal normal normal 14px/20px Poppins",
                                 color: "#574B4F",
+                                marginBottom: "10px",
+                                marginTop: "10px",
                             }}
                         >
                             Teléfono: 55 1107 8510 Opción 3
@@ -431,8 +471,10 @@ const AutentificationLayout: React.FC<Props> = (props) => {
 
                     <Typography
                         sx={{
-                            font: "normal normal medium 16px/54px Poppins",
+                            fontFamily: "Poppins",
                             color: "#574B4F",
+                            marginBottom: "10px",
+                            marginTop: "10px",
                             mb: 1,
                         }}
                     >
@@ -447,6 +489,7 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                             sx={{
                                 font: "normal normal medium 26px/55px Poppins",
                                 backgroundColor: "#833A53",
+                                marginTop: "-35px",
                                 color: "#FFFFFF",
                                 borderRadius: "8px",
                                 padding: "6px 16px",

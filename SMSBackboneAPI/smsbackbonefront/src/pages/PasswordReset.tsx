@@ -503,13 +503,14 @@ const TermsAndConditions: React.FC = () => {
                                 </Typography>
                                 <Box
                                     sx={{
-                                        marginTop: "20px", // Espaciado adicional para bajar el Typography y el input
+                                        marginTop: "12px", // Espaciado adicional para bajar el Typography y el input
                                     }}
                                 >
                                 <Typography
                                     sx={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        font: "normal normal medium 16px/54px",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#330F1B",
                                         opacity: 1,
@@ -552,6 +553,8 @@ const TermsAndConditions: React.FC = () => {
                                         borderTop: "1px solid #DADADA", // Línea gris claro
                                         marginTop: "32px", // Mayor separación del contenido superior
                                         paddingTop: "8px", // Menor separación con los botones
+                                        //Cambios para anchura de linea
+                                        
                                     }}
                                 >
                                     {/* Botones */}
@@ -690,8 +693,10 @@ const TermsAndConditions: React.FC = () => {
                             <Typography variant="body1" gutterBottom sx={{
                                 textAlign: 'left',
                                 font: 'normal normal medium 16px/54px Poppins',
+                                fontFamily: "Poppins",
                                 letterSpacing: '0px',
                                 color: '#330F1B',
+                                marginBottom: "-5px",
                                 opacity: 1,
                             }} >
                                 Ingresa los 4 últimos dígitos del teléfono configurado
@@ -701,7 +706,9 @@ const TermsAndConditions: React.FC = () => {
                                     display: "flex",
                                     justifyContent: "center",
                                     gap: "10px",
-                                    marginTop: "20px",
+                                    marginTop: "18px",
+                                    height: "75px",
+                                    
                                 }}
                             >
                                 {phoneDigits.map((digit, index) => (
@@ -714,6 +721,12 @@ const TermsAndConditions: React.FC = () => {
                                             style: {
                                                 textAlign: "center",
                                                 font: "normal normal medium 26px/54px Poppins",
+                                                fontFamily: "Poppins",
+                                                fontSize: "26px",
+                                                width: "54px",
+                                                height: "25px",
+                                                margin: "0 3px",
+                                                marginTop: "1px",
                                                 letterSpacing: "0px",
                                                 color: "#330F1B",
                                                 opacity: 1,
@@ -800,14 +813,7 @@ const TermsAndConditions: React.FC = () => {
                             }}
                         >
                             {/* Parte 1: Reenviar código */}
-                            <Box
-                                sx={{
-                                    borderBottom: "1px solid #ddd",
-                                    paddingBottom: "10px",
-                                    marginBottom: "10px",
-
-                                }}
-                            >
+                            
                                 <Typography
                                     variant="body2"
                                     sx={{
@@ -824,13 +830,27 @@ const TermsAndConditions: React.FC = () => {
                                         disabled={isResendDisabled} // Deshabilita el botón si está bloqueado
                                         sx={{
                                             fontWeight: "bold",
+                                            
                                             cursor: isResendDisabled ? "not-allowed" : "pointer", // Cambia el cursor si está bloqueado
                                             color: isResendDisabled ? "#ccc" : "#8F4D63", // Cambia el color si está bloqueado
+                                            textTransform: "none",
+                                        "&:hover": {
+                                        backgroundColor: "transparent", // Evita que cambie de color al hacer hover
+                                        },
                                         }}
                                     >
-                                        {isResendDisabled ? "Espere un minuto para otro Reenvio" : "REENVIAR"}
+                                        {isResendDisabled ? "Espere un minuto para otro Reenvio" : "Reenviar"}
                                     </Link>
                                 </Typography>
+
+                                         <Box
+                                     sx={{
+                                    borderBottom: "2px solid #ddd",
+                                    
+                                    marginTop: "10px",
+                                        }}
+                                        />
+
 
                                 <Typography
                                     sx={{
@@ -866,19 +886,13 @@ const TermsAndConditions: React.FC = () => {
 
                                 </Typography>
 
-                            </Box>
+                            
 
                             {/* Parte 2: Cajas de texto y contador */}
-                            <Box
-                                sx={{
-                                    borderBottom: "1px solid #ddd",
-                                    paddingBottom: "50px",
-                                    marginBottom: "10px",
-                                    marginTop: "20px",
-                                }}
-                            >
+                            
                                 <Typography
                                     variant="body1"
+                                    fontFamily={"Poppins"}
                                     gutterBottom
                                     sx={{ color: isCodeValid ? "inherit" : "red" }}
                                 >
@@ -888,7 +902,7 @@ const TermsAndConditions: React.FC = () => {
                                     sx={{
                                         display: "flex",
                                         justifyContent: "space-between",
-                                        marginTop: "20px",
+                                        marginTop: "10px",
                                     }}
                                 >
                                     {authCode.map((digit, index) => (
@@ -900,13 +914,18 @@ const TermsAndConditions: React.FC = () => {
                                             inputRef={(el) => (inputRefs.current[index] = el)}
                                             inputProps={{
                                                 maxLength: 1,
-                                                style: { textAlign: "center" },
+                                                style: { textAlign: "center", 
+                                                    fontFamily: "Poppins", 
+                                                    fontSize: "26px",
+                                                    marginTop: "-10px",
+                                                    height: "28px", },
                                             }}
                                             error={!isCodeValid}
                                             sx={{
-                                                width: "40px",
-                                                height: "40px",
-                                                margin: "0 5px",
+                                                width: "54px",
+                                                height: "56px",
+                                                margin: "0 3px",
+                                                
                                             }}
                                         />
                                     ))}
@@ -934,7 +953,7 @@ const TermsAndConditions: React.FC = () => {
                                         El tiempo para validar el código expiró. Por favor, solicite un nuevo código.
                                     </Typography>
                                 )}
-                            </Box>
+                            
                             {/* Parte 3: Botones */}
                             <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "30px" }}>
                                 <Button variant="outlined" onClick={Return} sx={{

@@ -146,7 +146,7 @@ const Chooseroom: React.FC = () => {
         <Box
             className="container"
             sx={{
-                backgroundColor: "#FFFFFF", // Fondo blanco
+                backgroundColor: "#F2F2F2", // Fondo blanco
                 minHeight: "100vh", // Asegúrate de que cubra toda la pantalla
                 padding: "5px", // Espaciado interno
             }}

@@ -772,7 +772,7 @@ const Register: React.FC = () => {
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
                                         letterSpacing: "0px",
-                                        color:hasPasswordInput ? "red" : "black",
+                                        color:hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid) ? "red" : "black",
                                         opacity: 1,
                                         marginBottom: "4px",
                                     }}
@@ -851,7 +851,7 @@ const Register: React.FC = () => {
                                                     }}
                                                 >
                                                     <IconButton>
-                                                        <img src={hasPasswordInput ? infoiconerror:infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
+                                                        <img src={hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid) ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
