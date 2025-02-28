@@ -114,3 +114,36 @@ CREATE TABLE BillingInformation (
     updatedAt DATETIME NULL,           -- Fecha de última actualización
     FOREIGN KEY (userId) REFERENCES Users(id)
 );
+
+create table AmountNotification(
+    id INT PRIMARY KEY IDENTITY(1,1),
+	short_sms bit null,
+	long_sms bit null,
+	call bit null,
+	AmountNotification decimal(10,2) not null,
+	AutoRecharge bit null,
+	AutoRechargeAmountNotification decimal(10,2) null,
+	AutoRechargeAmount decimal(10,2) null,
+	IdCreditcard int null, 
+	foreign key (IdCreditcard) references creditcards(id)
+	   )
+
+	   create table AmountNotificationUser
+	   (
+	       id INT PRIMARY KEY IDENTITY(1,1),
+		  userId INT NOT NULL  FOREIGN KEY (userId) REFERENCES Users(id),
+		  NotificationId int not null foreign key(NotificationId) references AmountNotification(id)
+	   )
+
+
+Create table CreditRecharge (
+id int primary key identity(1,1),
+idCreditCard int not null foreign key references creditcards(id),
+idUser int not null foreign key references users(id),
+chanel varchar(50) not null,
+quantityCredits bigint not null,
+quientityMoney Decimal(10,2) not null,
+RechargeDate datetime not null,
+Estatus varchar(50) not null,
+invoice varchar(300) null
+)

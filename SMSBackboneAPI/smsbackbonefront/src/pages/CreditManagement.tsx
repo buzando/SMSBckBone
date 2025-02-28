@@ -11,11 +11,10 @@ import {
     Backdrop,
     Divider,
     TextField,
-    Button,
     Select,
     CircularProgress,
     MenuItem as MuiMenuItem,
-      List,
+    List,
     ListItem,
     ListItemText,
     InputAdornment,
@@ -23,15 +22,19 @@ import {
     Paper,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import HomeIcon from "@mui/icons-material/Home";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import TrashIcon from "../assets/Icon-trash.svg";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ClearIcon from "@mui/icons-material/Clear";
 import seachicon from '../assets/icon-lupa.svg'
 import NoResult from '../assets/NoResultados.svg'
 import ChipBar from "../components/commons/ChipBar";
+import HouseIcon from "../assets/IconRooms.svg"
+import iconclose from "../assets/icon-close.svg"
+import MainButton from "../components/commons/MainButton";
+import SecondaryButton from "../components/commons/SecondaryButton";
+import ErrorModal from '../components/commons/ModalError'
+
 type Rooms = {
     id: string | number;
     name: string;
@@ -56,8 +59,8 @@ const CreditManagement: React.FC = () => {
     const [searchTerm2, setSearchTerm2] = useState("");
     const [openDropdown, setOpenDropdown] = useState<boolean>(false);
     const [openDropdown2, setOpenDropdown2] = useState<boolean>(false);
-    const [searchTerm3, setSearchTerm3] = useState(""); 
-    const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
+    const [searchTerm3, setSearchTerm3] = useState("");
+    const [OpenErrorModal, setOpenErrorModal] = useState(false);
     const [showChipBarAdd, setshowChipBarAdd] = useState(false);
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +92,7 @@ const CreditManagement: React.FC = () => {
 
     useEffect(() => {
         GetCredits();
+        setOpenErrorModal(true);
     }, []);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, room: Rooms) => {
@@ -174,7 +178,7 @@ const CreditManagement: React.FC = () => {
 
     const handleTransferSubmit = async () => {
         if (!selectedRoom2 || !selectedRoom || !selectedChannel || !transferAmount) {
-            
+
             return;
         }
 
@@ -207,29 +211,20 @@ const CreditManagement: React.FC = () => {
                 GetCredits();
                 handleCloseModal();
             } else {
-                setErrorModal({
-                    title: "Error al transferir créditos",
-                    message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
-                });
+                setOpenErrorModal(true);
             }
         } catch {
-            setErrorModal({
-                title: "Error al transferir créditos",
-                message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
-            });
+            setOpenErrorModal(true);
         } finally {
             setLoading(false);
         }
     };
 
-    const closeErrorModal = () => {
-        setErrorModal(null);
-    };
 
 
     return (
         <Box p={4}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
+            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2, fontFamily: "Poppins, sans-serif", }}>
                 Gestión de Créditos
             </Typography>
             <Divider sx={{ mb: 3 }} />
@@ -238,22 +233,23 @@ const CreditManagement: React.FC = () => {
                     display="flex"
                     alignItems="center"
                     sx={{
-                        backgroundColor: "#FFFFFF", // Fondo blanco
-                        border: "1px solid #9B9295", // Borde
-                        borderRadius: "4px", // Bordes redondeados
-                        padding: "8px 12px", // Espaciado interno
-                        width: "218px", // Ancho según la imagen
-                        height: "40px", // Altura según la imagen
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Sombra sutil
+                        backgroundColor: "#FFFFFF",
+                        border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295", // Cambia el color del borde si hay texto
+                        borderRadius: "4px",
+                        padding: "8px 12px",
+                        width: "218px",
+                        height: "40px",
+                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                     }}
                 >
                     <img
                         src={seachicon}
                         alt="Buscar"
                         style={{
-                            marginRight: "8px", // Espaciado entre el ícono y el input
-                            width: "16px", // Tamaño del ícono
+                            marginRight: "8px",
+                            width: "16px",
                             height: "16px",
+                            filter: searchTerm ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none", // Ajusta el color si hay texto
                         }}
                     />
                     <input
@@ -267,10 +263,24 @@ const CreditManagement: React.FC = () => {
                             width: "100%", // Ocupa todo el espacio restante
                             fontSize: "16px", // Tamaño de la fuente
                             fontFamily: "Poppins, sans-serif", // Fuente según especificación
-                            color: "#9B9295", // Color del texto
+                            color: searchTerm ? "#7B354D" : "#9B9295", // Cambia el color del texto si hay texto
                             backgroundColor: "transparent", // Fondo transparente para evitar interferencias
                         }}
                     />
+                    {/* Ícono de cerrar cuando hay texto */}
+                    {searchTerm && (
+                        <img
+                            src={iconclose}
+                            alt="Limpiar búsqueda"
+                            style={{
+                                marginLeft: "8px",
+                                width: "16px",
+                                height: "16px",
+                                cursor: "pointer",
+                            }}
+                            onClick={() => setSearchTerm("")} // Borra el texto al hacer clic
+                        />
+                    )}
                 </Box>
 
             </Box>
@@ -280,14 +290,14 @@ const CreditManagement: React.FC = () => {
                     <CircularProgress />
                 </Box>
             ) : (
-                    <Box
-                        sx={{
-                            display: 'grid', // Cambiamos el diseño a grid
-                            gap: '5px', // Espaciado entre los recuadros
-                            gridTemplateColumns: '430px 430px', // Dos columnas con ancho fijo
-                            columnGap: '10px', // Espacio horizontal entre columnas
-                        }}
-                    >
+                <Box
+                    sx={{
+                        display: 'grid', // Cambiamos el diseño a grid
+                        gap: '5px', // Espaciado entre los recuadros
+                        gridTemplateColumns: '430px 430px', // Dos columnas con ancho fijo
+                        columnGap: '10px', // Espacio horizontal entre columnas
+                    }}
+                >
                     {rooms.filter((rooms) => {
                         const term = searchTerm.toLowerCase();
                         const nameWords = rooms.name.toLowerCase().split(" ");
@@ -298,32 +308,34 @@ const CreditManagement: React.FC = () => {
                                         sx={{
                                             display: "flex",
                                             flexDirection: "column",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            marginTop: "20px",
+                                            alignItems: "flex-end",    
+                                            justifyContent: "center",  
+                                            height: "300px",          
+                                            marginLeft: "50px",
                                         }}
                                     >
                                         <img
                                             src={NoResult}
                                             alt="Sin resultados"
                                             style={{
-                                                width: "150px", // Ajusta el tamaño de la imagen si es necesario
+                                                // Ajusta el tamaño a tu gusto
+                                                width: "300px",
                                                 marginBottom: "16px",
                                             }}
                                         />
-                                        <Typography
-                                            variant="body1"
-                                            sx={{
-                                                textAlign: "center",
-                                                color: "#833A53",
-                                                fontSize: "16px",
-                                                fontFamily: "Poppins, sans-serif",
-                                                fontWeight: "medium",
-                                            }}
-                                        >
-                                            No se encontraron resultados.
-                                        </Typography>
-                                    </Box>
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        textAlign: "center",
+                                        color: "#833A53",
+                                        fontSize: "16px",
+                                        fontFamily: "Poppins, sans-serif",
+                                        fontWeight: "medium",
+                                    }}
+                                >
+                                    No se encontraron resultados.
+                                </Typography>
+                            </Box>
                         </Grid>
                     ) : (
                         rooms
@@ -354,30 +366,48 @@ const CreditManagement: React.FC = () => {
                                         }}
                                     >
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                            <HomeIcon
-                                                sx={{
-                                                    backgroundColor: '#B0B0B0',
-                                                    borderRadius: '50%',
-                                                    padding: '8px',
-                                                    fontSize: 40,
-                                                    color: 'white',
-                                                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                                            <img
+                                                src={HouseIcon}
+                                                alt="Rooms Icon"
+                                                style={{
+                                                    width: '40px', // Ajustado al tamaño del icono anterior
+                                                    height: '40px',
                                                     marginRight: '16px',
                                                 }}
                                             />
                                             <Box>
                                                 <Typography
                                                     variant="h6"
-                                                    sx={{ fontWeight: 'bold', fontSize: '16px', color: '#000' }}
+                                                    sx={{
+                                                        textAlign: 'left',
+                                                        fontFamily: "Poppins, sans-serif",
+                                                        letterSpacing: '0px',
+                                                        color: '#574B4F',
+                                                        opacity: 1,
+                                                        fontSize: '16px',
+                                                        whiteSpace: 'nowrap', // Evita el salto de línea
+                                                        overflow: 'hidden', // Oculta el texto si es muy largo
+                                                    }}
                                                 >
                                                     {room.name}
                                                 </Typography>
+
                                                 <Typography
                                                     variant="body2"
-                                                    sx={{ fontSize: '14px', color: '#888', fontStyle: 'italic' }}
+                                                    sx={{
+                                                        textAlign: 'left',
+                                                        fontFamily: "Poppins, sans-serif",
+                                                        letterSpacing: '0px',
+                                                        color: '#574B4F',
+                                                        opacity: 1,
+                                                        fontSize: '14px',
+                                                        whiteSpace: 'nowrap',
+                                                        maxWidth: '90%',
+                                                    }}
                                                 >
                                                     {room.description}
                                                 </Typography>
+
                                             </Box>
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -385,13 +415,12 @@ const CreditManagement: React.FC = () => {
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                                        textAlign: 'right',
+                                                        fontFamily: "Poppins, sans-serif",
+                                                        letterSpacing: '0px',
+                                                        color: '#8D4B62',
                                                         opacity: 1,
                                                         fontSize: '12px',
-                                                        textAlign: 'right',
-                                                        padding: '4px 8px',
-                                                        display: 'inline-block', // Para mantener el diseño limpio
-                                                        color: '#8D4B62', // Nuevo color
                                                     }}
                                                 >
                                                     SMS # Cortos: {room.short_sms.toLocaleString()}
@@ -399,15 +428,12 @@ const CreditManagement: React.FC = () => {
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                                        textAlign: 'right',
+                                                        fontFamily: "Poppins, sans-serif",
+                                                        letterSpacing: '0px',
+                                                        color: '#8D4B62',
                                                         opacity: 1,
                                                         fontSize: '12px',
-                                                        textAlign: 'right',
-                                                        padding: '4px 8px',
-                                                        display: 'inline-block', // Para mantener el diseño limpio
-                                                        marginTop: '8px', // Espaciado entre los textos
-                                                        color: '#8D4B62', // Nuevo color
-                                                        margin: '4px 0',
                                                     }}
                                                 >
                                                     SMS # Largos: {room.long_sms.toLocaleString()}
@@ -420,6 +446,14 @@ const CreditManagement: React.FC = () => {
                                                 anchorEl={menuAnchorEl}
                                                 open={Boolean(menuAnchorEl)}
                                                 onClose={handleMenuClose}
+                                                anchorOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'left',
+                                                }}
+                                                transformOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'right',
+                                                }}
                                                 PaperProps={{
                                                     sx: {
                                                         borderRadius: '8px',
@@ -427,7 +461,17 @@ const CreditManagement: React.FC = () => {
                                                     },
                                                 }}
                                             >
-                                                <MenuItem onClick={handleOpenModal}>
+                                                <MenuItem onClick={handleOpenModal} sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px',
+                                                    padding: '10px 16px',
+                                                    borderRadius: '8px',
+                                                    '&:hover': {
+                                                        background: '#F2EBED 0% 0% no-repeat padding-box',
+                                                        opacity: 1,
+                                                    },
+                                                }}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                         <img
                                                             src={TrashIcon}
@@ -456,7 +500,7 @@ const CreditManagement: React.FC = () => {
                     )}
                 </Box>
             )}
-            
+
             {/* Modal */}
             <Modal
                 open={modalOpen}
@@ -474,7 +518,7 @@ const CreditManagement: React.FC = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            width: 500,
+                            width: 460,
                             maxHeight: "80vh", // Limita la altura máxima
                             bgcolor: "background.paper",
                             boxShadow: 24,
@@ -484,7 +528,16 @@ const CreditManagement: React.FC = () => {
                         }}
                     >
                         <Box display="flex" justifyContent="space-between" alignItems="center">
-                            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                            <Typography
+                                sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal 600 20px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    fontSize: '20px',
+                                }}
+                            >
                                 Distribución de créditos
                             </Typography>
                             <IconButton onClick={handleCloseModal}>
@@ -492,259 +545,512 @@ const CreditManagement: React.FC = () => {
                             </IconButton>
                         </Box>
                         <Divider sx={{ my: 2 }} />
-                        <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
-                            Seleccionar sala destino
-                        </Typography>
-                        <ClickAwayListener onClickAway={handleCloseDropdown2}>
-                            <Box>
-                                <TextField
-                                    fullWidth
-                                    placeholder="Seleccionar sala destino"
-                                    value={searchTerm3}
-                                    onClick={handleOpenDropdown2}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <ArrowDropDownIcon style={{ color: "#A05B71" }} />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: "8px",
-                                            border: "1px solid #A05B71",
-                                            backgroundColor: "#f5f5f5",
-                                            "&:hover fieldset": {
-                                                borderColor: "#833A53",
-                                            },
-                                        },
-                                    }}
-                                />
-                                {openDropdown2 && (
-                                    <Paper
-                                        elevation={3}
-                                        sx={{
-                                            position: "absolute",
-                                            zIndex: 10,
-                                            width: "87%",
-                                            maxHeight: 300,
-                                            overflowY: "auto",
-                                            mt: 1,
-                                            borderRadius: "8px",
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center', // Centra horizontalmente
+                                gap: 2,               // Espaciado vertical entre elementos
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }}
+                            >
+                                Seleccionar sala destino
+                            </Typography>
+                            <ClickAwayListener onClickAway={handleCloseDropdown2}>
+                                <Box sx={{
+                                    position: "relative",
+                                    // Importante: si tu contenedor tiene overflowY: "auto",
+                                    // cámbialo a overflow: "visible" o elimínalo:
+                                    // overflow: "visible",
+                                }}>
+                                    <TextField
+                                        fullWidth
+                                        placeholder="Seleccionar sala destino"
+                                        value={searchTerm3}
+                                        onClick={handleOpenDropdown2}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <ArrowDropDownIcon style={{ color: "#A05B71" }} />
+                                                </InputAdornment>
+                                            ),
                                         }}
-                                    >
-                                        <Box p={2} display="flex" alignItems="center">
-                                            <TextField
-                                                fullWidth
-                                                placeholder="Buscar sala..."
-                                                value={searchTerm3}
-                                                onChange={(e) => setSearchTerm3(e.target.value)}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <HomeIcon style={{ color: "#A05B71" }} />
-                                                        </InputAdornment>
-                                                    ),
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <IconButton
-                                                                size="small"
-                                                                onClick={() => setSearchTerm3("")}
-                                                            >
-                                                                <ClearIcon style={{ color: "#A05B71" }} />
-                                                            </IconButton>
-                                                        </InputAdornment>
-                                                    ),
-                                                }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                background: "#FFFFFF",
+                                                border: "1px solid #9B9295",
+                                                borderRadius: "8px",
+                                                opacity: 1,
+                                                width: "244px",
+                                                height: "40px",
+                                                "& input": {
+                                                    textAlign: "left",
+                                                    font: "normal normal normal 12px/54px Poppins",
+                                                    letterSpacing: "0px",
+                                                    color: "#786E71",
+                                                    opacity: 1,
+                                                    fontSize: "12px",
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    {openDropdown2 && (
+                                        <Paper
+                                            elevation={3}
+                                            sx={{
+                                                position: "absolute",
+                                                top: "calc(100% + 4px)", // Ubícalo justo debajo del TextField
+                                                left: 0,
+                                                width: "244px",         // Mismo ancho que el TextField
+                                                zIndex: 9999,           // Asegúrate de que se superponga
+                                                maxHeight: 300,
+                                                overflowY: "auto",
+                                                borderRadius: "8px",
+                                                // Quita margin o padding extra para que no empuje nada
+                                            }}
+                                        >
+                                            <Box
+                                                display="flex"
+                                                alignItems="center"
                                                 sx={{
-                                                    mb: 2,
-                                                    "& .MuiOutlinedInput-root": {
-                                                        borderRadius: "8px",
-                                                        border: "1px solid #A05B71",
-                                                        backgroundColor: "#f5f5f5",
-                                                        "&:hover fieldset": {
-                                                            borderColor: "#833A53",
-                                                        },
-                                                    },
+                                                    backgroundColor: "#FFFFFF",
+                                                    border: searchTerm3 ? "1px solid #7B354D" : "1px solid #9B9295",
+                                                    borderRadius: "4px",
+                                                    padding: "8px 12px",
+                                                    width: "218px",         // O el ancho que quieras
+                                                    height: "40px",
+                                                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                                                    mb: 2,                  // Separación inferior para la lista
                                                 }}
-                                            />
-                                        </Box>
-                                        <List>
-                                            {filteredRooms2.length > 0 ? (
-                                                filteredRooms2.map((room) => (
-                                                    <ListItem
-                                                        key={room.id}
-                                                        component="button"
-                                                        onClick={() => handleSelectRoom2(room)}
-                                                    >
-                                                        <HomeIcon style={{ color: "#A05B71", marginRight: 10 }} />
+                                            >
+                                                <img
+                                                    src={seachicon} // Tu ícono de lupa
+                                                    alt="Buscar"
+                                                    style={{
+                                                        marginRight: "8px",
+                                                        width: "16px",
+                                                        height: "16px",
+                                                        // Cambia el color del ícono si hay texto
+                                                        filter: searchTerm3
+                                                            ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)"
+                                                            : "none",
+                                                    }}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Buscar"
+                                                    value={searchTerm3}
+                                                    onChange={(e) => setSearchTerm3(e.target.value)}
+                                                    style={{
+                                                        border: "none",
+                                                        outline: "none",
+                                                        width: "100%",        // Ocupa el espacio sobrante
+                                                        fontSize: "16px",
+                                                        fontFamily: "Poppins, sans-serif",
+                                                        color: searchTerm3 ? "#7B354D" : "#9B9295",
+                                                        backgroundColor: "transparent",
+                                                    }}
+                                                />
+                                                {searchTerm3 && (
+                                                    <img
+                                                        src={iconclose}  // Tu ícono de cerrar
+                                                        alt="Limpiar búsqueda"
+                                                        style={{
+                                                            marginLeft: "8px",
+                                                            width: "16px",
+                                                            height: "16px",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => setSearchTerm3("")}
+                                                    />
+                                                )}
+                                            </Box>
+                                            <Divider sx={{ my: 0 }} />
+                                            <List sx={{ p: 0}}>
+                                                {filteredRooms2.length > 0 ? (
+                                                    filteredRooms2.map((room) => (
+                                                        <ListItem
+                                                            key={room.id}
+                                                            component="button"
+                                                            onClick={() => handleSelectRoom2(room)}
+                                                            sx={{
+                                                                // Quita cualquier borde u outline
+                                                                border: "none",
+                                                                outline: "none",
+                                                                boxShadow: "none",
+
+                                                                // Fondo blanco por defecto
+                                                                backgroundColor: "#FFF",
+
+                                                                // Evita el color de hover morado
+                                                                "&:hover": {
+                                                                    backgroundColor: "#f5f5f5", // o "transparent"
+                                                                },
+
+                                                                // Quita color de foco o selección si existe
+                                                                "&.Mui-focusVisible": {
+                                                                    backgroundColor: "transparent",
+                                                                },
+                                                                "&.Mui-selected": {
+                                                                    backgroundColor: "transparent",
+                                                                },
+                                                                "& .MuiListItemText-primary": {
+                                                                    textAlign: "left",
+                                                                    font: "normal normal normal 12px/54px Poppins",
+                                                                    letterSpacing: "0px",
+                                                                    color: "#786E71",
+                                                                    opacity: 1,
+                                                                    fontSize: "12px",
+                                                                    lineHeight: "1.2", 
+                                                                },
+                                                            
+                                                            }}
+                                                        >
+                                                            <ListItemText
+                                                                primary={room.name}
+                                                                sx={{
+                                                                    // Asegura que el texto sea visible
+                                                                    color: "#574B4F",
+                                                                    fontSize: "16px",
+                                                                }}
+                                                            />
+                                                        </ListItem>
+                                                    ))
+                                                ) : (
+                                                    <ListItem>
+                                                        <ListItemText primary="No se encontraron resultados" />
+                                                    </ListItem>
+                                                )}
+                                            </List>
+                                        </Paper>
+                                    )}
+                                </Box>
+                            </ClickAwayListener>
+
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }}
+                            >
+                                Seleccionar canal
+                            </Typography>
+                            <Select
+                                fullWidth
+                                value={selectedChannel}
+                                onChange={(e) => setSelectedChannel(e.target.value)}
+                                sx={{
+                                    background: "#FFFFFF",
+                                    border: "1px solid #9B9295",
+                                    borderRadius: "8px",
+                                    opacity: 1,
+                                    width: "244px",
+                                    height: "40px",
+                                    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                                    "& .MuiSelect-select": {
+                                        textAlign: "left",
+                                        font: "normal normal normal 12px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#786E71",
+                                        opacity: 1,
+                                        fontSize: "12px",
+                                        padding: "0 14px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        lineHeight: "40px",
+                                    },
+                                }}
+                            >
+                                <MuiMenuItem value="SMS Cortos" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 12px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#786E71",
+                                    opacity: 1,
+                                    fontSize: "12px",
+                                    "&:hover": {
+                                        background: "#F2EBED 0% 0% no-repeat padding-box",
+                                        opacity: 1,
+                                    },
+                                }}>SMS # Cortos</MuiMenuItem>
+                                <MuiMenuItem value="SMS Largos" sx={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 12px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#786E71",
+                                    opacity: 1,
+                                    fontSize: "12px",
+                                    "&:hover": {
+                                        background: "#F2EBED 0% 0% no-repeat padding-box",
+                                        opacity: 1,
+                                    },
+                                }}>SMS # Largos</MuiMenuItem>
+                            </Select>
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }}
+                            >
+                                Créditos disponibles (sala destino)
+                            </Typography>
+                            <TextField
+                                value={getAvailableCredits()} // Valor dinámico calculado
+                                InputProps={{ readOnly: true }} // Hace el campo de solo lectura
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        width: "244px",
+                                        height: "40px",
+                                        textAlign: 'center',
+                                        backgroundColor: "#E0E0E0", // Ajusta el tono de gris que quieras
+                                        borderRadius: "2px",
+                                        "&:hover fieldset": {
+                                            borderColor: "#833A53",
+                                        }
+                                    },
+                                    "& input": {
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0.03px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    },
+                                }}
+                            />
+
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }}
+                            >
+                                Créditos a transferir
+                            </Typography>
+                            <TextField
+                                type="number"
+                                value={transferAmount}
+                                onChange={(e) => {
+                                    const value = parseInt(e.target.value, 10);
+                                    if (value <= (getAvailableCredits())) {
+                                        setTransferAmount(value);
+                                    }
+                                }}
+                                inputProps={{
+                                    min: 0,
+                                    max: selectedRoom?.credits || 0,
+                                }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        width: "244px",
+                                        height: "40px",
+                                        textAlign: 'center',
+                                        borderRadius: "2px",
+                                    },
+                                    "& input": {
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0.03px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    },
+                                }}
+                            />
+                            {/* Nuevo Select Activo */}
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }}
+                            >
+                                Seleccionar nueva sala
+                            </Typography>
+                            <ClickAwayListener onClickAway={handleCloseDropdown}>
+                                {/* 1. Contenedor con position relative para el menú flotante */}
+                                <Box sx={{ position: "relative" }}>
+                                    {/* Este TextField funciona como 'select' principal */}
+                                    <TextField
+                                        fullWidth
+                                        placeholder="Seleccionar nueva sala"
+                                        value={searchTerm2}
+                                        onClick={handleOpenDropdown}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <ArrowDropDownIcon style={{ color: "#A05B71" }} />
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                borderRadius: "8px",
+                                                backgroundColor: "#f5f5f5",
+                                                "&:hover fieldset": {
+                                                    borderColor: "#833A53",
+                                                },
+                                                width: "244px", // Ajusta el ancho fijo
+                                                height: "40px", // Ajusta la altura
+                                            },
+                                            "& input": {
+                                                textAlign: "left",
+                                                font: "normal normal normal 12px/54px Poppins",
+                                                letterSpacing: "0px",
+                                                color: "#786E71",
+                                                opacity: 1,
+                                                fontSize: "12px",
+                                            },
+                                        }}
+                                    />
+
+                                    {/* 2. Menú flotante que se abre al dar clic */}
+                                    {openDropdown && (
+                                        <Paper
+                                            elevation={3}
+                                            sx={{
+                                                position: "absolute",
+                                                top: "calc(100% + 6px)", // Lo bajas un poco respecto al TextField
+                                                left: "6px",            // Lo mueves ligeramente a la derecha
+                                                width: "244px",         // Mismo ancho que el TextField
+                                                zIndex: 9999,
+                                                maxHeight: 250,
+                                                overflowY: "auto",
+                                                borderRadius: "8px",
+                                                p: 0, // Quita padding interno extra
+                                            }}
+                                        >
+                                            {/* 3. Buscador interno estilo “externo” (con lupa y cerrar) */}
+                                            <Box
+                                                display="flex"
+                                                alignItems="center"
+                                                sx={{
+                                                    backgroundColor: "#FFFFFF",
+                                                    border: searchTerm2 ? "1px solid #7B354D" : "1px solid #9B9295",
+                                                    borderRadius: "4px",
+                                                    padding: "8px 12px",
+                                                    width: "218px",
+                                                    height: "40px",
+                                                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                                                    m: 2, // Separación dentro del Paper
+                                                }}
+                                            >
+                                                <img
+                                                    src={seachicon} // tu ícono de lupa
+                                                    alt="Buscar"
+                                                    style={{
+                                                        marginRight: "8px",
+                                                        width: "16px",
+                                                        height: "16px",
+                                                        filter: searchTerm2
+                                                            ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)"
+                                                            : "none",
+                                                    }}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Buscar sala..."
+                                                    value={searchTerm2}
+                                                    onChange={(e) => setSearchTerm2(e.target.value)}
+                                                    style={{
+                                                        border: "none",
+                                                        outline: "none",
+                                                        width: "100%",
+                                                        fontSize: "16px",
+                                                        fontFamily: "Poppins, sans-serif",
+                                                        color: searchTerm2 ? "#7B354D" : "#9B9295",
+                                                        backgroundColor: "transparent",
+                                                    }}
+                                                />
+                                                {searchTerm2 && (
+                                                    <img
+                                                        src={iconclose} // tu ícono de cerrar
+                                                        alt="Limpiar búsqueda"
+                                                        style={{
+                                                            marginLeft: "8px",
+                                                            width: "16px",
+                                                            height: "16px",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => setSearchTerm2("")}
+                                                    />
+                                                )}
+                                            </Box>
+
+                                            {/* 4. Lista con los resultados filtrados */}
+                                            <List disablePadding sx={{ p: 0, m: 0 }}>
+                                                {filteredRooms.length > 0 ? (
+                                                    filteredRooms.map((room) => (
+                                                        <ListItem
+                                                            key={room.id}
+                                                            onClick={() => handleSelectRoom(room)}
+                                                            sx={{
+                                                                // Menos espacio vertical
+                                                                py: 1,
+                                                                px: 2,
+                                                                cursor: "pointer",
+                                                                "&:hover": { backgroundColor: "#f5f5f5" },
+                                                            }}
+                                                        >
+                                                            <ListItemText
+                                                                primary={room.name}
+                                                                sx={{
+                                                                    textAlign: "left",
+                                                                    font: "normal normal normal 12px/54px Poppins",
+                                                                    letterSpacing: "0px",
+                                                                    color: "#786E71",
+                                                                    opacity: 1,
+                                                                    fontSize: "12px",
+                                                                    lineHeight: "1.2", // Más compacto
+                                                                }}
+                                                            />
+                                                        </ListItem>
+                                                    ))
+                                                ) : (
+                                                    <ListItem sx={{ py: 1, px: 2 }}>
                                                         <ListItemText
-                                                            primary={room.name}
-                                                            secondary={room.description}
+                                                            primary="No se encontraron resultados"
+                                                            sx={{
+                                                                textAlign: "left",
+                                                                font: "normal normal normal 12px/54px Poppins",
+                                                                letterSpacing: "0px",
+                                                                color: "#786E71",
+                                                                opacity: 1,
+                                                                fontSize: "12px",
+                                                            }}
                                                         />
                                                     </ListItem>
-                                                ))
-                                            ) : (
-                                                <ListItem>
-                                                    <ListItemText primary="No se encontraron resultados" />
-                                                </ListItem>
-                                            )}
-                                        </List>
-                                    </Paper>
-                                )}
-                            </Box>
-                        </ClickAwayListener>
-
-                        <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
-                            Seleccionar canal
-                        </Typography>
-                        <Select
-                            fullWidth
-                            value={selectedChannel}
-                            onChange={(e) => setSelectedChannel(e.target.value)}
-                        >
-                            <MuiMenuItem value="SMS Cortos">SMS # Cortos</MuiMenuItem>
-                            <MuiMenuItem value="SMS Largos">SMS # Largos</MuiMenuItem>
-                        </Select>
-                        <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
-                            Créditos disponibles (sala destino)
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            value={getAvailableCredits()} // Valor dinámico calculado
-                            InputProps={{ readOnly: true }} // Hace el campo de solo lectura
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "8px",
-                                    border: "1px solid #A05B71",
-                                    backgroundColor: "#f5f5f5",
-                                    "&:hover fieldset": {
-                                        borderColor: "#833A53",
-                                    },
-                                },
-                            }}
-                        />
-
-                        <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
-                            Créditos a transferir
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            type="number"
-                            value={transferAmount}
-                            onChange={(e) => {
-                                const value = parseInt(e.target.value, 10);
-                                if (value <= (getAvailableCredits())) {
-                                    setTransferAmount(value);
-                                }
-                            }}
-                            inputProps={{
-                                min: 0,
-                                max: selectedRoom?.credits || 0,
-                            }}
-                        />
-                        {/* Nuevo Select Activo */}
-                        <Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
-                            Seleccionar nueva sala
-                        </Typography>
-                        <ClickAwayListener onClickAway={handleCloseDropdown}>
-                            <Box>
-                                <TextField
-                                    fullWidth
-                                    placeholder="Seleccionar nueva sala"
-                                    value={searchTerm2}
-                                    onChange={(e) => setSearchTerm2(e.target.value)}
-                                    onClick={handleOpenDropdown}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <ArrowDropDownIcon style={{ color: "#A05B71" }} />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                            borderRadius: "8px",
-                                            border: "1px solid #A05B71",
-                                            backgroundColor: "#f5f5f5",
-                                            "&:hover fieldset": {
-                                                borderColor: "#833A53",
-                                            },
-                                        },
-                                    }}
-                                />
-
-                                {openDropdown && (
-                                    <Paper
-                                        elevation={3}
-                                        sx={{
-                                            position: "absolute",
-                                            zIndex: 10,
-                                            width: "88%",
-                                            maxHeight: 200,
-                                            overflowY: "auto",
-                                            mt: 1,
-                                            borderRadius: "8px",
-                                        }}
-                                    >
-                                        <Box p={2} display="flex" alignItems="center">
-                                            <TextField
-                                                fullWidth
-                                                placeholder="Buscar sala..."
-                                                value={searchTerm2}
-                                                onChange={(e) => setSearchTerm2(e.target.value)}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <HomeIcon style={{ color: "#A05B71" }} />
-                                                        </InputAdornment>
-                                                    ),
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <IconButton
-                                                                size="small"
-                                                                onClick={() => setSearchTerm2("")}
-                                                            >
-                                                                <ClearIcon style={{ color: "#A05B71" }} />
-                                                            </IconButton>
-                                                        </InputAdornment>
-                                                    ),
-                                                }}
-                                                sx={{
-                                                    mb: 2,
-                                                    "& .MuiOutlinedInput-root": {
-                                                        borderRadius: "8px",
-                                                        border: "1px solid #A05B71",
-                                                        backgroundColor: "#f5f5f5",
-                                                        "&:hover fieldset": {
-                                                            borderColor: "#833A53",
-                                                        },
-                                                    },
-                                                }}
-                                            />
-                                        </Box>
-                                        <List>
-                                            {filteredRooms.length > 0 ? (
-                                                filteredRooms.map((room) => (
-                                                    <ListItem
-                                                        key={room.id}
-                                                        component="button"
-                                                        onClick={() => handleSelectRoom(room)}
-                                                    >
-                                                        <ListItemText primary={room.name} />
-                                                    </ListItem>
-                                                ))
-                                            ) : (
-                                                <ListItem>
-                                                    <ListItemText primary="No se encontraron resultados" />
-                                                </ListItem>
-                                            )}
-                                        </List>
-                                    </Paper>
-                                )}
-                            </Box>
-                        </ClickAwayListener>
-
+                                                )}
+                                            </List>
+                                        </Paper>
+                                    )}
+                                </Box>
+                            </ClickAwayListener>
+                        </Box>
 
                         {/* Nuevo Select Canal */}
                         {/*<Typography variant="body2" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>*/}
@@ -758,42 +1064,11 @@ const CreditManagement: React.FC = () => {
                         {/*    <MuiMenuItem value="SMS Cortos">SMS # Cortos</MuiMenuItem>*/}
                         {/*    <MuiMenuItem value="SMS Largos">SMS # Largos</MuiMenuItem>*/}
                         {/*</Select>*/}
+                        <Divider sx={{ my: 2 }} />
+
                         <Box display="flex" justifyContent="space-between" mt={3}>
-                            <Button
-                                variant="outlined"
-                                onClick={handleCloseModal}
-                                sx={{ color: "#A05B71", borderColor: "#A05B71" }}
-                            >
-                                Cancelar
-                            </Button>
-                            <Button
-                                variant="contained"
-                                disabled={loading} // Evita múltiples clics mientras se transfiere.
-                                onClick={handleTransferSubmit}
-                                sx={{
-                                    background: "#833A53 0% 0% no-repeat padding-box",
-                                    border: "1px solid #60293C",
-                                    borderRadius: "4px",
-                                    opacity: 0.9,
-                                    textAlign: "center",
-                                    color: "#FFFFFF",
-                                    fontFamily: "Poppins, sans-serif",
-                                    fontWeight: 400,
-                                    fontSize: "12px",
-                                    lineHeight: "54px",
-                                    letterSpacing: "1.12px",
-                                    textTransform: "uppercase",
-                                    "&:hover": {
-                                        backgroundColor: "#60293C",
-                                    },
-                                }}
-                            >
-                                {loading ? (
-                                    <CircularProgress size={24} sx={{ color: "#FFFFFF" }} />
-                                ) : (
-                                    "Transferir"
-                                )}
-                            </Button>
+                            <SecondaryButton onClick={handleCloseModal} text="Cancelar" />
+                            <MainButton isLoading={loading} text="Transferir" onClick={handleTransferSubmit} />
                         </Box>
                     </Box>
                 </Fade>
@@ -807,51 +1082,14 @@ const CreditManagement: React.FC = () => {
                 />
             )}
 
-            {/* Modal de error */}
-            {errorModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000,
-                }}>
-                    <div style={{
-                        backgroundColor: '#fff',
-                        padding: '20px',
-                        borderRadius: '8px',
-                        width: '400px',
-                        textAlign: 'center',
-                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                    }}>
-                        <h3 style={{ marginBottom: '10px', color: '#4a4a4a' }}>{errorModal.title}</h3>
-                        <p style={{ marginBottom: '20px', color: '#6a6a6a' }}>
-                            {errorModal.message}
-                        </p>
-                        <button
-                            onClick={closeErrorModal}
-                            style={{
-                                backgroundColor: '#fff',
-                                color: '#8d406d',
-                                border: '2px solid #8d406d',
-                                borderRadius: '5px',
-                                padding: '10px 20px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            Cerrar
-                        </button>
-                    </div>
-                </div>
-            )}
 
-
+            <ErrorModal
+                isOpen={OpenErrorModal}
+                title='Error al transferir créditos'
+                message='Algo salió mal. Inténtelo de nuevo o regrese más tarde.'
+                buttonText="Cerrar"
+                onClose={() => setOpenErrorModal(false)}
+            />
         </Box>
     );
 };

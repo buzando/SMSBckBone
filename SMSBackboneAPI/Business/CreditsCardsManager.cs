@@ -53,7 +53,14 @@ namespace Business
                             expiration_month = creditCard.expiration_month,
                             expiration_year = creditCard.expiration_year,
                             is_default = creditCard.is_default,
-                            Type = creditCard.Type
+                            Type = creditCard.Type,
+                             city = creditCard.city,
+                             exterior_number = creditCard.exterior_number,
+                             interior_number = creditCard.interior_number,
+                             neighborhood = creditCard.neighborhood,
+                             postal_code = creditCard.postal_code,
+                             state = creditCard.state,
+                             street = creditCard.street,
                         };
                         creditcarddb.created_at = DateTime.Now;
                         ctx.creditcards.Add(creditcarddb);

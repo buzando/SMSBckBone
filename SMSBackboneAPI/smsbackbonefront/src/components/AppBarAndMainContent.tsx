@@ -7,7 +7,6 @@ import Container from '@mui/material/Container';
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { AppContext } from '../hooks/useContextInitialState'
-import { getColorRole } from '../types/Types';
 import nuxiba_svg from '../assets/nuxiba.svg'
 import MuiDrawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -34,6 +33,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import Fab from "@mui/material/Fab";
 import helpicon from "../assets/Iconoayuda.svg";
 import Modal from "@mui/material/Modal";
+import { InputAdornment } from '@mui/material';
 import {
     Box,
     IconButton,
@@ -49,11 +49,17 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import DropDownIcon from '../assets/icon-punta-flecha-bottom.svg';
 import HomeIcon from '@mui/icons-material/Home';
-import ClearIcon from '@mui/icons-material/Clear';
 import DescriptionIcon from '@mui/icons-material/Description';
 import rentaNumerosUrl from '../assets/RentaDeNumeros.svg';
 import Tooltip from "@mui/material/Tooltip";
-const drawerWidth = 280;
+import seachicon from '../assets/icon-lupa.svg'
+import iconclose from "../assets/icon-close.svg"
+import HouseIcon from "../assets/IconRooms.svg"
+import IconUser from '../assets/USER_ICON.svg';
+import IconUserArrow from '../assets/CHEVRON_USER.svg';
+import CloseSession from '../assets/Icon-CerrarSesion.svg';
+
+const drawerWidth = 246;
 
 type Page = {
     id: number,
@@ -211,6 +217,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const [rooms, setRooms] = useState<Room[]>([]);
     const [filteredPages, setFilteredPages] = useState<Page[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm2, setSearchTerm2] = useState('');
     const navigate = useNavigate();
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
     const [openSubMenuBilling, setOpenSubMenuBilling] = useState(false);
@@ -395,21 +402,23 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     size="small"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    autoComplete="off"
                                     InputProps={{
                                         startAdornment: (
-                                            <SearchIcon sx={{ color: '#7B354D', marginRight: 1 }} />
+                                            <InputAdornment position="start">
+                                                <img src={seachicon} alt="Buscar" style={{ width: '18px', height: '18px' }} />
+                                            </InputAdornment>
                                         ),
-                                        endAdornment: (
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => {
-                                                    setSearchTerm('');
-                                                    setFilteredPages([]);
-                                                }}
-                                                sx={{ color: '#7B354D' }} // Color del ícono de limpiar
-                                            >
-                                                ✖
-                                            </IconButton>
+                                        endAdornment: searchTerm && (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => setSearchTerm('')}
+                                                    sx={{ color: '#7B354D' }}
+                                                >
+                                                    <img src={iconclose} alt="Limpiar" style={{ width: '16px', height: '16px' }} />
+                                                </IconButton>
+                                            </InputAdornment>
                                         ),
                                         style: {
                                             height: '100%',
@@ -517,7 +526,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             ml: 2,
                             padding: '4px 8px',
                             backgroundColor: '#fff',
-                            borderRadius: '16px',
+                            borderRadius: '4px',
                             border: '1px solid #ddd',
                             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                             justifyContent: 'space-between',
@@ -530,14 +539,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     >
                         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
                             {/* Ícono de la casa */}
-                            <HomeIcon
-                                sx={{
-                                    backgroundColor: '#B0B0B0',
-                                    borderRadius: '50%',
-                                    padding: '8px',
-                                    fontSize: 35,
-                                    color: 'white',
-                                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                            <img
+                                src={HouseIcon}
+                                alt="Room Icon"
+                                style={{
+                                    width: '32px',
+                                    height: '32px',
                                 }}
                             />
                             <Box sx={{ marginLeft: '10px' }}>
@@ -546,9 +553,10 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     variant="body1"
                                     color="inherit"
                                     sx={{
-                                        fontWeight: 'bold',
-                                        fontSize: '14px',
-                                        color: '#000',
+                                        fontSize: '12px',
+                                        color: '#574B4F',
+                                        fontWeight: 'medium',
+                                        fontFamily: 'Poppins, sans-serif',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap',
@@ -560,11 +568,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     variant="body2"
                                     color="textSecondary"
                                     sx={{
-                                        fontSize: '12px',
-                                        color: '#888',
+                                        fontSize: '9px',
+                                        color: '#574B4F',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap',
+                                        fontFamily: 'Poppins, sans-serif',
                                     }}
                                 >
                                     {selectedRoom && selectedRoom.description ? selectedRoom.description : 'Sin descripción'}
@@ -576,8 +585,13 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         <IconButton
                             color="inherit"
                             onClick={handleMenuOpen}
-                            sx={{ color: 'black' }}
+                            sx={{
+                                color: 'black',
+                                transform: anchorEl ? 'rotate(180deg)' : 'rotate(0deg)', // Cambia la rotación si está abierto
+                                transition: 'transform 0.3s ease-in-out', // Agrega animación para suavizar el giro
+                            }}
                         >
+
                             <img src={DropDownIcon} alt="dropdown" width="24" height="24" />
                         </IconButton>
 
@@ -614,11 +628,11 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             <Box sx={{ padding: '8px', display: 'flex', alignItems: 'center' }}>
                                 <TextField
                                     fullWidth
-                                    placeholder="Buscar sala..."
+                                    placeholder="Buscar"
                                     variant="outlined"
                                     size="small"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    value={searchTerm2}
+                                    onChange={(e) => setSearchTerm2(e.target.value)}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
                                             padding: '2px 8px',
@@ -633,17 +647,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         startAdornment: (
                                             <SearchIcon sx={{ color: '#7B354D', marginRight: 1 }} />
                                         ),
-                                        endAdornment: (
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => {
-                                                    setSearchTerm('');  // Limpiar el término de búsqueda
-                                                    setFilteredPages([]); // Opcional, para limpiar los resultados filtrados
-                                                }}
-                                                sx={{ color: '#7B354D' }} // Color del tache
-                                            >
-                                                <ClearIcon sx={{ color: '#7B354D' }} />
-                                            </IconButton>
+                                        endAdornment: searchTerm && (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => setSearchTerm2('')}
+                                                    sx={{ color: '#7B354D' }}
+                                                >
+                                                    <img src={iconclose} alt="Limpiar" style={{ width: '16px', height: '16px' }} />
+                                                </IconButton>
+                                            </InputAdornment>
                                         ),
                                         style: {
                                             height: '100%',
@@ -663,7 +676,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             <MenuList sx={{ paddingLeft: 0 }}>
                                 {rooms
                                     .filter((room) =>
-                                        room.name.toLowerCase().includes(searchTerm.toLowerCase())
+                                        room.name.toLowerCase().includes(searchTerm2.toLowerCase())
                                     )
                                     .map((room, index) => (
                                         <MenuItem
@@ -675,23 +688,23 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                                 padding: '8px 16px',
                                             }}
                                         >
-                                            <HomeIcon
-                                                sx={{
-                                                    backgroundColor: '#B0B0B0',
-                                                    borderRadius: '50%',
-                                                    padding: '8px',
-                                                    fontSize: 32,
-                                                    color: 'white',
-                                                    marginRight: '8px',
+                                            <img
+                                                src={HouseIcon}
+                                                alt="Room Icon"
+                                                style={{
+                                                    width: '32px',
+                                                    height: '32px',
+                                                    marginRight: '10px',
+                                                    color: '#574B4F',
                                                 }}
                                             />
                                             <Box sx={{ textAlign: 'left' }}>
                                                 <Typography
                                                     variant="body1"
                                                     sx={{
-                                                        fontWeight: 'bold',
-                                                        fontSize: '14px',
+                                                        fontSize: '12px',
                                                         color: '#000',
+                                                        fontFamily: 'Poppins, sans-serif',
                                                     }}
                                                 >
                                                     {room.name}
@@ -699,8 +712,9 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                                 <Typography
                                                     variant="body2"
                                                     sx={{
-                                                        fontSize: '12px',
-                                                        color: '#888',
+                                                        fontSize: '9px',
+                                                        color: '#574B4F',
+                                                        fontFamily: 'Poppins, sans-serif',
                                                     }}
                                                 >
                                                     {room.description}
@@ -721,7 +735,33 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
                     {/* Usuario */}
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, ml: 2 }}>
-                        <Avatar alt={user.userName} sx={{ bgcolor: getColorRole(user.rol) }} />
+                        {/* Ícono de usuario grande */}
+                        <img
+                            src={IconUser}
+                            alt="User Icon"
+                            style={{
+                                width: '40px',  // Ajusta el tamaño si es necesario
+                                height: '40px',
+                            }}
+                        />
+
+                        {/* Ícono pequeño de la flecha (CHEVRON_USER) */}
+                        <img
+                            src={IconUserArrow}
+                            alt="Chevron Icon"
+                            style={{
+                                position: 'absolute',
+                                bottom: '2px', // Ajusta la posición para que quede sobre el icono grande
+                                right: '2px',
+                                width: '14px', // Tamaño de la flecha
+                                height: '14px',
+                                backgroundColor: '#B0B0B0', // Color de fondo si es necesario
+                                borderRadius: '50%', // Para que sea redondo
+                                padding: '2px', // Ajusta el espacio dentro del círculo
+                                transition: 'transform 0.3s ease-in-out', // ✨ Animación suave
+                                transform: anchorElUser ? 'rotate(180deg)' : 'rotate(0deg)',
+                            }}
+                        />
                     </IconButton>
 
                     {/* Nombre del usuario */}
@@ -741,17 +781,25 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             '& .MuiTypography-root': {
                                 lineHeight: '1.2', // Ajusta la altura de línea para textos más compactos
                             },
+                            '& .MuiMenu-paper': {
+                                transform: 'translateX(-20px) !important', // 📌 Mueve el menú más a la izquierda
+                            },
                         }}
                         anchorOrigin={{
                             vertical: 'bottom',
-                            horizontal: 'center',
+                            horizontal: 'right',
                         }}
                         transformOrigin={{
                             vertical: 'top',
-                            horizontal: 'center',
+                            horizontal: 'right',
                         }}
                     >
-                        <MenuItem onClick={() => navigate('/ManageAccount')}>
+                        <MenuItem onClick={() => navigate('/ManageAccount')} sx={{
+                            '&:hover': {
+                                background: '#F2EBED 0% 0% no-repeat padding-box', // ✨ Efecto hover
+                                opacity: 1,
+                            },
+                        }}>
                             <Typography
                                 sx={{
                                     textAlign: 'left',
@@ -768,7 +816,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 </Box>
                             </Typography>
                         </MenuItem>
-                        <MenuItem onClick={() => navigate('/TermsAndConditions')}>
+                        <MenuItem onClick={() => navigate('/TermsAndConditions')} sx={{
+                            '&:hover': {
+                                background: '#F2EBED 0% 0% no-repeat padding-box', // ✨ Efecto hover
+                                opacity: 1,
+                            },
+                        }}>
                             <Typography
                                 sx={{
                                     textAlign: 'left',
@@ -785,7 +838,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 </Box>
                             </Typography>
                         </MenuItem>
-                        <MenuItem onClick={handleLogout}>
+                        <MenuItem onClick={handleLogout} sx={{
+                            '&:hover': {
+                                background: '#F2EBED 0% 0% no-repeat padding-box', // ✨ Efecto hover
+                                opacity: 1,
+                            },
+                        }}>
                             <Typography
                                 sx={{
                                     textAlign: 'left',
@@ -797,8 +855,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 }}
                             >
                                 <Box display="flex" alignItems="center">
-                                    <DescriptionIcon sx={{ fontSize: 20, mr: 1 }} />
-                                    Cerrar sesión
+                                    <img
+                                        src={CloseSession}
+                                        alt="Room Icon"
+                                        style={{
+                                            width: '19px',
+                                            height: '19px',
+                                            marginRight: '10px',
+                                            color: '#574B4F',
+                                        }}
+                                    />                                    Cerrar sesión
                                 </Box>
                             </Typography>
                         </MenuItem>
@@ -813,6 +879,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
                 <Box
                     sx={{
+                        position: 'relative', // Esto permite posicionar elementos absolutos dentro
                         background: '#FFFFFF', // Fondo blanco
                         border: '1px solid #DDD8DA',
                         borderRadius: '12px',
@@ -822,6 +889,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         width: '90%', // Mantener el ancho del contenedor principal
                         marginX: 'auto',
                         boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Sombra general
+                        marginTop: '10px',
                     }}
                 >
                     {/* Contenedor para el encabezado y los botones */}
@@ -846,22 +914,29 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             <Typography
                                 sx={{
                                     textAlign: 'left',
-                                    font: 'normal normal bold 14px/20px Poppins',
-                                    color: '#833A53',
+                                    font: 'normal normal medium 14px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    fontSize: '14px', // Esto asegura que el tamaño de fuente sea correcto
                                 }}
                             >
                                 Créditos Totales SMS
                             </Typography>
+
                             <Typography
                                 sx={{
                                     textAlign: 'left',
-                                    font: 'normal normal bold 24px/32px Poppins',
-                                    color: '#833A53',
-                                    marginTop: '4px',
+                                    font: 'normal normal medium 14px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    opacity: 1,
+                                    fontSize: '14px', // Estilo para los valores numéricos debajo
                                 }}
                             >
                                 {selectedRoom?.credits || 0}
                             </Typography>
+
                             {/* Créditos cortos y largos */}
                             <Box
                                 sx={{
@@ -874,17 +949,24 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 <Box sx={{ textAlign: 'left', flex: 1 }}>
                                     <Typography
                                         sx={{
-                                            font: 'normal normal 500 12px Poppins',
-                                            color: '#833A53',
+                                            textAlign: 'left',
+                                            font: 'normal normal medium 12px/54px Poppins',
+                                            letterSpacing: '0px',
+                                            color: '#574B4F',
+                                            opacity: 1,
+                                            fontSize: '12px', // Ajuste preciso del tamaño de fuente
                                         }}
                                     >
                                         # Cortos
                                     </Typography>
                                     <Typography
                                         sx={{
-                                            font: 'normal normal bold 14px Poppins',
-                                            color: '#833A53',
-                                            marginTop: '4px',
+                                            textAlign: 'left',
+                                            font: 'normal normal medium 14px/54px Poppins',
+                                            letterSpacing: '0px',
+                                            color: '#330F1B',
+                                            opacity: 1,
+                                            fontSize: '14px', // Estilo para los valores numéricos debajo
                                         }}
                                     >
                                         {selectedRoom?.short_sms || 0}
@@ -893,8 +975,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 <Box sx={{ textAlign: 'left', flex: 1 }}>
                                     <Typography
                                         sx={{
-                                            font: 'normal normal 500 12px Poppins',
-                                            color: '#833A53',
+                                            textAlign: 'left',
+                                            font: 'normal normal medium 12px/54px Poppins',
+                                            letterSpacing: '0px',
+                                            color: '#574B4F',
+                                            opacity: 1,
+                                            fontSize: '12px', // Ajuste preciso del tamaño de fuente
                                         }}
                                     >
                                         # Largos
@@ -911,61 +997,94 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 </Box>
                             </Box>
                         </Box>
-
-                        {/* Botones redondos */}
+                        {/* Contenedor para el botón redondo */}
+                        {/* Contenedor para los dos botones (el de cambio y el dropdown) */}
                         <Box
                             sx={{
+                                position: 'absolute', // Se posiciona en relación con el contenedor padre
+                                top: '35%', // Lo centra verticalmente
+                                right: '5px', // Se acerca al borde derecho
+                                transform: 'translateY(-50%)', // Corrige la alineación exacta
                                 display: 'flex',
-                                flexDirection: 'column',
-                                gap: '8px', // Espacio entre los botones
+                                flexDirection: 'column', // Asegura que los botones estén alineados en columna
                                 alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px', // Espacio entre los dos botones
+                                zIndex: 10, // Asegura que no se quede detrás de otros elementos
                             }}
                         >
-                            {/* Botón circular con ícono de cambio */}
+                            {/* Botón cuadrado con icono de cambio */}
                             <IconButton
                                 sx={{
-                                    background: '#FFFFFF',
-                                    border: '1px solid #DDD8DA',
-                                    borderRadius: '50%', // Botón redondo
-                                    padding: '8px',
-                                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Sombra
+                                    background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                    boxShadow: '2px 2px 2px #6C64741A', // Sombra según especificaciones
+                                    border: '1px solid #C6BFC299', // Borde con el color exacto
+                                    borderRadius: '8px', // Bordes redondeados pero no circulares
+                                    padding: '10px', // Ajuste de espacio interno
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                }}
-                            >
-                                <Tooltip title="Mis Números">
-                                    <img src={rentaNumerosUrl} alt="Renta Números" style={{ width: '30px', height: 'auto' }} onClick={() => navigate('/MyNumbers')} />
-                                </Tooltip>
-                            </IconButton>
-
-                            <IconButton
-                                sx={{
-                                    background: 'transparent', // Fondo transparente
-                                    border: 'none', // Sin borde
-                                    borderRadius: '50%', // Botón redondo
-                                    padding: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#833A53', // Color del texto
-                                    boxShadow: 'none', // Sin sombra
+                                    width: '44px', // Tamaño cuadrado acorde a la referencia
+                                    height: '44px', // Misma altura para mantener la proporción
+                                    opacity: 1, // Asegura visibilidad
                                     '&:hover': {
-                                        background: '#F5F5F5', // Fondo suave al pasar el mouse
+                                        background: '#EBE5E7 0% 0% no-repeat padding-box',
+                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        border: '1px solid #D9C5CB',
+                                        opacity: 1,
+                                    },
+                                    '&:active': {
+                                        background: '#EBD9DF 0% 0% no-repeat padding-box',
+                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        border: '1px solid #BE93A066',
+                                        opacity: 1,
                                     },
                                 }}
                             >
-                                <Typography
-                                    sx={{
-                                        font: 'normal normal bold 16px Poppins',
-                                        color: '#833A53', // Color del texto
-                                    }}
-                                >
-                                    {'>'}
-                                </Typography>
+                                <Tooltip title="Mis Números">
+                                    <img
+                                        src={rentaNumerosUrl}
+                                        alt="Renta Números"
+                                        style={{ width: '30px', height: 'auto' }}
+                                        onClick={() => navigate('/MyNumbers')}
+                                    />
+                                </Tooltip>
                             </IconButton>
 
+                            {/* Botón de DropDown debajo */}
+                            <IconButton
+                                sx={{
+                                    background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                    boxShadow: '2px 2px 2px #6C64741A',
+                                    border: '1px solid #C6BFC299',
+                                    borderRadius: '8px',
+                                    padding: '6px', // Espacio más pequeño
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '32px', // Tamaño más pequeño que el de arriba
+                                    height: '32px',
+                                    opacity: 1,
+                                    marginTop: '20px',
+                                    '&:hover': {
+                                        background: '#EBE5E7 0% 0% no-repeat padding-box',
+                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        border: '1px solid #D9C5CB',
+                                        opacity: 1,
+                                    },
+                                    '&:active': {
+                                        background: '#EBD9DF 0% 0% no-repeat padding-box',
+                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        border: '1px solid #BE93A066',
+                                        opacity: 1,
+                                    },
+                                }}
+                                onClick={() => console.log("Dropdown clicked")}
+                            >
+                                <img src={DropDownIcon} alt="Dropdown Icon" style={{ width: '20px', height: 'auto', transform: 'rotate(90deg)' }} />
+                            </IconButton>
                         </Box>
+
                     </Box>
 
                     {/* Botones Gestionar y Recargar */}
@@ -974,7 +1093,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             display: 'flex',
                             justifyContent: 'space-between',
                             width: '100%',
-                            marginTop: '16px',
+                            gap: '10px'
                         }}
                     >
                         <Button
@@ -984,11 +1103,21 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 font: 'normal normal 600 14px/20px Poppins',
                                 color: '#833A53',
                                 background: '#FFF',
-                                borderRadius: '8px',
+                                borderRadius: '4px',
                                 padding: '6px 16px',
                                 boxShadow: 'none',
+                                width: '109px',
+                                height: '32px',
                                 '&:hover': {
-                                    background: '#F5F5F5',
+                                    background: '#F2E9EC 0% 0% no-repeat padding-box', // Color al pasar el mouse
+                                    borderRadius: '4px', // Redondeo al hover
+                                    opacity: 1, // Asegura que se vea correctamente
+                                },
+                                '&:active': {
+                                    background: '#E6C2CD 0% 0% no-repeat padding-box', // Color al presionar
+                                    border: '1px solid #BE93A0', // Borde definido
+                                    borderRadius: '4px',
+                                    opacity: 1,
                                 },
                             }}
                             onClick={() => navigate('/CreditManagement')}
@@ -1002,11 +1131,21 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 font: 'normal normal 600 14px/20px Poppins',
                                 color: '#833A53',
                                 background: '#FFF',
-                                borderRadius: '8px',
+                                borderRadius: '4px',
                                 padding: '6px 16px',
                                 boxShadow: 'none',
+                                width: '109px',
+                                height: '32px',
                                 '&:hover': {
-                                    background: '#F5F5F5',
+                                    background: '#F2E9EC 0% 0% no-repeat padding-box', // Color al pasar el mouse
+                                    borderRadius: '4px', // Redondeo al hover
+                                    opacity: 1, // Asegura que se vea correctamente
+                                },
+                                '&:active': {
+                                    background: '#E6C2CD 0% 0% no-repeat padding-box', // Color al presionar
+                                    border: '1px solid #BE93A0', // Borde definido
+                                    borderRadius: '4px',
+                                    opacity: 1,
                                 },
                             }}
                             onClick={() => navigate('/AccountRecharge')}

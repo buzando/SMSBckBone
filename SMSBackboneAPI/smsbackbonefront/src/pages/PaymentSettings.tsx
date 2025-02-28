@@ -125,7 +125,40 @@ const PaymentSettings: React.FC = () => {
     const handleNotificationToggle = () => {
         setIsNotificationEnabled((prev) => !prev);
     };
-    const handleAutoRechargeToggle = () => setIsAutoRechargeEnabled((prev) => !prev);
+
+
+    const isAcceptButtonDisabled = !(
+        isNotificationEnabled &&
+        selectedChannels.length > 0 &&
+        threshold.trim() !== "" &&
+        selectedUsers.length > 0 &&
+        (!isAutoRechargeEnabled ||  // 🔥 Solo valida si `isAutoRechargeEnabled` está activado
+            (selectedCard !== null &&
+                thresholdAutomatic.trim() !== "" &&
+                rechargeAmount.trim() !== ""))
+    );
+
+
+
+    const handleChannelToggle = (channel: string) => {
+        setSelectedChannels((prevChannels) => {
+            if (prevChannels.includes(channel)) {
+                return prevChannels.filter((ch) => ch !== channel); // Deselecciona si ya estaba seleccionado
+            } else {
+                return [...prevChannels, channel]; // Agrega si no estaba seleccionado
+            }
+        });
+    };
+
+    const handleUserToggle = (userId: number) => { 
+        setSelectedUsers((prevUsers) => {
+            if (prevUsers.includes(userId)) {
+                return prevUsers.filter((id) => id !== userId);
+            } else {
+                return [...prevUsers, userId];
+            }
+        });
+    };
 
     useEffect(() => {
         fetchAccounts();
@@ -198,13 +231,22 @@ const PaymentSettings: React.FC = () => {
     };
 
     const handleChange = (e: SelectChangeEvent | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        const parsedValue = name === 'month' || name === 'year' ? parseInt(value, 10) : value; // Convierte mes y año a números
-        const error = validateField(name, parsedValue.toString()); // Valida los datos
+        const { name, value, type, checked } = e.target as HTMLInputElement;
+
+        let parsedValue: string | number | boolean = value;
+
+        if (type === "checkbox") {
+            parsedValue = checked; // 🔥 Maneja los checkbox correctamente
+        } else if (name === "month" || name === "year") {
+            parsedValue = parseInt(value, 10); // 🔥 Convierte mes y año a número
+        }
+
+        const error = validateField(name, parsedValue.toString()); // 🔥 Mantiene la validación activa
 
         setFormData((prev) => ({ ...prev, [name]: parsedValue }));
         setErrors((prev) => ({ ...prev, [name]: error }));
     };
+
 
     const validateField = (name: string, value: string) => {
         let error = '';
@@ -412,7 +454,7 @@ const PaymentSettings: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+        <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#ffffff', borderRadius: '8px' }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -610,8 +652,8 @@ const PaymentSettings: React.FC = () => {
                             fontSize: '16px'
                         }}>Cantidad</h3>
                         <TextField
-                            value={threshold}
-                            onChange={(e) => setThreshold(e.target.value)}
+                            value={thresholdAutomatic}
+                            onChange={(e) => setthresholdAutomatic(e.target.value)}
                             type="number"
                             disabled={!isAutoRechargeEnabled}
                             style={{
@@ -774,7 +816,7 @@ const PaymentSettings: React.FC = () => {
                     {/* Botones de acción debajo de las tarjetas de crédito */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
                         <SecondaryButton onClick={() => navigate(-1)} text="Cancelar" />
-                        <MainButton text="Aceptar" isLoading={loading} onClick={(event) => handleAddCardSubmit(event)} />
+                        <MainButton text="Aceptar" isLoading={loading} onClick={(event) => handleAddCardSubmit(event)} disabled={isAcceptButtonDisabled} />
                     </div>
                 </div>
             </div>

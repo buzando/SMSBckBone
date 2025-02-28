@@ -18,7 +18,10 @@ import infoiconerror from '../assets/Icon-infoerror.svg'
 import { InputAdornment, Tooltip, TooltipProps } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import Checkbox from '@mui/material/Checkbox';
-import { SelectChangeEvent } from '@mui/material/Select';
+import trash from '../assets/Icon-trash-Card.svg'
+import Radio from '@mui/material/Radio';
+
+
 interface CreditCard {
     id: number;
     user_id: number;
@@ -338,13 +341,24 @@ const PaymentMethods: React.FC = () => {
         setIsAddCardModalOpen(false); // Cierra el modal principal
     };
 
-    const handleChange = (e: SelectChangeEvent | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        const parsedValue = name === 'month' || name === 'year' ? parseInt(value, 10) : value; // Convierte mes y año a números
-        const error = validateField(name, parsedValue.toString()); // Valida los datos
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        let name: string, value: string | number | boolean;
 
-        setFormData((prev) => ({ ...prev, [name]: parsedValue }));
-        setErrors((prev) => ({ ...prev, [name]: error }));
+        if ("target" in e) { // ✅ TypeScript ya reconoce que e tiene target
+            const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+            name = target.name;
+            value = target.type === "checkbox" ? (target as HTMLInputElement).checked : target.value;
+        } else {
+            return; // Evita que TypeScript marque un error
+        }
+
+        // Aseguramos que los valores de 'month' y 'year' sean strings
+        if (name === "month" || name === "year") {
+            value = value.toString();
+        }
+
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: validateField(name, value.toString()) }));
     };
 
     const handleSelectCard = async (card: CreditCard) => {
@@ -435,6 +449,19 @@ const PaymentMethods: React.FC = () => {
                             backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
                         }}
                     >
+                        {/* Barra lateral de color */}
+                        {selectedCard?.id === card.id && (
+                            <div style={{
+                                position: 'absolute',
+                                left: 0,
+                                top: 0,
+                                height: '100%',
+                                width: '8px',
+                                backgroundColor: '#8F4D63',
+                                borderTopLeftRadius: '8px',
+                                borderBottomLeftRadius: '8px',
+                            }}></div>
+                        )}
                         {/* Marca de la tarjeta */}
                         <div style={{
                             marginBottom: '10px',
@@ -443,7 +470,7 @@ const PaymentMethods: React.FC = () => {
                             alignItems: 'center',
                             gap: '10px',
                             textAlign: "left",
-                            font: "normal normal medium 14px/54px Poppins",
+                            fontFamily: "Poppins",
                             letterSpacing: "0px",
                             color: "#330F1B",
                             opacity: 1,
@@ -459,7 +486,7 @@ const PaymentMethods: React.FC = () => {
                         <div
                             style={{
                                 fontSize: '14px',
-                                font: "normal normal normal 14px/20px Poppins",
+                                fontFamily: "Poppins",
                                 display: 'flex',
                                 flexDirection: 'column', // Distribución en filas
                                 gap: '5px', // Espacio entre filas
@@ -474,16 +501,17 @@ const PaymentMethods: React.FC = () => {
 
                         {/* Radio para seleccionar */}
                         <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px', cursor: 'pointer', }} onClick={() => handleSelectCard(card)} >
-                            <input
-                                type="radio"
-                                name="selectedCard"
+                            <Radio
                                 checked={selectedCard?.id === card.id}
-                                onChange={() => handleSelectCard(card)}
-                                style={{ cursor: 'pointer' }}
+                                readOnly
+                                sx={{
+                                    color: '#8F4D63',
+                                    '&.Mui-checked': { color: '#8F4D63' },
+                                }}
                             />
                             <span style={{
                                 textAlign: "left",
-                                font: "normal normal normal 14px/54px Poppins",
+                                fontFamily: "Poppins",
                                 letterSpacing: "0px",
                                 color: "#8F4D63",
                                 opacity: 1,
@@ -504,7 +532,7 @@ const PaymentMethods: React.FC = () => {
                                 cursor: 'pointer',
                             }}
                         >
-                            🗑️
+                            <img src={trash} width='24px' height='24px' />
                         </button>
                     </div>
                 ))}
@@ -940,11 +968,12 @@ const PaymentMethods: React.FC = () => {
                                 </label>
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <Select
-                                        value={formData.month.toString()}
+                                        name="month" // 🔥 Aseguramos que `name` esté presente
+                                        value={formData.month} // 🔥 `value` debe coincidir con `formData.month`
                                         onChange={handleChange}
                                         required
                                         style={{
-                                            background: "#FFFFFF 0% 0% no-repeat padding-box",
+                                            background: "#FFFFFF",
                                             border: "1px solid #9B9295",
                                             borderRadius: "8px",
                                             width: "87px",
@@ -953,15 +982,17 @@ const PaymentMethods: React.FC = () => {
                                     >
                                         <MenuItem value="" disabled>Mes</MenuItem>
                                         {months.map((month, index) => (
-                                            <MenuItem key={index} value={index + 1}>{month}</MenuItem> 
+                                            <MenuItem key={index} value={(index + 1).toString()}>{month}</MenuItem> // 🔥 Convertimos a `string`
                                         ))}
                                     </Select>
+
                                     <Select
-                                        value={formData.year.toString()} 
+                                        name="year" // 🔥 Aseguramos que `name` esté presente
+                                        value={formData.year} // 🔥 `value` debe coincidir con `formData.year`
                                         onChange={handleChange}
                                         required
                                         style={{
-                                            background: "#FFFFFF 0% 0% no-repeat padding-box",
+                                            background: "#FFFFFF",
                                             border: "1px solid #9B9295",
                                             borderRadius: "8px",
                                             width: "87px",
@@ -970,9 +1001,10 @@ const PaymentMethods: React.FC = () => {
                                     >
                                         <MenuItem value="" disabled>Año</MenuItem>
                                         {years.map((year, index) => (
-                                            <MenuItem key={index} value={parseInt(year, 10)}>{year}</MenuItem> 
+                                            <MenuItem key={index} value={year.toString()}>{year}</MenuItem> // 🔥 Convertimos a `string`
                                         ))}
                                     </Select>
+
                                     <TextField
                                         type="number"
                                         name="cvv"
@@ -1008,6 +1040,16 @@ const PaymentMethods: React.FC = () => {
                                     name="isDefault"
                                     checked={formData.isDefault}
                                     onChange={handleChange}
+                                    sx={{
+                                        '&.Mui-checked': {
+                                            color: '#ffffff', // 🔥 Color del check (blanco)
+                                        },
+                                        '&.Mui-checked .MuiSvgIcon-root': {
+                                            backgroundColor: '#8F4D63', // 🔥 Cambia el color de adentro cuando está seleccionado
+                                            borderRadius: '4px',
+                                            color: '#ffffff', // 🔥 Cambia el color de la flecha (check) a blanco
+                                        }
+                                    }}
                                 />
                                 <span style={{
                                     textAlign: "left",
@@ -1027,15 +1069,23 @@ const PaymentMethods: React.FC = () => {
                                 margin: '20px 0',
                             }}
                         />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '16px', width: '100%' }}>
-                            <div style={{ gridColumn: '1 / 2', display: 'flex', justifyContent: 'flex-start' }}>
-                                <SecondaryButton onClick={() => handleCloseAddCardModal()} text="Cancelar" />
+                        <div style={{ display: 'flex', gap: '20px', gridColumn: 'span 2' }}>
+                            <div style={{ flex: 1 }}>
+                                <SecondaryButton
+                                    onClick={() => handleCloseAddCardModal()}
+                                    text="Cancelar"// 🔥 Se asegura que no se expanda
+                                />
                             </div>
-                            <div style={{ gridColumn: '2 / 3', display: 'flex', justifyContent: 'flex-end' }}>
-                                <MainButton text="Agregar" isLoading={Loading} onClick={() => addCreditCard()} disabled={!areRequiredFieldsFilled()} />
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <MainButton
+                                    text="Agregar"
+                                    isLoading={Loading}
+                                    onClick={() => addCreditCard()}
+                                    disabled={!areRequiredFieldsFilled()}
+                                />
                             </div>
                         </div>
-
+                       
 
 
                     </form>

@@ -21,6 +21,7 @@ import CreditManagement from './pages/CreditManagement'
 import MyNumbers from './pages/MyNumbers'
 import PaymentSettings from './pages/PaymentSettings'
 import PaymentMethods from './pages/PaymentMethods'
+import Campaigns from './pages/Campains'
 import Use from './pages/Use'
 import Help from './pages/Help'
 import BillingInformation from './pages/BillingInformation'
@@ -94,6 +95,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/PaymentMethods' element={<PaymentMethods />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/Campaigns' element={<Campaigns />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/Use' element={<Use />} />
