@@ -679,5 +679,69 @@ namespace Business
             }
         }
         #endregion
+
+        #region recharge
+        public bool RechargeUser(CreditRechargeRequest credit)
+        {
+            try
+            {
+                var creditrecharge = new CreditRecharge
+                {
+                    Chanel = credit.Chanel,
+                    idCreditCard = credit.IdCreditCard,
+                    quantityCredits = credit.QuantityCredits,
+                    quantityMoney = credit.QuantityMoney,
+                    RechargeDate = DateTime.Now,
+                    idUser = credit.IdUser, 
+                    AutomaticInvoice = credit.AutomaticInvoice
+                };
+                //aqui va el openpay
+
+                creditrecharge.Estatus = "Esperando";
+                using (var ctx = new Entities())
+                {
+                    ctx.CreditRecharge.Add(creditrecharge);
+                    ctx.SaveChanges();
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public List<CreditHystoric> GetHistoricByUser(Datepickers credit)
+        {
+            var historic = new List<CreditHystoric>();
+            try
+            {
+               
+                using (var ctx = new Entities())
+                {
+                    historic = (from cr in ctx.CreditRecharge
+                                join u in ctx.Users on cr.idUser equals u.Id
+                                join c in ctx.clients on u.IdCliente equals c.id
+                                join cc in ctx.creditcards on cr.idCreditCard equals cc.Id
+                                where cr.RechargeDate >= credit.FechaInicio && cr.RechargeDate <= credit.FechaFin && credit.IdUser == credit.IdUser // 🔥 Filtro agregado
+                                select new CreditHystoric
+                                {
+                                    id = cr.Id,
+                                    Client = c.nombrecliente,
+                                    quantityMoney = cr.quantityMoney,
+                                    RechargeDate = cr.RechargeDate,
+                                    Estatus = cr.Estatus,
+                                    PaymentMethod = $"{cc.Type} •••• {cc.card_number.Substring(cc.card_number.Length - 4)} - {cc.card_name}"
+                                }).ToList();
+
+                }
+                return historic;
+            }
+            catch (Exception e)
+            {
+                return new List<CreditHystoric>();
+            }
+        }
+        #endregion
     }
 }

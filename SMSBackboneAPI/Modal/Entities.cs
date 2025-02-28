@@ -27,6 +27,7 @@ namespace Modal
         public DbSet<creditcards> creditcards { get; set; }
         public DbSet<MyNumbers> MyNumbers { get; set; }
         public DbSet<BillingInformation> BillingInformation { get; set; }
+        public DbSet<CreditRecharge> CreditRecharge { get; set; }
 
     }
 }

@@ -1,7 +1,17 @@
 ﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ChipBar from "../components/commons/ChipBar";
-
+import { Box, Divider, Typography, Checkbox, Radio, Modal, Select, MenuItem, SelectChangeEvent, TextField } from '@mui/material';
+import { InputAdornment, Tooltip, TooltipProps } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import MainButtonIcon from '../components/commons/MainButtonIcon'
+import MainButton from '../components/commons/MainButton';
+import SecondaryButton from '../components/commons/SecondaryButton';
+import trash from '../assets/Icon-trash-Card.svg'
+import infoicon from '../assets/Icon-info.svg'
+import infoiconerror from '../assets/Icon-infoerror.svg'
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from '@mui/material/IconButton';
 
 interface CreditCard {
     id: number;
@@ -14,26 +24,53 @@ interface CreditCard {
     is_default: boolean;
     created_at: string;
     updated_at?: string;
-    Type: string;
+    type: string;
 }
 
+
+interface FormData {
+    cardNumber: string;
+    cardName: string;
+    street: string;
+    exteriorNumber: string;
+    interiorNumber: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    cvv: string;
+    month: string;
+    year: string;
+    isDefault: boolean;
+    type: string;
+}
+
+
+type Errors = {
+    [K in keyof FormData]?: string;
+};
 const AccountRecharge: React.FC = () => {
     const [selectedChannel, setSelectedChannel] = useState('');
     const [creditAmount, setCreditAmount] = useState('');
     const [rechargeAmount, setRechargeAmount] = useState('');
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false); // Controla la visibilidad del modal
-    const [cardDetails, setCardDetails] = useState({
+    const [cardDetails, setCardDetails] = useState<FormData>({
         cardNumber: '',
         cardName: '',
-        expirationMonth: 0,
-        expirationYear: 0,
+        street: '',
+        exteriorNumber: '',
+        interiorNumber: '',
+        neighborhood: '',
+        city: '',
+        state: '',
+        postalCode: '',
         cvv: '',
+        month: '',
+        year: '',
         isDefault: false,
-        type: ''
+        type: '',
     });
-    const [cardType, setCardType] = useState('');
-    const [isCardValid, setIsCardValid] = useState(true);
     const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null);
     const [cardToDelete, setCardToDelete] = useState<CreditCard | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -49,7 +86,7 @@ const AccountRecharge: React.FC = () => {
         credits: "8,000",
         unitPrice: "$0.10",
         totalCost: "$0.10",
-        paymentMethod: selectedCard ? `${selectedCard.Type} **${selectedCard.card_number.slice(-4)}, ${selectedCard.card_name}` : 'No seleccionada'
+        paymentMethod: selectedCard ? `${selectedCard.type} **${selectedCard.card_number.slice(-4)}, ${selectedCard.card_name}` : 'No seleccionada'
     };
     const [showChipBarAdd, setshowChipBarAdd] = useState(false);
     const [showChipBarCard, setshowChipBarCard] = useState(false);
@@ -61,16 +98,26 @@ const AccountRecharge: React.FC = () => {
             setIsInvoiceModalOpen(true);
         }
     };
+    const [Loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<Errors>({});
+    const isRechargeButtonDisabled = (): boolean => {
+        return !selectedChannel || !creditAmount || !rechargeAmount || !selectedCard;
+    };
     const multiplier = 80;
-    const closeInvoiceModal = () => {
-        setIsInvoiceModalOpen(false);
-        setGenerateInvoice(false);
-    };
 
-    const acceptInvoiceModal = () => {
-        setIsInvoiceModalOpen(false);
-        setGenerateInvoice(true);
-    };
+    const WhiteTooltip = styled(({ className, ...props }: TooltipProps) => (
+        <Tooltip {...props} classes={{ popper: className }} />
+    ))(() => ({
+        [`& .MuiTooltip-tooltip`]: {
+            backgroundColor: '#ffffff',
+            color: '#000000',
+            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+            fontSize: '14px',
+            borderRadius: '4px',
+        },
+    }));
+
+
 
     // Funciones para abrir y cerrar el modal
     const handleOpenModal = () => {
@@ -81,7 +128,7 @@ const AccountRecharge: React.FC = () => {
         setIsModalOpen(false);
     };
 
-    const handleChannelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleChannelChange = (event: SelectChangeEvent<string>) => {
         setSelectedChannel(event.target.value);
     };
 
@@ -124,8 +171,46 @@ const AccountRecharge: React.FC = () => {
         fetchCreditCards();
     }, []); // Este useEffect se ejecutará solo una vez cuando el componente se monte
 
+    const handleRecharge = async () => {
+        setLoading(true);
+        const usuario = localStorage.getItem("userData");
+        const obj = usuario ? JSON.parse(usuario) : null;
+
+        if (!obj?.id) {
+            console.error("No se encontró el ID del usuario.");
+            return;
+        }
+
+        try {
+
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_RECHARGE}`;
+            const payload = {
+                IdCreditCard: selectedCard?.id,
+                IdUser: obj.id,
+                Chanel: selectedChannel,
+                QuantityCredits: creditAmount,
+                QuantityMoney: rechargeAmount,
+                AutomaticInvoice: generateInvoice
+            };
+
+            const response = await axios.post(requestUrl, payload);
+
+            if (response.status === 200) {
+                setshowChipBarCard(true);
+                setTimeout(() => setshowChipBarCard(false), 3000);
+            }
+        } catch {
+            setErrorModal({
+                title: "Error al cargar saldo",
+                message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const addCreditCard = async () => {
+        setLoading(false);
         const usuario = localStorage.getItem("userData");
         const obj = usuario ? JSON.parse(usuario) : null;
 
@@ -140,11 +225,18 @@ const AccountRecharge: React.FC = () => {
                 user_id: obj.id,
                 card_number: cardDetails.cardNumber,
                 card_name: cardDetails.cardName,
-                expiration_month: cardDetails.expirationMonth,
-                expiration_year: cardDetails.expirationYear,
+                expiration_month: cardDetails.month,
+                expiration_year: cardDetails.year,
                 cvv: cardDetails.cvv,
                 is_default: cardDetails.isDefault,
-                type: cardType
+                type: cardDetails.type,
+                street: cardDetails.street,
+                exterior_number: cardDetails.exteriorNumber,
+                interior_number: cardDetails.interiorNumber || null,
+                neighborhood: cardDetails.neighborhood,
+                city: cardDetails.city,
+                state: cardDetails.state,
+                postal_code: cardDetails.postalCode,
             };
 
             const response = await axios.post(requestUrl, payload);
@@ -155,86 +247,116 @@ const AccountRecharge: React.FC = () => {
                 await fetchCreditCards();
                 handleCloseModal();
             }
-        } catch  {
+        } catch {
             setErrorModal({
                 title: "Error al añadir tarjeta",
                 message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
             });
         } finally {
             handleCloseModal();
+            setLoading(true);
         }
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
+        let name: string, value: string | number | boolean;
 
-        // Validación para `cardName` (solo letras y espacios)
-        if (name === 'cardName' && /[^a-zA-Z\s]/.test(value)) {
-            return; // Evita caracteres no permitidos
-        }
-
-        // Validación para `cvv` (solo números y máximo 3 dígitos)
-        if (name === 'cvv' && (/\\D/.test(value) || value.length > 3)) {
-            return; // Evita caracteres no numéricos o más de 3 dígitos
-        }
-
-        // Verificar si el input es de tipo checkbox
-        if (type === 'checkbox') {
-            setCardDetails((prev) => ({
-                ...prev,
-                [name]: (e.target as HTMLInputElement).checked
-            }));
+        if ("target" in e) { // ✅ TypeScript ya reconoce que e tiene target
+            const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+            name = target.name;
+            value = target.type === "checkbox" ? (target as HTMLInputElement).checked : target.value;
         } else {
-            setCardDetails((prev) => ({
-                ...prev,
-                [name]: value
-            }));
-        }
-    };
-
-
-
-    const validateCardNumber = (cardNumber: string): boolean => {
-        const digits = cardNumber.replace(/\D/g, '');
-        let sum = 0;
-        let shouldDouble = false;
-
-        for (let i = digits.length - 1; i >= 0; i--) {
-            let digit = parseInt(digits[i]);
-
-            if (shouldDouble) {
-                digit *= 2;
-                if (digit > 9) digit -= 9;
-            }
-
-            sum += digit;
-            shouldDouble = !shouldDouble;
+            return; // Evita que TypeScript marque un error
         }
 
-        return sum % 10 === 0;
+        // Aseguramos que los valores de 'month' y 'year' sean strings
+        if (name === "month" || name === "year") {
+            value = value.toString();
+        }
+
+        setCardDetails((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: validateField(name, value.toString()) }));
     };
 
-    const getCardType = (cardNumber: string): string => {
-        const number = cardNumber.replace(/\D/g, "");
+    const validateField = (name: string, value: string) => {
+        let error = '';
+        const cardRegex = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$/;
+        const textRegex = /^[a-zA-ZÀ-ÿ\s]+$/;
+        const numberRegex = /^[0-9]+$/;
+        const postalCodeRegex = /^[0-9]{5}$/;
+        const cvvRegex = /^[0-9]{3,4}$/; // CVV debe ser 3 o 4 dígitos según el tipo de tarjeta
 
-        if (/^4[0-9]{12}(?:[0-9]{3})?$/.test(number)) {
+        switch (name) {
+            case 'cardNumber':
+                if (!cardRegex.test(value)) {
+                    error = 'Número de tarjeta no válido';
+                } else {
+                    const detectedType = detectCardType(value);
+                    setCardDetails((prev) => ({
+                        ...prev,
+                        type: detectedType, // Se actualiza automáticamente el tipo de tarjeta
+                    }));
+                }
+                break;
+            case 'cardName':
+            case 'street':
+            case 'neighborhood':
+            case 'city':
+            case 'state':
+                if (!textRegex.test(value)) error = 'No se permiten caracteres especiales';
+                break;
+            case 'exteriorNumber':
+            case 'interiorNumber':
+                if (!numberRegex.test(value)) error = 'Solo se permiten números';
+                break;
+            case 'postalCode':
+                if (!postalCodeRegex.test(value)) error = 'Debe ser un código postal válido (5 dígitos)';
+                break;
+            case 'cvv':
+                if (!cvvRegex.test(value)) error = 'CVV no válido. Debe contener 3 o 4 dígitos';
+                break;
+            case 'month':
+                if (!numberRegex.test(value) || parseInt(value, 10) < 1 || parseInt(value, 10) > 12) error = 'Mes no válido';
+                break;
+            case 'year':
+                if (!numberRegex.test(value) || value.length !== 4) error = 'Año no válido';
+                break;
+            default:
+                break;
+        }
+        return error;
+    };
+
+    const detectCardType = (number: string) => {
+        if (/^4/.test(number)) {
             return "Visa";
-        } else if (/^5[1-5][0-9]{14}$/.test(number)) {
+        } else if (/^5[1-5]/.test(number)) {
             return "Mastercard";
-        } else if (/^3[47][0-9]{13}$/.test(number)) {
+        } else if (/^3[47]/.test(number)) {
             return "American Express";
-        } else if (/^6(?:011|5[0-9]{2})[0-9]{12}$/.test(number)) {
-            return "Discover";
-        } else {
-            return "Unknown";
         }
+        return "Desconocida"; // En caso de no coincidir con ningún tipo
     };
 
-    const handleCardNumberBlur = () => {
-        const valid = validateCardNumber(cardDetails.cardNumber);
-        const type = getCardType(cardDetails.cardNumber);
-        setIsCardValid(valid);
-        setCardType(type);
+
+    const areRequiredFieldsFilled = (): boolean => {
+        // Verifica que los campos requeridos no estén vacíos
+        const requiredFields = [
+            cardDetails.cardNumber,
+            cardDetails.cardName,
+            cardDetails.street,
+            cardDetails.exteriorNumber,
+            cardDetails.neighborhood,
+            cardDetails.city,
+            cardDetails.state,
+            cardDetails.postalCode,
+            cardDetails.cvv,
+            cardDetails.month,
+            cardDetails.year,
+        ];
+
+        // Devuelve true si todos los campos requeridos están llenos y sin errores
+        return requiredFields.every((field) => field.trim() !== '') && Object.values(errors).every((error) => !error);
     };
 
 
@@ -251,8 +373,8 @@ const AccountRecharge: React.FC = () => {
                 setTimeout(() => setshowChipBarDelete(false), 3000);
             }
 
-         
-        } catch  {
+
+        } catch {
             setErrorModal({
                 title: "Error al eliminar tarjeta",
                 message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
@@ -286,13 +408,25 @@ const AccountRecharge: React.FC = () => {
         setRechargeAmount(calculatedAmount.toString()); // Actualiza el monto a recargar
     };
 
+
+
+    const resetForm = () => {
+        setSelectedChannel('');
+        setCreditAmount('');
+        setRechargeAmount('');
+        setSelectedCard(null);
+        setGenerateInvoice(false);
+        setErrors({});
+    };
+
     return (
         <div style={{
             position: 'relative',
             maxWidth: '800px',
             margin: '30px 0 0 30px',
             fontFamily: 'Arial, sans-serif',
-            color: '#4a4a4a'
+            color: '#4a4a4a',
+            marginBottom: '40px'
         }}>
             {/* Modal de confirmación para eliminar */}
             {isDeleteModalOpen && (
@@ -399,215 +533,272 @@ const AccountRecharge: React.FC = () => {
             )}
 
 
-            {isInvoiceModalOpen && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000,
+            <Modal open={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)}>
+                <Box sx={{
+                    position: 'absolute',
+                    top: '130px',
+                    left: '415px',
+                    width: '556px',
+                    height: '520px',
+                    backgroundColor: 'white',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: 24,
                 }}>
-                    <div style={{
-                        backgroundColor: '#fff',
-                        padding: '20px',
-                        borderRadius: '8px',
-                        width: '500px',
-                        textAlign: 'center',
-                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)'
+                    <Typography sx={{
+                        textAlign: 'left',
+                        fontFamily: 'Poppins',
+                        fontWeight: 600,
+                        fontSize: '20px',
+                        lineHeight: '54px',
+                        letterSpacing: '0px',
+                        color: '#574B4F',
+                        opacity: 1,
                     }}>
-                        <h3 style={{ marginBottom: '10px', color: '#4a4a4a' }}>Datos de factura</h3>
-                        <div style={{
-                            backgroundColor: '#f9f9f9',
-                            padding: '15px',
-                            borderRadius: '5px',
-                            textAlign: 'left',
-                            fontSize: '0.9rem',
-                            color: '#6a6a6a'
-                        }}>
-                            <p><strong>Nombre o razón social:</strong> {invoiceData.name}</p>
-                            <p><strong>RFC:</strong> {invoiceData.rfc}</p>
-                            <p><strong>Código postal:</strong> {invoiceData.postalCode}</p>
-                            <p><strong>Régimen fiscal:</strong> {invoiceData.fiscalRegime}</p>
-                            <p><strong>Descripción de los bienes o servicios:</strong> {invoiceData.description}</p>
-                            <p><strong>Créditos:</strong> {invoiceData.credits}</p>
-                            <p><strong>Precio unitario:</strong> {invoiceData.unitPrice}</p>
-                            <p><strong>Costo total:</strong> {invoiceData.totalCost}</p>
-                            <p><strong>Método de pago:</strong> {invoiceData.paymentMethod}</p>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-                            <button
-                                onClick={closeInvoiceModal}
-                                style={{
-                                    backgroundColor: '#fff',
-                                    color: '#8d406d',
-                                    border: '2px solid #8d406d',
-                                    borderRadius: '5px',
-                                    padding: '10px 20px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={acceptInvoiceModal}
-                                style={{
-                                    backgroundColor: '#8d406d',
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    padding: '10px 20px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                Aceptar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                        Datos de Factura
+                    </Typography>
+                    <Divider sx={{ margin: '10px 0' }} />
 
-            <h2 style={{
-                position: 'relative',
-                top: '0',
-                left: '0',
-                textAlign: 'left',
-                font: 'normal normal medium 26px/55px Poppins',
-                letterSpacing: '0px',
-                color: '#330F1B',
-                opacity: 1,
-                margin: '0 0 10px 0'
-            }}>
+                    <Box sx={{
+                        backgroundColor: '#F5F4F4',
+                        padding: '15px',
+                        borderRadius: '5px',
+                        textAlign: 'left',
+                        fontSize: '16px',
+                        color: '#6a6a6a'
+                    }}>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>Nombre o razón social:</strong> {invoiceData.name}</Typography>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>RFC:</strong> {invoiceData.rfc}</Typography>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>Código postal:</strong> {invoiceData.postalCode}</Typography>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>Régimen fiscal:</strong> {invoiceData.fiscalRegime}</Typography>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>Descripción de los bienes o servicios:</strong> {invoiceData.description}</Typography>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>Créditos:</strong> {invoiceData.credits}</Typography>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>Precio unitario:</strong> {invoiceData.unitPrice}</Typography>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>Costo total:</strong> {invoiceData.totalCost}</Typography>
+                        <Typography sx={{ marginBottom: '10px', fontFamily: 'Poppins', fontSize: '16px', }}><strong>Método de pago:</strong> {invoiceData.paymentMethod}</Typography>
+                    </Box>
+
+                    <Divider sx={{ margin: '20px 0' }} />
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+                        <SecondaryButton text='Cancelar' onClick={() => setIsInvoiceModalOpen(false)} />
+                        <MainButton text='Aceptar' onClick={() => {
+                            setIsInvoiceModalOpen(false); // Cierra el modal
+                            setGenerateInvoice(true); // Marca el checkbox como seleccionado
+                        }} />
+                    </Box>
+                </Box>
+            </Modal>
+
+            <Typography
+                sx={{
+                    textAlign: "left",
+                    fontFamily: "Poppins",
+                    fontWeight: 500,  // “medium”
+                    fontSize: "26px",
+                    lineHeight: "55px",
+                    letterSpacing: "0px",
+                    color: "#330F1B",
+                    opacity: 1,
+                    // textTransform: "none" // Omitido por completo
+                }}
+            >
                 Recarga de Créditos
-            </h2>
+            </Typography>
             <div style={{
                 width: '100%',
                 height: '1px',
                 backgroundColor: '#330F1B',
-                margin: '10px 0 20px 0'
+                margin: '5px 0 20px 0'
             }}></div>
 
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '20px', width: '60%' }}> {/* Hacemos más estrecho el recuadro */}
-                    <label htmlFor="channel" style={{
-                        textAlign: 'left',
-                        font: 'normal normal medium 18px/22px Poppins',
-                        letterSpacing: '0px',
-                        color: '#330F1B',
-                        opacity: 1,
-                        display: 'block',
-                        marginBottom: '5px'
-                    }}>
+                    <Typography
+                        sx={{
+                            textAlign: 'left',
+                            fontFamily: "Poppins",
+                            letterSpacing: '0px',
+                            color: '#330F1B',
+                            opacity: 1,
+                            display: 'block',
+                            marginBottom: '5px',
+                            fontSize: '18px',
+                        }}>
                         Canal
-                    </label>
+                    </Typography>
 
-                    <select
+                    <Select
                         id="channel"
                         value={selectedChannel}
                         onChange={handleChannelChange}
-                        style={{
-                            width: '48%',
-                            padding: '12px',
-                            border: '1px solid #dcdcdc',
-                            borderRadius: '5px',
-                            fontSize: '1rem'
+                        displayEmpty
+                        renderValue={(selected) => {
+                            if (!selected) {
+                                return (
+                                    <span
+                                        style={{
+                                            textAlign: "left",
+                                            fontFamily: "Poppins, sans-serif",
+                                            fontSize: "12px",
+                                            lineHeight: "40px",
+                                            letterSpacing: "0px",
+                                            color: "#786E71",
+                                            opacity: 1,
+                                        }}
+                                    >
+                                        Seleccionar canal
+                                    </span>
+                                );
+                            }
+                            return selected === "short_sms" ? "SMS, números cortos" : "SMS, números largos";
+                        }}
+                        sx={{
+                            width: "208px",
+                            height: "40px",
+                            border: "1px solid #dcdcdc",
+                            borderRadius: "5px",
+                            fontSize: "1rem",
+                            fontFamily: "Poppins, sans-serif",
+                            "& .MuiSelect-select": {
+                                textAlign: "left",
+                                padding: "10px 14px",
+                                height: "40px",
+                                display: "flex",
+                                alignItems: "center",
+                            },
                         }}
                     >
-                        <option value="">Seleccionar canal</option>
-                        <option value="short_sms">SMS, números cortos</option>
-                        <option value="long_sms">SMS, números largos</option>
-                    </select>
+                        <MenuItem value="short_sms">SMS, números cortos</MenuItem>
+                        <MenuItem value="long_sms">SMS, números largos</MenuItem>
+                    </Select>
+
                 </div>
 
                 <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', width: '60%' }}> {/* Ajustamos ancho aquí también */}
                     <div style={{ flex: 1 }}>
-                        <label htmlFor="credits" style={{
-                            fontSize: '1rem',
-                            fontWeight: 'bold',
+                        <Typography style={{
+                            fontSize: '18px',
+                            fontFamily: "Poppins",
                             display: 'block',
                             marginBottom: '5px',
-                            color: '#6a6a6a'
-                        }}>Cantidad de créditos</label>
-                        <input
+                            color: '#330F1B',
+                        }}>Cantidad de créditos</Typography>
+
+                        <TextField
                             id="credits"
                             type="number"
                             value={creditAmount}
                             onChange={handleCreditChange}
                             onBlur={handleCreditBlur}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                border: '1px solid #dcdcdc',
-                                borderRadius: '5px',
-                                fontSize: '1rem'
+                            variant="outlined"
+                            fullWidth
+                            InputProps={{
+                                sx: {
+                                    textAlign: "left",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "16px",
+                                    fontWeight: 500, // medium
+                                    lineHeight: "54px",
+                                    letterSpacing: "0.03px",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    height: "54px", // Altura fija según la imagen
+                                    backgroundColor: "#FFFFFF", // Asegurar fondo blanco
+                                },
+                            }}
+                            sx={{
+                                width: "210px", // Ancho según la imagen
+                                "& .MuiOutlinedInput-root": {
+                                    borderRadius: "5px",
+                                    border: "1px solid #dcdcdc",
+                                    "& fieldset": {
+                                        borderColor: "#dcdcdc",
+                                    },
+                                    "&:hover fieldset": {
+                                        borderColor: "#b8b8b8", // Cambio de color al pasar el mouse
+                                    },
+                                    "&.Mui-focused fieldset": {
+                                        borderColor: "#574B4F", // Color al seleccionar
+                                    },
+                                },
                             }}
                         />
                     </div>
 
                     <div style={{ flex: 1 }}>
-                        <label htmlFor="amount" style={{
-                            fontSize: '1rem',
-                            fontWeight: 'bold',
+                        <Typography style={{
+                            fontSize: '18px',
+                            fontFamily: "Poppins",
                             display: 'block',
                             marginBottom: '5px',
-                            color: '#6a6a6a'
-                        }}>Monto a recargar</label>
-                        <input
+                            color: '#330F1B',
+                        }}>Monto a recargar</Typography>
+                        <TextField
                             id="amount"
                             type="text"
                             disabled
-                            value={rechargeAmount}
+                            value={`${rechargeAmount}`}
                             onChange={handleRechargeChange}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                border: '1px solid #dcdcdc',
-                                borderRadius: '5px',
-                                fontSize: '1rem'
+                            variant="outlined"
+                            fullWidth
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                sx: {
+                                    textAlign: "left",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "16px",
+                                    fontWeight: 500, // medium
+                                    lineHeight: "54px",
+                                    letterSpacing: "0.03px",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    height: "54px", // Mantener altura uniforme
+                                    backgroundColor: "#f5f5f5", // Gris de fondo para indicar que está deshabilitado
+                                },
                             }}
-                            placeholder="$"
+                            sx={{
+                                width: "210px", // Ancho según la imagen
+                                "& .MuiOutlinedInput-root": {
+                                    borderRadius: "5px",
+                                    border: "1px solid #dcdcdc",
+                                    "& fieldset": {
+                                        borderColor: "#dcdcdc",
+                                    },
+                                    "&:hover fieldset": {
+                                        borderColor: "#b8b8b8", // Cambio de color al pasar el mouse
+                                    },
+                                    "&.Mui-focused fieldset": {
+                                        borderColor: "#574B4F", // Color al seleccionar
+                                    },
+                                },
+                            }}
                         />
+
                     </div>
                 </div>
 
                 <div style={{ marginBottom: '20px', width: '60%' }}> {/* Texto del método de pago */}
-                    <label htmlFor="paymentMethod" style={{
-                        fontSize: '1rem',
-                        fontWeight: 'bold',
+                    <Typography style={{
+                        fontSize: '18px',
+                        fontFamily: "Poppins",
                         display: 'block',
                         marginBottom: '5px',
-                        color: '#6a6a6a'
-                    }}>Seleccione el método de pago</label>
+                        color: '#330F1B',
+                    }}>Seleccione el método de pago</Typography>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={handleOpenModal}
-                    style={{
-                        backgroundColor: '#8d406d',
-                        color: '#fff',
-                        fontWeight: 'bold',
-                        padding: '8px 12px',
-                        border: 'none',
-                        borderRadius: '5px',
-                        fontSize: '1rem',
-                        cursor: 'pointer',
-                        marginBottom: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px'
-                    }}
-                >
-                    <span style={{ fontSize: '1.5rem', lineHeight: '1' }}>+</span> Agregar Tarjeta
-                </button>
+                <MainButtonIcon onClick={handleOpenModal} text='Agregar Tarjeta' width='210px' />
 
-                <div style={{ display: 'flex', gap: '20px', margin: '20px 0', flexWrap: 'wrap' }}>
+
+                <div style={{
+                    display: 'flex',
+                    gap: '20px',
+                    overflowX: 'auto', // Habilita el scroll horizontal
+                    whiteSpace: 'nowrap',
+                    marginTop: '20px',
+                    paddingBottom: '10px',
+                }}>
                     {creditCards.map((card) => (
                         <div
                             key={card.id}
@@ -615,35 +806,94 @@ const AccountRecharge: React.FC = () => {
                                 border: selectedCard?.id === card.id ? '2px solid #8d406d' : '1px solid #dcdcdc',
                                 borderRadius: '8px',
                                 padding: '15px',
-                                width: '250px',
+                                width: '360px', // Ancho del contenedor
+                                height: '172px', // Alto del contenedor
                                 position: 'relative',
                                 backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
+                                display: 'inline-block',
+                                whiteSpace: 'normal',
                             }}
                         >
+                            {/* Barra lateral de color */}
+                            {selectedCard?.id === card.id && (
+                                <div style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    top: 0,
+                                    height: '100%',
+                                    width: '8px',
+                                    backgroundColor: '#8F4D63',
+                                    borderTopLeftRadius: '8px',
+                                    borderBottomLeftRadius: '8px',
+                                }}></div>
+                            )}
+
                             {/* Marca de la tarjeta */}
-                            <div style={{ marginBottom: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{
+                                marginBottom: '10px',
+                                fontWeight: 'bold',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                textAlign: "left",
+                                fontFamily: "Poppins",
+                                letterSpacing: "0px",
+                                color: "#330F1B",
+                                opacity: 1,
+                                fontSize: "14px"
+                            }}>
                                 <div>
-                                    {card.Type}
+                                    {card.type}
                                 </div>
-                                {card.card_name}
                             </div>
 
                             {/* Detalles */}
-                            <div style={{ fontSize: '0.9rem', marginBottom: '10px' }}>
-                                <div>Terminación: •••• {card.card_number.slice(-4)}</div>
-                                <div>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</div>
+
+                            <div
+                                style={{
+                                    fontSize: '14px',
+                                    fontFamily: "Poppins",
+                                    display: 'flex',
+                                    flexDirection: 'column', // Distribución en filas
+                                    gap: '5px', // Espacio entre filas
+                                    lineHeight: '1.2', // Compacta las líneas ligeramente
+                                }}
+                            >
+                                <span style={{ margin: '0', padding: '0' }}>{card.card_name}</span>
+                                <span style={{ margin: '0', padding: '0' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
+                                <span style={{ margin: '0', padding: '0' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
                             </div>
 
                             {/* Radio para seleccionar */}
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px' }}>
-                                <input
-                                    type="radio"
-                                    name="selectedCard"
+                            <label
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px',
+                                    marginBottom: '10px',
+                                    marginTop: '15px',
+                                    cursor: 'pointer',
+                                    marginLeft: '-10px',
+                                }}
+                                onClick={() => handleSelectCard(card)}
+                            >
+                                <Radio
                                     checked={selectedCard?.id === card.id}
-                                    onChange={() => handleSelectCard(card)}
-                                    style={{ cursor: 'pointer' }}
+                                    readOnly
+                                    sx={{
+                                        color: '#8F4D63',
+                                        '&.Mui-checked': { color: '#8F4D63' },
+                                    }}
                                 />
-                                {selectedCard?.user_id === card.user_id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}
+                                <span style={{
+                                    textAlign: "left",
+                                    fontFamily: "Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#8F4D63",
+                                    opacity: 1,
+                                    fontSize: "14px",
+                                }}>{selectedCard?.id === card.id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}</span>
+
                             </label>
 
                             {/* Botón para eliminar */}
@@ -658,7 +908,7 @@ const AccountRecharge: React.FC = () => {
                                     cursor: 'pointer',
                                 }}
                             >
-                                🗑️
+                                <img src={trash} width='24px' height='24px' />
                             </button>
                         </div>
                     ))}
@@ -666,231 +916,549 @@ const AccountRecharge: React.FC = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', width: '100%' }}> {/* Facturar automáticamente y botones */}
                     <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1rem', color: '#6a6a6a' }}>
-                        <input
-                            type="checkbox"
+                        <Checkbox
                             checked={generateInvoice}
                             onChange={handleGenerateInvoiceCheck}
-                            style={{ cursor: 'pointer' }}
+                            sx={{
+                                color: '##6F1E3A',
+                                '&.Mui-checked': { color: '#6C3A52' },
+                                marginLeft: '-5px',
+
+                            }}
                         />
                         Generar factura automáticamente
                     </label>
 
                     <div style={{ display: 'flex', gap: '10px' }}> {/* Botones a la derecha */}
-                        <button
-                            type="button"
-                            style={{
-                                backgroundColor: '#fff',
-                                color: '#8d406d',
-                                fontWeight: 'bold',
-                                padding: '8px 12px',
-                                border: '2px solid #8d406d',
-                                borderRadius: '5px',
-                                fontSize: '1rem',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            style={{
-                                backgroundColor: '#8d406d',
-                                color: '#fff',
-                                fontWeight: 'bold',
-                                padding: '8px 12px',
-                                border: 'none',
-                                borderRadius: '5px',
-                                fontSize: '1rem',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Recargar
-                        </button>
+                        <SecondaryButton text='Cancelar' onClick={() => {
+                            resetForm();
+                        }} />
+                        <MainButton text='Recargar' onClick={() => handleRecharge()} disabled={isRechargeButtonDisabled()} isLoading={Loading} />
                     </div>
                 </div>
             </form>
-            {isModalOpen && (
-                <div style={{
-                    position: 'fixed',
-                    top: '0',
-                    left: '0',
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: '1000',
-                }}>
-                    <div style={{
-                        backgroundColor: '#fff',
-                        padding: '20px',
+
+            <Modal
+                open={isModalOpen}
+                onClose={handleCloseModal}
+                aria-labelledby="add-card-modal-title"
+                aria-describedby="add-card-modal-description"
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '885px',
+                        height: '756px',
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
                         borderRadius: '8px',
-                        width: '600px', // Cambiado de 400px a 500px
-                        height: 'auto', // Puedes ajustar aquí si necesitas un tamaño fijo para la altura
-                        minHeight: '300px', // Añadido para que tenga un mínimo de altura
-                        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                    }}>
-                        <h2 style={{
-                            fontSize: '1.5rem',
-                            marginBottom: '10px',
-                            color: '#4a4a4a',
-                        }}>Agregar tarjeta</h2>
-
-                        <form onSubmit={(e) => { e.preventDefault(); addCreditCard(); }}>
-                            <div style={{ marginBottom: '10px' }}>
-                                <label htmlFor="cardNumber" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                                    Número de tarjeta *
+                        overflowY: 'auto',
+                    }}
+                >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h2
+                            id="add-card-modal-title"
+                            style={{
+                                textAlign: "left",
+                                font: "normal normal 600 20px/54px Poppins",
+                                letterSpacing: "0px",
+                                color: "#574B4F",
+                                opacity: 1,
+                                fontSize: "20px",
+                                margin: 0
+                            }}
+                        >
+                            Agregar tarjeta
+                        </h2>
+                        <IconButton onClick={handleCloseModal} style={{ color: "#574B4F" }}>
+                            <CloseIcon />
+                        </IconButton>
+                    </div>
+                    <hr style={{ width: '100%', border: '1px solid #ccc', margin: '10px 0' }} />
+                    <form
+                        onSubmit={addCreditCard}
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            columnGap: '20px',
+                            rowGap: '15px',
+                        }}
+                    >
+                        <div style={{ display: 'flex', gap: '20px', gridColumn: 'span 2' }}>
+                            <div style={{ flex: 1 }}>
+                                <label
+                                    style={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        display: "block",
+                                        marginBottom: "5px"
+                                    }}
+                                >
+                                    Número de tarjeta<span style={{ color: "#D01247" }}>*</span>
                                 </label>
-                                <input
-                                    id="cardNumber"
-                                    name="cardNumber"
-                                    type="text"
-                                    placeholder="1234 5678 9012 3456"
+                                <TextField name="cardNumber"
                                     value={cardDetails.cardNumber}
-                                    onChange={handleInputChange}
-                                    onBlur={handleCardNumberBlur}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        border: isCardValid ? '1px solid #dcdcdc' : '1px solid red',
-                                        borderRadius: '4px',
+                                    onChange={handleChange}
+                                    error={Boolean(errors['cardNumber'])}
+                                    helperText={errors['cardNumber']}
+                                    fullWidth
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <WhiteTooltip title={<>
+                                                    <div>• Solo caracteres numéricos</div>
+                                                    <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                                </>}>
+                                                    <img src={errors['cardNumber'] ? infoiconerror : infoicon} alt="info-icon" />
+                                                </WhiteTooltip>
+                                            </InputAdornment>
+                                        )
                                     }}
-                                    required
                                 />
-                                {!isCardValid && (
-                                    <span style={{ color: 'red', marginTop: '5px', display: 'block' }}>
-                                        Tarjeta inválida
-                                    </span>
-                                )}
                             </div>
-
-                            <div style={{ marginBottom: '10px' }}>
-                                <label htmlFor="cardName" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                                    Nombre en la tarjeta *
+                            <div style={{ flex: 1 }}>
+                                <label
+                                    style={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        display: "block",
+                                        marginBottom: "5px"
+                                    }}
+                                >
+                                    Nombre en la tarjeta<span style={{ color: "#D01247" }}>*</span>
                                 </label>
-                                <input
-                                    id="cardName"
-                                    name="cardName"
-                                    type="text"
-                                    placeholder="Nombre completo"
+                                <TextField name="cardName"
                                     value={cardDetails.cardName}
-                                    onChange={handleInputChange}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        border: '1px solid #dcdcdc',
-                                        borderRadius: '4px',
-                                    }}
-                                    required
-                                />
+                                    onChange={handleChange}
+                                    error={Boolean(errors.cardName)}
+                                    helperText={errors.cardName}
+                                    fullWidth
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <WhiteTooltip title={<>
+                                                    <div>• Solo caracteres numéricos</div>
+                                                    <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                                </>}>
+                                                    <img src={errors.cardName ? infoiconerror : infoicon} alt="info-icon" />
+                                                </WhiteTooltip>
+                                            </InputAdornment>
+                                        )
+                                    }} />
                             </div>
-
-                            <div style={{ marginBottom: '10px' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                                    Fecha de vencimiento *
+                        </div>
+                        <div>
+                            <label
+                                style={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                    display: "block",
+                                    marginBottom: "5px"
+                                }}
+                            >
+                                Calle<span style={{ color: "#D01247" }}>*</span>
+                            </label>
+                            <TextField name="street"
+                                value={cardDetails.street}
+                                onChange={handleChange}
+                                error={Boolean(errors.street)}
+                                helperText={errors.street}
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <WhiteTooltip title={<>
+                                                <div>• Solo caracteres numéricos</div>
+                                                <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                            </>}>
+                                                <img src={errors.street ? infoiconerror : infoicon} alt="info-icon" />
+                                            </WhiteTooltip>
+                                        </InputAdornment>
+                                    )
+                                }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                            <div style={{ flex: 1 }}>
+                                <label
+                                    style={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        display: "block",
+                                        marginBottom: "5px"
+                                    }}
+                                >
+                                    Número exterior<span style={{ color: "#D01247" }}>*</span>
+                                </label>
+                                <TextField type="number"
+                                    name="exteriorNumber"
+                                    value={cardDetails.exteriorNumber}
+                                    onChange={handleChange}
+                                    error={Boolean(errors.exteriorNumber)}
+                                    helperText={errors.exteriorNumber}
+                                    fullWidth
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <WhiteTooltip title={<>
+                                                    <div>• Solo caracteres numéricos</div>
+                                                    <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                                </>}>
+                                                    <img src={errors.exteriorNumber ? infoiconerror : infoicon} alt="info-icon" />
+                                                </WhiteTooltip>
+                                            </InputAdornment>
+                                        )
+                                    }} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label
+                                    style={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        display: "block",
+                                        marginBottom: "5px"
+                                    }}
+                                >
+                                    Número interior<span style={{ color: "#D01247" }}>*</span>
+                                </label>
+                                <TextField type="number"
+                                    name="street"
+                                    value={cardDetails.interiorNumber}
+                                    onChange={handleChange}
+                                    error={Boolean(errors.interiorNumber)}
+                                    helperText={errors.interiorNumber}
+                                    fullWidth
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <WhiteTooltip title={<>
+                                                    <div>• Solo caracteres numéricos</div>
+                                                    <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                                </>}>
+                                                    <img src={errors.interiorNumber ? infoiconerror : infoicon} alt="info-icon" />
+                                                </WhiteTooltip>
+                                            </InputAdornment>
+                                        )
+                                    }} />
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                style={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                    display: "block",
+                                    marginBottom: "5px"
+                                }}
+                            >
+                                Colonia<span style={{ color: "#D01247" }}>*</span>
+                            </label>
+                            <TextField name="neighborhood"
+                                value={cardDetails.neighborhood}
+                                onChange={handleChange}
+                                error={Boolean(errors.neighborhood)}
+                                helperText={errors.neighborhood}
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <WhiteTooltip title={<>
+                                                <div>• Solo caracteres numéricos</div>
+                                                <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                            </>}>
+                                                <img src={errors.neighborhood ? infoiconerror : infoicon} alt="info-icon" />
+                                            </WhiteTooltip>
+                                        </InputAdornment>
+                                    )
+                                }} />
+                        </div>
+                        <div>
+                            <label
+                                style={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                    display: "block",
+                                    marginBottom: "5px"
+                                }}
+                            >
+                                Ciudad<span style={{ color: "#D01247" }}>*</span>
+                            </label>
+                            <TextField name="city"
+                                value={cardDetails.city}
+                                onChange={handleChange}
+                                error={Boolean(errors.city)}
+                                helperText={errors.city}
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <WhiteTooltip title={<>
+                                                <div>• Solo caracteres numéricos</div>
+                                                <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                            </>}>
+                                                <img src={errors.city ? infoiconerror : infoicon} alt="info-icon" />
+                                            </WhiteTooltip>
+                                        </InputAdornment>
+                                    )
+                                }} />
+                        </div>
+                        <div>
+                            <label
+                                style={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                    display: "block",
+                                    marginBottom: "5px"
+                                }}
+                            >
+                                Estado<span style={{ color: "#D01247" }}>*</span>
+                            </label>
+                            <TextField name="state"
+                                value={cardDetails.state}
+                                onChange={handleChange}
+                                error={Boolean(errors.state)}
+                                helperText={errors.state}
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <WhiteTooltip title={<>
+                                                <div>• Solo caracteres numéricos</div>
+                                                <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                            </>}>
+                                                <img src={errors.state ? infoiconerror : infoicon} alt="info-icon" />
+                                            </WhiteTooltip>
+                                        </InputAdornment>
+                                    )
+                                }} />
+                        </div>
+                        <div>
+                            <label
+                                style={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                    display: "block",
+                                    marginBottom: "5px"
+                                }}
+                            >
+                                CP<span style={{ color: "#D01247" }}>*</span>
+                            </label>
+                            <TextField type="number"
+                                name="postalCode"
+                                value={cardDetails.postalCode}
+                                onChange={handleChange}
+                                error={Boolean(errors.postalCode)}
+                                helperText={errors.postalCode}
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <WhiteTooltip title={<>
+                                                <div>• Solo caracteres numéricos</div>
+                                                <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                            </>}>
+                                                <img src={errors.postalCode ? infoiconerror : infoicon} alt="info-icon" />
+                                            </WhiteTooltip>
+                                        </InputAdornment>
+                                    )
+                                }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: '20px', gridColumn: 'span 2' }}>
+                            <div style={{ flex: 1 }}>
+                                <label
+                                    style={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        display: "inline-block",
+                                        marginBottom: "5px"
+                                    }}
+                                >
+                                    Fecha de vencimiento<span style={{ color: "#D01247" }}>*</span>
+                                </label>
+                                <label
+                                    style={{
+                                        textAlign: "left",
+                                        font: "normal normal medium 16px/54px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        display: "inline-block",
+                                        marginBottom: "5px",
+                                        marginLeft: "37px"
+                                    }}
+                                >
+                                    CVV <span style={{ color: "#D01247" }}>*</span>
                                 </label>
                                 <div style={{ display: 'flex', gap: '10px' }}>
-                                    <select
-                                        name="expirationMonth"
-                                        value={cardDetails.expirationMonth}
-                                        onChange={handleInputChange}
-                                        style={{
-                                            flex: '1',
-                                            padding: '8px',
-                                            border: '1px solid #dcdcdc',
-                                            borderRadius: '4px',
-                                        }}
+                                    <Select
+                                        name="month" // 🔥 Aseguramos que `name` esté presente
+                                        value={cardDetails.month} // 🔥 `value` debe coincidir con `formData.month`
+                                        onChange={handleChange}
                                         required
+                                        style={{
+                                            background: "#FFFFFF",
+                                            border: "1px solid #9B9295",
+                                            borderRadius: "8px",
+                                            width: "87px",
+                                            height: "40px",
+                                        }}
                                     >
-                                        <option value="">Mes</option>
+                                        <MenuItem value="" disabled>Mes</MenuItem>
                                         {[...Array(12)].map((_, i) => (
-                                            <option key={i + 1} value={i + 1}>{i + 1}</option>
+                                            <MenuItem key={i + 1} value={i + 1}>{i + 1}</MenuItem> // 🔥 Convertimos a `string`
                                         ))}
-                                    </select>
-                                    <select
-                                        name="expirationYear"
-                                        value={cardDetails.expirationYear}
-                                        onChange={handleInputChange}
-                                        style={{
-                                            flex: '1',
-                                            padding: '8px',
-                                            border: '1px solid #dcdcdc',
-                                            borderRadius: '4px',
-                                        }}
+                                    </Select>
+
+                                    <Select
+                                        name="year" // 🔥 Aseguramos que `name` esté presente
+                                        value={cardDetails.year} // 🔥 `value` debe coincidir con `formData.year`
+                                        onChange={handleChange}
                                         required
+                                        style={{
+                                            background: "#FFFFFF",
+                                            border: "1px solid #9B9295",
+                                            borderRadius: "8px",
+                                            width: "87px",
+                                            height: "40px",
+                                        }}
                                     >
-                                        <option value="">Año</option>
+                                        <MenuItem value="" disabled>Año</MenuItem>
                                         {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map((year) => (
-                                            <option key={year} value={year}>{year}</option>
+                                            <MenuItem key={year} value={year.toString()}>{year}</MenuItem> // 🔥 Convertimos a `string`
                                         ))}
-                                    </select>
+                                    </Select>
+
+                                    <TextField
+                                        type="number"
+                                        name="cvv"
+                                        value={cardDetails.cvv}
+                                        onChange={handleChange}
+                                        error={Boolean(errors.cvv)}
+                                        helperText={errors.cvv}
+                                        fullWidth
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <WhiteTooltip title={<>
+                                                        <div>• Solo caracteres numéricos</div>
+                                                        <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                                    </>}>
+                                                        <img src={errors.cvv ? infoiconerror : infoicon} alt="info-icon" />
+                                                    </WhiteTooltip>
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                        style={{
+                                            background: "#FFFFFF 0% 0% no-repeat padding-box",
+                                            border: "1px solid #9B9295",
+                                            borderRadius: "4px",
+                                            width: "132px",
+                                            height: "54px",
+                                        }}
+                                    />
                                 </div>
                             </div>
-
-                            <div style={{ marginBottom: '20px' }}>
-                                <label htmlFor="cvv" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-                                    CVV *
-                                </label>
-                                <input
-                                    id="cvv"
-                                    name="cvv"
-                                    type="text"
-                                    placeholder="123"
-                                    value={cardDetails.cvv}
-                                    onChange={handleInputChange}
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px',
-                                        border: '1px solid #dcdcdc',
-                                        borderRadius: '4px',
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <Checkbox
+                                    name="isDefault"
+                                    checked={cardDetails.isDefault}
+                                    onChange={handleChange}
+                                    sx={{
+                                        '&.Mui-checked': {
+                                            color: '#ffffff', // 🔥 Color del check (blanco)
+                                        },
+                                        '&.Mui-checked .MuiSvgIcon-root': {
+                                            backgroundColor: '#8F4D63', // 🔥 Cambia el color de adentro cuando está seleccionado
+                                            borderRadius: '4px',
+                                            color: '#ffffff', // 🔥 Cambia el color de la flecha (check) a blanco
+                                        }
                                     }}
-                                    required
+                                />
+                                <span style={{
+                                    textAlign: "left",
+                                    font: "normal normal normal 16px/20px Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#8F4D63",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                }}>Establecer como forma de pago predeterminada.</span>
+                            </div>
+                        </div>
+                        <hr
+                            style={{
+                                gridColumn: 'span 2',
+                                width: '100%',
+                                border: '1px solid #ccc',
+                                margin: '20px 0',
+                            }}
+                        />
+                        <div style={{ display: 'flex', gap: '20px', gridColumn: 'span 2' }}>
+                            <div style={{ flex: 1 }}>
+                                <SecondaryButton
+                                    onClick={() => handleCloseModal()}
+                                    text="Cancelar"// 🔥 Se asegura que no se expanda
                                 />
                             </div>
-
-                            <div style={{ marginBottom: '10px' }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <input
-                                        name="isDefault"
-                                        type="checkbox"
-                                        checked={cardDetails.isDefault}
-                                        onChange={handleInputChange}
-                                        style={{ cursor: 'pointer' }}
-                                    />
-                                    Establecer como forma de pago predeterminada.
-                                </label>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <MainButton
+                                    text="Agregar"
+                                    isLoading={Loading}
+                                    onClick={() => addCreditCard()}
+                                    disabled={!areRequiredFieldsFilled()}
+                                />
                             </div>
+                        </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <button type="button" onClick={handleCloseModal} style={{
-                                    backgroundColor: '#fff',
-                                    color: '#8d406d',
-                                    padding: '10px 20px',
-                                    border: '2px solid #8d406d',
-                                    borderRadius: '5px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                }}>
-                                    Cancelar
-                                </button>
-                                <button type="submit" style={{
-                                    backgroundColor: '#8d406d',
-                                    color: '#fff',
-                                    padding: '10px 20px',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                }}>
-                                    Agregar
-                                </button>
-                            </div>
-                        </form>
 
-                    </div>
-                </div>
-            )}
+
+                    </form>
+                </Box>
+            </Modal>
+
             {showChipBarAdd && (
                 <ChipBar
                     message="Se ha recargado saldo con exito"

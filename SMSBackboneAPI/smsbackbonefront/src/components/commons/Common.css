@@ -181,7 +181,7 @@
 /* Footer del modal */
 .modal-error-footer {
     display: flex;
-    justify-content: space-between; /* 🔥 Ahora separa los botones */
+    justify-content: flex-end; /* 🔥 Mueve el botón a la derecha */
     align-items: center;
     width: 100%;
 }

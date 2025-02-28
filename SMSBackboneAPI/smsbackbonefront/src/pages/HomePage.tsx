@@ -1,7 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { LinearProgress,Button, Grid, Paper, Typography, IconButton, Modal, Box, TextField, Checkbox, FormControlLabel, Divider, InputAdornment, Tooltip, tooltipClasses, TooltipProps, Popper, Radio, RadioGroup } from '@mui/material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import { CircularProgress, Button, Grid, Paper, Typography, IconButton, Modal, Box, TextField, Checkbox, FormControlLabel, Divider, InputAdornment, Tooltip, tooltipClasses, TooltipProps, Popper, Radio, RadioGroup } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import infoicon from '../assets/Icon-info.svg'
@@ -14,6 +12,9 @@ import { ReactNode } from 'react';
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import BoxEmpty from '../assets/Nousers.svg';
 import smsico from '../assets/Icon-sms.svg'
+import welcome from '../assets/icon-welcome.svg'
+import fast from '../assets/icon-fastsend.svg'
+import Secondarybutton from '../components/commons/SecondaryButton'
 
 const HomePage: React.FC = () => {
     const [open, setOpen] = useState(false);
@@ -28,6 +29,25 @@ const HomePage: React.FC = () => {
     const navigate = useNavigate();
     const phoneRegex = /^[0-9]{10}$/;
     const [showData, setShowData] = useState(false);
+    const [openControlModal, setOpenControlModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [settings, setSettings] = useState({
+        campanasActivas: true,
+        smsEnviados: true,
+        promedioSMS: true,
+        consumoCreditos: true,
+        listadoCampanas: true,
+        resultadosEnvio: true,
+    });
+
+    const hasChanges = settings.listadoCampanas || settings.resultadosEnvio;
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSettings({
+            ...settings,
+            [event.target.name]: event.target.checked,
+        });
+    };
 
     const data = [
         { label: "Tasa de recepción", value: 20, color: "#9370DB" }, // Morado
@@ -130,6 +150,13 @@ const HomePage: React.FC = () => {
 
     const isFormValid = phoneNumbers.every(phone => phoneRegex.test(phone)) && message.trim().length > 0;
 
+    const handleSave = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 2000); // Simula la carga por 2 segundos
+        setOpenControlModal(false);
+    };
 
     // Tooltip personalizado sin `theme`
     const CustomTooltip = styled(({ title, children, ...props }: TooltipProps & { children: ReactNode }) => (
@@ -283,30 +310,32 @@ const HomePage: React.FC = () => {
                         onMouseUp={() => setActiveButton(null)}
                         onClick={handleOpen}
                     >
-                        <ChatBubbleOutlineIcon />
+                        <img src={fast} alt="Welcome" style={{ width: '24px', height: '24px' }} />
                     </IconButton>
-
-                    <IconButton
-                        style={{
-                            border: '1px solid #C6BFC2',
-                            borderRadius: '8px',
-                            color: '#8F4D63',
-                            background: activeButton === 'chat' ? '#E6C2CD' : 'transparent',
-                            borderColor: activeButton === 'chat' ? '#BE93A0' : '#C6BFC2',
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.background = '#F2E9EC';
-                            e.currentTarget.style.border = '1px solid #BE93A066';
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.background = activeButton === 'chat' ? '#E6C2CD' : 'transparent';
-                            e.currentTarget.style.border = activeButton === 'chat' ? '#BE93A0' : '#C6BFC2';
-                        }}
-                        onMouseDown={() => setActiveButton('chat')}
-                        onMouseUp={() => setActiveButton(null)}
-                    >
-                        <DashboardIcon />
-                    </IconButton>
+                    <Tooltip title="Editar información" arrow placement="top">
+                        <IconButton
+                            style={{
+                                border: '1px solid #C6BFC2',
+                                borderRadius: '8px',
+                                color: '#8F4D63',
+                                background: activeButton === 'chat' ? '#E6C2CD' : 'transparent',
+                                borderColor: activeButton === 'chat' ? '#BE93A0' : '#C6BFC2',
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.background = '#F2E9EC';
+                                e.currentTarget.style.border = '1px solid #BE93A066';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.background = activeButton === 'chat' ? '#E6C2CD' : 'transparent';
+                                e.currentTarget.style.border = activeButton === 'chat' ? '#BE93A0' : '#C6BFC2';
+                            }}
+                            onMouseDown={() => setActiveButton('chat')}
+                            onMouseUp={() => setActiveButton(null)}
+                            onClick={() => setOpenControlModal(true)}
+                        >
+                            <img src={welcome} alt="Welcome" style={{ width: '24px', height: '24px' }} />
+                        </IconButton>
+                    </Tooltip>
                 </div>
             </div>
 
@@ -326,7 +355,7 @@ const HomePage: React.FC = () => {
                 <Grid container spacing={2} sx={{ marginTop: '20px', justifyContent: 'center', width: '100%' }}>
                     {dataOptions[selectedOption as "corto" | "largo"].map((item, index) => (
                         <Grid item xs={12} sm={6} md={3} key={index}>
-                            <Paper elevation={3} sx={{ padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
+                            <Paper elevation={3} sx={{ marginLeft: '-10px', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#574B4F' }}>
                                     {item.title}
                                 </Typography>
@@ -336,318 +365,329 @@ const HomePage: React.FC = () => {
                             </Paper>
                         </Grid>
                     ))}
-                    <Paper sx={{ padding: 2, borderRadius: '8px', marginTop: 2, overflow: 'hidden' }}>
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                textAlign: 'left',
-                                fontSize: '16px',
-                                fontWeight: '500',
-                                lineHeight: '54px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#574B4F',
-                                opacity: 1,
-                                marginBottom: 2
-                            }}
-                        >
-                            Campañas activas
-                        </Typography>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                overflowX: 'auto',
-                                whiteSpace: 'nowrap', // Evita que se vayan a múltiples líneas
-                                gap: 2,
-                                paddingBottom: 1,
-                                maxWidth: '100%', // Limita el ancho para que no se expanda demasiado
-                                '&::-webkit-scrollbar': {
-                                    height: '6px',
-                                },
-                                '&::-webkit-scrollbar-thumb': {
-                                    backgroundColor: '#C6BFC2',
-                                    borderRadius: '6px',
-                                },
-                            }}
-                        >
-                            {campaigns.map((campaign, index) => {
-                                const percentage = (campaign.numeroActual / campaign.numeroInicial) * 100;
-                                return (
-                                    <Paper
-                                        key={index}
-                                        sx={{
-                                            minWidth: '200px',
-                                            maxWidth: '220px',
-                                            height: '90px',
-                                            padding: 2,
-                                            border: '1px solid #D6CED2',
-                                            borderRadius: '8px',
-                                            textAlign: 'left',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'flex-start', // Asegura alineación a la izquierda
-                                            justifyContent: 'space-between',
-                                            opacity: 1,
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="body2"
+                    {settings.listadoCampanas && (
+                        <Paper sx={{
+                            padding: 2,
+                            borderRadius: '8px',
+                            marginTop: 2,
+                            overflow: 'hidden',
+                            width: '100%', // 🔥 Asegura que el ancho sea completo
+                            marginLeft: '0px', // 🔥 Lo alinea con el resto del contenido
+                        }}>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    textAlign: 'left',
+                                    fontSize: '16px',
+                                    fontWeight: '500',
+                                    lineHeight: '54px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    marginBottom: 2
+                                }}
+                            >
+                                Campañas activas
+                            </Typography>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    overflowX: 'auto',
+                                    whiteSpace: 'nowrap', // Evita que se vayan a múltiples líneas
+                                    gap: 2,
+                                    paddingBottom: 1,
+                                    maxWidth: '100%', // Limita el ancho para que no se expanda demasiado
+                                    '&::-webkit-scrollbar': {
+                                        height: '6px',
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        backgroundColor: '#C6BFC2',
+                                        borderRadius: '6px',
+                                    },
+                                }}
+                            >
+                                {campaigns.map((campaign, index) => {
+                                    const percentage = (campaign.numeroActual / campaign.numeroInicial) * 100;
+                                    return (
+                                        <Paper
+                                            key={index}
                                             sx={{
+                                                minWidth: '200px',
+                                                maxWidth: '220px',
+                                                height: '90px',
+                                                padding: 2,
+                                                border: '1px solid #D6CED2',
+                                                borderRadius: '8px',
                                                 textAlign: 'left',
-                                                fontSize: '12px',
-                                                fontWeight: '500',
-                                                lineHeight: '16px',
-                                                fontFamily: 'Poppins, sans-serif',
-                                                letterSpacing: '0px',
-                                                color: '#574B4F',
-                                                opacity: 1,
-                                            }}
-                                        >
-                                            {campaign.name}
-                                        </Typography>
-                                        <Box sx={{ width: '100%', position: 'relative', marginTop: 1 }}>
-                                            <Box
-                                                sx={{
-                                                    width: '100%',
-                                                    height: '8px',
-                                                    borderRadius: '4px',
-                                                    backgroundColor: '#E0E0E0',
-                                                    position: 'absolute',
-                                                }}
-                                            />
-                                            <Box
-                                                sx={{
-                                                    width: `${percentage}%`,
-                                                    height: '8px',
-                                                    borderRadius: '4px',
-                                                    backgroundColor: '#8F4D63',
-                                                    position: 'absolute',
-                                                }}
-                                            />
-                                        </Box>
-                                        <Box
-                                            sx={{
                                                 display: 'flex',
-                                                alignItems: 'center',
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-start', // Asegura alineación a la izquierda
                                                 justifyContent: 'space-between',
-                                                width: '100%',
-                                                paddingX: '8px',
-                                                marginTop: '8px', // 🔥 Bajamos el contenido para mejor alineación
+                                                opacity: 1,
                                             }}
                                         >
                                             <Typography
                                                 variant="body2"
                                                 sx={{
                                                     textAlign: 'left',
-                                                    fontSize: '14px',
-                                                    fontWeight: '600',
-                                                    lineHeight: '18px',
-                                                    fontFamily: 'Poppins, sans-serif',
-                                                    letterSpacing: '0px',
-                                                    color: '#574B4FCC',
-                                                    opacity: 1,
-                                                }}
-                                            >
-                                                {Math.round(percentage)}%
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                sx={{
-                                                    textAlign: 'center',
                                                     fontSize: '12px',
                                                     fontWeight: '500',
                                                     lineHeight: '16px',
                                                     fontFamily: 'Poppins, sans-serif',
                                                     letterSpacing: '0px',
-                                                    color: '#574B4FCC',
+                                                    color: '#574B4F',
                                                     opacity: 1,
-                                                    marginLeft: '5px',
                                                 }}
                                             >
-                                                {campaign.numeroActual}/{campaign.numeroInicial}
+                                                {campaign.name}
                                             </Typography>
-                                            <IconButton sx={{ padding: '0', marginLeft: '5px' }}>
-                                                <img src={smsico} alt="SMS" style={{ width: '18px', height: '18px' }} />
-                                            </IconButton>
-                                        </Box>
-                                    </Paper>
-                                );
-                            })}
-                        </Box>
-                    </Paper>
-
-                    <Paper
-                        sx={{
-                            padding: 2,
-                            borderRadius: '8px',
-                            marginTop: 2,
-                            width: "100%",
-                            minHeight: "250px",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                        }}
-                    >
-                        {/* Título */}
-                        <Typography
-                            variant="h6"
+                                            <Box sx={{ width: '100%', position: 'relative', marginTop: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        width: '100%',
+                                                        height: '8px',
+                                                        borderRadius: '4px',
+                                                        backgroundColor: '#E0E0E0',
+                                                        position: 'absolute',
+                                                    }}
+                                                />
+                                                <Box
+                                                    sx={{
+                                                        width: `${percentage}%`,
+                                                        height: '8px',
+                                                        borderRadius: '4px',
+                                                        backgroundColor: '#8F4D63',
+                                                        position: 'absolute',
+                                                    }}
+                                                />
+                                            </Box>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    width: '100%',
+                                                    paddingX: '8px',
+                                                    marginTop: '8px', // 🔥 Bajamos el contenido para mejor alineación
+                                                }}
+                                            >
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        textAlign: 'left',
+                                                        fontSize: '14px',
+                                                        fontWeight: '600',
+                                                        lineHeight: '18px',
+                                                        fontFamily: 'Poppins, sans-serif',
+                                                        letterSpacing: '0px',
+                                                        color: '#574B4FCC',
+                                                        opacity: 1,
+                                                    }}
+                                                >
+                                                    {Math.round(percentage)}%
+                                                </Typography>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        textAlign: 'center',
+                                                        fontSize: '12px',
+                                                        fontWeight: '500',
+                                                        lineHeight: '16px',
+                                                        fontFamily: 'Poppins, sans-serif',
+                                                        letterSpacing: '0px',
+                                                        color: '#574B4FCC',
+                                                        opacity: 1,
+                                                        marginLeft: '5px',
+                                                    }}
+                                                >
+                                                    {campaign.numeroActual}/{campaign.numeroInicial}
+                                                </Typography>
+                                                <Tooltip title="Consultar" arrow placement="top">
+                                                    <IconButton sx={{ padding: '0', marginLeft: '5px' }} onClick={() => navigate('/Campaigns')}>
+                                                        <img src={smsico} alt="SMS" style={{ width: '18px', height: '18px' }} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Box>
+                                        </Paper>
+                                    );
+                                })}
+                            </Box>
+                        </Paper>
+                    )}
+                    {settings.resultadosEnvio && (
+                        <Paper
                             sx={{
-                                textAlign: "left",
-                                fontSize: "16px",
-                                fontWeight: "500",
-                                lineHeight: "24px",
-                                fontFamily: "Poppins, sans-serif",
-                                color: "#574B4F",
-                                opacity: 1,
-                                marginBottom: 2,
-                            }}
-                        >
-                            Resultados de envío por día
-                        </Typography>
-
-                        {/* Contenedor de estadísticas */}
-                        <Box
-                            sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
                                 padding: 2,
-                                border: "1px solid #E0E0E0",
-                                borderRadius: 2,
-                                background: "#FAFAFA",
-                                minHeight: "80px",
-                            }}
-                        >
-                            {data.map((item, index) => (
-                                <Box key={index} sx={{ textAlign: "center", flex: 1 }}>
-                                    <img src={infoicon} alt="Info" style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
-                                    <Typography sx={{ fontSize: "12px", color: "#574B4F" }}>
-                                        {item.label}:
-                                    </Typography>
-                                    <Typography sx={{ fontSize: "16px", fontWeight: "bold", color: item.color }}>
-                                        {item.value}%
-                                    </Typography>
-                                </Box>
-                            ))}
-                        </Box>
-
-                        {/* Gráfico de barras con escala */}
-                        <Box
-                            sx={{
+                                borderRadius: '8px',
+                                marginTop: 2,
+                                width: "100%",
+                                minHeight: "250px",
                                 display: "flex",
-                                alignItems: "flex-end",
-                                justifyContent: "center",
-                                height: "160px",
-                                marginTop: 3,
-                                position: "relative",
-                                paddingBottom: 2,
+                                flexDirection: "column",
+                                justifyContent: "space-between",
                             }}
                         >
-                            {/* Líneas del eje Y */}
-                            <Box
+                            {/* Título */}
+                            <Typography
+                                variant="h6"
                                 sx={{
-                                    position: "absolute",
-                                    left: 0,
-                                    bottom: 20, // 🔥 Bajamos la base del eje Y para dar espacio al texto
-                                    height: "100%",
-                                    width: "100%",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "space-between",
-                                    alignItems: "flex-start",
-                                    borderLeft: "2px solid #E0E0E0",
-                                    borderBottom: "2px solid #E0E0E0",
-                                    paddingLeft: "40px",
+                                    textAlign: "left",
+                                    fontSize: "16px",
+                                    fontWeight: "500",
+                                    lineHeight: "24px",
+                                    fontFamily: "Poppins, sans-serif",
+                                    color: "#574B4F",
+                                    opacity: 1,
+                                    marginBottom: 2,
                                 }}
                             >
-                                {[100, 80, 60, 40, 20, 0].map((percent) => (
-                                    <Box key={percent} sx={{ width: "100%", display: "flex", alignItems: "center" }}>
-                                        <Typography
-                                            sx={{
-                                                fontSize: "12px",
-                                                fontWeight: "400",
-                                                color: "#8F8F8F",
-                                                lineHeight: "12px",
-                                                marginRight: "10px",
-                                            }}
-                                        >
-                                            {percent}%
+                                Resultados de envío por día
+                            </Typography>
+
+                            {/* Contenedor de estadísticas */}
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    padding: 2,
+                                    border: "1px solid #E0E0E0",
+                                    borderRadius: 2,
+                                    background: "#FAFAFA",
+                                    minHeight: "80px",
+                                }}
+                            >
+                                {data.map((item, index) => (
+                                    <Box key={index} sx={{ textAlign: "center", flex: 1 }}>
+                                        <img src={infoicon} alt="Info" style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                                        <Typography sx={{ fontSize: "12px", color: "#574B4F" }}>
+                                            {item.label}:
                                         </Typography>
-                                        <Box sx={{ flexGrow: 1, borderBottom: "1px dashed #E0E0E0" }} />
+                                        <Typography sx={{ fontSize: "16px", fontWeight: "bold", color: item.color }}>
+                                            {item.value}%
+                                        </Typography>
                                     </Box>
                                 ))}
                             </Box>
 
-                            {/* Contenedor de barras */}
+                            {/* Gráfico de barras con escala */}
                             <Box
                                 sx={{
                                     display: "flex",
                                     alignItems: "flex-end",
-                                    justifyContent: "space-around",
-                                    width: "90%",
-                                    paddingLeft: "40px",
+                                    justifyContent: "center",
+                                    height: "160px",
+                                    marginTop: 3,
+                                    position: "relative",
+                                    paddingBottom: 2,
                                 }}
                             >
-                                {data.map((item, index) => (
-                                    <Box key={index} sx={{ textAlign: "center", width: "50px", position: "relative" }}>
-                                        <Box
-                                            sx={{
-                                                width: "40px",
-                                                height: `${(item.value / 100) * 120}px`, // 🔥 Ajustamos la altura con una escala de 120px
-                                                minHeight: "10px",
-                                                maxHeight: "120px", // 🔥 Evitamos que se salga de la escala
-                                                backgroundColor: item.color,
-                                                borderRadius: "4px",
-                                                transition: "height 0.5s ease-in-out",
-                                                margin: "auto",
-                                            }}
-                                        />
-                                        {/* Nombres correctos debajo del 0% */}
-                                        <Typography
-                                            sx={{
-                                                fontSize: "12px",
-                                                fontWeight: "500",
-                                                marginTop: "18px",
-                                                color: "#574B4F",
-                                                position: "absolute",
-                                                bottom: "-35px",
-                                                width: "100%",
-                                            }}
-                                        >
-                                            {[
-                                                "Recibidos",
-                                                "No recibidos",
-                                                "En espera",
-                                                "Entregados-Falla",
-                                                "Rechazados",
-                                                "No enviados",
-                                                "Excepción",
-                                            ][index]}
-                                        </Typography>
-                                    </Box>
-                                ))}
+                                {/* Líneas del eje Y */}
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        left: 0,
+                                        bottom: 20, // 🔥 Bajamos la base del eje Y para dar espacio al texto
+                                        height: "100%",
+                                        width: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "space-between",
+                                        alignItems: "flex-start",
+                                        borderLeft: "2px solid #E0E0E0",
+                                        borderBottom: "2px solid #E0E0E0",
+                                        paddingLeft: "40px",
+                                    }}
+                                >
+                                    {[100, 80, 60, 40, 20, 0].map((percent) => (
+                                        <Box key={percent} sx={{ width: "100%", display: "flex", alignItems: "center" }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: "12px",
+                                                    fontWeight: "400",
+                                                    color: "#8F8F8F",
+                                                    lineHeight: "12px",
+                                                    marginRight: "10px",
+                                                }}
+                                            >
+                                                {percent}%
+                                            </Typography>
+                                            <Box sx={{ flexGrow: 1, borderBottom: "1px dashed #E0E0E0" }} />
+                                        </Box>
+                                    ))}
+                                </Box>
+
+                                {/* Contenedor de barras */}
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "flex-end",
+                                        justifyContent: "space-around",
+                                        width: "90%",
+                                        paddingLeft: "40px",
+                                    }}
+                                >
+                                    {data.map((item, index) => (
+                                        <Box key={index} sx={{ textAlign: "center", width: "50px", position: "relative" }}>
+                                            <Box
+                                                sx={{
+                                                    width: "40px",
+                                                    height: `${(item.value / 100) * 120}px`, // 🔥 Ajustamos la altura con una escala de 120px
+                                                    minHeight: "10px",
+                                                    maxHeight: "120px", // 🔥 Evitamos que se salga de la escala
+                                                    backgroundColor: item.color,
+                                                    borderRadius: "4px",
+                                                    transition: "height 0.5s ease-in-out",
+                                                    margin: "auto",
+                                                }}
+                                            />
+                                            {/* Nombres correctos debajo del 0% */}
+                                            <Typography
+                                                sx={{
+                                                    fontSize: "12px",
+                                                    fontWeight: "500",
+                                                    marginTop: "18px",
+                                                    color: "#574B4F",
+                                                    position: "absolute",
+                                                    bottom: "-35px",
+                                                    width: "100%",
+                                                }}
+                                            >
+                                                {[
+                                                    "Recibidos",
+                                                    "No recibidos",
+                                                    "En espera",
+                                                    "Entregados-Falla",
+                                                    "Rechazados",
+                                                    "No enviados",
+                                                    "Excepción",
+                                                ][index]}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                                </Box>
+
                             </Box>
 
-                        </Box>
-
-                        {/* Texto adicional debajo del gráfico */}
-                        <Typography
-                            sx={{
-                                textAlign: "left",
-                                fontSize: "12px",
-                                fontWeight: "500",
-                                lineHeight: "18px",
-                                fontFamily: "Poppins, sans-serif",
-                                letterSpacing: "0px",
-                                color: "#574B4FCC",
-                                opacity: 1,
-                                marginTop: 2,
-                            }}
-                        >
-                            * El cálculo de las tasas se basa en el total de mensajes enviados en el día.
-                        </Typography>
-                    </Paper>
-
+                            {/* Texto adicional debajo del gráfico */}
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    fontSize: "12px",
+                                    fontWeight: "500",
+                                    lineHeight: "18px",
+                                    fontFamily: "Poppins, sans-serif",
+                                    letterSpacing: "0px",
+                                    color: "#574B4FCC",
+                                    opacity: 1,
+                                    marginTop: 2,
+                                }}
+                            >
+                                * El cálculo de las tasas se basa en el total de mensajes enviados en el día.
+                            </Typography>
+                        </Paper>
+                    )}
 
                 </Grid>
             )}
@@ -720,6 +760,8 @@ const HomePage: React.FC = () => {
                                                 }}
                                                 InputProps={{
                                                     endAdornment: (
+
+
                                                         <InputAdornment position="end">
                                                             <img
                                                                 src={errors[index] ? infoiconerror : infoicon}
@@ -727,6 +769,7 @@ const HomePage: React.FC = () => {
                                                                 style={{ width: "18px", height: "18px" }}
                                                             />
                                                         </InputAdornment>
+
                                                     ),
                                                 }}
                                             />
@@ -802,24 +845,200 @@ const HomePage: React.FC = () => {
                 </Box>
             </Modal>
 
+            <Modal open={openControlModal} onClose={() => setOpenControlModal(false)} aria-labelledby="dashboard-settings-title">
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "556px",
+                        bgcolor: "background.paper",
+                        borderRadius: "8px",
+                        boxShadow: 24,
+                        p: 3,
+                    }}
+                >
+                    {/* Encabezado */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Typography
+                            id="dashboard-settings-title"
+                            sx={{
+                                textAlign: "left",
+                                fontFamily: "Poppins",
+                                letterSpacing: "0px",
+                                color: "#574B4F",
+                                opacity: 1,
+                                fontSize: "20px",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Información visible en el tablero de control
+                        </Typography>
+                        <IconButton onClick={() => setOpenControlModal(false)}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    {/* Lista de opciones */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        {/* Opciones deshabilitadas */}
+                        <FormControlLabel
+                            control={<Checkbox checked disabled />}
+                            label="Número de campañas activas"
+                            sx={{
+                                textAlign: "left",
+                                fontSize: "16px",
+                                fontFamily: "Poppins",
+                                color: "#A0A0A0",
+                                opacity: 1,
+                                marginBottom: "-10px",
+                            }}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox checked disabled />}
+                            label="SMS enviados hoy"
+                            sx={{
+                                textAlign: "left",
+                                fontSize: "16px",
+                                fontFamily: "Poppins",
+                                color: "#A0A0A0",
+                                opacity: 1,
+                                marginBottom: "-10px",
+                            }}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox checked disabled />}
+                            label="Promedio de SMS por día"
+                            sx={{
+                                textAlign: "left",
+                                fontSize: "16px",
+                                fontFamily: "Poppins",
+                                color: "#A0A0A0",
+                                opacity: 1,
+                                marginBottom: "-10px",
+                            }}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox checked disabled />}
+                            label="Consumo de créditos"
+                            sx={{
+                                textAlign: "left",
+                                fontSize: "16px",
+                                fontFamily: "Poppins",
+                                color: "#A0A0A0",
+                                opacity: 1,
+                                marginBottom: "-10px",
+                            }}
+                        />
+
+                        {/* Opciones activas */}
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={settings.listadoCampanas}
+                                    onChange={handleChange}
+                                    name="listadoCampanas"
+                                    sx={{ color: "#8F4D63", "&.Mui-checked": { color: "#8F4D63" } }}
+                                />
+                            }
+                            label="Listado de campañas en curso"
+                            sx={{
+                                textAlign: "left",
+                                fontSize: "16px",
+                                fontFamily: "Poppins",
+                                color: "#8F4D63",
+                                opacity: 1,
+                                marginBottom: "-10px",
+                            }}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={settings.resultadosEnvio}
+                                    onChange={handleChange}
+                                    name="resultadosEnvio"
+                                    sx={{ color: "#8F4D63", "&.Mui-checked": { color: "#8F4D63" } }}
+                                />
+                            }
+                            label="Resultados de envío por día"
+                            sx={{
+                                textAlign: "left",
+                                fontSize: "16px",
+                                fontFamily: "Poppins",
+                                color: "#8F4D63",
+                                opacity: 1,
+                                marginBottom: "-10px",
+                            }}
+                        />
+                    </Box>
+                    <Divider sx={{ my: 2 }} />
+
+                    {/* Botones */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
+                        <Secondarybutton text='Cancelar' onClick={() => setOpenControlModal(false)} />
+                        <Button
+                            variant="contained"
+                            disabled={!hasChanges}
+                            onClick={handleSave}
+                            sx={{
+                                borderRadius: "4px",
+                                fontWeight: "bold",
+                                background: hasChanges ? "#833A53" : "#d3d3d3",
+                                border: "1px solid",
+                                borderColor: hasChanges ? "#60293C" : "#b3b3b3",
+                                color: "white",
+                                cursor: hasChanges ? "pointer" : "not-allowed",
+                                opacity: hasChanges ? 1 : 0.7,
+                                fontSize: "12px",
+                                fontFamily: "Poppins, sans-serif",
+                                letterSpacing: "1.12px",
+                                transition: "all 0.3s ease",
+                                width: "180px", // 🔥 Mantiene el ancho original
+                                height: "36px", // 🔥 Fija la altura para evitar cambios
+
+                                "&:hover": {
+                                    background: hasChanges ? "#90455F" : "#d3d3d3",
+                                    boxShadow: hasChanges ? "0px 0px 12px #C17D91" : "none",
+                                    borderColor: hasChanges ? "#60293C" : "#b3b3b3",
+                                    opacity: 0.85,
+                                },
+
+                                "&:active": {
+                                    background: hasChanges ? "#6F1E3A" : "#d3d3d3",
+                                    borderColor: hasChanges ? "#8D4860" : "#b3b3b3",
+                                    opacity: 0.9,
+                                },
+
+                                "&:focus": {
+                                    background: hasChanges ? "#833A53" : "#d3d3d3",
+                                    boxShadow: hasChanges ? "0px 0px 8px #E6C2CD" : "none",
+                                    borderColor: hasChanges ? "#60293C" : "#b3b3b3",
+                                    opacity: 0.9,
+                                    outline: "none",
+                                },
+                            }}
+                        >
+                            {isLoading ? (
+                                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
+                                    <CircularProgress size={20} thickness={4} sx={{ color: "white" }} />
+                                </Box>
+                            ) : (
+                                "GUARDAR CAMBIOS"
+                            )}
+                        </Button>
+
+                    </Box>
+                </Box>
+            </Modal>
         </div>
     );
 };
 
 
 /* Estilos */
-const inputBoxStyle = {
-    background: '#FFFFFF',
-    border: '1px solid #9B9295CC',
-    borderRadius: '4px',
-    opacity: 1,
-    width: '232px', // Ancho especificado
-    height: '54px', // Alto especificado
-    display: 'flex',
-    alignItems: 'center',
-    paddingLeft: '10px',
-    '& fieldset': { border: 'none' } // Elimina el borde extra del `TextField`
-};
 
 const modalStyle = {
     position: 'absolute',
@@ -873,19 +1092,6 @@ const buttonContainer = {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: '20px',
-};
-
-const cancelButtonStyle = {
-    borderColor: '#8F4D63',
-    color: '#8F4D63',
-    '&:hover': {
-        backgroundColor: '#F2E9EC',
-    },
-};
-
-const sendButtonStyle = {
-    backgroundColor: '#D6C6CA',
-    color: '#FFF',
 };
 
 const titleStyle = {

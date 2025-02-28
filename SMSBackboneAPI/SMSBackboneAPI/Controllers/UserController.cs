@@ -883,5 +883,54 @@ namespace SMSBackboneAPI.Controllers
 
 
         #endregion
+
+        #region rechargue
+        [HttpPost("AddRechageUser")]
+        public async Task<IActionResult> AddRechageUser(CreditRechargeRequest credit)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.UserManager();
+            var responseDto = UserManager.RechargeUser(credit);
+            if (!responseDto)
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+            }
+            else
+            {
+                var response = Ok(responseDto);
+                return response;
+            }
+
+        }
+
+        [HttpPost("GetRechargeByUser")]
+        public async Task<IActionResult> GetRechargeByUser(Datepickers Date)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.UserManager();
+            var responseDto = UserManager.GetHistoricByUser(Date);
+            if (responseDto.Count() == 0)
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+            }
+            else
+            {
+                var response = Ok(responseDto);
+                return response;
+            }
+
+        }
+
+        #endregion
     }
 }

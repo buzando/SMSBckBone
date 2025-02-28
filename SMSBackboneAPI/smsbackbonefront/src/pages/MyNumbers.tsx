@@ -5,10 +5,8 @@ import axios from 'axios';
 import { TextField, InputAdornment, MenuItem, Box, Select, Menu, Modal, Button, Typography, ListItemText, Checkbox, Grid, IconButton, Divider } from '@mui/material';
 import HelpIco from '../assets/Icono_ayuda.svg';
 import { useNavigate } from 'react-router-dom'; // Importa useNavigate
-import { SelectChangeEvent } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Snackbar, Alert } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import NoResult from '../assets/NoResultados.svg'
 import backarrow from '../assets/MoveTable.svg'
@@ -16,7 +14,8 @@ import backarrowD from '../assets/MoveTabledesactivated.svg'
 import MainButtonIcon from '../components/commons/MainButtonIcon'
 import seachicon from '../assets/icon-lupa.svg'
 import iconclose from "../assets/icon-close.svg"
-
+import icontrash from "../assets/Icon-trashmynumbers.svg"
+import Snackbar from "../components/commons/ChipBar"
 interface CreditCard {
     id: number;
     user_id: number;
@@ -49,7 +48,6 @@ const MyNumbers: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [numberQuantity, setNumberQuantity] = useState(1);
     const [monthlyCost, setMonthlyCost] = useState(50);
-    const [totalCost, settotalCost] = useState(50);
     const [costSetup, setcostSetup] = useState(100);
     const [currentStep, setCurrentStep] = useState(1);
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]); // Uso del tipo CreditCard[]
@@ -69,7 +67,6 @@ const MyNumbers: React.FC = () => {
     const [isModalAyudaOpen, setIsModalAyudaOpen] = useState(false);
     const [stateSearch2, setStateSearch2] = useState('');
     const [selectedStates2, setSelectedStates2] = useState<string[]>([]);
-    const [municipalities2, setMunicipalities2] = useState<string[]>([]);
     const [selectedMunicipalities2, setSelectedMunicipalities2] = useState<string[]>([]);
     const [municipalitySearch2, setMunicipalitySearch2] = useState('');
     const [stateMenuOpen, setStateMenuOpen] = useState(false);
@@ -81,7 +78,6 @@ const MyNumbers: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [toastOpen, setToastOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
-    const [toastSeverity, setToastSeverity] = useState<'success' | 'error'>('success');
     const [loading, setLoading] = useState<boolean>(false);
     const [numbersData, setNumbersData] = useState<NumberData[]>([]);
     const [totalPages, settotalPages] = useState(0);
@@ -90,6 +86,8 @@ const MyNumbers: React.FC = () => {
     const navigate = useNavigate(); // Inicializa el hook de navegación
     const [filteredData, setFilteredData] = useState<NumberData[]>([]); // Datos filtrados
     const [searchTerm, setSearchTerm] = useState('');
+    const isAllSelected = numbersData.length > 0 && selectedRows.length === numbersData.length;
+    const isIndeterminate = selectedRows.length > 0 && selectedRows.length < numbersData.length;
 
     // Función para manejar la navegación a la página de ayuda
     const handleNavigateToHelp = () => {
@@ -1900,13 +1898,7 @@ const MyNumbers: React.FC = () => {
             setLoading(false);
         }
     }
-    const calculatePagination = () => {
-        const total = Math.ceil(filteredData.length / itemsPerPage);
-        settotalPages(total);
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const currentItems = filteredData.slice(startIndex, startIndex + itemsPerPage);
-        setcurrentItems(currentItems);
-    };
+
 
     useEffect(() => {
 
@@ -1914,6 +1906,9 @@ const MyNumbers: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        setstartIndex(0);
+        setcostSetup(100);
+
         settotalPages(Math.ceil(filteredData.length / itemsPerPage));
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
@@ -1921,17 +1916,6 @@ const MyNumbers: React.FC = () => {
     }, [filteredData, currentPage]);
 
 
-    const handlePageChange = (direction: 'next' | 'prev') => {
-        setCurrentPage((prevPage) => {
-            if (direction === 'next' && prevPage < totalPages) {
-                return prevPage + 1;
-            }
-            if (direction === 'prev' && prevPage > 1) {
-                return prevPage - 1;
-            }
-            return prevPage;
-        });
-    };
     const handleStateChange = (state: string) => {
         setSelectedState(state);
         const stateData = statesOfMexico.find((s) => s.state === state);
@@ -1983,12 +1967,6 @@ const MyNumbers: React.FC = () => {
     const handleNextPage = () => {
         if (currentPage < totalPages) {
             setCurrentPage((prevPage) => prevPage + 1);
-        }
-    };
-
-    const handlePreviousPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage((prevPage) => prevPage - 1);
         }
     };
 
@@ -2065,12 +2043,10 @@ const MyNumbers: React.FC = () => {
 
     const handleStateMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElState(event.currentTarget);
-        setOpenStateMenu(true);
     };
 
     const handleStateMenuClose = () => {
         setAnchorElState(null);
-        setOpenStateMenu(false);
         setStateSearch('');
     };
 
@@ -2100,17 +2076,8 @@ const MyNumbers: React.FC = () => {
         setIsModalAyudaOpen(false);
     };
 
-    const handleStateSearchChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setStateSearch2(event.target.value);
-    };
-    const handleStateChange2 = (event: SelectChangeEvent<string[]>) => {
-        const value = event.target.value as string[]; // Asegúrate de que sea un arreglo de strings
-        setSelectedStates2(value);
-    };
-
     const handleClearSelection = () => {
         setSelectedStates2([]);
-        setMunicipalities2([]);
         setFilteredData(numbersData);
     };
 
@@ -2131,11 +2098,6 @@ const MyNumbers: React.FC = () => {
     const handleMunicipalitySearchChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
         setMunicipalitySearch2(event.target.value);
     };
-
-    const handleMunicipalityChange2 = (event: SelectChangeEvent<string[]>) => {
-        setSelectedMunicipalities2(event.target.value as string[]);
-    };
-
 
 
     const handleClearMunicipalitySelection = () => {
@@ -2166,44 +2128,19 @@ const MyNumbers: React.FC = () => {
         });
     };
 
-    const handleSelectAllRows = () => {
-        const updatedSelection =
-            selectedRows.length === currentItems.length
-                ? []
-                : currentItems.map((item) => item.id);
-
-        setSelectedRows(updatedSelection);
-        setIsAnyRowSelected(updatedSelection.length > 0); // Verifica si hay filas seleccionadas
-    };
-
     const handleOpenAcceptModal = (action: 'darDeBaja' | 'eliminar') => {
         setActionType(action);
         setIsAcceptModalOpen(true);
     };
 
-    const handleCloseAcceptModal = () => {
-        setActionType('');
-        setIsAcceptModalOpen(false);
-    };
-
-    const handleCloseToast = () => {
-        setToastOpen(false);
-    };
-
     const handleAccept = async () => {
+        setIsAcceptModalOpen(false)
         try {
-            if (actionType === 'darDeBaja') {
-                await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula una espera
-                setToastMessage('El número fue dado de baja correctamente.');
-                setToastSeverity('success');
-            }
-            if (actionType === 'eliminar') {
-                await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula una espera
-                setToastMessage('El número fue eliminado correctamente.');
-                setToastSeverity('success');
-            }
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula una espera
+            setToastMessage('El número fue dado de baja correctamente.');
+
             setToastOpen(true); // Muestra el toast
-            setIsModalOpen(false); // Cierra el modal
+
         } catch {
             if (actionType === 'darDeBaja') {
                 setErrorModal({
@@ -2316,6 +2253,16 @@ const MyNumbers: React.FC = () => {
                 ? prevSelected.filter((m) => m !== municipality) // Si ya está seleccionado, lo quita
                 : [...prevSelected, municipality] // Si no está seleccionado, lo agrega
         );
+    };
+
+    const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            setSelectedRows(numbersData.map((row) => row.id)); // Seleccionar todos
+            setIsAnyRowSelected(true);
+        } else {
+            setSelectedRows([]);
+            setIsAnyRowSelected(false);
+        }
     };
 
     return (
@@ -2499,20 +2446,27 @@ const MyNumbers: React.FC = () => {
                                                     {filteredStates.map((state) => (
                                                         <MenuItem key={state.state} value={state.state} onClick={() => handleStateToggle(state.state)}>
                                                             <Checkbox checked={selectedStates2.includes(state.state)}
-                                                                onChange={() => handleStateToggle(state.state)} />
+                                                                onChange={() => handleStateToggle(state.state)}
+                                                                sx={{
+                                                                    color: '#6C3A52',
+                                                                    '&.Mui-checked': { color: '#6C3A52' },
+                                                                    marginLeft: '-5px',
+
+                                                                }} />
                                                             <ListItemText primary={state.state} sx={{
                                                                 textAlign: "left",
                                                                 fontFamily: "Poppins, sans-serif",
                                                                 fontSize: "16px",
                                                                 lineHeight: "20px",
                                                                 letterSpacing: "0px",
-                                                                color: "#786E71",
+                                                                color: selectedStates2.includes(state.state) ? "#574B4F" : "#786E71", // Aplica el color solo si está seleccionado
                                                                 opacity: 1,
                                                                 margin: "0",
                                                                 "& .MuiListItemText-root": {
                                                                     margin: "0",
                                                                 },
                                                             }} />
+
                                                         </MenuItem>
                                                     ))}
                                                 </Box>
@@ -2744,6 +2698,12 @@ const MyNumbers: React.FC = () => {
                                                             <Checkbox
                                                                 checked={selectedMunicipalities2.includes(municipality.name)}
                                                                 onChange={() => handleMunicipalityToggle(municipality.name)}
+                                                                sx={{
+                                                                    color: '#6C3A52',
+                                                                    '&.Mui-checked': { color: '#6C3A52' },
+                                                                    marginLeft: '-5px',
+
+                                                                }}
                                                             />
                                                             <ListItemText
                                                                 primary={municipality.name}
@@ -2753,7 +2713,7 @@ const MyNumbers: React.FC = () => {
                                                                     fontSize: "16px",
                                                                     lineHeight: "24px",
                                                                     letterSpacing: "0px",
-                                                                    color: "#786E71",
+                                                                    color: selectedMunicipalities2.includes(municipality.name) ? "#574B4F" : "#786E71",
                                                                     opacity: 1,
                                                                     margin: "0",
                                                                 }}
@@ -3100,45 +3060,73 @@ const MyNumbers: React.FC = () => {
                                 <thead style={{ backgroundColor: '#f9f9f9', color: '#6a6a6a' }}>
                                     {isAnyRowSelected ? (
                                         <tr>
-                                            <th colSpan={7} style={{ textAlign: 'center', padding: '10px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                                                    <Tooltip title="Dar de baja">
-                                                        <button
-                                                            style={{
-                                                                padding: '8px 12px',
-                                                                border: 'none',
-                                                                backgroundColor: '#e0e0e0',
-                                                                borderRadius: '4px',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                            onClick={() => handleOpenAcceptModal('darDeBaja')}                                            >
-                                                            ➖
-                                                        </button>
-                                                    </Tooltip>
-                                                    <Tooltip title="Eliminar">
-                                                        <button
-                                                            style={{
-                                                                padding: '8px 12px',
-                                                                border: 'none',
-                                                                backgroundColor: '#e0e0e0',
-                                                                borderRadius: '4px',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                            onClick={() => handleOpenAcceptModal('eliminar')}                                            >
-                                                            🗑️
-                                                        </button>
-                                                    </Tooltip>
-                                                </div>
+                                            <th style={{
+                                                position: 'relative',
+                                                padding: '8px 16px',
+                                                backgroundColor: 'white',
+                                                right: '10px',
+                                                minWidth: '50px',
+                                                width: '60px',
+                                                textAlign: 'left',
+                                            }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        width: '100%',
+                                                        position: 'relative',
+                                                    }}
+                                                >
+                                                    <Checkbox
+                                                        indeterminate={isIndeterminate}
+                                                        checked={isAllSelected}
+                                                        onChange={handleSelectAll}
+                                                        sx={{
+                                                            color: '#6C3A52',
+                                                            '&.Mui-checked': { color: '#6C3A52' },
+                                                            marginLeft: '-5px',
+
+                                                        }}
+                                                    />
+                                                    <Box sx={{
+                                                        position: 'absolute',
+                                                        left: '40px', // Mantiene el botón alineado a la derecha
+                                                        top: '50%',
+                                                        transform: 'translateY(-50%)',
+                                                        display: 'flex',
+                                                        gap: '8px',
+                                                        backgroundColor: 'white',
+                                                        padding: '4px',
+                                                    }}>
+                                                        <Tooltip title="Dar de baja" placement="top">
+                                                            <IconButton onClick={() => handleOpenAcceptModal('eliminar')}>
+                                                                <img
+                                                                    src={icontrash}
+                                                                    alt="Eliminar"
+                                                                    style={{ width: '20px', height: '20px' }}
+                                                                />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </Box>
+                                                </Box>
                                             </th>
                                         </tr>
                                     ) : (
                                         <tr>
                                             <th style={{ width: '50px', textAlign: 'left', padding: '10px 10px 10px 0px', backgroundColor: '#FFFFFF', }}>
                                                 <Checkbox
-                                                    checked={selectedRows.length === currentItems.length && currentItems.length > 0}
-                                                    indeterminate={selectedRows.length > 0 && selectedRows.length < currentItems.length}
-                                                    onChange={handleSelectAllRows}
+                                                    indeterminate={isIndeterminate}
+                                                    checked={isAllSelected}
+                                                    onChange={handleSelectAll}
+                                                    sx={{
+                                                        color: '#6C3A52',
+                                                        '&.Mui-checked': { color: '#6C3A52' },
+                                                        marginLeft: '-5px',
+
+                                                    }}
                                                 />
+
                                             </th>
                                             <th
                                                 style={{
@@ -3226,24 +3214,33 @@ const MyNumbers: React.FC = () => {
                                 <tbody>
                                     {currentItems.map((number) => (
                                         <tr key={number.id} style={{ borderBottom: '1px solid #dcdcdc' }}>
-                                            <td style={{ textAlign: 'left', padding: '10px 10px 10px 0px' }}>
+                                            <td style={{ textAlign: 'left', padding: '10px 10px 10px 0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>
                                                 <Checkbox
                                                     checked={selectedRows.includes(number.id)}
                                                     onChange={() => handleRowSelection(number.id)}
+                                                    sx={{
+                                                        color: '#6C3A52',
+                                                        '&.Mui-checked': { color: '#6C3A52' },
+                                                        marginLeft: '-5px',
+
+
+                                                    }}
                                                 />
                                             </td>
-                                            <td style={{ padding: '10px' }}>{number.number}</td>
-                                            <td style={{ padding: '10px' }}>{number.type}</td>
-                                            <td style={{ padding: '10px' }}>{number.service}</td>
+                                            <td style={{ padding: '10px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>{number.number}</td>
+                                            <td style={{ padding: '10px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>{number.type}</td>
+                                            <td style={{ padding: '10px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>{number.service}</td>
                                             <td style={{
                                                 width: '300px',
-                                                textAlign: 'right', padding: '10px'
+                                                textAlign: 'right', padding: '10px',
+                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" ,
                                             }}>${number.cost}</td>
                                             <td style={{
                                                 width: '350px',
                                                 textAlign: 'right',
                                                 paddingRight: '30px',
-                                                borderRight: '1px solid #dcdcdc'
+                                                borderRight: '1px solid #dcdcdc',
+                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" ,
                                             }}
                                             >{formatDate(number.nextPaymentDate)}</td>
                                             <td style={{ textAlign: 'center', padding: '10px' }}>
@@ -3260,14 +3257,25 @@ const MyNumbers: React.FC = () => {
                                                     open={Boolean(anchorEl)}
                                                     onClose={handleCloseMenu}
                                                 >
-                                                    <MenuItem onClick={() => handleOpenAcceptModal('darDeBaja')}   >
-                                                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                            <span style={{ fontSize: '1.2rem' }}>❌</span> Dar de baja
-                                                        </span>
-                                                    </MenuItem>
-                                                    <MenuItem onClick={() => handleOpenAcceptModal('eliminar')}>
-                                                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                            <span style={{ fontSize: '1.2rem' }}>🗑️</span> Eliminar
+                                                    <MenuItem onClick={() => handleOpenAcceptModal('darDeBaja')} style={{ width: '198px', height: '56px' }}  >
+                                                        <span style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '5px',
+                                                            textAlign: 'left',
+                                                            fontFamily: 'Poppins, sans-serif',
+                                                            fontSize: '14px',
+                                                            lineHeight: '54px',
+                                                            letterSpacing: '0px',
+                                                            color: '#574B4F',
+                                                            opacity: 1
+                                                        }}>
+                                                            <img
+                                                                src={icontrash}
+                                                                alt="Eliminar"
+                                                                style={{ width: '20px', height: '20px' }}
+                                                            />
+                                                            Dar de baja
                                                         </span>
                                                     </MenuItem>
                                                 </Menu>
@@ -3825,8 +3833,8 @@ const MyNumbers: React.FC = () => {
                                 p: 4,
                                 borderRadius: '8px',
                             }}
-                            >
-                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} marginTop='-25px'>
+                        >
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} marginTop='-25px'>
                                 <Typography
                                     id="modal-ayuda-title"
                                     variant="h6"
@@ -3919,77 +3927,124 @@ const MyNumbers: React.FC = () => {
                             </Box>
                         </Box>
                     </Modal>
-                    {isAcceptModalOpen && (
-                        <div
-                            style={{
-                                position: 'fixed',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    <Modal
+                        open={isAcceptModalOpen}
+                        onClose={handleModalAyudaClose}
+                        aria-labelledby="modal-ayuda-title"
+                        aria-describedby="modal-ayuda-description"
+                    >
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                width: '480px',
+                                height: '228px',
+                                bgcolor: 'background.paper',
+                                boxShadow: 24,
+                                p: 4,
+                                borderRadius: '8px',
                                 display: 'flex',
-                                justifyContent: 'center',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
                                 alignItems: 'center',
-                                zIndex: 1000,
                             }}
                         >
-                            <div
-                                style={{
-                                    backgroundColor: '#fff',
-                                    padding: '20px',
-                                    borderRadius: '8px',
-                                    width: '400px',
-                                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                            <Typography
+                                id="modal-ayuda-title"
+                                variant="h6"
+                                sx={{
+                                    textAlign: 'left',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontSize: '20px',
+                                    fontWeight: 600,
+                                    lineHeight: '54px',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1
                                 }}
                             >
-                                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', color: '#4a4a4a' }}>
-                                    {modalContent.title}
-                                </h2>
-                                <p style={{ fontSize: '1rem', marginBottom: '20px', color: '#6a6a6a' }}>
-                                    {modalContent.message}
-                                </p>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <button
-                                        onClick={handleCloseAcceptModal}
-                                        style={{
-                                            padding: '10px 20px',
-                                            borderRadius: '4px',
-                                            backgroundColor: '#fff',
-                                            color: '#8d406d',
-                                            border: '2px solid #8d406d',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        CANCELAR
-                                    </button>
-                                    <button
-                                        onClick={handleAccept}
-                                        style={{
-                                            padding: '10px 20px',
-                                            borderRadius: '4px',
-                                            backgroundColor: '#8d406d',
-                                            color: '#fff',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        ACEPTAR
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                                {modalContent.title}
+                            </Typography>
+                            <Typography
+                                id="modal-ayuda-description"
+                                sx={{
+                                    textAlign: 'left',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontSize: '16px',
+                                    fontWeight: 'normal',
+                                    lineHeight: '22px',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1
+                                }}
+                            >
+                                {modalContent.message}
+                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginTop: '32px', paddingTop: '16px', gap: '16px' }}>
+                                <Button
+                                    variant="text"
+                                    onClick={() => setIsAcceptModalOpen(false)}
+                                    sx={{
+                                        color: '#8d406d',
+                                        fontFamily: 'Poppins, sans-serif',
+                                        fontSize: '14px',
+                                        fontWeight: 600,
+                                        textTransform: 'uppercase',
+                                        "&:hover": {
+                                            background: "#F2E9EC 0% 0% no-repeat padding-box",
+                                            border: "1px solid #BE93A066",
+                                            borderRadius: "4px",
+                                            opacity: 1,
+                                        },
+                                        "&:active": {
+                                            background: "#E6C2CD 0% 0% no-repeat padding-box",
+                                            border: "1px solid #BE93A0",
+                                            borderRadius: "4px",
+                                            opacity: 1,
+                                        },
+                                    }}
+                                >
+                                    CANCELAR
+                                </Button>
+                                <Button
+                                    variant="text"
+                                    onClick={handleAccept}
+                                    sx={{
+                                        color: '#8d406d',
+                                        fontFamily: 'Poppins, sans-serif',
+                                        fontSize: '14px',
+                                        fontWeight: 600,
+                                        textTransform: 'uppercase',
+                                        "&:hover": {
+                                            background: "#F2E9EC 0% 0% no-repeat padding-box",
+                                            border: "1px solid #BE93A066",
+                                            borderRadius: "4px",
+                                            opacity: 1,
+                                        },
+                                        "&:active": {
+                                            background: "#E6C2CD 0% 0% no-repeat padding-box",
+                                            border: "1px solid #BE93A0",
+                                            borderRadius: "4px",
+                                            opacity: 1,
+                                        },
+                                    }}
+                                >
+                                    ACEPTAR
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Modal>
+
+                    {toastOpen && (
+                        <Snackbar
+                            message={toastMessage}
+                            buttonText="Cerrar"
+                            onClose={() => setToastOpen(false)}
+                        />
                     )}
-                    <Snackbar
-                        open={toastOpen}
-                        autoHideDuration={3000}
-                        onClose={handleCloseToast}
-                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                    >
-                        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
-                            {toastMessage}
-                        </Alert>
-                    </Snackbar>
+
                 </div>
             )}
         </>
