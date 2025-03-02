@@ -71,7 +71,6 @@ type Errors = {
 const PaymentSettings: React.FC = () => {
     const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
     const [isAutoRechargeEnabled, setIsAutoRechargeEnabled] = useState(false);
-    const [isRechargeSectionEnabled, setIsRechargeSectionEnabled] = useState(false); 
     const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null);
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
@@ -107,8 +106,9 @@ const PaymentSettings: React.FC = () => {
         type: '',
     });
     const [errors, setErrors] = useState<Errors>({});
-    const [cardToDelete, setCardToDelete] = useState<CreditCard | null>(null);
-    const [OpenModal, setOpenModal] = useState(false);
+    const [isShortSmsEnabled, setIsShortSmsEnabled] = useState(false);
+    const [isLongSmsEnabled, setIsLongSmsEnabled] = useState(false);
+    const [isCallEnabled, setIsCallEnabled] = useState(false);
 
     const WhiteTooltip = styled(({ className, ...props }: TooltipProps) => (
         <Tooltip {...props} classes={{ popper: className }} />
@@ -164,6 +164,13 @@ const PaymentSettings: React.FC = () => {
         fetchAccounts();
         fetchCreditCards();
     }, []);
+
+    useEffect(() => {
+        setIsShortSmsEnabled(selectedChannels.includes("SMS # cortos"));
+        setIsLongSmsEnabled(selectedChannels.includes("SMS # largos"));
+        setIsCallEnabled(selectedChannels.includes("Llamada"));
+    }, [selectedChannels]);
+
     const navigate = useNavigate();
     const fetchAccounts = async () => {
         try {
@@ -390,6 +397,47 @@ const PaymentSettings: React.FC = () => {
         }
     };
 
+    const addRechargeSetting = async () => {
+        setLoading(true);
+        const usuario = localStorage.getItem("userData");
+        const obj = usuario ? JSON.parse(usuario) : null;
+
+        if (!obj?.id) {
+            console.error("No se encontró el ID del usuario.");
+            return;
+        }
+        const selectedEmails = Users.filter(user => selectedUsers.includes(user.id)).map(user => user.email);
+
+        try {
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_AUTORECHARGE}`;
+            const payload = {
+                shortSms: isShortSmsEnabled,
+                longSms: isLongSmsEnabled,   
+                call: isCallEnabled,       
+                amountValue: parseFloat(threshold), 
+                autoRecharge: isAutoRechargeEnabled, 
+                autoRechargeAmountNotification: parseFloat(thresholdAutomatic), 
+                autoRechargeAmount: parseFloat(rechargeAmount),
+                idCreditCard: selectedCard?.id, 
+                users: selectedEmails  
+            };
+
+            const response = await axios.post(requestUrl, payload);
+
+            if (response.status === 200) {
+                setMessageChipBar('Configuración Guardada con Exito');
+                setshowChipBarCard(true);
+                setTimeout(() => setshowChipBarCard(false), 5000);
+            }
+        } catch {
+            setTitleErrorModal('Error al añadir tarjeta');
+            setMessageErrorModal('Algo salió mal. Inténtelo de nuevo o regreso más tarde.');
+            setIsErrorModalOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleConfirmAccept = () => {
         setFormData({
             cardNumber: '',
@@ -418,36 +466,6 @@ const PaymentSettings: React.FC = () => {
         setIsConfirmModalOpen(false); // Abre el modal de confirmación
     };
 
-    const openDeleteModal = (card: CreditCard) => {
-        setCardToDelete(card);
-        setTitleMainModal('Eliminar Tarjeta');
-        setMessageMainModal('¿Estás seguro de que deseas eliminar la tarjeta seleccionada? Esta acción no podrá revertida.');
-        setOpenModal(true);
-    };
-
-    const handleDeleteCard = async () => {
-        if (!cardToDelete) return;
-        try {
-            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_DELETE_CREDITCARD + cardToDelete.id}`;
-            const response = await axios.get(requestUrl);
-
-
-            if (response.status === 200) {
-                await fetchCreditCards();
-                setMessageChipBar('La tarjeta se borro correctamente');
-                setshowChipBarCard(true);
-                setTimeout(() => setshowChipBarCard(false), 3000);
-            }
-
-
-        } catch {
-            setTitleErrorModal('Error al eliminar tarjeta');
-            setMessageErrorModal('Algo salió mal. Inténtelo de nuevo o regreso más tarde.');
-            setIsErrorModalOpen(true);
-        } finally {
-            setIsAddCardModalOpen(false);
-        }
-    };
 
     const handleSelectCard = async (card: CreditCard) => {
         setSelectedCard(card);
@@ -483,6 +501,12 @@ const PaymentSettings: React.FC = () => {
                 <Checkbox
                     checked={isNotificationEnabled}
                     onChange={handleNotificationToggle}
+                    sx={{
+                        color: '#6C3A52',
+                        '&.Mui-checked': { color: '#6C3A52' },
+                        marginLeft: '-5px',
+
+                    }}
                 />
                 <span
                     style={{
@@ -519,6 +543,12 @@ const PaymentSettings: React.FC = () => {
                                 checked={selectedChannels.includes(channel)}
                                 onChange={() => handleChannelToggle(channel)}
                                 disabled={!isNotificationEnabled}
+                                sx={{
+                                    color: '#6C3A52',
+                                    '&.Mui-checked': { color: '#6C3A52' },
+                                    marginLeft: '-5px',
+
+                                }}
                             />
                             <span
                                 style={{
@@ -607,6 +637,12 @@ const PaymentSettings: React.FC = () => {
                                             checked={selectedUsers.includes(user.id)}
                                             onChange={() => handleUserToggle(user.id)}
                                             disabled={!isNotificationEnabled}
+                                            sx={{
+                                                color: '#6C3A52',
+                                                '&.Mui-checked': { color: '#6C3A52' },
+                                                marginLeft: '-5px',
+
+                                            }}
                                         />
                                     </TableCell>
                                     <TableCell>{user.name}</TableCell>
@@ -630,7 +666,12 @@ const PaymentSettings: React.FC = () => {
                     Activar Autorecarga
                 </h3>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <Checkbox checked={isAutoRechargeEnabled} onChange={() => setIsAutoRechargeEnabled((prev) => !prev)} />
+                    <Checkbox checked={isAutoRechargeEnabled} onChange={() => setIsAutoRechargeEnabled((prev) => !prev)} sx={{
+                        color: '#6C3A52',
+                        '&.Mui-checked': { color: '#6C3A52' },
+                        marginLeft: '-5px',
+
+                    }} />
 
                     <span style={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#8F4D63', opacity: 1, fontSize: '16px' }}>
                         Recibir una alerta y realizar autorecarga cuando los créditos se muestren por debajo de la cantidad seleccionada
@@ -795,28 +836,14 @@ const PaymentSettings: React.FC = () => {
                                     {selectedCard?.id === card.id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}
                                 </span>
                             </label>
-
-                            <button
-                                onClick={() => openDeleteModal(card)}
-                                style={{
-                                    position: 'absolute',
-                                    top: '10px',
-                                    right: '10px',
-                                    backgroundColor: 'transparent',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                🗑️
-                            </button>
                         </div>
                     ))}
                 </div>
-                <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+                <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                     {/* Botones de acción debajo de las tarjetas de crédito */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
                         <SecondaryButton onClick={() => navigate(-1)} text="Cancelar" />
-                        <MainButton text="Aceptar" isLoading={loading} onClick={(event) => handleAddCardSubmit(event)} disabled={isAcceptButtonDisabled} />
+                        <MainButton text="Aceptar" isLoading={loading} onClick={addRechargeSetting} disabled={isAcceptButtonDisabled} />
                     </div>
                 </div>
             </div>
@@ -1346,15 +1373,6 @@ const PaymentSettings: React.FC = () => {
                     onClose={() => setshowChipBarCard(false)}
                 />
             )}
-            <MainModal
-                isOpen={OpenModal}
-                Title={TitleMainModal}
-                message={MessageMainModal}
-                primaryButtonText="Aceptar"
-                secondaryButtonText="Cancelar"
-                onPrimaryClick={handleDeleteCard}
-                onSecondaryClick={() => setOpenModal(false)}
-            />
         </div>
     );
 };

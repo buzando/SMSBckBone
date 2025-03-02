@@ -6,16 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Modal.Model.Model
+namespace Contract.Request
 {
-    public class AmountNotification
+    public class AmountNotificationRequest
     {
-        [Key]
-        public int id { get; set; }
-
-        public bool? short_sms { get; set; }
-        public bool? long_sms { get; set; }
-        public bool? call { get; set; }
+        public bool? ShortSms { get; set; }
+        public bool? LongSms { get; set; }
+        public bool? Call { get; set; }
 
         [Column("AmountNotification", TypeName = "decimal(10,2)")]
         public decimal AmountValue { get; set; }
@@ -26,5 +23,6 @@ namespace Modal.Model.Model
         public decimal? AutoRechargeAmount { get; set; }
 
         public int? IdCreditCard { get; set; }
+        public List<string> Users { get; set; }
     }
 }

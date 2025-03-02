@@ -931,6 +931,23 @@ namespace SMSBackboneAPI.Controllers
 
         }
 
+        [HttpPost("SaveNotificationRecharge")]
+        public async Task<IActionResult> SaveNotificationRecharge(AmountNotificationRequest Notification)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            var UserManager = new Business.UserManager();
+            var responseDto = UserManager.SaveRechargeSettings(Notification);
+            if (!responseDto)
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+            }
+            else
+            {
+                var response = Ok(responseDto);
+                return response;
+            }
+        }
+
         #endregion
     }
 }
