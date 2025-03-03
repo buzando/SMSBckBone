@@ -186,14 +186,14 @@ const HomePage: React.FC = () => {
         }
 
         const parsedUserData = JSON.parse(userData);
-        setFirstname(parsedUserData.firstname);
+        setFirstname(parsedUserData.firstName);
     }, []);
 
     return (
         <div style={{ padding: '20px', maxWidth: '90%', width: '100%', marginLeft: '0' }}>
             {/* Header con título */}
             <Typography variant="h4" component="h1" style={{ textAlign: 'left', fontWeight: 'bold', color: '#330F1B' }}>
-                {firstname ? `¡Bienvenida de vuelta, ${firstname}!` : '¡Bienvenida!'}
+                {firstname ? `¡Bienvenido de vuelta, ${firstname}!` : '¡Bienvenido!'}
             </Typography>
             <Typography variant="body1" style={{ textAlign: 'left', color: '#574B4F', marginBottom: '20px' }}>
                 Te mostramos el resumen de tu actividad más reciente.
