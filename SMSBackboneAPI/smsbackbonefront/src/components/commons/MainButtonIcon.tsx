@@ -1,6 +1,6 @@
 import React from 'react';
 import './Common.css'; // Reutilizamos los estilos globales para hover, focus y active.
-import PlusIcon from '../../assets/Icon-buttonplus.svg'; // Import del ícono predeterminado
+import PlusIcon from '../../assets/Icon-buttonplus.svg'; // Import del ï¿½cono predeterminado
 import CircularProgress from '@mui/material/CircularProgress';
 
 interface MainButtonIconProps {
@@ -23,10 +23,10 @@ const MainButtonIcon: React.FC<MainButtonIconProps> = ({ text, onClick, isLoadin
         >
             <img
                 src={PlusIcon}
-                alt="Icono del botón"
+                alt="Icono del botï¿½n"
                 className="button-icon"
             />
-            {isLoading ? <CircularProgress size={20} style={{ color: '#FFFFFF' }} /> : text.toUpperCase()}
+            {isLoading ? <CircularProgress size={20} thickness={8} style={{ color: '#FFFFFF' }} /> : text.toUpperCase()}
         </button>
     );
 };

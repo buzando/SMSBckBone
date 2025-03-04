@@ -18,7 +18,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Container from "@mui/material/Container";
 import Fab from "@mui/material/Fab";
 import Modal from "@mui/material/Modal";
-import Button from "@mui/material/Button";
 import helpicon from "../assets/Iconoayuda.svg";
 interface AppBarProps extends MuiAppBarProps {
     open?: boolean;
@@ -228,7 +227,7 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                         transform: "translate(-50%, -50%)",
                         width: "90%",
                         maxWidth: "600px",
-                        maxHeight: "550px",
+                        maxHeight: "600px",
                         bgcolor: "background.paper",
                         borderRadius: "10px",
                         boxShadow: 24,
@@ -245,15 +244,22 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                             opacity: 1,
                             fontSize: "26px",
                             mb: 1,
+                            marginBottom: "20px"
                         }}
                     >
                         Ayuda
                     </Typography>
 
+                        
+
+
                     {/* Línea horizontal */}
                     <Box
                         sx={{
-                            width: "100%",
+                            position: "relative",
+                            left: -23,
+                            right: 0,
+                            width: "599px",
                             height: "1px",
                             backgroundColor: "#E0E0E0",
                             my: 1,
@@ -482,24 +488,18 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                     </Typography>
 
                     <Box sx={{ textAlign: "right", mt: 2 }}>
-                        <Button
-                            onClick={closeHelpModal}
-                            variant="contained"
-                            color="primary"
-                            sx={{
-                                font: "normal normal medium 26px/55px Poppins",
-                                backgroundColor: "#833A53",
-                                marginTop: "-35px",
-                                color: "#FFFFFF",
-                                borderRadius: "8px",
-                                padding: "6px 16px",
-                                "&:hover": {
-                                    backgroundColor: "#A54261",
-                                },
-                            }}
-                        >
-                            Cerrar
-                        </Button>
+                    <IconButton
+                                onClick={closeHelpModal}
+                                sx={{
+                                    position: "absolute",
+                                    top: 2,
+                                    right: 8,
+                                    color: "#C0C0C0",
+                                }}
+                            >
+                                ✕
+                            </IconButton>
+
                     </Box>
                 </Box>
             </Modal>

@@ -18,6 +18,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Tooltip from '@mui/material/Tooltip';
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
+
 type RegisterFormData = {
     client: string;
     firstName: string;
@@ -46,7 +47,6 @@ const Register: React.FC = () => {
         llamada: false,
         password: "",
     });
-
 
 
 
@@ -243,26 +243,38 @@ const Register: React.FC = () => {
 
 
 
+
+
     return (
+    //Color del fondo
+    <Box
+        sx={{
+            display: "flex",
+            flexDirection: "column",
+            backgroundColor: "#F2F2F2"
+        }}
+    >
         <PublicLayout>
             <Container maxWidth="md">
                 <Box mt={4}>
-                    <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 2 }}>
+                    <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 2,fontFamily: "Poppins" }}>
                         Registro
                     </Typography>
+                    
                     <Divider sx={{ marginBottom: 3 }} />
                     <Paper elevation={3} sx={{ padding: 4, borderRadius: "12px" }}>
                         <Typography
                             sx={{
                                 textAlign: "right", // Alineado a la derecha
                                 font: "normal normal normal 14px/22px Poppins",
+                                fontFamily: "Poppins",
                                 letterSpacing: "0px",
                                 color: "#330F1B",
                                 opacity: 0.7,
                                 marginBottom: 3, // Espaciado inferior
                             }}
                         >
-                            *Los campos con asterisco son obligatorios.
+                            *El asterisco indica los campos obligatorios.
                         </Typography>
                         <Grid container spacing={2}>
                           
@@ -274,6 +286,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         opacity: 1,
                                         marginBottom: "4px",
@@ -283,6 +296,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Cliente
+                                    {!formData.client && <span style={{ color: "red", marginLeft: "5px" }}>*</span>}
                                 </Typography>
                                 <TextField
                                     name="client"
@@ -313,17 +327,27 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                                                                 padding: "8px 12px",
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000",
                                                                 whiteSpace: "pre-line",
                                                             }}
                                                         >
-                                                            - Solo caracteres alfabéticos
-                                                            <br />
+                                                            <>
+                                                            - Solo caracteres alfabéticos<br />
                                                             - Longitud máxima de 40 caracteres
+                                                            </>
                                                         </Box>
                                                     }
                                                     arrow
-                                                    placement="top"
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
                                                         
@@ -353,6 +377,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName) ? "#D01247" : "#red",
                                         opacity: 1,
@@ -360,6 +385,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Nombre
+                                    {!formData.firstName && <span style={{ color: "red", marginLeft: "5px" }}>*</span>}
                                 </Typography>
                                 <TextField
                                     name="firstName"
@@ -386,17 +412,27 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                                                                 padding: "8px 12px",
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000",
                                                                 whiteSpace: "pre-line",
                                                             }}
                                                         >
-                                                            - Solo caracteres alfabéticos
-                                                            <br />
+                                                            <>
+                                                            - Solo caracteres alfabéticos<br />
                                                             - Longitud máxima de 40 caracteres
+                                                            </>
                                                         </Box>
                                                     }
                                                     arrow
-                                                    placement="top"
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
                                                         <img
@@ -422,6 +458,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName) ? "red" : "black",
                                         opacity: 1,
@@ -429,6 +466,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Apellido Paterno
+                                    {!formData.lastName && <span style={{ color: "red", marginLeft: "5px" }}>*</span>}
                                 </Typography>
                                 <TextField
                                     name="lastName"
@@ -455,17 +493,27 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                                                                 padding: "8px 12px",
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000",
                                                                 whiteSpace: "pre-line",
                                                             }}
                                                         >
-                                                            - Solo caracteres alfabéticos
-                                                            <br />
+                                                            <>
+                                                            - Solo caracteres alfabéticos<br />
                                                             - Longitud máxima de 40 caracteres
+                                                            </>
                                                         </Box>
                                                     }
                                                     arrow
-                                                    placement="top"
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
                                                         <img
@@ -492,6 +540,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: errors.phone ? "red" : "black",
                                         opacity: 1,
@@ -499,6 +548,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Telefono
+                                    {!formData.phone && <span style={{ color: "red", marginLeft: "5px" }}>*</span>}
                                 </Typography>
                                 <TextField
                                     name="phone"
@@ -521,6 +571,7 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
                                                                 padding: "8px 12px", // Padding for better spacing
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000", // Black font color
                                                                 whiteSpace: "pre-line", // Line breaks
                                                             }}
@@ -560,6 +611,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color:
                                             formData.extension && !/^\d{1,5}$/.test(formData.extension)
@@ -570,6 +622,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Extensión
+                                    
                                 </Typography>
                                 <TextField
                                     name="extension"
@@ -595,6 +648,7 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
                                                                 padding: "8px 12px", // Padding for better spacing
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000", // Black font color
                                                                 whiteSpace: "pre-line", // Line breaks
                                                             }}
@@ -643,6 +697,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: errors.email ? "red" : "black",
                                         opacity: 1,
@@ -650,6 +705,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Email
+                                    {!formData.email && <span style={{ color: "red", marginLeft: "5px" }}>*</span>}
                                 </Typography>
                                 <TextField
                                     name="email"
@@ -672,6 +728,7 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
                                                                 padding: "8px 12px", // Padding for better spacing
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000", // Black font color
                                                                 whiteSpace: "pre-line", // Line breaks
                                                             }}
@@ -708,6 +765,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: errors.emailConfirmation ? "red" : "black",
                                         opacity: 1,
@@ -715,6 +773,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Confirmar Email
+                                    {!formData.emailConfirmation && <span style={{ color: "red", marginLeft: "5px" }}>*</span>}
                                 </Typography>
                                 <TextField
                                     name="emailConfirmation"
@@ -737,6 +796,7 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
                                                                 padding: "8px 12px", // Padding for better spacing
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000", // Black font color
                                                                 whiteSpace: "pre-line", // Line breaks
                                                             }}
@@ -772,6 +832,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color:hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid) ? "red" : "black",
                                         opacity: 1,
@@ -779,6 +840,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Contraseña
+                                    {!formData.lowercase && <span style={{ color: "red", marginLeft: "5px" }}>*</span>}
                                 </Typography>
                                 <TextField
                                     name="password"
@@ -827,6 +889,7 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
                                                                 padding: "8px 12px", // Padding for better spacing
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000", // Black font color
                                                                 whiteSpace: "pre-line", // Line breaks
                                                             }}
@@ -866,6 +929,7 @@ const Register: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: (confirmPassword && confirmPassword !== password) ? "red" : "black",
                                         opacity: 1,
@@ -873,6 +937,7 @@ const Register: React.FC = () => {
                                     }}
                                 >
                                     Confirmar Contraseña
+                                    {!formData.lowercase && <span style={{ color: "red", marginLeft: "5px" }}>*</span>}
                                 </Typography>
                                 <TextField
                                     name="confirmPassword"
@@ -895,6 +960,7 @@ const Register: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
                                                                 padding: "8px 12px", // Padding for better spacing
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
                                                                 color: "#000000", // Black font color
                                                                 whiteSpace: "pre-line", // Line breaks
                                                             }}
@@ -935,7 +1001,7 @@ const Register: React.FC = () => {
 
                             {/* Services */}
                             <Grid item xs={12}>
-                                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                <Typography variant="h6" sx={{ fontWeight: "bold", fontFamily: "Poppins" }}>
                                     Servicios<span style={{ color: "red" }}>*</span>
                                 </Typography>
                             </Grid>
@@ -951,13 +1017,20 @@ const Register: React.FC = () => {
                                         control={
                                             <Checkbox
                                                 checked={formData.sms}
+                                                sx={{
+                                                    color: '#6C3A52',
+                                                    '&.Mui-checked': { color: '#6C3A52' },
+                                                
+                                                }}
                                                 onChange={(e) =>
                                                     setFormData((prevState) => ({
                                                         ...prevState,
                                                         sms: e.target.checked,
                                                     }))
                                                 }
+                                                
                                             />
+
                                         }
                                         label="SMS"
                                     />
@@ -965,6 +1038,11 @@ const Register: React.FC = () => {
                                         control={
                                             <Checkbox
                                                 checked={formData.llamada}
+                                                sx={{
+                                                    color: '#6C3A52',
+                                                    '&.Mui-checked': { color: '#6C3A52' },
+                                                
+                                                }}
                                                 onChange={(e) =>
                                                     setFormData((prevState) => ({
                                                         ...prevState,
@@ -973,7 +1051,10 @@ const Register: React.FC = () => {
                                                 }
                                             />
                                         }
+                                        
                                         label="Llamada"
+                                        
+                                        
                                     />
                                 </Box>
                             </Grid>
@@ -984,7 +1065,15 @@ const Register: React.FC = () => {
                                     <Button
                                         variant="outlined"
                                         color="secondary"
-                                        onClick={() => navigate('/')}
+                                        onClick={() => navigate('/')}  sx={{
+                                            border: "1px solid #60293C",
+                                            borderRadius: "4px",
+                                            color: "#833A53",
+                                            backgroundColor: "transparent",
+                                            "&:hover": {
+                                            backgroundColor: "#f3e6eb",
+                                        },
+                                    }}
                                     >
                                         Cancelar
                                     </Button>
@@ -1213,12 +1302,13 @@ const Register: React.FC = () => {
                             </Box>
                             <Divider sx={{ marginBottom: 3 }} />
                             <Box display="flex" justifyContent="space-between" mt={3}>
-                                <Button variant="outlined" onClick={handleModalClose} sx={{
-                                    border: "1px solid #60293C",
-                                    borderRadius: "4px",
-                                    color: "#833A53",
-                                    backgroundColor: "transparent",
-                                    "&:hover": {
+                                <Button variant="outlined" onClick={handleModalClose} 
+                                    sx={{
+                                        border: "1px solid #60293C",
+                                        borderRadius: "4px",
+                                        color: "#833A53",
+                                        backgroundColor: "transparent",
+                                        "&:hover": {
                                         backgroundColor: "#f3e6eb",
                                     },
                                 }}>
@@ -1230,15 +1320,16 @@ const Register: React.FC = () => {
                                     onClick={handleSubmit}
                                     disabled={!isButtonEnabled}
                                     sx={{
-                                        background: "#833A53 0% 0% no-repeat padding-box",
-                                        border: "1px solid #60293C",
-                                        borderRadius: "4px",
-                                        opacity: 0.9,
-                                        color: "#FFFFFF",
-                                        "&:hover": {
-                                            backgroundColor: "#a54261",
-                                        },
-                                    }}
+                                                fontFamily: "Poppins",
+                                                backgroundColor: "#833A53",
+                                                color: "#FFFFFF",
+                                                padding: "10px 20px",
+                                                textTransform: "uppercase",
+                                                fontWeight: "bold",
+                                                "&:hover": {
+                                                    backgroundColor: "#A54261",
+                                                },
+                                            }}
                                 >
                                     Aceptar
                                 </Button>
@@ -1303,14 +1394,14 @@ const Register: React.FC = () => {
                                     variant="text"
                                     onClick={handleErrorModalClose}
                                     sx={{
-                                        textAlign: "center",
-                                        font: "normal normal 600 14px/54px Poppins",
-                                        letterSpacing: "1.12px",
+                                        border: "1px solid #60293C",
+                                        borderRadius: "4px",
                                         color: "#833A53",
-                                        textTransform: "uppercase",
-                                        opacity: 1,
-                                    }}
-                                >
+                                        backgroundColor: "transparent",
+                                        "&:hover": {
+                                        backgroundColor: "#f3e6eb",
+                                    },
+                                }}>
                                     Cerrar
                                 </Button>
                             </Box>
@@ -1321,6 +1412,7 @@ const Register: React.FC = () => {
 
             </Container>
         </PublicLayout>
+    </Box>
     );
 };
 export default Register;

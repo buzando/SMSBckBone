@@ -274,7 +274,7 @@ const Rooms: React.FC = () => {
     };
 
     return (
-        <Box p={4}>
+        <Box p={4} sx={{ backgroundColor: "#F2F2F2" }}>
             <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
                 Salas
             </Typography>
@@ -299,7 +299,7 @@ const Rooms: React.FC = () => {
                     display="flex"
                     alignItems="center"
                     sx={{
-                        backgroundColor: "#f5f5f5",
+                        backgroundColor: "#FFFFFF",
                         borderRadius: "8px",
                         padding: "8px 12px",
                         boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",

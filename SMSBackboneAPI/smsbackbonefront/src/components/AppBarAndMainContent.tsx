@@ -18,7 +18,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -30,8 +29,6 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 import EditIcon from "@mui/icons-material/Edit";
-import Fab from "@mui/material/Fab";
-import helpicon from "../assets/Iconoayuda.svg";
 import Modal from "@mui/material/Modal";
 import { InputAdornment } from '@mui/material';
 import {
@@ -56,10 +53,15 @@ import seachicon from '../assets/icon-lupa.svg'
 import iconclose from "../assets/icon-close.svg"
 import HouseIcon from "../assets/IconRooms.svg"
 import IconUser from '../assets/USER_ICON.svg';
+import Iconpeople from '../assets/Iconpeople.svg';
+import Iconmesage from '../assets/Iconmesage.svg';
+import Iconreports from '../assets/Iconreports.svg';
 import IconUserArrow from '../assets/CHEVRON_USER.svg';
 import CloseSession from '../assets/Icon-CerrarSesion.svg';
+import Iconfacturation from '../assets/Iconfacturation.svg';
+import Iconhelpu from '../assets/Iconhelpu.svg';
 
-const drawerWidth = 246;
+const drawerWidth = 250;
 
 type Page = {
     id: number,
@@ -82,13 +84,13 @@ const pages: Page[] = [
     { id: 0, title: 'Inicio', path: '/', icon: <HomeIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 1, title: 'Usuarios', path: '/UserAdministration', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 2, title: 'Administración', path: '', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 2, title: 'Administración', path: '', icon: <Iconpeople sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Usuarios', path: '/users', icon: <PeopleAltIcon sx={{ color: 'white' }} /> },
             { id: 2, title: 'Salas', path: '/rooms', icon: <HomeIcon sx={{ color: 'white' }} /> },
         ]
     },
     {
-        id: 3, title: 'Facturación', path: '/billing', icon: <LocalAtmIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 3, title: 'Facturación', path: '/billing', icon: <Iconfacturation sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Historial de pagos', path: '/billing/paymenthistory', icon: <HistoryIcon sx={{ color: 'white' }} /> },
             { id: 2, title: 'Métodos de pago', path: '/billing/paymentmethods', icon: <PaymentIcon sx={{ color: 'white' }} /> },
             { id: 3, title: 'Uso', path: '/billing/paymentusage', icon: <DataUsageIcon sx={{ color: 'white' }} /> },
@@ -96,13 +98,13 @@ const pages: Page[] = [
             { id: 5, title: 'Ajustes de pago', path: '/billing/paymentsettings', icon: <SettingsSuggestIcon sx={{ color: 'white' }} /> },
         ]
     },
-    { id: 4, title: 'Reportes', path: '/reports', icon: <AssessmentIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 4, title: 'Reportes', path: '/reports', icon: <Iconreports sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 5, title: 'SMS', path: '/numbers', icon: <SmartphoneIcon sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 5, title: 'SMS', path: '/numbers', icon: <Iconmesage sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Configuración SMS', path: '/sms', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
         ]
     },
-    { id: 6, title: 'Ayuda', path: '/help', icon: <HelpOutlineIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 6, title: 'Ayuda', path: '/help', icon: <Iconhelpu sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
 
     // Opciones del botón de usuario
     { id: 7, title: 'Editar cuenta', path: '/ManageAccount', icon: <EditIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
@@ -226,10 +228,10 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const { user } = contextState
     const [openSubMenu, setOpenSubMenu] = useState(false); // Submenú de administración
     const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
+ 
 
 
 
-    const openHelpModal = () => setHelpModalIsOpen(true);
     const closeHelpModal = () => setHelpModalIsOpen(false);
 
 
@@ -914,11 +916,11 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             <Typography
                                 sx={{
                                     textAlign: 'left',
-                                    font: 'normal normal medium 14px/54px Poppins',
-                                    letterSpacing: '0px',
+                                    fontFamily: 'Poppins',
+                                    letterSpacing: '-0.5px',
                                     color: '#574B4F',
                                     opacity: 1,
-                                    fontSize: '14px', // Esto asegura que el tamaño de fuente sea correcto
+                                    fontSize: '13px', // Esto asegura que el tamaño de fuente sea correcto
                                 }}
                             >
                                 Créditos Totales SMS
@@ -927,11 +929,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             <Typography
                                 sx={{
                                     textAlign: 'left',
-                                    font: 'normal normal medium 14px/54px Poppins',
+                                    fontFamily: 'Poppins',
                                     letterSpacing: '0px',
                                     color: '#330F1B',
                                     opacity: 1,
-                                    fontSize: '14px', // Estilo para los valores numéricos debajo
+                                    fontSize: '18px', // Estilo para los valores numéricos debajo
+                                    marginBottom:'-8px'
                                 }}
                             >
                                 {selectedRoom?.credits || 0}
@@ -950,22 +953,25 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     <Typography
                                         sx={{
                                             textAlign: 'left',
-                                            font: 'normal normal medium 12px/54px Poppins',
+                                            fontFamily: 'Poppins',
                                             letterSpacing: '0px',
                                             color: '#574B4F',
                                             opacity: 1,
                                             fontSize: '12px', // Ajuste preciso del tamaño de fuente
+                                            marginBottom:'8px'
                                         }}
                                     >
                                         # Cortos
                                     </Typography>
                                     <Typography
+                                    //450
                                         sx={{
                                             textAlign: 'left',
-                                            font: 'normal normal medium 14px/54px Poppins',
+                                            fontFamily: 'Poppins',
                                             letterSpacing: '0px',
                                             color: '#330F1B',
                                             opacity: 1,
+                                            marginBottom:'-1px',
                                             fontSize: '14px', // Estilo para los valores numéricos debajo
                                         }}
                                     >
@@ -976,7 +982,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     <Typography
                                         sx={{
                                             textAlign: 'left',
-                                            font: 'normal normal medium 12px/54px Poppins',
+                                            fontFamily: 'Poppins',
                                             letterSpacing: '0px',
                                             color: '#574B4F',
                                             opacity: 1,
@@ -986,10 +992,15 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         # Largos
                                     </Typography>
                                     <Typography
+                                    //320
                                         sx={{
-                                            font: 'normal normal bold 14px Poppins',
-                                            color: '#833A53',
-                                            marginTop: '4px',
+                                            textAlign: 'left',
+                                            fontFamily: 'Poppins',
+                                            letterSpacing: '0px',
+                                            color: '#330F1B',
+                                            opacity: 1,
+                                            marginTop: '7px',
+                                            fontSize: '14px',
                                         }}
                                     >
                                         {selectedRoom?.long_sms || 0}
@@ -1101,6 +1112,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             sx={{
                                 textAlign: 'center',
                                 font: 'normal normal 600 14px/20px Poppins',
+                                fontFamily: 'Poppins',
                                 color: '#833A53',
                                 background: '#FFF',
                                 borderRadius: '4px',
@@ -1129,6 +1141,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             sx={{
                                 textAlign: 'center',
                                 font: 'normal normal 600 14px/20px Poppins',
+                                fontFamily: 'Poppins',
                                 color: '#833A53',
                                 background: '#FFF',
                                 borderRadius: '4px',
@@ -1165,12 +1178,13 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     <ListItem disablePadding>
                         <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
                             <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                <PeopleAltIcon />
+                            <img alt="Iconpeople" src={Iconpeople} style={{ width: 40, height: 20, filter: "brightness(0) invert(1)" }}/>
                             </ListItemIcon>
                             <ListItemText
                                 primary="Administración"
                                 primaryTypographyProps={{
-                                    fontWeight: 'bold',
+                                    fontFamily: "Poppins",
+                                    marginRight: "100%",
                                     color: '#FFFFFF',
                                 }}
                             />
@@ -1201,14 +1215,17 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     }}
                                     selected={location.pathname === '/UserAdministration'}
                                 >
-                                    <Typography
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            fontSize: '0.9rem',
-                                        }}
-                                    >
-                                        Usuarios
-                                    </Typography>
+                                    <ListItemText
+                                    primary="Usuarios"
+                                    primaryTypographyProps={{
+                                        fontFamily: "Poppins",
+                                        marginLeft: '48px',
+                                        fontSize: '14px',
+                                        color: '#FFFFFF',
+                                        marginBottom: "-5px",
+                                        marginTop: "-5px"
+                                    }}
+                                />
                                 </ListItemButton>
                             </Link>
                             {/* Salas */}
@@ -1233,14 +1250,18 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     }}
                                     selected={location.pathname === '/rooms'}
                                 >
-                                    <Typography
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            fontSize: '0.9rem',
-                                        }}
-                                    >
-                                        Salas
-                                    </Typography>
+                                    
+                                    <ListItemText
+                                    primary="Salas"
+                                    primaryTypographyProps={{
+                                        fontFamily: "Poppins",
+                                        marginLeft: '48px',
+                                        fontSize: '14px',
+                                        color: '#FFFFFF',
+                                        marginBottom: "-5px",
+                                        marginTop: "-5px"
+                                    }}
+                                />
                                 </ListItemButton>
                             </Link>
                         </List>
@@ -1248,13 +1269,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de SMS */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => setOpenSubMenuNumbers(!openSubMenuNumbers)} sx={{ borderRadius: '8px' }}>
-                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                <SmartphoneIcon />
-                            </ListItemIcon>
+                        <img alt="Iconmesage" src={Iconmesage} style={{ width: 50, height: 20 }}/>
                             <ListItemText
                                 primary="SMS"
                                 primaryTypographyProps={{
-                                    fontWeight: 'bold',
+                                    fontFamily: "Poppins",
+                                    marginLeft: "5px",
                                     color: '#FFFFFF',
                                 }}
                             />
@@ -1263,16 +1283,17 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </ListItem>
                     <Collapse in={openSubMenuNumbers} timeout="auto">
                         <List component="div" disablePadding>
-                            <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/sms')}>
-                                <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                    <ChecklistRtlIcon />
-                                </ListItemIcon>
+                            <ListItemButton sx={{ pl: 4, marginTop:"-5px", marginBottom:"-5px"}} onClick={() => navigate('/sms')}>
+                                
                                 <ListItemText
                                     primary="Configuración SMS"
                                     primaryTypographyProps={{
-                                        fontWeight: 'bold',
-                                        fontSize: '0.9rem',
+                                        fontFamily: "Poppins",
+                                        marginLeft: '48px',
+                                        fontSize: '14px',
                                         color: '#FFFFFF',
+                                        marginBottom: "-5px",
+                                        marginTop: "-5px"
                                     }}
                                 />
                             </ListItemButton>
@@ -1282,13 +1303,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de Reportes */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => navigate('/reports')} sx={{ borderRadius: '8px' }}>
-                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                <AssessmentIcon />
-                            </ListItemIcon>
+                        <img alt="Iconreports" src={Iconreports} style={{ width: 50, height: 20, transform: "rotate(-90deg)" }}/>
                             <ListItemText
                                 primary="Reportes"
                                 primaryTypographyProps={{
-                                    fontWeight: 'bold',
+                                    fontFamily: "Poppins",
+                                    marginLeft: "5px",
                                     color: '#FFFFFF',
                                 }}
                             />
@@ -1298,13 +1318,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de Facturación */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => setOpenSubMenuBilling(!openSubMenuBilling)} sx={{ borderRadius: '8px' }}>
-                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                <LocalAtmIcon />
-                            </ListItemIcon>
+                        <img alt="Iconfacturation" src={Iconfacturation} style={{ width: 50, height: 20 }}/>
                             <ListItemText
                                 primary="Facturación"
                                 primaryTypographyProps={{
-                                    fontWeight: 'bold',
+                                    fontFamily: "Poppins",
+                                    marginLeft: "5px",
                                     color: '#FFFFFF',
                                 }}
                             />
@@ -1313,17 +1332,18 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </ListItem>
                     <Collapse in={openSubMenuBilling} timeout="auto">
                         <List component="div" disablePadding>
-                            {pages[2].subMenus.map((subMenu) => (
+                            {pages[3].subMenus.map((subMenu) => (
                                 <ListItemButton key={subMenu.id} sx={{ pl: 4 }} onClick={() => navigate(subMenu.path)}>
-                                    <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                        {subMenu.icon}
-                                    </ListItemIcon>
+                                    
                                     <ListItemText
                                         primary={subMenu.title}
                                         primaryTypographyProps={{
-                                            fontWeight: 'bold',
-                                            fontSize: '0.9rem',
-                                            color: '#FFFFFF',
+                                        fontFamily: "Poppins",
+                                        marginLeft: '48px',
+                                        fontSize: '14px',
+                                        color: '#FFFFFF',
+                                        marginBottom: "-5px",
+                                        marginTop: "-5px"
                                         }}
                                     />
                                 </ListItemButton>
@@ -1334,13 +1354,12 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de Ayuda */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => navigate('/help')} sx={{ borderRadius: '8px' }}>
-                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                <HelpOutlineIcon />
-                            </ListItemIcon>
+                        <img alt="Iconhelpu" src={Iconhelpu} style={{ width: 50, height: 20, filter: "brightness(0) invert(1)"  }}/>
                             <ListItemText
                                 primary="Ayuda"
                                 primaryTypographyProps={{
-                                    fontWeight: 'bold',
+                                    fontFamily: "Poppins",
+                                    marginLeft: "5px",
                                     color: '#FFFFFF',
                                 }}
                             />
@@ -1383,54 +1402,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         {' Nuxiba. Todos los derechos reservados. Se prohíbe el uso no autorizado.'}
                     </Typography>
                     <img src={nuxiba_svg} alt="Nuxiba Logo" width="80" />
-                    {/* Botón circular con el icono de ayuda */}
-                    <Fab
-                        aria-label="help"
-                        onClick={openHelpModal}
-                        sx={{
-                            position: "fixed",
-                            bottom: 70,
-                            right: 30,
-                            zIndex: 1500,
-                            width: "60px", // Tamaño personalizado
-                            height: "60px", // Tamaño personalizado
-                            backgroundColor: "#FFFFFF", // Fondo blanco
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Sombra normal
-                            border: "1px solid #D9C5CB", // Borde del botón
-                            "&:hover": {
-                                background: "#EBE5E7 0% 0% no-repeat padding-box",
-                                boxShadow: "0px 8px 16px #00131F14", // Sombra en hover
-                                border: "1px solid #D9C5CB", // Borde en hover
-                            },
-                        }}
-                    >
-                        <Tooltip
-                            title="Ayuda"
-                            arrow
-                            placement="top" // Aparece arriba
-                            sx={{
-                                "& .MuiTooltip-tooltip": {
-                                    backgroundColor: "#330F1B", // Fondo del tooltip
-                                    color: "#FFFFFF", // Texto blanco
-                                    fontSize: "12px", // Tamaño de fuente
-                                    fontFamily: "Poppins, sans-serif", // Fuente personalizada
-                                    fontWeight: "medium", // Peso de texto
-                                },
-                                "& .MuiTooltip-arrow": {
-                                    color: "#330F1B", // Color de la flecha del tooltip
-                                },
-                            }}
-                        >
-                            <img
-                                src={helpicon} // Usar el ícono importado
-                                alt="Ícono de ayuda"
-                                style={{
-                                    width: "24px", // Tamaño del ícono
-                                    height: "24px", // Tamaño del ícono
-                                }}
-                            />
-                        </Tooltip>
-                    </Fab>
+
                 </Box>
             </footer>
             {/* Modal de ayuda */}
