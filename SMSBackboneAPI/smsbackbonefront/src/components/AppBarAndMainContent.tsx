@@ -91,11 +91,11 @@ const pages: Page[] = [
     },
     {
         id: 3, title: 'Facturación', path: '/billing', icon: <Iconfacturation sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
-            { id: 1, title: 'Historial de pagos', path: '/billing/paymenthistory', icon: <HistoryIcon sx={{ color: 'white' }} /> },
-            { id: 2, title: 'Métodos de pago', path: '/billing/paymentmethods', icon: <PaymentIcon sx={{ color: 'white' }} /> },
-            { id: 3, title: 'Uso', path: '/billing/paymentusage', icon: <DataUsageIcon sx={{ color: 'white' }} /> },
+            { id: 1, title: 'Historial de pagos', path: '/PaymentHistoric', icon: <HistoryIcon sx={{ color: 'white' }} /> },
+            { id: 2, title: 'Métodos de pago', path: '/PaymentMethods', icon: <PaymentIcon sx={{ color: 'white' }} /> },
+            { id: 3, title: 'Uso', path: '/Use', icon: <DataUsageIcon sx={{ color: 'white' }} /> },
             { id: 4, title: 'Costos', path: '/billing/paymentcost', icon: <AttachMoneyIcon sx={{ color: 'white' }} /> },
-            { id: 5, title: 'Ajustes de pago', path: '/billing/paymentsettings', icon: <SettingsSuggestIcon sx={{ color: 'white' }} /> },
+            { id: 5, title: 'Ajustes de pago', path: '/PaymentSettings', icon: <SettingsSuggestIcon sx={{ color: 'white' }} /> },
         ]
     },
     { id: 4, title: 'Reportes', path: '/reports', icon: <Iconreports sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
