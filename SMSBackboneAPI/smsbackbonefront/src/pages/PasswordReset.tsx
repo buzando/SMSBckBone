@@ -19,6 +19,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Modal } from "@mui/material";
 import "../chooseroom.css"
 import { styled } from "@mui/system";
+import infoicon from '../assets/Icon-info.svg'
+import infoiconerror from '../assets/Icon-infoerror.svg'
 
 const TermsAndConditions: React.FC = () => {
     const [loading, setLoading] = useState(false);
@@ -417,6 +419,17 @@ const TermsAndConditions: React.FC = () => {
     }));
 
     return (
+<Box
+    sx={{
+        backgroundColor: "#F2F2F2", // Fondo gris
+        minHeight: "100vh", // Asegura que cubra toda la pantalla
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        
+    }}
+    >   
+        
         <PublicLayout>
             <Container maxWidth="sm" fixed sx={{ marginTop: 2, marginBottom: 8 }}>
                 <Typography
@@ -476,7 +489,7 @@ const TermsAndConditions: React.FC = () => {
 
                 <Box padding={1}>
                     {activeStep === 0 && (
-                        <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px', height: '300px' }}>
+                        <Paper elevation={10} sx={{ width: '100%', borderRadius: '10px', height: '300px' }}>
                             <Box sx={{
                                 margin: '20px', // Mantener el margen
                                 paddingX: '20px', // Padding horizontal
@@ -548,9 +561,27 @@ const TermsAndConditions: React.FC = () => {
                                     </Typography>
                                 )}
 
+                                    {/* Línea horizontal */}
+                                    <Box
+                                    sx={{
+                                        borderTop: "1px solid #DADADA",
+                                        position: "relative",
+                                        left: -40,
+                                        right: 0,
+                                        width: "535px",
+                                        height: "1px",
+                                        backgroundColor: "red",
+                                        my: 1,
+                                        marginBottom: "-35px",
+                                        marginTop: "35px",
+                                }}
+                                />                                
+
+
+
                                 <Box
                                     sx={{
-                                        borderTop: "1px solid #DADADA", // Línea gris claro
+                                        borderTop: "0px solid #DADADA", // Línea gris claro
                                         marginTop: "32px", // Mayor separación del contenido superior
                                         paddingTop: "8px", // Menor separación con los botones
                                         //Cambios para anchura de linea
@@ -563,22 +594,28 @@ const TermsAndConditions: React.FC = () => {
                                             variant="outlined"
                                             onClick={() => navigate("/")}
                                             sx={{
+                                                border: "1px solid #60293C",
+                                                borderRadius: "4px",
                                                 color: "#833A53",
-                                                borderColor: "#833A53",
-                                                padding: "10px 20px",
-                                                textTransform: "uppercase",
-                                                fontWeight: "bold",
-                                            }}
+                                                height: "38px",
+                                                backgroundColor: "transparent",
+                                                "&:hover": {
+                                                backgroundColor: "#f3e6eb",
+                                                
+                                            },
+                                        }}
                                         >
                                             Cancelar
                                         </Button>
                                         <Button
                                             variant="contained"
                                             sx={{
+                                                fontFamily: "Poppins",
                                                 backgroundColor: "#833A53",
-                                                color: "#FFF",
+                                                color: "#FFFFFF",
                                                 padding: "10px 20px",
                                                 textTransform: "uppercase",
+                                                height: "38px",
                                                 fontWeight: "bold",
                                                 "&:hover": {
                                                     backgroundColor: "#A54261",
@@ -587,7 +624,7 @@ const TermsAndConditions: React.FC = () => {
                                             onClick={handleSubmit}
                                             disabled={!isEmailValid(email) || loading}
                                         >
-                                            {loading ? <CircularProgress size={24} color="inherit" /> : "Enviar"}
+                                            {loading ? <CircularProgress size={24} thickness={8} sx={{ color: "#FFFFFF",  }} /> : "Enviar"}
                                         </Button>
                                     </Box>
                                 </Box>
@@ -604,6 +641,7 @@ const TermsAndConditions: React.FC = () => {
                                 maxWidth: "500px",
                                 textAlign: "center",
                                 marginTop: "20px",
+                                backgroundColor: "#FFFFFF"
                             }}
                         >
                             <Typography
@@ -612,6 +650,7 @@ const TermsAndConditions: React.FC = () => {
                                 sx={{
                                     textAlign: "left",
                                     font: "normal normal normal 16px/20px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#330F1B",
                                     opacity: 1,
@@ -636,24 +675,36 @@ const TermsAndConditions: React.FC = () => {
                                     <FormControlLabel
                                         value="SMS"
                                         control={<Radio sx={{
-                                            color: "#833A53",
-                                            '&.Mui-checked': {
-                                                color: "#833A53",
+                                            fontFamily: "Poppins",
+                                            color: "#574B4F", // Color por defecto
+                                            "&.Mui-checked": {
+                                            color: "#8F4D63", // Color al seleccionarse
                                             },
                                         }} />}
                                         label="SMS"
-                                        sx={{ textAlign: "left" }}
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            color: SendType === "SMS" ? "#8F4D63" : "#574B4F", // Cambia el color del texto
+                                            fontWeight: SendType === "SMS" ? "bold" : "normal", // Opcional: hacer negrita la opción seleccionada
+                                            transition: "color 0.3s ease", // Suaviza la transición del color
+                                        }}
                                     />
                                     <FormControlLabel
                                         value="EMAIL"
                                         control={<Radio sx={{
-                                            color: "#833A53",
-                                            '&.Mui-checked': {
-                                                color: "#833A53",
-                                            },
+                                            fontFamily: "Poppins",
+                                            color: "#574B4F", // Color por defecto
+                                            "&.Mui-checked": {
+                                            color: "#8F4D63", // Color al seleccionarse
+                                        },
                                         }} />}
                                         label="Correo electrónico"
-                                        sx={{ textAlign: "right" }}
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            color: SendType === "EMAIL" ? "#8F4D63" : "#574B4F",
+                                            fontWeight: SendType === "EMAIL" ? "bold" : "normal",
+                                            transition: "color 0.3s ease",
+                                        }}
                                     />
                                 </RadioGroup>
                                 <Button
@@ -664,11 +715,13 @@ const TermsAndConditions: React.FC = () => {
                                     sx={{
                                         textAlign: "center",
                                         font: "normal normal 600 14px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "1.12px",
                                         color: "#FFFFFF",
                                         textTransform: "uppercase",
                                         opacity: 1,
                                         backgroundColor: "#833A53",
+                                        height: "40px",
                                         padding: "0 20px",
                                     }}
                                 >
@@ -688,6 +741,7 @@ const TermsAndConditions: React.FC = () => {
                                 maxWidth: "500px",
                                 textAlign: "center",
                                 marginTop: "20px",
+                                backgroundColor: "#FFFFFF"
                             }}
                         >
                             <Typography variant="body1" gutterBottom sx={{
@@ -724,12 +778,13 @@ const TermsAndConditions: React.FC = () => {
                                                 fontFamily: "Poppins",
                                                 fontSize: "26px",
                                                 width: "54px",
-                                                height: "25px",
+                                                height: "19px",
                                                 margin: "0 3px",
                                                 marginTop: "1px",
                                                 letterSpacing: "0px",
                                                 color: "#330F1B",
                                                 opacity: 1,
+                                                
                                             },
                                         }}
                                         inputRef={(el) => (inputRefs.current[index] = el)} // Asignar referencia
@@ -746,10 +801,25 @@ const TermsAndConditions: React.FC = () => {
                             </Box>
 
                             {hasAttemptedValidation && !isPhoneDigitsValid && (
-                                <Typography variant="body2" color="error" sx={{ marginTop: 2 }}>
+                                <Typography variant="body2" color="error" sx={{ marginTop: 2, fontFamily: "Poppins", }}>
                                     Los dígitos ingresados son incorrectos. Por favor, inténtalo nuevamente.
                                 </Typography>
                             )}
+
+                    {/* Línea horizontal */}
+                    <Box
+                        sx={{
+                            position: "relative",
+                            left: -23,
+                            right: 0,
+                            width: "500px",
+                            height: "1px",
+                            backgroundColor: "#E0E0E0",
+                            my: 1,
+                        }}
+                    />
+
+
                             <Box
                                 sx={{
                                     display: "flex",
@@ -765,11 +835,14 @@ const TermsAndConditions: React.FC = () => {
                                         setLoading(false);
                                     }}
                                     sx={{
-                                        color: '#833A53',
-                                        border: '1px solid #CCCFD2',
-                                        borderRadius: '4px',
-                                        opacity: 1,
-                                    }}
+                                        border: "1px solid #60293C",
+                                        borderRadius: "4px",
+                                        color: "#833A53",
+                                        backgroundColor: "transparent",
+                                        "&:hover": {
+                                        backgroundColor: "#f3e6eb",
+                                    },
+                                }}
                                 >
                                     Regresar
                                 </Button>
@@ -810,6 +883,7 @@ const TermsAndConditions: React.FC = () => {
                                 width: "90%",
                                 textAlign: "center",
                                 marginTop: "20px",
+                                backgroundColor: "#FFFFFF",
                             }}
                         >
                             {/* Parte 1: Reenviar código */}
@@ -819,6 +893,7 @@ const TermsAndConditions: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal 600 16px/20px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         opacity: 1,
                                     }}
@@ -858,10 +933,11 @@ const TermsAndConditions: React.FC = () => {
                                         alignItems: "center",
                                         justifyContent: "left", // Alineación a la izquierda
                                         font: "normal normal normal 14px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#8F4D63",
                                         opacity: 1,
-                                        marginTop: "10px", // Separación del texto superior
+                                        marginTop: "1px", // Separación del texto superior
                                     }}
                                 >
                                     <span>Tiempo de expiración del código:</span>
@@ -894,15 +970,28 @@ const TermsAndConditions: React.FC = () => {
                                     variant="body1"
                                     fontFamily={"Poppins"}
                                     gutterBottom
-                                    sx={{ color: isCodeValid ? "inherit" : "red" }}
+                                    sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        fontWeight: "500", // Medium weight
+                                        fontSize: "16px", // Font size
+                                        lineHeight: "54px",
+                                        letterSpacing: "0px",
+                                        color: isCodeValid ? "black" : "#D01247",
+                                        opacity: 1,
+                                        marginTop: "-18px",
+                                        
+                                    }}
                                 >
                                     Código
                                 </Typography>
                                 <Box
                                     sx={{
                                         display: "flex",
-                                        justifyContent: "space-between",
-                                        marginTop: "10px",
+                                        justifyContent: "space-between 10px",
+                                            marginTop: "1px",
+                                            margin: "0 -4px",
+                                            gap: "10px",
                                     }}
                                 >
                                     {authCode.map((digit, index) => (
@@ -914,11 +1003,13 @@ const TermsAndConditions: React.FC = () => {
                                             inputRef={(el) => (inputRefs.current[index] = el)}
                                             inputProps={{
                                                 maxLength: 1,
-                                                style: { textAlign: "center", 
+                                                style: { 
+                                                    textAlign: "center", 
                                                     fontFamily: "Poppins", 
                                                     fontSize: "26px",
-                                                    marginTop: "-10px",
-                                                    height: "28px", },
+                                                    height: "27px",
+                                                    marginTop: "-8px"
+                                                    },
                                             }}
                                             error={!isCodeValid}
                                             sx={{
@@ -934,8 +1025,8 @@ const TermsAndConditions: React.FC = () => {
                                     <Typography
                                         variant="body2"
                                         sx={{
-                                            color: codeExpired ? "red" : "inherit",
-                                            marginTop: "40px",
+                                            color: !codeExpired ? "red" : "inherit",
+                                            marginTop: "15px",
                                         }}
                                     >
                                         "Código Inválido"
@@ -947,21 +1038,42 @@ const TermsAndConditions: React.FC = () => {
                                         sx={{
                                             color: "red",
                                             fontSize: "14px",
-                                            marginTop: "40px",
+                                            fontFamily: "Poppins",
+                                            textAlign: "left",
+                                            marginTop: "16px",
                                         }}
                                     >
                                         El tiempo para validar el código expiró. Por favor, solicite un nuevo código.
                                     </Typography>
                                 )}
+
+                    {/* Línea horizontal */}
+                    <Box
+                        sx={{
+                            position: "relative",
+                            left: -23,
+                            right: 0,
+                            width: "485px",
+                            height: "1px",
+                            backgroundColor: "#E0E0E0",
+                            my: 1,
+                        }}
+                    />
+
+
                             
                             {/* Parte 3: Botones */}
                             <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "30px" }}>
                                 <Button variant="outlined" onClick={Return} sx={{
-                                    color: "#833A53",
-                                    border: "1px solid #CCCFD2",
-                                    borderRadius: "4px",
-                                    opacity: 1,
-                                }}>
+                                            border: "1px solid #60293C",
+                                            borderRadius: "4px",
+                                            color: "#833A53",
+                                            backgroundColor: "transparent",
+                                            "&:hover": {
+                                            backgroundColor: "#f3e6eb",
+                                        },
+                                    }}
+                                    >
                                     Regresar
                                 </Button>
                                 <Button
@@ -996,6 +1108,7 @@ const TermsAndConditions: React.FC = () => {
                                     sx={{
                                         textAlign: "left",
                                         font: "normal normal normal 16px/20px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#330F1B",
                                         opacity: 1,
@@ -1004,7 +1117,7 @@ const TermsAndConditions: React.FC = () => {
                                     Ingrese una nueva contraseña
                                 </Typography>
                                 <TextField
-                                    label="Nueva contraseña"
+                                    
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -1022,41 +1135,40 @@ const TermsAndConditions: React.FC = () => {
                                             <InputAdornment position="end">
                                                 <Tooltip
                                                     title={
-                                                        <Box sx={{ textAlign: "left" }}>
-                                                            <Typography
-                                                                sx={{
-                                                                    color: password.length >= 8 ? "green" : "red",
-                                                                }}
-                                                            >
-                                                                - Ingrese mínimo 8 caracteres
-                                                            </Typography>
-                                                            <Typography
-                                                                sx={{
-                                                                    color: /[A-Z]/.test(password) ? "green" : "red",
-                                                                }}
-                                                            >
-                                                                - Ingrese una letra mayúscula
-                                                            </Typography>
-                                                            <Typography
-                                                                sx={{
-                                                                    color: /[a-z]/.test(password) ? "green" : "red",
-                                                                }}
-                                                            >
-                                                                - Ingrese una letra minúscula
-                                                            </Typography>
-                                                            <Typography
-                                                                sx={{
-                                                                    color: /\d/.test(password) ? "green" : "red",
-                                                                }}
-                                                            >
-                                                                - Ingrese un número
-                                                            </Typography>
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF", // Set background to white
+                                                                borderRadius: "8px", // Rounded corners
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                padding: "8px 12px", // Padding for better spacing
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
+                                                                color: "#000000", // Black font color
+                                                                whiteSpace: "pre-line", // Line breaks
+                                                            }}
+                                                        >
+                                                            - Ingrese mínimo 8 carácteres.
+                                                            <br />
+                                                            - Ingrese una letra mayúscula.
+                                                            <br />
+                                                            - Ingrese una letra minúscula.
+                                                            <br />
+                                                            - Ingrese un número.
                                                         </Box>
                                                     }
                                                     arrow
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <IconButton>
-                                                        <InfoIcon />
+                                                    <img src={!isPasswordValid(password) && password.length > 0 ? infoiconerror: infoicon}></img>
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -1065,7 +1177,7 @@ const TermsAndConditions: React.FC = () => {
                                 />
 
                                 <TextField
-                                    label="Confirmar nueva contraseña"
+                                    
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -1078,9 +1190,11 @@ const TermsAndConditions: React.FC = () => {
                                             ? "La confirmación no coincide con la nueva contraseña."
                                             : ""
                                     }
-                                    sx={{ marginTop: 3 }} // Aquí se agrega un margen superior para separarlo
+                                    
+                                    sx={{ marginTop: 3, fontFamily: "Poppins", }} // Aquí se agrega un margen superior para separarlo
+                                    
+                                    
                                 />
-
 
                                 <FormControlLabel
                                     control={
@@ -1101,11 +1215,14 @@ const TermsAndConditions: React.FC = () => {
                                             setLoading(false);
                                         }}
                                         sx={{
-                                            color: "#833A53",
-                                            border: "1px solid #CCCFD2",
+                                            border: "1px solid #60293C",
                                             borderRadius: "4px",
-                                            opacity: 1,
-                                        }}
+                                            color: "#833A53",
+                                            backgroundColor: "transparent",
+                                            "&:hover": {
+                                            backgroundColor: "#f3e6eb",
+                                        },
+                                    }}
                                     >
                                         Regresar
                                     </Button>
@@ -1121,6 +1238,7 @@ const TermsAndConditions: React.FC = () => {
                                         sx={{
                                             background: "#833A53 0% 0% no-repeat padding-box",
                                             border: "1px solid #60293C",
+                                            fontFamily: "Poppins",
                                             borderRadius: "4px",
                                             opacity: 0.9,
                                             color: "#FFFFFF",
@@ -1137,6 +1255,7 @@ const TermsAndConditions: React.FC = () => {
                     {activeStep === 5 && (
                         <Box
                             sx={{
+                                fontFamily: "Poppins",
                                 border: "1px solid #ccc",
                                 borderRadius: "8px",
                                 padding: "20px",
@@ -1145,33 +1264,51 @@ const TermsAndConditions: React.FC = () => {
                                 marginTop: "20px",
                             }}
                         >
-                            <Typography variant="h6" gutterBottom>
-                                Se ha llegado al límite de envíos de códigos
-                            </Typography>
-                            <Typography variant="body1" gutterBottom>
-                                El ingreso a la cuenta quedará bloqueado por:
-                            </Typography>
                             <Typography
-                                variant="h5"
-                                sx={{
-                                    color: "#f44336", // Rojo
-                                    fontWeight: "bold",
-                                    marginTop: "10px",
-                                }}
-                            >
-                                <Countdown
-                                    date={lockoutEndTime || new Date()}
-                                    renderer={({ hours, minutes, seconds, completed }) =>
-                                        completed ? (
-                                            <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
-                                        ) : (
-                                            <span>
-                                                {hours}h {minutes}m {seconds}s
-                                            </span>
-                                        )
-                                    }
-                                />
-                            </Typography>
+                                                    variant="h6"
+                                                    gutterBottom
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    margin: "5px",
+                                                    marginBottom: "5px",
+                                                    marginTop: "5px",
+                                                    textAlign: "left",
+                                                    width: "100%",
+                                                    }}
+                                                    >
+                                                        Se ha llegado al límite de envíos de código, 
+                                                        el ingreso a la cuenta quedará bloqueado por :    
+                
+                                                <Box component="span" sx={{ color: "#f44336", fontWeight: "bold", marginRight: "5px" }}>
+                                                <Countdown
+                                                    date={lockoutEndTime || new Date()}
+                                                    renderer={({ hours, minutes, seconds, completed }) =>
+                                                    completed ? (
+                                                    <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
+                                                    ) : (
+                                                    <span>
+                                                    0{hours}:{minutes}:{seconds}
+                                                    </span>
+                                                    )}
+                                                    />
+                                                </Box>    
+                                                    minutos.
+                                        </Typography>
+                                                        
+                                        <Typography
+                                            variant="h6"
+                                            gutterBottom
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            margin: "5px",
+                                            marginBottom: "5px",
+                                            marginTop: "5px",
+                                            textAlign: "left",
+                                            width: "100%",
+                                            }}
+                                            >
+                                                Inténtelo más tarde  
+                                    </Typography>
                         </Box>
                     )}
 
@@ -1212,7 +1349,7 @@ const TermsAndConditions: React.FC = () => {
                                 opacity: 0.9,
                                 color: "#FFFFFF",
                                 width: "100%",
-                                "&:hover": { backgroundColor: "#60293C" },
+                                "&:hover": { backgroundColor: "#60293C",  },
                             }}
                         >
                             Aceptar
@@ -1220,7 +1357,10 @@ const TermsAndConditions: React.FC = () => {
                     </Box>
                 </Modal>
             </Container>
+             
         </PublicLayout>
+    </Box>
+        
     );
 };
 

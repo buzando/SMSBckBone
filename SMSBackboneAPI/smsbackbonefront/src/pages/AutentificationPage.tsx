@@ -267,6 +267,7 @@ const Autentification: React.FC = () => {
                 height: "90vh",
                 padding: "30px",
                 textAlign: "center",
+                backgroundColor: "#F2F2F2"
             }}
         >
             <Typography
@@ -318,6 +319,7 @@ const Autentification: React.FC = () => {
                             alignItems: "center",
                             justifyContent: "space-between",
                             marginTop: "20px",
+                            
                         }}
                     >
                         <RadioGroup
@@ -345,8 +347,8 @@ const Autentification: React.FC = () => {
                                             fontFamily: "Poppins",
                                             color: "#833A53",
                                             "&.Mui-checked": {
-                                            color: "#833A53",
-                                            
+                                            color: "#833A53"
+
                                             },
                                         }}
                                     />
@@ -354,8 +356,11 @@ const Autentification: React.FC = () => {
                                 
                                 label="SMS"
                                 sx={{
+                                    fontFamily: "Poppins",
                                     textAlign: "left",
-                                    
+                                    color: SendType === "SMS" ? "#8F4D63" : "#574B4F", // Cambia el color del texto
+            fontWeight: SendType === "SMS" ? "bold" : "normal", // Opcional: hacer negrita la opción seleccionada
+            transition: "color 0.3s ease", // Suaviza la transición del color
                                 }}
                             />
                             <FormControlLabel
@@ -366,14 +371,19 @@ const Autentification: React.FC = () => {
                                             fontFamily: "Poppins",
                                             color: "#833A53",
                                             "&.Mui-checked": {
-                                                color: "#833A53",
+                                            color: "#833A53",
                                             },
                                         }}
                                     />
                                 }
                                 label="Correo electrónico"
+                                
                                 sx={{
+                                    fontFamily: "Poppins",
                                     textAlign: "right",
+                                    color: SendType === "SMS" ? "#8F4D63" : "#574B4F", // Cambia el color del texto
+            fontWeight: SendType === "SMS" ? "bold" : "normal", // Opcional: hacer negrita la opción seleccionada
+            transition: "color 0.3s ease", // Suaviza la transición del color
                                 }}
                             />
                         </RadioGroup>
@@ -407,6 +417,7 @@ const Autentification: React.FC = () => {
                             width: "90%",
                             textAlign: "center",
                             marginTop: "10px",
+                            backgroundColor: "#FFFFFF",
                         }}
                 >
                     {/* Parte 1: Reenviar código */}
@@ -415,7 +426,6 @@ const Autentification: React.FC = () => {
                                 borderBottom: "1px solid #ddd",
                                 paddingBottom: "8px",
                                 marginBottom: "8px",
-                                
                             }}
                     >
                             <Typography variant="body2" sx={{
@@ -434,10 +444,10 @@ const Autentification: React.FC = () => {
                                         fontWeight: "bold",
                                         cursor: isResendDisabled ? "not-allowed" : "pointer", // Cambia el cursor si está bloqueado
                                         color: isResendDisabled ? "#ccc" : "#8F4D63", // Cambia el color si está bloqueado
-                                        textTransform: "none",
-                                        "&:hover": {
-                                        backgroundColor: "transparent", // Evita que cambie de color al hacer hover
-                                        },
+                                        
+
+                                        // Evita que cambie de color al hacer hover
+                                        textTransform: "none","&:hover": {backgroundColor: "transparent"},
                                     }}
                             >
                                     {isResendDisabled ? "Espere un minuto para otro Reenvio" : "Reenviar"}
@@ -453,6 +463,7 @@ const Autentification: React.FC = () => {
                             paddingBottom: "15px",
                             marginBottom: "5px",
                             marginTop: "-15px",
+                            
                         }}
                         >
                             <Typography sx={{
@@ -599,7 +610,9 @@ const Autentification: React.FC = () => {
                                 border: "1px solid #CCCFD2",
                                 borderRadius: "4px",
                                 opacity: 1,
-                                
+                                "&:hover": {
+                                    color: "#FFFFFF",
+                                },
                             }}>
                             Regresar
                         </Button>
@@ -615,13 +628,15 @@ const Autentification: React.FC = () => {
                                     opacity: 0.9,
                                     color: "#FFFFFF",
                                     "&:hover": {
-                                        backgroundColor: "#60293C",
-                                        
+                                        backgroundColor: "#60293C"
                                     },
                                 }}
                             >
                                 {buttonLoading ? (
-                                    <CircularProgress size={24} sx={{ color: "white" }} />
+                                    <CircularProgress 
+                                    size={24}
+                                    thickness={8} 
+                                    sx={{ color: "#FFFFFF",  }} />
                                 ) : (
                                     "Validar"
                                 )}

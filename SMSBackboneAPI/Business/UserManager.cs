@@ -33,7 +33,7 @@ namespace Business
 ); var mapper = new Mapper(config);
 
                 userdto = mapper.Map<UserDto>(userdb);
-                ||||userdto.rol = context.Roles.Where(x => x.id == userdb.idRole).Select(x => x.Role).FirstOrDefault();
+                userdto.rol = context.Roles.Where(x => x.id == userdb.idRole).Select(x => x.Role).FirstOrDefault();
 
             }
 

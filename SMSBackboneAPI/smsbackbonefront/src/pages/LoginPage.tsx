@@ -260,7 +260,10 @@ const Login: React.FC = () => {
                             zIndex: 1000,
                         }}
                     >
-                        <CircularProgress size={50} />
+                        <CircularProgress 
+                            size={50}
+                            thickness={8}
+                         />
                     </Box>
                 )}
                 <Box
