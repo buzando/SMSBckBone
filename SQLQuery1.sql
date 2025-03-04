@@ -142,8 +142,12 @@ idCreditCard int not null foreign key references creditcards(id),
 idUser int not null foreign key references users(id),
 chanel varchar(50) not null,
 quantityCredits bigint not null,
-quientityMoney Decimal(10,2) not null,
+quantityMoney Decimal(10,2) not null,
 RechargeDate datetime not null,
 Estatus varchar(50) not null,
-invoice varchar(300) null
+invoice varchar(300) null,
+AutomaticInvoice bit not null,
 )
+
+select * from CreditRecharge
+

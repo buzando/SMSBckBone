@@ -388,6 +388,7 @@ const Login: React.FC = () => {
                                     isLoading={loading}
                                     disabled={disabled} // Depende de emailErr y passwordErr
                                     />
+
                                     <Link
                                         component={LinkDom}
                                         variant="caption"

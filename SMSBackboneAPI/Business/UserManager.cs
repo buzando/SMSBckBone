@@ -742,6 +742,38 @@ namespace Business
                 return new List<CreditHystoric>();
             }
         }
+
+        public bool SaveRechargeSettings(AmountNotificationRequest Amount)
+        {
+            var recharge = new AmountNotification();
+            try
+            {
+                recharge.AmountValue = Amount.AmountValue;
+                recharge.short_sms = Amount.ShortSms;
+                recharge.long_sms = Amount.LongSms;
+                recharge.call = Amount.Call;
+                recharge.AutoRecharge = Amount.AutoRecharge;
+                recharge.AutoRechargeAmountNotification = Amount.AutoRechargeAmountNotification;
+                recharge.AutoRechargeAmount = Amount.AutoRechargeAmount;
+                using (var ctx = new Entities())
+                {
+                    ctx.AmountNotification.Add(recharge);
+                    ctx.SaveChanges();
+                    foreach (var item in Amount.Users)
+                    {
+                        var byuser = new AmountNotificationUser();
+                        byuser.NotificationId = recharge.id;
+                        byuser.UserId = ctx.Users.Where(x => x.email == item).Select(x => x.Id).FirstOrDefault();
+                        ctx.AmountNotificationUser.Add(byuser);
+                    }
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
         #endregion
     }
 }

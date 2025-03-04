@@ -57,7 +57,7 @@ const ConfigurationAccount: React.FC = () => {
                     phone: response.data.phonenumber || "",
                 });
             }
-        } catch (error) {
+        } catch  {
             setErrorMessage("Error de conexión con el servidor.");
 
             setErrorModalOpen(true); // Mostrar modal de error

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { CircularProgress, Button, Grid, Paper, Typography, IconButton, Modal, Box, TextField, Checkbox, FormControlLabel, Divider, InputAdornment, Tooltip, tooltipClasses, TooltipProps, Popper, Radio, RadioGroup } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
         listadoCampanas: true,
         resultadosEnvio: true,
     });
-
+    const [firstname, setFirstname] = useState<string>('');
     const hasChanges = settings.listadoCampanas || settings.resultadosEnvio;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,11 +178,22 @@ const HomePage: React.FC = () => {
         },
     }));
 
+    useEffect(() => {
+        const userData = localStorage.getItem("userData");
+        if (!userData) {
+            navigate("/login");
+            return;
+        }
+
+        const parsedUserData = JSON.parse(userData);
+        setFirstname(parsedUserData.firstName);
+    }, []);
+
     return (
-        <div style={{ padding: '20px', maxWidth: '100%', width: '100%', marginLeft: '0' }}>
+        <div style={{ padding: '20px', maxWidth: '90%', width: '100%', marginLeft: '0' }}>
             {/* Header con título */}
             <Typography variant="h4" component="h1" style={{ textAlign: 'left', fontWeight: 'bold', color: '#330F1B' }}>
-                ¡Bienvenida de vuelta, Fulanita!
+                {firstname ? `¡Bienvenido de vuelta, ${firstname}!` : '¡Bienvenido!'}
             </Typography>
             <Typography variant="body1" style={{ textAlign: 'left', color: '#574B4F', marginBottom: '20px' }}>
                 Te mostramos el resumen de tu actividad más reciente.
