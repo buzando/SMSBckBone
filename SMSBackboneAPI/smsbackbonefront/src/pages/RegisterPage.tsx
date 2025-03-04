@@ -103,7 +103,7 @@ const Register: React.FC = () => {
                 lastName: formData.lastName,
                 phone: formData.phone,
                 email: formData.email,
-                extension: formData.extension,
+                extension: formData.extension?? 0,
                 emailConfirmation: formData.emailConfirmation,
                 sms: formData.sms,
                 llamada: formData.llamada,
@@ -326,6 +326,7 @@ const Register: React.FC = () => {
                                                     placement="top"
                                                 >
                                                     <IconButton>
+                                                        
                                                         <img
                                                             src={
                                                                 formData.client &&

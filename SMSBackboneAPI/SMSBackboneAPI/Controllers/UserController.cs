@@ -14,6 +14,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using log4net;
 
 namespace SMSBackboneAPI.Controllers
 {
@@ -21,6 +22,7 @@ namespace SMSBackboneAPI.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(UserController));
         string JwtIssuer = "Issuer";
         string JwtAudience = "Audience";
         private IConfiguration configuration;
@@ -342,7 +344,7 @@ namespace SMSBackboneAPI.Controllers
             //{
             //    return BadRequest("Sin request valido.");
             //}
-
+            log.Info("Buscando correo electronico en la plataforma");
             var existe = new UserManager().FindEmail(user.email);
             if (existe != null)
             {
@@ -350,13 +352,16 @@ namespace SMSBackboneAPI.Controllers
 
             }
             var clientManager = new Business.ClientManager();
+            log.Info("Buscando Cliente por nombre");
             var responseDto = clientManager.ObtenerClienteporNombre(user.client);
             if (responseDto == null)
             {
                 var newclient = new clientDTO { nombrecliente = user.client };
+                log.Info("Agregando cliente");
                 var add = clientManager.AgregarCliente(newclient);
                 if (add)
                 {
+                    log.Info("Añadiendo usuario del registro");
                     var usuario = new UserManager().AddUserFromRegister(user);
                     if (usuario != null)
                     {

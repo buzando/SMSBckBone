@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState } from 'react';
 import {
     Typography,
     Divider,
@@ -14,13 +14,16 @@ import {
     ListItem,
     ListItemText,
     ListItemIcon,
-    Tooltip,
-    Button,
     Checkbox,
     LinearProgress,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow
 } from "@mui/material";
 import seachicon from '../assets/icon-lupa.svg'
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -30,10 +33,64 @@ import smsico from '../assets/Icon-sms.svg'
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import MainButton from '../components/commons/MainButton'
+import infoicon from '../assets/Icon-info.svg'
+import infoiconerror from '../assets/Icon-infoerror.svg'
+import DeleteIcon from "@mui/icons-material/Delete";
+import RestoreIcon from "@mui/icons-material/Restore";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { ComposableMap, Geographies, Geography, GeographyProps } from "react-simple-maps";
+import { scaleLinear } from "d3-scale";
+const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/mexico/mexico-states.json";
+
 const Campains: React.FC = () => {
     const [Serchterm, setSerchterm] = useState('');
+    const [phone, setPhone] = useState('');
+    const [error, setError] = useState(false);
 
+    const dataCountry = [
+        { id: "01", state: "Aguascalientes", value: 10 },
+        { id: "02", state: "Baja California", value: 20 },
+        { id: "03", state: "Baja California Sur", value: 30 },
+        { id: "04", state: "Campeche", value: 40 },
+        { id: "05", state: "Coahuila", value: 50 }
+    ];
 
+    const registros = [
+        { tipo: "Respondidos", total: 4, porcentaje: "4%" },
+        { tipo: "Fuera de horario", total: 4, porcentaje: "4%" },
+        { tipo: "Bloqueados", total: 4, porcentaje: "4%" }
+    ];
+
+    const indicadores = [
+        { label: "Tasa de recepción", value: "90%", color: "#A17EFF" },
+        { label: "Tasa de no recepción", value: "90%", color: "#F6B960" },
+        { label: "Tasa de espera", value: "90%", color: "#5EBBFF" },
+        { label: "Tasa de entrega-falla", value: "90%", color: "#FF88BB" },
+        { label: "Tasa de rechazos", value: "90%", color: "#F6B960" },
+        { label: "Tasa de no envío", value: "90%", color: "#A6A6A6" },
+        { label: "Tasa de excepción", value: "90%", color: "#7DD584" }
+    ];
+
+    const data = [
+        { name: "Recibidos", value: 90, color: "#A17EFF" },
+        { name: "No recibidos", value: 10, color: "#F6B960" },
+        { name: "En espera", value: 90, color: "#5EBBFF" },
+        { name: "Entrega-falla", value: 90, color: "#FF88BB" },
+        { name: "Rechazados", value: 90, color: "#F6B960" },
+        { name: "No enviados", value: 90, color: "#A6A6A6" },
+        { name: "Excepciones", value: 90, color: "#7DD584" }
+    ];
+
+    const validatePhone = (value: string) => {
+        const phoneRegex = /^\d{10,12}$/; // Acepta entre 10 y 12 dígitos
+        return phoneRegex.test(value);
+    };
+
+    const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setPhone(value);
+        setError(!validatePhone(value)); // Actualiza error según la validación
+    };
 
     const handleSearch2 = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value.toLowerCase();
@@ -51,7 +108,9 @@ const Campains: React.FC = () => {
         { name: "Nombre de campaña 6", numeroInicial: 15, numeroActual: 7 },
     ];
 
-
+    const colorScale = scaleLinear<string>()
+        .domain([0, 50])
+        .range(["#F5E8EA", "#7B354D"]);
     return (
         <Box sx={{ padding: "20px" }}>
             {/* Título principal */}
@@ -344,35 +403,181 @@ const Campains: React.FC = () => {
                                 <Typography sx={{ fontSize: "12px" }}>Totales: <strong>30</strong></Typography>
                             </Box>
                         </Box>
+                        <Box sx={{ display: "flex", justifyContent: "right", marginTop: "8px" }}>
 
-                        <MainButton text='DETENER' onClick={() => console.log('') } />
-                            DETENER
-                      
+                            <MainButton text='DETENER' onClick={() => console.log('')} />
+                        </Box>
+
+
                     </Paper>
 
                     {/* Horarios */}
-                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "8px" }}>
+                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "527px", height: "256px" }}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                 Horarios
                             </Typography>
                             <IconButton>
-                                <MoreVertIcon />
+                                <img src={iconclose} width="24px" height="24px" />
                             </IconButton>
                         </Box>
+                        <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "496px", height: "97px", backgroundColor: "#D6D6D64D" }}>
+                            <List>
+                                {["25 Mar, 09:30 - 10:30", "25 Mar, 11:00 - 11:30", "26 Mar, 12:00 - 28 Mar, 12:30"].map(
+                                    (horario, index) => (
+                                        <ListItem key={index}>
+                                            <ListItemIcon>
+                                                <CalendarTodayIcon />
+                                            </ListItemIcon>
+                                            <ListItemText primary={horario} sx={{
+                                                textAlign: "left",
+                                                fontFamily: "Poppins",
+                                                fontWeight: 500,
+                                                fontSize: "14px",
+                                                lineHeight: "22px",
+                                                letterSpacing: "0px",
+                                                color: "#844D5F",
+                                                opacity: 1,
+                                            }} />
+                                        </ListItem>
+                                    )
+                                )}
+                            </List>
+                        </Box>
+                    </Paper>
+                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "527px", height: "256px" }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                            Mensaje
+                        </Typography>
+                        <Box sx={{ padding: "10px", borderRadius: "10px", width: "496px", backgroundColor: "#D6D6D64D" }}>
+                            <Typography sx={{ textAlign: "left", fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
+                                A wonderful serenity has taken possession of my entire soul, like these sweet mornings of spring which I enjoy with my whole heart.
+                            </Typography>
+                        </Box>
+                        <Divider sx={{ marginY: "15px" }} />
+                        <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "527px" }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                                Prueba de envío
+                            </Typography>
+                            <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "496px", backgroundColor: "#F5F5F5" }}>
+                                <Typography sx={{ textAlign: "left", fontFamily: "Poppins", fontSize: "14px", color: "#574B4F", marginBottom: "5px" }}>Teléfono</Typography>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <TextField
+                                        value={phone}
+                                        onChange={handlePhoneChange}
+                                        error={error}
+                                        helperText={error ? "Formato inválido" : ""}
+                                        placeholder="5255"
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <img
+                                                        src={error ? infoiconerror : infoicon}
+                                                        alt="Info"
+                                                        style={{ width: "18px", height: "18px" }}
+                                                    />
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        sx={{
+                                            width: "75%",
+                                            backgroundColor: "#FFFFFF",
+                                            borderRadius: "4px",
+                                        }}
+                                    />
+                                    <MainButton text='Enviar' onClick={() => console.log('Enviar')} disabled={error} />
+                                </Box>
+                            </Box>
+                        </Paper>
+                    </Paper>
 
-                        <List>
-                            {["25 Mar, 09:30 - 10:30", "25 Mar, 11:00 - 11:30", "26 Mar, 12:00 - 28 Mar, 12:30"].map(
-                                (horario, index) => (
-                                    <ListItem key={index}>
-                                        <ListItemIcon>
-                                            <CalendarTodayIcon />
-                                        </ListItemIcon>
-                                        <ListItemText primary={horario} />
-                                    </ListItem>
-                                )
-                            )}
-                        </List>
+                    <Paper sx={{ padding: "10px", marginTop: "80px", borderRadius: "10px", width: "527px" }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                            Registros
+                        </Typography>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Tipo</TableCell>
+                                        <TableCell align="center">Total</TableCell>
+                                        <TableCell align="center">Porcentaje</TableCell>
+                                        <TableCell align="center">Acción</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {registros.map((registro, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{registro.tipo}</TableCell>
+                                            <TableCell align="center">{registro.total}</TableCell>
+                                            <TableCell align="center">{registro.porcentaje}</TableCell>
+                                            <TableCell align="center">
+                                                <IconButton>
+                                                    <DeleteIcon sx={{ color: "#9B9295" }} />
+                                                </IconButton>
+                                                <IconButton>
+                                                    <RestoreIcon sx={{ color: "#9B9295" }} />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+
+                    <Paper sx={{ padding: "10px", marginTop: "70px", borderRadius: "10px", width: "527px" }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                            Resultados de envío
+                        </Typography>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", padding: "10px", backgroundColor: "#F5F5F5", borderRadius: "10px", marginBottom: "20px" }}>
+                            {indicadores.map((indicador, index) => (
+                                <Box key={index} sx={{ textAlign: "center" }}>
+                                    <img src={infoicon} width="24px" height="24px" />
+                                    <Typography sx={{ fontSize: "10px", color: "#9B9295" }}>{indicador.label}</Typography>
+                                    <Typography sx={{ fontSize: "14px", color: indicador.color, fontWeight: "bold" }}>{indicador.value}</Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={data} margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip />
+                                <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                                    {data.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Paper>
+                    <Paper sx={{ padding: "10px", marginTop: "30px", borderRadius: "10px", width: "527px" }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                            Mapa de concentración de mensajes
+                        </Typography>
+                        <ComposableMap projection="geoMercator" projectionConfig={{ scale: 1200 }} style={{ width: "100%", height: "auto" }}>
+                            <Geographies geography={geoUrl}>
+                                {({ geographies }: { geographies: GeographyProps[] }) =>
+                                    geographies.map((geo: GeographyProps) => {
+                                        const cur = dataCountry.find(s => s.id === geo.id);
+                                        return (
+                                            <Geography
+                                                key={`geo-${geo.id}`}
+                                                geography={geo}
+                                                fill={cur ? colorScale(cur.value) : "#ECECEC"}
+                                                style={{
+                                                    default: { outline: "none" },
+                                                    hover: { fill: "#7B354D", outline: "none" },
+                                                    pressed: { fill: "#7B354D", outline: "none" }
+                                                }}
+                                            />
+                                        );
+                                    })
+                                }
+                            </Geographies>
+                        </ComposableMap>
                     </Paper>
                 </Grid>
             </Grid>

@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 using Contract.Response;
 using AutoMapper;
 using Modal.Model.Model;
+using log4net;
 namespace Business
 {
     public class ClientManager
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(UserManager));
+
         public bool AgregarCliente(clientDTO cliente)
         {
 
@@ -34,6 +37,7 @@ namespace Business
             }
             catch (Exception e)
             {
+                log.Error(e.Message);
                 return false;
             }
         }
@@ -59,6 +63,7 @@ namespace Business
             }
             catch (Exception e)
             {
+                log.Error(e.Message);
                 return null;
             }
         }
@@ -84,6 +89,7 @@ namespace Business
             }
             catch (Exception e)
             {
+                log.Error(e.Message);
                 return null;
             }
         }

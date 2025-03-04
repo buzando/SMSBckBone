@@ -14,10 +14,13 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Modal.Model;
+using log4net;
 namespace Business
 {
     public class UserManager
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(UserManager));
+
         public UserDto Login(string user, string password)
         {
             var userdto = new UserDto();
@@ -87,6 +90,7 @@ namespace Business
             }
             catch (Exception e)
             {
+                log.Error(e.Message);
                 return null;
             }
         }
@@ -384,6 +388,7 @@ namespace Business
         {
             try
             {
+                
                 var user = new Users
                 {
                     accessFailedCount = 0,
@@ -393,7 +398,6 @@ namespace Business
                     email = register.email,
                     emailConfirmed = false,
                     firstName = register.firstName,
-                    idRole = 2,
                     lastName = register.lastName,
                     lastPasswordChangeDate = DateTime.Now,
                     lockoutEnabled = false,
@@ -410,9 +414,12 @@ namespace Business
                 var cliente = new ClientManager().ObtenerClienteporNombre(register.client);
                 if (cliente != null)
                 {
+                    
                     user.IdCliente = cliente.id;
                     using (var ctx = new Entities())
                     {
+                        var idrole = ctx.Roles.Where(x => x.Role.ToLower() == "administrador").Select(x => x.id).FirstOrDefault();
+                        user.idRole = idrole;
                         ctx.Users.Add(user);
                         ctx.SaveChanges();
                     }
@@ -432,6 +439,7 @@ namespace Business
             }
             catch (Exception e)
             {
+                log.Error(e.Message);
                 return null;
             }
         }

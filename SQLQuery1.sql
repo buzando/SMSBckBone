@@ -63,9 +63,6 @@ CREATE TABLE creditcards (
     city NVARCHAR(255) NOT NULL, -- Ciudad
     state NVARCHAR(255) NOT NULL, -- Estado
     postal_code NVARCHAR(10) NOT NULL, -- Código postal (máx. 10 caracteres)
-    created_at DATETIME NOT NULL DEFAULT GETDATE(), -- Fecha de creación
-    updated_at DATETIME NULL, -- Fecha de última actualización
-    Type NVARCHAR(50) NULL, -- Tipo de tarjeta (opcional)
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -73,10 +70,10 @@ CREATE TABLE rooms (
     id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(255) NOT NULL,
     calls INT NOT NULL,
-    credits DECIMAL(10,2) NOT NULL,
-    description NVARCHAR(MAX),
-    long_sms INT,
-    short_sms INT
+    credits float NOT NULL,
+    description NVARCHAR(255),
+    long_sms float,
+    short_sms float
 );
 
 CREATE TABLE roomsbyuser (
