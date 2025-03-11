@@ -14,7 +14,7 @@ const Costs: React.FC = () => {
                 fontSize: '26px',
                 fontWeight: 'bold',
             }}>
-                Costos
+                Costos totales
             </Typography>
 
             <Divider sx={{ margin: '10px 0' }} />
