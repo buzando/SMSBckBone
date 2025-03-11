@@ -50,14 +50,50 @@ const HomePage: React.FC = () => {
     };
 
     const data = [
-        { label: "Tasa de recepción", value: 20, color: "#9370DB" }, // Morado
-        { label: "Tasa de no recepción", value: 20, color: "#FFC107" }, // Amarillo
-        { label: "Tasa de espera", value: 10, color: "#03A9F4" }, // Azul
-        { label: "Tasa de entrega-falla", value: 10, color: "#F48FB1" }, // Rosa
-        { label: "Tasa de rechazos", value: 15, color: "#D2691E" }, // Café
-        { label: "Tasa de no envío", value: 5, color: "#BDBDBD" }, // Gris
-        { label: "Tasa de excepción", value: 20, color: "#4CAF50" }, // Verde
+        {
+            label: "Tasa de recepción",
+            value: 20,
+            color: "#9370DB",
+            tooltip: "Mensaje entregado.\nEl mensaje ha sido recibido correctamente por el destinatario."
+        },
+        {
+            label: "Tasa de no recepción",
+            value: 20,
+            color: "#FFC107",
+            tooltip: "Mensaje no entregado.\nEsta condición se presenta cuando se ha vencido el tiempo de entrega asignado."
+        },
+        {
+            label: "Tasa de espera",
+            value: 10,
+            color: "#03A9F4",
+            tooltip: "Mensaje en espera.\nEl mensaje ha sido aceptado por la red destino, pero el usuario tiene apagado su teléfono."
+        },
+        {
+            label: "Tasa de entrega-falla",
+            value: 10,
+            color: "#F48FB1",
+            tooltip: "Mensaje fallido.\nLa red destino ha enviado el mensaje al usuario, pero el usuario ha rechazado su entrega."
+        },
+        {
+            label: "Tasa de rechazos",
+            value: 15,
+            color: "#D2691E",
+            tooltip: "Mensaje rechazado.\nEsta condición se presenta cuando la red destino rechaza el mensaje."
+        },
+        {
+            label: "Tasa de no envío",
+            value: 5,
+            color: "#BDBDBD",
+            tooltip: "Mensaje no enviado.\nEl mensaje no pudo ser enviado debido a problemas en la red o configuración."
+        },
+        {
+            label: "Tasa de excepción",
+            value: 20,
+            color: "#4CAF50",
+            tooltip: "Excepción no controlada en el sistema.\nNo se consumieron créditos."
+        },
     ];
+
 
 
     const campaigns = [
@@ -159,24 +195,25 @@ const HomePage: React.FC = () => {
     };
 
     // Tooltip personalizado sin `theme`
-    const CustomTooltip = styled(({ title, children, ...props }: TooltipProps & { children: ReactNode }) => (
-        <Tooltip title={title} {...props} arrow>
-            {children}
-        </Tooltip>
+    const CustomTooltip = styled(({ className, ...props }) => (
+        <Tooltip {...props} classes={{ popper: className }} arrow placement="bottom" />
     ))(() => ({
         [`& .${tooltipClasses.tooltip}`]: {
-            backgroundColor: '#FFFFFF',
-            color: '#574B4F',
-            fontSize: '12px',
-            border: '1px solid #E0E0E0',
-            borderRadius: '4px',
-            padding: '8px',
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', // Sombra ligera
+            backgroundColor: '#FFFFFF !important',  
+            color: '#574B4F !important',           
+            fontSize: '12px !important',
+            border: '1px solid #E0E0E0 !important', 
+            borderRadius: '4px !important',
+            padding: '8px !important',
+            maxWidth: '250px !important',           
+            whiteSpace: 'pre-line !important',      
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1) !important', 
         },
         [`& .${tooltipClasses.arrow}`]: {
-            color: '#E0E0E0',
+            color: '#E0E0E0 !important',            
         },
     }));
+
 
     useEffect(() => {
         const userData = localStorage.getItem("userData");
@@ -571,7 +608,9 @@ const HomePage: React.FC = () => {
                             >
                                 {data.map((item, index) => (
                                     <Box key={index} sx={{ textAlign: "center", flex: 1 }}>
-                                        <img src={infoicon} alt="Info" style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                                        <CustomTooltip title={item.tooltip}>
+                                            <img src={infoicon} alt="Info" style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                                        </CustomTooltip>
                                         <Typography sx={{ fontSize: "12px", color: "#574B4F" }}>
                                             {item.label}:
                                         </Typography>

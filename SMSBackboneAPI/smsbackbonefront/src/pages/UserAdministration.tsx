@@ -432,21 +432,27 @@ const ManageAccounts: React.FC = () => {
     };
 
     const isFormValid = (): boolean => {
-        const nameRegex = /^[a-zA-Z\s]*$/; // Permite solo letras y espacios
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Valida formato de correo
-        const phoneRegex = /^[0-9]*$/; // Permite solo números
+        const nameRegex = /^[a-zA-Z\s]*$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^[0-9]*$/;
 
-        return (
-            nameRegex.test(formData.name.trim()) && // Validación de nombre
-            phoneRegex.test(formData.phone.trim()) && // Validación de teléfono
-            emailRegex.test(formData.email) && // Validación de formato de correo
-            formData.email === formData.confirmEmail && // Validación de correos coincidentes
-            isPasswordValid(formData.password) && // Validación de contraseña
-            formData.password === formData.confirmPassword && // Validación de contraseñas coincidentes
-            formData.profile.trim() !== "" && // Verificar que el perfil esté seleccionado
-            selectedRooms.length > 0 // Verificar que al menos una sala esté seleccionada
+        const isValid = (
+            nameRegex.test(formData.name.trim()) &&           // Nombre válido
+            phoneRegex.test(formData.phone.trim()) &&          // Teléfono válido
+            emailRegex.test(formData.email) &&                 // Correo válido
+            formData.email === formData.confirmEmail &&        // Correos coinciden
+            formData.profile.trim() !== "" &&                  // Perfil seleccionado
+            selectedRooms.length > 0 &&                        // Al menos una sala seleccionada
+            (isEditing || (                                   // Si es edición, no validar contraseña
+                isPasswordValid(formData.password) &&          // Contraseña válida
+                formData.password === formData.confirmPassword // Contraseñas coinciden
+            ))
         );
+
+        console.log("isFormValid:", isValid, formData);  // 🔴 Log para depurar
+        return isValid;
     };
+
 
 
     return (
@@ -1229,14 +1235,11 @@ const ManageAccounts: React.FC = () => {
                             onClick={handleAddUser}
                             variant="contained"
                             sx={{ backgroundColor: "#A05B71" }}
-                            disabled={
-                                !isFormValid() ||
-                                formData.email !== formData.confirmEmail ||
-                                (!isEditing && formData.password !== formData.confirmPassword)
-                            }
+                            disabled={!isFormValid()}  // 🔄 Solo depende de isFormValid()
                         >
                             {isEditing ? "Actualizar" : "Guardar"}
                         </Button>
+
                     </Box>
                 </Box>
             </Modal>

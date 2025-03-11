@@ -23,6 +23,7 @@ import PaymentSettings from './pages/PaymentSettings'
 import PaymentMethods from './pages/PaymentMethods'
 import Campaigns from './pages/Campains'
 import Use from './pages/Use'
+import Costs from './pages/Costs'
 import Help from './pages/Help'
 import BillingInformation from './pages/BillingInformation'
 //import UsersPage from './pages/private/UsersPage';
@@ -45,8 +46,8 @@ import HomePage from './pages/HomePage';
 //import PaymentSettingsPage from './pages/private/billing_temp/PaymentSettingsPage';
 //import MyNumbersPage from './pages/private/numbers_temp/MyNumbersPage';
 //import BuyNumbersPage from './pages/private/numbers_temp/BuyNumbersPage';
-
-
+import AccountRecharge2 from './pages/AccountRecharge2'
+import Openpayroute from './components/PrivateRouteOpenPay'
 function App() {
 
     console.log(`MODE: ${import.meta.env.MODE}`)
@@ -77,6 +78,9 @@ function App() {
                     <BrowserRouter basename='/SMS/'>
                         <Routes>
                             <Route path="/login" element={<LoginPage />} />
+                         
+                                <Route path="/AccountRecharge2" element={<AccountRecharge2 />} />
+                           
                             <Route element={<AutentificationRoute />}>
                                 <Route path="/Autentification" element={<AutentificationPage />} />
                             </Route>
@@ -98,6 +102,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/Campaigns' element={<Campaigns />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/Costs' element={<Costs />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/Use' element={<Use />} />

@@ -32,7 +32,7 @@ namespace Contract.Request
 
         public string exterior_number { get; set; } // Número exterior
 
-        public string interior_number { get; set; } // Número interior (opcional)
+        public string? interior_number { get; set; } // Número interior (opcional)
 
         public string neighborhood { get; set; } // Colonia
 

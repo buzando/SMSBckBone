@@ -17,29 +17,30 @@ CREATE TABLE Roles (
     Role NVARCHAR(50) NOT NULL
 );
 
+
 CREATE TABLE users (
     id INT PRIMARY KEY IDENTITY(1,1),
     idCliente INT NOT NULL,
-    userName NVARCHAR(255) NOT NULL,
-    firstName NVARCHAR(255) NOT NULL,
-    lastName NVARCHAR(255) NOT NULL,
-    status NVARCHAR(50) NOT NULL,
-    createDate DATETIME NOT NULL,
-    lastPasswordChangeDate DATETIME,
-    email NVARCHAR(255) NOT NULL,
+    userName VARCHAR(255) NOT NULL,
+    firstName VARCHAR(255) NOT NULL,
+    lastName VARCHAR(255) NOT NULL,
+    status bit NOT NULL,
+    createDate DATETIME2 NULL,
+    lastPasswordChangeDate DATETIME2 null,
+    email VARCHAR(255) NOT NULL,
     emailConfirmed BIT NOT NULL,
-    lockoutEndDateUtc DATETIME,
+    lockoutEndDateUtc DATETIME2 null,
     lockoutEnabled BIT NOT NULL,
     accessFailedCount INT NOT NULL,
     idRole INT NOT NULL,
     clauseAccepted BIT NOT NULL,
-    phoneNumber NVARCHAR(20),
+    phoneNumber VARCHAR(50),
     TwoFactorAuthentication BIT NOT NULL,
-    SMS BIT,
-    Call BIT,
-    passwordHash NVARCHAR(255),
-    SecondaryEmail NVARCHAR(255),
-    futureRooms NVARCHAR(MAX),
+    SMS BIT not null,
+    Call BIT not null,
+    passwordHash VARCHAR(255) not null,
+    SecondaryEmail VARCHAR(255) not null,
+    futureRooms bit null,
     FOREIGN KEY (idCliente) REFERENCES clients(id),
     FOREIGN KEY (idRole) REFERENCES Roles(id)
 );
@@ -47,11 +48,11 @@ CREATE TABLE users (
 CREATE TABLE creditcards (
     id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
-    card_number NVARCHAR(16) NOT NULL,
-    card_name NVARCHAR(255) NOT NULL,
-    expiration_month INT NOT NULL,
-    expiration_year INT NOT NULL,
-    cvv NVARCHAR(4) NOT NULL,
+    card_number VARCHAR(16) NOT NULL,
+    card_name VARCHAR(255) NOT NULL,
+    expiration_month tinyint not null,
+    expiration_year smallint NOT NULL,
+    cvv char(3) NOT NULL,
     is_default BIT NOT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME,
@@ -66,6 +67,7 @@ CREATE TABLE creditcards (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+sp_help rooms
 CREATE TABLE rooms (
     id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(255) NOT NULL,

@@ -130,8 +130,10 @@ const PaymentMethods: React.FC = () => {
                 if (!textRegex.test(value)) error = 'No se permiten caracteres especiales';
                 break;
             case 'exteriorNumber':
-            case 'interiorNumber':
                 if (!numberRegex.test(value)) error = 'Solo se permiten números';
+                break;
+            case 'interiorNumber':
+                if (value && !numberRegex.test(value)) error = 'Solo se permiten números';
                 break;
             case 'postalCode':
                 if (!postalCodeRegex.test(value)) error = 'Debe ser un código postal válido (5 dígitos)';
@@ -268,7 +270,11 @@ const PaymentMethods: React.FC = () => {
                 postal_code: formData.postalCode,
             };
 
-            const response = await axios.post(requestUrl, payload);
+            const response = await axios.post(requestUrl, payload, {
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
 
             if (response.status === 200) {
                 setMessageChipBar('La tarjeta se añadió correctamente');
@@ -775,10 +781,10 @@ const PaymentMethods: React.FC = () => {
                                         marginBottom: "5px"
                                     }}
                                 >
-                                    Número interior<span style={{ color: "#D01247" }}>*</span>
+                                    Número interior
                                 </label>
                                 <TextField type="number"
-                                    name="street"
+                                    name="interiorNumber"
                                     value={formData.interiorNumber}
                                     onChange={handleChange}
                                     error={Boolean(errors.interiorNumber)}

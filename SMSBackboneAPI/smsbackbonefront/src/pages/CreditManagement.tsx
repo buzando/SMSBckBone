@@ -92,7 +92,6 @@ const CreditManagement: React.FC = () => {
 
     useEffect(() => {
         GetCredits();
-        setOpenErrorModal(true);
     }, []);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, room: Rooms) => {

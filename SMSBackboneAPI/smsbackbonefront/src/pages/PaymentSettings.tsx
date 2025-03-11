@@ -109,7 +109,6 @@ const PaymentSettings: React.FC = () => {
     const [isShortSmsEnabled, setIsShortSmsEnabled] = useState(false);
     const [isLongSmsEnabled, setIsLongSmsEnabled] = useState(false);
     const [isCallEnabled, setIsCallEnabled] = useState(false);
-
     const WhiteTooltip = styled(({ className, ...props }: TooltipProps) => (
         <Tooltip {...props} classes={{ popper: className }} />
     ))(() => ({
@@ -126,16 +125,20 @@ const PaymentSettings: React.FC = () => {
         setIsNotificationEnabled((prev) => !prev);
     };
 
+    const calcularMontoRecarga = (cantidad: number) => {
+        return cantidad * 0.65;  // 🔄 Ajusta el multiplicador según necesites
+    };
+
 
     const isAcceptButtonDisabled = !(
-        isNotificationEnabled &&
-        selectedChannels.length > 0 &&
-        threshold.trim() !== "" &&
-        selectedUsers.length > 0 &&
-        (!isAutoRechargeEnabled ||  // 🔥 Solo valida si `isAutoRechargeEnabled` está activado
-            (selectedCard !== null &&
-                thresholdAutomatic.trim() !== "" &&
-                rechargeAmount.trim() !== ""))
+        (isAutoRechargeEnabled &&  // 🔄 Si autorecarga está activada, verifica los campos debajo
+            selectedCard !== null &&
+            thresholdAutomatic.trim() !== "" &&
+            rechargeAmount.trim() !== "") ||
+        (isNotificationEnabled &&  // 🔄 Si notificaciones están activadas, verifica los campos de arriba
+            selectedChannels.length > 0 &&
+            threshold.trim() !== "" &&
+            selectedUsers.length > 0)
     );
 
 
@@ -542,7 +545,7 @@ const PaymentSettings: React.FC = () => {
                             <Checkbox
                                 checked={selectedChannels.includes(channel)}
                                 onChange={() => handleChannelToggle(channel)}
-                                disabled={!isNotificationEnabled}
+                                disabled={channel === 'Llamada' || !isNotificationEnabled} 
                                 sx={{
                                     color: '#6C3A52',
                                     '&.Mui-checked': { color: '#6C3A52' },
@@ -555,8 +558,8 @@ const PaymentSettings: React.FC = () => {
                                     textAlign: 'left',
                                     font: 'normal normal normal 16px/20px Poppins',
                                     letterSpacing: '0px',
-                                    color: '#574B4FCC',
-                                    opacity: 1,
+                                    color: channel === 'Llamada' ? '#B0B0B0' : '#574B4FCC',  // 🔴 Texto gris para "Llamada"
+                                    opacity: channel === 'Llamada' ? 0.5 : 1,  // 🔴 Opacidad baja para "Llamada"
                                     fontSize: '16px',
                                 }}
                             >
@@ -662,25 +665,39 @@ const PaymentSettings: React.FC = () => {
                     </Table>
                 </TableContainer>
                 {/* Nueva sección: Activar Autorecarga */}
-                <h3 style={{ textAlign: 'left', font: 'normal normal medium 18px/22px Poppins', letterSpacing: '0px', color: '#330F1B', opacity: 1, fontSize: '18px', marginTop: '20px' }}>
-                    Activar Autorecarga
-                </h3>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <Checkbox checked={isAutoRechargeEnabled} onChange={() => setIsAutoRechargeEnabled((prev) => !prev)} sx={{
+             
+
+            </div>
+            <h3 style={{ textAlign: 'left', font: 'normal normal medium 18px/22px Poppins', letterSpacing: '0px', color: '#330F1B', opacity: 1, fontSize: '18px', marginTop: '20px' }}>
+                Activar Autorecarga
+            </h3>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <Checkbox
+                    checked={isAutoRechargeEnabled}
+                    onChange={() => setIsAutoRechargeEnabled((prev) => !prev)}
+                    sx={{
                         color: '#6C3A52',
                         '&.Mui-checked': { color: '#6C3A52' },
                         marginLeft: '-5px',
+                    }}
+                />
 
-                    }} />
 
-                    <span style={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#8F4D63', opacity: 1, fontSize: '16px' }}>
-                        Recibir una alerta y realizar autorecarga cuando los créditos se muestren por debajo de la cantidad seleccionada
-                    </span>
-                </label>
-
-            </div>
+                <span style={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#8F4D63', opacity: 1, fontSize: '16px' }}>
+                    Recibir una alerta y realizar autorecarga cuando los créditos se muestren por debajo de la cantidad seleccionada
+                </span>
+            </label>
             {/* Nueva sección: Cantidad y Monto a Recargar */}
-            <div style={{ display: 'flex', flexDirection: 'column', marginTop: '20px' }}>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    marginTop: '20px',
+                    opacity: isAutoRechargeEnabled ? 1 : 0.5,  // 🔴 Aplica grisecito cuando está deshabilitado
+                    pointerEvents: isAutoRechargeEnabled ? 'auto' : 'none'  // 🔴 Desactiva la interacción cuando está deshabilitado
+                }}
+            >
+
                 {/* Cantidad y Monto */}
                 <div style={{ display: 'flex', gap: '20px', width: '100%' }}>
                     <div>
@@ -694,7 +711,12 @@ const PaymentSettings: React.FC = () => {
                         }}>Cantidad</h3>
                         <TextField
                             value={thresholdAutomatic}
-                            onChange={(e) => setthresholdAutomatic(e.target.value)}
+                            onChange={(e) => {
+                                const valor = e.target.value;
+                                setthresholdAutomatic(valor);
+                                const cantidad = parseFloat(valor) || 0;
+                                setRechargeAmount(cantidad > 0 ? calcularMontoRecarga(cantidad).toFixed(2) : '');  // 🔄 Calcula y establece el monto
+                            }}
                             type="number"
                             disabled={!isAutoRechargeEnabled}
                             style={{
@@ -707,6 +729,7 @@ const PaymentSettings: React.FC = () => {
                                 height: '54px'
                             }}
                         />
+
                     </div>
 
                     <div style={{ flex: '1' }}>
@@ -720,11 +743,13 @@ const PaymentSettings: React.FC = () => {
                         }}>Monto a recargar</h3>
                         <TextField
                             value={rechargeAmount}
-                            onChange={(e) => setRechargeAmount(e.target.value)}
                             type="text"
                             disabled={!isAutoRechargeEnabled}
+                            InputProps={{
+                                readOnly: true,  // 🔴 Solo lectura para evitar que el usuario lo edite manualmente
+                            }}
                             style={{
-                                background: '#FFFFFF 0% 0% no-repeat padding-box',
+                                background: '#F0F0F0 0% 0% no-repeat padding-box',  // 🔴 Color gris claro para indicar solo lectura
                                 border: '1px solid #9B9295',
                                 borderRadius: '4px',
                                 opacity: 1,
@@ -732,6 +757,7 @@ const PaymentSettings: React.FC = () => {
                                 height: '54px'
                             }}
                         />
+
                     </div>
                 </div>
 
@@ -839,6 +865,7 @@ const PaymentSettings: React.FC = () => {
                         </div>
                     ))}
                 </div>
+            </div>
                 <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                     {/* Botones de acción debajo de las tarjetas de crédito */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
@@ -846,7 +873,6 @@ const PaymentSettings: React.FC = () => {
                         <MainButton text="Aceptar" isLoading={loading} onClick={addRechargeSetting} disabled={isAcceptButtonDisabled} />
                     </div>
                 </div>
-            </div>
 
 
             <ModalError

@@ -52,7 +52,7 @@ type Errors = {
 const AccountRecharge: React.FC = () => {
     const [selectedChannel, setSelectedChannel] = useState('');
     const [creditAmount, setCreditAmount] = useState('');
-    const [rechargeAmount, setRechargeAmount] = useState('');
+    const [rechargeAmount, setRechargeAmount] = useState('0.00');
     const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false); // Controla la visibilidad del modal
     const [cardDetails, setCardDetails] = useState<FormData>({
@@ -103,7 +103,6 @@ const AccountRecharge: React.FC = () => {
     const isRechargeButtonDisabled = (): boolean => {
         return !selectedChannel || !creditAmount || !rechargeAmount || !selectedCard;
     };
-    const multiplier = 80;
 
     const WhiteTooltip = styled(({ className, ...props }: TooltipProps) => (
         <Tooltip {...props} classes={{ popper: className }} />
@@ -132,19 +131,20 @@ const AccountRecharge: React.FC = () => {
         setSelectedChannel(event.target.value);
     };
 
-    const handleCreditChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setCreditAmount(event.target.value);
+    const calculateCredits = (value: string) => {
+        const credits = parseFloat(value);
+        if (!isNaN(credits)) {
+            const calculatedAmount = credits * 0.65;  // 🔥 Ajusta el valor por crédito si es diferente
+            setRechargeAmount(calculatedAmount.toFixed(2));  // 🔥 Guarda el monto calculado con 2 decimales
+        } else {
+            setRechargeAmount('0.00');  // 🔥 Si no es un número válido, pone 0.00
+        }
     };
 
     const handleRechargeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRechargeAmount(event.target.value);
     };
 
-    const handleSubmit = (event: React.FormEvent) => {
-        event.preventDefault();
-        setshowChipBarAdd(true); // Mostrar ChipBar para edición exitosa
-        setTimeout(() => setshowChipBarAdd(false), 3000);
-    };
 
     const fetchCreditCards = async () => {
         const usuario = localStorage.getItem("userData");
@@ -196,14 +196,16 @@ const AccountRecharge: React.FC = () => {
             const response = await axios.post(requestUrl, payload);
 
             if (response.status === 200) {
-                setshowChipBarCard(true);
-                setTimeout(() => setshowChipBarCard(false), 3000);
+                setshowChipBarAdd(true);
+                setTimeout(() => setshowChipBarAdd(false), 3000);
+                setLoading(false);
             }
         } catch {
             setErrorModal({
                 title: "Error al cargar saldo",
                 message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
             });
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -246,15 +248,17 @@ const AccountRecharge: React.FC = () => {
                 setTimeout(() => setshowChipBarCard(false), 3000);
                 await fetchCreditCards();
                 handleCloseModal();
+                setLoading(false);
             }
         } catch {
             setErrorModal({
                 title: "Error al añadir tarjeta",
                 message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
             });
+            setLoading(false);
         } finally {
             handleCloseModal();
-            setLoading(true);
+            setLoading(false);
         }
     };
 
@@ -306,8 +310,10 @@ const AccountRecharge: React.FC = () => {
                 if (!textRegex.test(value)) error = 'No se permiten caracteres especiales';
                 break;
             case 'exteriorNumber':
-            case 'interiorNumber':
                 if (!numberRegex.test(value)) error = 'Solo se permiten números';
+                break;
+            case 'interiorNumber':
+                if (value && !numberRegex.test(value)) error = 'Solo se permiten números';
                 break;
             case 'postalCode':
                 if (!postalCodeRegex.test(value)) error = 'Debe ser un código postal válido (5 dígitos)';
@@ -403,12 +409,6 @@ const AccountRecharge: React.FC = () => {
         setErrorModal(null);
     };
 
-    const handleCreditBlur = () => {
-        const calculatedAmount = parseInt(creditAmount, 10) * multiplier;
-        setRechargeAmount(calculatedAmount.toString()); // Actualiza el monto a recargar
-    };
-
-
 
     const resetForm = () => {
         setSelectedChannel('');
@@ -416,8 +416,25 @@ const AccountRecharge: React.FC = () => {
         setRechargeAmount('');
         setSelectedCard(null);
         setGenerateInvoice(false);
+        setCardDetails({
+            cardNumber: '',
+            cardName: '',
+            street: '',
+            exteriorNumber: '',
+            interiorNumber: '',
+            neighborhood: '',
+            city: '',
+            state: '',
+            postalCode: '',
+            cvv: '',
+            month: '',
+            year: '',
+            isDefault: false,
+            type: '',
+        });
         setErrors({});
     };
+
 
     return (
         <div style={{
@@ -612,7 +629,7 @@ const AccountRecharge: React.FC = () => {
                 margin: '5px 0 20px 0'
             }}></div>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={(e) => e.preventDefault()}>
                 <div style={{ marginBottom: '20px', width: '60%' }}> {/* Hacemos más estrecho el recuadro */}
                     <Typography
                         sx={{
@@ -689,8 +706,11 @@ const AccountRecharge: React.FC = () => {
                             id="credits"
                             type="number"
                             value={creditAmount}
-                            onChange={handleCreditChange}
-                            onBlur={handleCreditBlur}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setCreditAmount(value);
+                                calculateCredits(value); // 🔥 Calcula en tiempo real
+                            }}
                             variant="outlined"
                             fullWidth
                             InputProps={{
@@ -788,7 +808,7 @@ const AccountRecharge: React.FC = () => {
                     }}>Seleccione el método de pago</Typography>
                 </div>
 
-                <MainButtonIcon onClick={handleOpenModal} text='Agregar Tarjeta' width='210px' />
+                <MainButtonIcon type="button" onClick={handleOpenModal} text='Agregar Tarjeta' width='210px' />
 
 
                 <div style={{
@@ -897,19 +917,21 @@ const AccountRecharge: React.FC = () => {
                             </label>
 
                             {/* Botón para eliminar */}
-                            <button
-                                onClick={() => openDeleteModal(card)}
-                                style={{
-                                    position: 'absolute',
-                                    top: '10px',
-                                    right: '10px',
-                                    backgroundColor: 'transparent',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <img src={trash} width='24px' height='24px' />
-                            </button>
+                            <Tooltip title="Eliminar tarjeta" arrow>
+                                <button
+                                    onClick={() => openDeleteModal(card)}
+                                    style={{
+                                        position: 'absolute',
+                                        top: '10px',
+                                        right: '10px',
+                                        backgroundColor: 'transparent',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <img src={trash} width='24px' height='24px' />
+                                </button>
+                            </Tooltip>
                         </div>
                     ))}
                 </div>
@@ -980,13 +1002,13 @@ const AccountRecharge: React.FC = () => {
                     </div>
                     <hr style={{ width: '100%', border: '1px solid #ccc', margin: '10px 0' }} />
                     <form
-                        onSubmit={addCreditCard}
                         style={{
                             display: 'grid',
                             gridTemplateColumns: '1fr 1fr',
                             columnGap: '20px',
                             rowGap: '15px',
                         }}
+                        onSubmit={(e) => e.preventDefault()}
                     >
                         <div style={{ display: 'flex', gap: '20px', gridColumn: 'span 2' }}>
                             <div style={{ flex: 1 }}>
@@ -1142,10 +1164,10 @@ const AccountRecharge: React.FC = () => {
                                         marginBottom: "5px"
                                     }}
                                 >
-                                    Número interior<span style={{ color: "#D01247" }}>*</span>
+                                    Número interior
                                 </label>
                                 <TextField type="number"
-                                    name="street"
+                                    name="interiorNumber"
                                     value={cardDetails.interiorNumber}
                                     onChange={handleChange}
                                     error={Boolean(errors.interiorNumber)}
@@ -1461,7 +1483,7 @@ const AccountRecharge: React.FC = () => {
 
             {showChipBarAdd && (
                 <ChipBar
-                    message="Se ha recargado saldo con exito"
+                    message="La recarga se ha realizado exitosamente"
                     buttonText="Cerrar"
                     onClose={() => setshowChipBarAdd(false)}
                 />

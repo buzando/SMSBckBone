@@ -10,6 +10,8 @@ import { format } from 'date-fns';
 import CircularProgress from '@mui/material/CircularProgress';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import ClearIcon from '@mui/icons-material/Clear';
+import IconLeft from '../assets/icon-punta-flecha-bottom.svg'
+import { useNavigate } from 'react-router-dom';
 
 const Use: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -45,9 +47,15 @@ const Use: React.FC = () => {
     const [userSearch, setUserSearch] = useState('');
 
     const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setUserAnchorEl(event.currentTarget);
-        setUserMenuOpen(true);
+        if (userMenuOpen) {
+            setUserMenuOpen(false);     // Cierra si ya está abierto
+            setUserAnchorEl(null);      // Limpia el ancla
+        } else {
+            setUserAnchorEl(event.currentTarget);
+            setUserMenuOpen(true);      // Abre si estaba cerrado
+        }
     };
+    const navigate = useNavigate();
 
     const handleUserSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUserSearch(event.target.value.toLowerCase());
@@ -77,8 +85,13 @@ const Use: React.FC = () => {
 
 
     const handleCampaignClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorElC(event.currentTarget);
-        setCampaignMenuOpen(true);
+        if (campaignMenuOpen) {
+            setCampaignMenuOpen(false);  // Cierra si ya está abierto
+            setAnchorElC(null);          // Limpia el ancla
+        } else {
+            setAnchorElC(event.currentTarget);
+            setCampaignMenuOpen(true);   // Abre si estaba cerrado
+        }
     };
 
     const handleCampaignSelection = (campaign: string) => {
@@ -159,7 +172,7 @@ const Use: React.FC = () => {
         <Box sx={{ padding: '20px', maxWidth: '1000px', marginLeft: 0 }}>
             {/* Encabezado */}
             <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#330F1B', display: 'flex', alignItems: 'center' }}>
-                <span style={{ marginRight: '10px', cursor: 'pointer' }}>⬅</span> Uso
+                <img src={IconLeft} width='24px' height='24px' style={{ transform: 'rotate(270deg)', cursor: 'pointer' }} onClick={() => navigate('/')} />Uso
             </Typography>
             <Divider sx={{ marginTop: '10px', marginBottom: '20px' }} />
 

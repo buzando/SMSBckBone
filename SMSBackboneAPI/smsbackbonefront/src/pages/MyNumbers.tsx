@@ -2168,8 +2168,8 @@ const MyNumbers: React.FC = () => {
         }
         if (actionType === 'eliminar') {
             return {
-                title: 'Eliminar números',
-                message: '¿Está seguro de que desea eliminar los números seleccionados? Esta acción no podrá ser revertida.',
+                title: 'Dar de baja números',
+                message: '¿Está seguro de que desea dar de baja los números seleccionados? Pasarán 30 días en cuarentena sin poder ser utilizados.',
             };
         }
         return { title: '', message: '' };
@@ -2202,10 +2202,10 @@ const MyNumbers: React.FC = () => {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true, // Muestra AM/PM
+            //hour: "2-digit",
+            //minute: "2-digit",
+            //second: "2-digit",
+            //hour12: true, // Muestra AM/PM
         });
     }
 
@@ -3055,7 +3055,9 @@ const MyNumbers: React.FC = () => {
                                     No se encontraron resultados
                                 </Typography>
                             </Box>
-                        ) : (
+                            ) : (
+                                    <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '5px' }}>
+
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                                 <thead style={{ backgroundColor: '#f9f9f9', color: '#6a6a6a' }}>
                                     {isAnyRowSelected ? (
@@ -3205,6 +3207,38 @@ const MyNumbers: React.FC = () => {
                                                 Fecha del próx. pago
                                             </th>
                                             <th
+                                                style={{
+                                                    width: '350px',
+                                                    textAlign: 'right',
+                                                    paddingRight: '70px',
+                                                    borderRight: '1px solid #dcdcdc',
+                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    letterSpacing: '0px',
+                                                    color: '#330F1B',
+                                                    opacity: 1,
+                                                    fontSize: '13px',
+                                                    backgroundColor: '#FFFFFF', // Fondo blanco
+                                                }}
+                                            >
+                                                            Estado
+                                            </th>
+                                            <th
+                                                style={{
+                                                    width: '350px',
+                                                    textAlign: 'right',
+                                                    paddingRight: '70px',
+                                                    borderRight: '1px solid #dcdcdc',
+                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    letterSpacing: '0px',
+                                                    color: '#330F1B',
+                                                    opacity: 1,
+                                                    fontSize: '13px',
+                                                    backgroundColor: '#FFFFFF', // Fondo blanco
+                                                }}
+                                            >
+                                                            Municipio
+                                            </th>
+                                            <th
                                                 style={{ width: '50px', backgroundColor: '#FFFFFF', }}>
                                             </th>
                                         </tr>
@@ -3233,16 +3267,32 @@ const MyNumbers: React.FC = () => {
                                             <td style={{
                                                 width: '300px',
                                                 textAlign: 'right', padding: '10px',
-                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" ,
+                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
                                             }}>${number.cost}</td>
                                             <td style={{
                                                 width: '350px',
                                                 textAlign: 'right',
                                                 paddingRight: '30px',
                                                 borderRight: '1px solid #dcdcdc',
-                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" ,
+                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
                                             }}
                                             >{formatDate(number.nextPaymentDate)}</td>
+                                            <td style={{
+                                                width: '350px',
+                                                textAlign: 'right',
+                                                paddingRight: '30px',
+                                                borderRight: '1px solid #dcdcdc',
+                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                            }}
+                                            >{number.state}</td>
+                                            <td style={{
+                                                width: '350px',
+                                                textAlign: 'right',
+                                                paddingRight: '30px',
+                                                borderRight: '1px solid #dcdcdc',
+                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                            }}
+                                            >{number.municipality}</td>
                                             <td style={{ textAlign: 'center', padding: '10px' }}>
                                                 <IconButton
                                                     aria-label="more"
@@ -3283,7 +3333,8 @@ const MyNumbers: React.FC = () => {
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
+                                    </table>
+                            </div>
                         )}
                     </div>
                     {/* Modal */}

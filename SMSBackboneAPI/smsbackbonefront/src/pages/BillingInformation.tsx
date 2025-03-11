@@ -8,6 +8,7 @@ import ChipBar from "../components/commons/ChipBar";
 import ModalError from "../components/commons/ModalError"
 import MainModal from "../components/commons/MainModal"
 import { useNavigate } from 'react-router-dom';
+import { Tooltip } from '@mui/material';
 
 const BillingInformation: React.FC = () => {
     const navigate = useNavigate();
@@ -65,7 +66,7 @@ const BillingInformation: React.FC = () => {
         const fetchBillingData = async () => {
             const usuario = localStorage.getItem("userData");
             if (!usuario) {
-                navigate('/Login'); 
+                navigate('/Login');
                 return;
             }
             const obj = JSON.parse(usuario);
@@ -190,9 +191,11 @@ const BillingInformation: React.FC = () => {
                             helperText={businessNameError ? "Formato Invalido" : ""}
                             InputProps={{
                                 endAdornment: (
-                                    <InputAdornment position="end">
-                                        <InfoIcon style={{ color: businessNameError ? '#D01247' : '#6a6a6a' }} />
-                                    </InputAdornment>
+                                    <Tooltip title="Razon social fiscal valida" arrow>
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: businessNameError ? '#D01247' : '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
                                 )
                             }}
                         />
@@ -219,9 +222,19 @@ const BillingInformation: React.FC = () => {
                             helperText={rfcError ? 'Formato Invalido' : ''}
                             InputProps={{
                                 endAdornment: (
-                                    <InputAdornment position="end">
-                                        <InfoIcon style={{ color: rfcError ? '#D01247' : '#6a6a6a' }} />
-                                    </InputAdornment>
+                                    <Tooltip
+                                        title={
+                                            <div>
+                                                <Typography variant="body2">• Solo caracteres numéricos</Typography>
+                                                <Typography variant="body2">• Longitud min. 14 dígitos, máx. 19 dígitos</Typography>
+                                            </div>
+                                        }
+                                        arrow
+                                    >
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: rfcError ? '#D01247' : '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
                                 ),
                             }}
                             style={{
@@ -339,13 +352,6 @@ const BillingInformation: React.FC = () => {
                         fullWidth
                         error={postalCodeError}
                         helperText={postalCodeError ? 'Formato Invalido' : ''}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <InfoIcon style={{ color: postalCodeError ? '#D01247' : '#6a6a6a' }} />
-                                </InputAdornment>
-                            ),
-                        }}
                         style={{
                             width: '128px', // Cambiar el ancho del input
                             height: '54px',
@@ -383,11 +389,11 @@ const BillingInformation: React.FC = () => {
                     <SecondaryButton onClick={() => setModal(true)} text="CANCELAR" />
                 </div>
 
-                <MainButton onClick={handleSave} text="GUARDAR"  />
+                <MainButton onClick={handleSave} text="GUARDAR" />
             </div>
             {showChipBarAdd && (
                 <ChipBar
-                    message="Los datos de facturaciín han sido agregados correctamente"
+                    message="Los datos de facturación han sido agregados correctamente"
                     buttonText="Cerrar"
                     onClose={() => setshowChipBarAdd(false)}
                 />
@@ -406,7 +412,7 @@ const BillingInformation: React.FC = () => {
                 primaryButtonText="Aceptar"
                 secondaryButtonText="Cancelar"
                 onPrimaryClick={handleCancel}
-                onSecondaryClick={() => setModal (false)}
+                onSecondaryClick={() => setModal(false)}
             />
         </div>
 

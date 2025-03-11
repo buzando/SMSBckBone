@@ -211,7 +211,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 
 
-const NavBarAndDrawer: React.FC<Props> = props => {
+const PublicLayoutOpenPay: React.FC<Props> = props => {
     const [searchOpen, setSearchOpen] = useState(false);
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -228,7 +228,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const { user } = contextState
     const [openSubMenu, setOpenSubMenu] = useState(false); // Submenú de administración
     const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
- 
+
 
 
 
@@ -247,26 +247,49 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
     useEffect(() => {
         // Cargar datos desde localStorage
-        const storedRooms = localStorage.getItem('ListRooms');
+        const storedRooms = [
+            {
+                id: 1,
+                name: 'Sala de Prueba',
+                client: 'Cliente Ficticio',
+                description: 'Descripción de prueba',
+                credits: 100,
+                long_sms: 20,
+                calls: 10,
+                short_sms: 50
+            }
+        ];
 
-        const currentRoom = localStorage.getItem('selectedRoom');
+        const selectedRoom = storedRooms[0];
+        const currentRoom = JSON.stringify({ id: 1, name: 'Sala de Prueba', client: 'Cliente Ficticio', description: 'Descripción de prueba', credits: 100, long_sms: 20, calls: 10, short_sms: 50 });
+
+        sessionStorage.setItem('ListRooms', JSON.stringify(storedRooms));
+        sessionStorage.setItem('selectedRoom', JSON.stringify(selectedRoom));
+
+
+        console.log("Guardado en localStorage:");
+        console.log("ListRooms:", localStorage.getItem('ListRooms'));
+        console.log("selectedRoom:", localStorage.getItem('selectedRoom'));
+
+        setRooms(storedRooms);
+        setSelectedRoom(selectedRoom);
 
         if (storedRooms) {
             try {
-                const parsedRooms = JSON.parse(storedRooms);
-                if (Array.isArray(parsedRooms)) {
-                    setRooms(parsedRooms);
+                if (Array.isArray(storedRooms)) {
+                    setRooms(storedRooms);
                 } else {
                     console.error('Los datos de las salas no están en el formato correcto.');
                 }
-            } catch (error) {
+            }
+             catch (error) {
                 console.error('Error al parsear las salas desde localStorage', error);
             }
         }
         if (currentRoom) {
             try {
                 const room = JSON.parse(currentRoom);
-                setSelectedRoom(room);  // Esto debería ser un solo objeto Room, no un array
+                setSelectedRoom(room);
             } catch (error) {
                 console.error('Error al parsear la sala seleccionada desde localStorage', error);
             }
@@ -934,7 +957,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     color: '#330F1B',
                                     opacity: 1,
                                     fontSize: '18px', // Estilo para los valores numéricos debajo
-                                    marginBottom:'-8px'
+                                    marginBottom: '-8px'
                                 }}
                             >
                                 {selectedRoom?.credits || 0}
@@ -958,20 +981,20 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             color: '#574B4F',
                                             opacity: 1,
                                             fontSize: '12px', // Ajuste preciso del tamaño de fuente
-                                            marginBottom:'8px'
+                                            marginBottom: '8px'
                                         }}
                                     >
                                         # Cortos
                                     </Typography>
                                     <Typography
-                                    //450
+                                        //450
                                         sx={{
                                             textAlign: 'left',
                                             fontFamily: 'Poppins',
                                             letterSpacing: '0px',
                                             color: '#330F1B',
                                             opacity: 1,
-                                            marginBottom:'-1px',
+                                            marginBottom: '-1px',
                                             fontSize: '14px', // Estilo para los valores numéricos debajo
                                         }}
                                     >
@@ -992,7 +1015,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         # Largos
                                     </Typography>
                                     <Typography
-                                    //320
+                                        //320
                                         sx={{
                                             textAlign: 'left',
                                             fontFamily: 'Poppins',
@@ -1178,7 +1201,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     <ListItem disablePadding>
                         <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
                             <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                            <img alt="Iconpeople" src={Iconpeople} style={{ width: 40, height: 20, filter: "brightness(0) invert(1)" }}/>
+                                <img alt="Iconpeople" src={Iconpeople} style={{ width: 40, height: 20, filter: "brightness(0) invert(1)" }} />
                             </ListItemIcon>
                             <ListItemText
                                 primary="Administración"
@@ -1216,16 +1239,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     selected={location.pathname === '/UserAdministration'}
                                 >
                                     <ListItemText
-                                    primary="Usuarios"
-                                    primaryTypographyProps={{
-                                        fontFamily: "Poppins",
-                                        marginLeft: '48px',
-                                        fontSize: '14px',
-                                        color: '#FFFFFF',
-                                        marginBottom: "-5px",
-                                        marginTop: "-5px"
-                                    }}
-                                />
+                                        primary="Usuarios"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '48px',
+                                            fontSize: '14px',
+                                            color: '#FFFFFF',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }}
+                                    />
                                 </ListItemButton>
                             </Link>
                             {/* Salas */}
@@ -1250,18 +1273,18 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     }}
                                     selected={location.pathname === '/rooms'}
                                 >
-                                    
+
                                     <ListItemText
-                                    primary="Salas"
-                                    primaryTypographyProps={{
-                                        fontFamily: "Poppins",
-                                        marginLeft: '48px',
-                                        fontSize: '14px',
-                                        color: '#FFFFFF',
-                                        marginBottom: "-5px",
-                                        marginTop: "-5px"
-                                    }}
-                                />
+                                        primary="Salas"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '48px',
+                                            fontSize: '14px',
+                                            color: '#FFFFFF',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }}
+                                    />
                                 </ListItemButton>
                             </Link>
                         </List>
@@ -1269,7 +1292,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de SMS */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => setOpenSubMenuNumbers(!openSubMenuNumbers)} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconmesage" src={Iconmesage} style={{ width: 50, height: 20 }}/>
+                            <img alt="Iconmesage" src={Iconmesage} style={{ width: 50, height: 20 }} />
                             <ListItemText
                                 primary="SMS"
                                 primaryTypographyProps={{
@@ -1283,8 +1306,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </ListItem>
                     <Collapse in={openSubMenuNumbers} timeout="auto">
                         <List component="div" disablePadding>
-                            <ListItemButton sx={{ pl: 4, marginTop:"-5px", marginBottom:"-5px"}} onClick={() => navigate('/sms')}>
-                                
+                            <ListItemButton sx={{ pl: 4, marginTop: "-5px", marginBottom: "-5px" }} onClick={() => navigate('/sms')}>
+
                                 <ListItemText
                                     primary="Configuración SMS"
                                     primaryTypographyProps={{
@@ -1303,7 +1326,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de Reportes */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => navigate('/reports')} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconreports" src={Iconreports} style={{ width: 50, height: 20, transform: "rotate(-90deg)" }}/>
+                            <img alt="Iconreports" src={Iconreports} style={{ width: 50, height: 20, transform: "rotate(-90deg)" }} />
                             <ListItemText
                                 primary="Reportes"
                                 primaryTypographyProps={{
@@ -1318,7 +1341,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de Facturación */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => setOpenSubMenuBilling(!openSubMenuBilling)} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconfacturation" src={Iconfacturation} style={{ width: 50, height: 20 }}/>
+                            <img alt="Iconfacturation" src={Iconfacturation} style={{ width: 50, height: 20 }} />
                             <ListItemText
                                 primary="Facturación"
                                 primaryTypographyProps={{
@@ -1334,16 +1357,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         <List component="div" disablePadding>
                             {pages[3].subMenus.map((subMenu) => (
                                 <ListItemButton key={subMenu.id} sx={{ pl: 4 }} onClick={() => navigate(subMenu.path)}>
-                                    
+
                                     <ListItemText
                                         primary={subMenu.title}
                                         primaryTypographyProps={{
-                                        fontFamily: "Poppins",
-                                        marginLeft: '48px',
-                                        fontSize: '14px',
-                                        color: '#FFFFFF',
-                                        marginBottom: "-5px",
-                                        marginTop: "-5px"
+                                            fontFamily: "Poppins",
+                                            marginLeft: '48px',
+                                            fontSize: '14px',
+                                            color: '#FFFFFF',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
                                         }}
                                     />
                                 </ListItemButton>
@@ -1354,7 +1377,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de Ayuda */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => navigate('/help')} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconhelpu" src={Iconhelpu} style={{ width: 50, height: 20, filter: "brightness(0) invert(1)"  }}/>
+                            <img alt="Iconhelpu" src={Iconhelpu} style={{ width: 50, height: 20, filter: "brightness(0) invert(1)" }} />
                             <ListItemText
                                 primary="Ayuda"
                                 primaryTypographyProps={{
@@ -1671,4 +1694,4 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     )
 }
 
-export default NavBarAndDrawer;
+export default PublicLayoutOpenPay;
