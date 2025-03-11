@@ -9,14 +9,14 @@ interface MainButtonProps {
     disabled?: boolean;
 }
 
-const MainButton: React.FC<MainButtonProps> = ({ text, onClick, isLoading = false, disabled = false }) => {
+const MainButton: React.FC<MainButtonProps> = ({ text, onClick, isLoading = false, disabled = false,  }) => {
     return (
         <button
             className={`main-button ${disabled ? 'disabled' : ''}`}
             onClick={onClick}
             disabled={disabled}
         >
-            {isLoading ? <CircularProgress size={20} style={{ color: '#FFFFFF' }} /> : text.toUpperCase()}
+            {isLoading ? <CircularProgress size={20} thickness={8} style={{ color: '#FFFFFF' }} /> : text.toUpperCase()}
         </button>
     );
 };

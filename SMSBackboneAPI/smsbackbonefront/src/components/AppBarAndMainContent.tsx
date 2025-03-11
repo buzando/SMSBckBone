@@ -61,7 +61,7 @@ import CloseSession from '../assets/Icon-CerrarSesion.svg';
 import Iconfacturation from '../assets/Iconfacturation.svg';
 import Iconhelpu from '../assets/Iconhelpu.svg';
 
-const drawerWidth = 250;
+const drawerWidth = 278;
 
 type Page = {
     id: number,
@@ -228,8 +228,13 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const { user } = contextState
     const [openSubMenu, setOpenSubMenu] = useState(false); // Submenú de administración
     const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
+    
+    const [selectedLink, setSelectedLink] = useState<string | null>(null);
  
-
+    const handleSelection = (link: string) => {
+        setSelectedLink(link); // Cambia el enlace seleccionado
+    };
+    
 
 
     const closeHelpModal = () => setHelpModalIsOpen(false);
@@ -920,7 +925,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     letterSpacing: '-0.5px',
                                     color: '#574B4F',
                                     opacity: 1,
-                                    fontSize: '13px', // Esto asegura que el tamaño de fuente sea correcto
+                                    fontSize: '15px', // Esto asegura que el tamaño de fuente sea correcto
                                 }}
                             >
                                 Créditos Totales SMS
@@ -957,7 +962,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             letterSpacing: '0px',
                                             color: '#574B4F',
                                             opacity: 1,
-                                            fontSize: '12px', // Ajuste preciso del tamaño de fuente
+                                            fontSize: '14px', // Ajuste preciso del tamaño de fuente
                                             marginBottom:'8px'
                                         }}
                                     >
@@ -971,8 +976,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             letterSpacing: '0px',
                                             color: '#330F1B',
                                             opacity: 1,
-                                            marginBottom:'-1px',
-                                            fontSize: '14px', // Estilo para los valores numéricos debajo
+                                            marginBottom:'-4px',
+                                            fontSize: '16px', // Estilo para los valores numéricos debajo
                                         }}
                                     >
                                         {selectedRoom?.short_sms || 0}
@@ -986,7 +991,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             letterSpacing: '0px',
                                             color: '#574B4F',
                                             opacity: 1,
-                                            fontSize: '12px', // Ajuste preciso del tamaño de fuente
+                                            fontSize: '15px', // Ajuste preciso del tamaño de fuente
                                         }}
                                     >
                                         # Largos
@@ -1000,7 +1005,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             color: '#330F1B',
                                             opacity: 1,
                                             marginTop: '7px',
-                                            fontSize: '14px',
+                                            fontSize: '16px',
+                                            marginBottom:'-4px',
                                         }}
                                     >
                                         {selectedRoom?.long_sms || 0}
@@ -1168,24 +1174,32 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </Box>
                 </Box>
 
-
-
-
-
-
+{/*Comienzo del fondo para opciones*/}
+<Box
+sx={{
+position: "relative",
+left: "17px",
+height: "520px",
+marginTop: "25px",
+width: "245px",
+borderRadius: "6px",
+borderColor: "#5F5064",
+backgroundColor: "#5A4A63CC",
+}}>
                 <List component="nav">
                     {/* Menú de Administración */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
                             <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                            <img alt="Iconpeople" src={Iconpeople} style={{ width: 40, height: 20, filter: "brightness(0) invert(1)" }}/>
+                            <img alt="Iconpeople" src={Iconpeople} style={{ width: 35, height: 20, filter: "brightness(0) invert(1)" }}/>
                             </ListItemIcon>
                             <ListItemText
                                 primary="Administración"
                                 primaryTypographyProps={{
                                     fontFamily: "Poppins",
-                                    marginRight: "100%",
+                                    marginBottom: "-2px",
                                     color: '#FFFFFF',
+                                    marginLeft: "-15px"
                                 }}
                             />
                             {openSubMenu ? <ExpandLess /> : <ExpandMore />}
@@ -1214,14 +1228,26 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         },
                                     }}
                                     selected={location.pathname === '/UserAdministration'}
+                                    onClick={() => handleSelection('Usuarios')}
                                 >
+
+                            {/*Linea Gris*/}
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    left: "35px",
+                                    width: "4px",
+                                    height: "35px",
+                                    backgroundColor: selectedLink === 'Usuarios' ? '#FFFFFF' : '#9F94A5',
+                            }}/>
+
                                     <ListItemText
                                     primary="Usuarios"
                                     primaryTypographyProps={{
                                         fontFamily: "Poppins",
-                                        marginLeft: '48px',
+                                        marginLeft: '30px',
                                         fontSize: '14px',
-                                        color: '#FFFFFF',
+                                        color: selectedLink === 'Usuarios' ? '#FFFFFF' : '#9F94A5',
                                         marginBottom: "-5px",
                                         marginTop: "-5px"
                                     }}
@@ -1249,15 +1275,26 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         },
                                     }}
                                     selected={location.pathname === '/rooms'}
+                                    onClick={() => handleSelection('Salas')}
                                 >
-                                    
+
+                            {/*Linea Gris*/}
+                                <Box
+                                sx={{
+                                    position: "absolute",
+                                    left: "35px",
+                                    width: "4px",
+                                    height: "35px",
+                                    backgroundColor: selectedLink === 'Salas' ? '#FFFFFF' : '#9F94A5',
+                            }}/>
+
                                     <ListItemText
                                     primary="Salas"
                                     primaryTypographyProps={{
                                         fontFamily: "Poppins",
-                                        marginLeft: '48px',
+                                        marginLeft: '30px',
                                         fontSize: '14px',
-                                        color: '#FFFFFF',
+                                        color: selectedLink === 'Salas' ? '#FFFFFF' : '#9F94A5',
                                         marginBottom: "-5px",
                                         marginTop: "-5px"
                                     }}
@@ -1266,15 +1303,18 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             </Link>
                         </List>
                     </Collapse>
+
+                    
                     {/* Menú de SMS */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => setOpenSubMenuNumbers(!openSubMenuNumbers)} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconmesage" src={Iconmesage} style={{ width: 50, height: 20 }}/>
+                        <img alt="Iconmesage" src={Iconmesage} style={{ width: 35, height: 20 }}/>
                             <ListItemText
                                 primary="SMS"
                                 primaryTypographyProps={{
                                     fontFamily: "Poppins",
-                                    marginLeft: "5px",
+                                    marginLeft: "4px",
+                                    marginBottom: "-2px",
                                     color: '#FFFFFF',
                                 }}
                             />
@@ -1283,15 +1323,45 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </ListItem>
                     <Collapse in={openSubMenuNumbers} timeout="auto">
                         <List component="div" disablePadding>
-                            <ListItemButton sx={{ pl: 4, marginTop:"-5px", marginBottom:"-5px"}} onClick={() => navigate('/sms')}>
-                                
+                            <ListItemButton 
+                            sx={{
+                                pl: 4,
+                                position: 'relative',
+                                '&.Mui-selected': {
+                                    backgroundColor: '#290013',
+                                    color: '#FFFFFF',
+                                    '&::before': {
+                                        content: '""',
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        width: '4px',
+                                        backgroundColor: '#FFFFFF',
+                                    },
+                                },
+                            }}
+                            selected={location.pathname === '/sms'}
+                            onClick={() => handleSelection('Configuración SMS')}
+                        > 
+
+                                {/*Linea Gris*/}
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    left: "35px",
+                                    width: "4px",
+                                    height: "35px",
+                                    backgroundColor: selectedLink === 'Configuración SMS' ? '#FFFFFF' : '#9F94A5',
+                            }}/>
+
                                 <ListItemText
                                     primary="Configuración SMS"
                                     primaryTypographyProps={{
                                         fontFamily: "Poppins",
-                                        marginLeft: '48px',
+                                        marginLeft: '32px',
                                         fontSize: '14px',
-                                        color: '#FFFFFF',
+                                        color: selectedLink === 'Configuración SMS' ? '#FFFFFF' : '#9F94A5',
                                         marginBottom: "-5px",
                                         marginTop: "-5px"
                                     }}
@@ -1303,7 +1373,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de Reportes */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => navigate('/reports')} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconreports" src={Iconreports} style={{ width: 50, height: 20, transform: "rotate(-90deg)" }}/>
+                        <img alt="Iconreports" src={Iconreports} style={{ width: 35, height: 20, transform: "rotate(-90deg)" }}/>
                             <ListItemText
                                 primary="Reportes"
                                 primaryTypographyProps={{
@@ -1318,12 +1388,13 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     {/* Menú de Facturación */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => setOpenSubMenuBilling(!openSubMenuBilling)} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconfacturation" src={Iconfacturation} style={{ width: 50, height: 20 }}/>
+                        <img alt="Iconfacturation" src={Iconfacturation} style={{ width: 35, height: 20 }}/>
                             <ListItemText
                                 primary="Facturación"
                                 primaryTypographyProps={{
                                     fontFamily: "Poppins",
-                                    marginLeft: "5px",
+                                    marginLeft: "6px",
+                                    marginBottom: "-2px",
                                     color: '#FFFFFF',
                                 }}
                             />
@@ -1331,35 +1402,155 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         </ListItemButton>
                     </ListItem>
                     <Collapse in={openSubMenuBilling} timeout="auto">
-                        <List component="div" disablePadding>
-                            {pages[3].subMenus.map((subMenu) => (
-                                <ListItemButton key={subMenu.id} sx={{ pl: 4 }} onClick={() => navigate(subMenu.path)}>
-                                    
-                                    <ListItemText
-                                        primary={subMenu.title}
-                                        primaryTypographyProps={{
-                                        fontFamily: "Poppins",
-                                        marginLeft: '48px',
-                                        fontSize: '14px',
-                                        color: '#FFFFFF',
-                                        marginBottom: "-5px",
-                                        marginTop: "-5px"
-                                        }}
-                                    />
-                                </ListItemButton>
-                            ))}
-                        </List>
+                        {/* Historial de pagos */}
+                            <Link to="/billing/paymenthistory" style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <ListItemButton
+                            sx={{
+                                pl: 4,
+	                            position: 'relative',
+	                            '&.Mui-selected': {
+	                            backgroundColor: '#290013',
+	                            color: '#FFFFFF',
+	                            '&::before': {
+	                            content: '""',
+	                            position: 'absolute',
+	                            left: 0,
+	                            top: 0,
+	                            bottom: 0,
+	                            width: '4px',
+	                            backgroundColor: '#FFFFFF',
+                            },
+                            },
+                            }}
+                            selected={location.pathname === '/billing/paymenthistory'}
+                            onClick={() => handleSelection('Historial de pagos')}
+                            >
+                            {/*Linea Gris*/}
+                            
+                            <Box 
+	                            sx={{                                    
+                            		position: "absolute",                                    
+                            		left: "35px",                                    
+                            		width: "4px",                                    
+                            		height: "35px",                                    
+                            		backgroundColor: selectedLink === 'Historial de pagos' ? '#FFFFFF' : '#9F94A5',                        
+                            }}/>                                    
+                            <ListItemText
+                            	primary="Historial de pagos"
+                            	primaryTypographyProps={{                                        
+                            	fontFamily: "Poppins",                                        
+                            	marginLeft: '30px',
+                            	fontSize: '14px',
+                            	color: selectedLink === 'Historial de pagos' ? '#FFFFFF' : '#9F94A5',
+                            	marginBottom: "-5px",                                        
+                            	marginTop: "-5px"
+                            }}/>
+                            </ListItemButton>
+                            </Link>
+                        {/* Métodos de pago */}
+                        <Link to="/billing/paymentmethods" style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <ListItemButton
+                            sx={{
+                                pl: 4,
+	                            position: 'relative',
+	                            '&.Mui-selected': {
+	                            backgroundColor: '#290013',
+	                            color: '#FFFFFF',
+	                            '&::before': {
+	                            content: '""',
+	                            position: 'absolute',
+	                            left: 0,
+	                            top: 0,
+	                            bottom: 0,
+	                            width: '4px',
+	                            backgroundColor: '#FFFFFF',
+                            },
+                            },
+                            }}
+                            selected={location.pathname === '/billing/paymentmethods'}
+                            onClick={() => handleSelection('Métodos de pago')}
+                            >
+                            {/*Linea Gris*/}
+                            
+                            <Box 
+	                            sx={{                                    
+                            		position: "absolute",                                    
+                            		left: "35px",                                    
+                            		width: "4px",                                    
+                            		height: "35px",                                    
+                                    backgroundColor: selectedLink === 'Métodos de pago' ? '#FFFFFF' : '#9F94A5',                        
+                            }}/>                                    
+                            <ListItemText
+                            	primary="Métodos de pago"
+                            	primaryTypographyProps={{                                        
+                            	fontFamily: "Poppins",                                        
+                            	marginLeft: '30px',
+                            	fontSize: '14px',
+                            	color: selectedLink === 'Métodos de pago' ? '#FFFFFF' : '#9F94A5',
+                            	marginBottom: "-5px",                                        
+                            	marginTop: "-5px"
+                            }}/>
+                            </ListItemButton>
+                            </Link>
+
+                        {/* Ajustes de Pago */}
+                        <Link to="/billing/paymentsettings" style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <ListItemButton
+                            sx={{
+                                pl: 4,
+	                            position: 'relative',
+	                            '&.Mui-selected': {
+	                            backgroundColor: '#290013',
+	                            color: '#FFFFFF',
+	                            '&::before': {
+	                            content: '""',
+	                            position: 'absolute',
+	                            left: 0,
+	                            top: 0,
+	                            bottom: 0,
+	                            width: '4px',
+	                            backgroundColor: '#FFFFFF',
+                            },
+                            },
+                            }}
+                            selected={location.pathname === '/billing/paymentsettings'}
+                            >
+                            {/*Linea Gris*/}
+                            
+                            <Box 
+	                            sx={{                                    
+                            		position: "absolute",                                    
+                            		left: "35px",                                    
+                            		width: "4px",                                    
+                            		height: "35px",                                    
+                            		backgroundColor: "#9F94A5",                        
+                            }}/>                                    
+                            <ListItemText
+                            	primary="Ajustes de pago"
+                            	primaryTypographyProps={{                                        
+                            	fontFamily: "Poppins",                                        
+                            	marginLeft: '30px',
+                            	fontSize: '14px',
+                            	color: '#9F94A5',
+                            	marginBottom: "-5px",                                        
+                            	marginTop: "-5px"
+                            }}/>
+                            </ListItemButton>
+                            </Link>                            
+                            
                     </Collapse>
+
+
 
                     {/* Menú de Ayuda */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => navigate('/help')} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconhelpu" src={Iconhelpu} style={{ width: 50, height: 20, filter: "brightness(0) invert(1)"  }}/>
+                        <img alt="Iconhelpu" src={Iconhelpu} style={{ width: 35, height: 20, filter: "brightness(0) invert(1)"  }}/>
                             <ListItemText
                                 primary="Ayuda"
                                 primaryTypographyProps={{
                                     fontFamily: "Poppins",
-                                    marginLeft: "5px",
+                                    marginLeft: "6px",
                                     color: '#FFFFFF',
                                 }}
                             />
@@ -1368,6 +1559,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                 </List>
 
 
+{/* Final del fondo para opciones */}
+</Box>
             </Drawer >
             <Container
                 fixed

@@ -20,8 +20,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import "../Logincss.css";
 import InputAdornment from "@mui/material/InputAdornment";
-import infoicon from '../assets/Icon-info.svg'
-import infoiconerror from '../assets/Icon-infoerror.svg'
+import infoicon from '../assets/Icon-info.svg';
+import infoiconerror from '../assets/Icon-infoerror.svg';
+import Iconeyeslash from '../assets/Iconeyeslash.svg';
+import Iconeyesopen from '../assets/Iconeyesopen.svg';
 
 type errorObj = {
     code: string;
@@ -42,12 +44,16 @@ const Login: React.FC = () => {
     const [emailErr, setEmailErr] = useState(true);
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [messageAlert, setMessageAlert] = useState('Ocurrio un error');
+    const [messageAlert, setMessageAlert] = useState('Correo o contraseña inválidos');
     const [openAlert, setOpenAlert] = useState(false);
     const [spinner, setSpinner] = useState(false);
     const [disabled, setdisabled] = useState(false);
     const [passwordErr, setPasswordErr] = useState(true);
+    const [showPasswordu, setShowPasswordu] = useState(false);
 
+    const togglePasswordVisibility = () => {
+        setShowPasswordu((prev) => !prev);
+    };
 
     const [UnconfirmedEmail, setUnconfirmedEmail] = useState<UnconfirmeEmail>({
         sending: false,
@@ -56,11 +62,8 @@ const Login: React.FC = () => {
         isMailSent: false,
     });
     const navigate = useNavigate();
-    const [showPassword] = useState(false);
 
-    //const handleTogglePasswordVisibility = () => {
-    //    setShowPassword(!showPassword);
-    //};
+
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -278,27 +281,32 @@ const Login: React.FC = () => {
                         <Paper elevation={0} sx={{ width: '100%', borderRadius: '20px' }}>
                             <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
                                 <Typography
-                                    variant="h2"
                                     align="center"
                                     sx={{
-                                        fontSize: '28px', // Tamaño del texto en píxeles
-                                        fontWeight: 'bold',
-                                        color: '#330F1B',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '1px',
-                                        marginBottom: '50px', // Ajustamos márgenes
+                                        fontStyle: "normal",         // No es cursiva
+                                        fontVariant: "normal",       // No usa variantes como small-caps
+                                        fontWeight: "500",           // Medium (equivalente a 500)
+                                        fontSize: "28px",            // Tamaño del texto en píxeles
+                                        fontFamily: "Poppins",       // Fuente Poppins con
+                                        color: "#330F1B",            // Color del texto
+                                        letterSpacing: "1px",        // Espaciado entre letras
+                                        marginBottom: "59px",        // Margen inferior
                                     }}
                                 >
                                     ¡Bienvenida!
                                 </Typography>
                                 <Typography
-                                    variant="h5"
+                                    
                                     sx={{
-                                        font: "normal normal medium 22px/55px Poppins",
+                                        fontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "500",
+                                        fontFamily: "Poppins",
+                                        fontSize: "22px",
                                         letterSpacing: "0px",
                                         color: "#330F1B",
                                         opacity: 1,
-                                        marginTop: "20px", // Añadimos un margen superior
+                                        marginBottom: "40px", 
                                     }}
                                 >
                                     Inicio de sesión
@@ -306,10 +314,11 @@ const Login: React.FC = () => {
                                 <Box>
                                     <Typography
                                         sx={{
-                                            marginTop: '20px',
                                             textAlign: 'left', // Alineación a la izquierda
                                             fontFamily: 'Poppins', // Fuente personalizada
-                                            fontWeight: '500', // Peso medium
+                                            fontStyle: "normal",
+                                            fontVariant: "normal",
+                                            fontWeight: "500",
                                             fontSize: '16px', // Tamaño de fuente
                                             lineHeight: '20px', // Altura de línea
                                             letterSpacing: '0px', // Sin espaciado adicional
@@ -320,16 +329,25 @@ const Login: React.FC = () => {
                                         Correo electrónico
                                     </Typography>
                                     <TextField
-                                        
                                         value={email}
                                         onChange={handleInputChange}
                                         variant="outlined"
                                         fullWidth
                                         margin="dense"
                                         error={!emailErr}
-                                        helperText={!emailErr ? "Ingresa un correo electrónico válido" : ""}
+                                        helperText={
+                                            <span style={{ minHeight: "20px", display: "inline-block",
+                                                fontFamily: 'Poppins',
+                                                fontSize: "12px", 
+                                                color: "#D01247",
+                                                marginTop:"8px"
+                                             }}>
+                                                {!emailErr ? "Ingresa un correo electrónico válido" : " "}
+                                            </span>
+                                        }
                                         InputProps={{
                                             sx: {
+                                                marginBottom: "-8px",
                                                 "& input": {
                                                     backgroundColor: "transparent !important",
                                                 },
@@ -338,13 +356,51 @@ const Login: React.FC = () => {
                                                     boxShadow: "none !important",
                                                     outline: "none !important",
                                                 },
+                                                fontStyle: "normal",
+                                                fontVariant: "normal",
+                                                fontWeight: "500",
+                                                fontSize: "16px",
+                                                lineHeight: "54px",
+                                                fontFamily: "Poppins",
+                                                letterSpacing: "0.3px",
+                                                color: "#574B4F",
+                                                opacity: 1,
                                             },
                                             endAdornment: (
                                                 <InputAdornment position="end">
-                                                    <Tooltip title="Ingrese un correo válido" arrow>
-                                                    <IconButton>
-                                                        <img src={!emailErr ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
-                                                    </IconButton>
+                                                    <Tooltip title={
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                padding: "8px 12px",
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
+                                                                color: "#000000",
+                                                                whiteSpace: "pre-line",
+                                                            }}
+                                                        >
+                                                            <>
+                                                            • Solo caracteres alfabéticos<br />
+                                                            • Longitud máxima de 40 caracteres
+                                                            </>
+                                                        </Box>
+                                                    }
+                                                    placement= "bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                                
+                                                            },
+                                                        },
+                                                    }}
+                                                >
+                                                        <IconButton>
+                                                            <img src={!emailErr ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
+                                                        </IconButton>
                                                     </Tooltip>
                                                 </InputAdornment>
                                             ),
@@ -365,21 +421,93 @@ const Login: React.FC = () => {
                                             lineHeight: '20px',
                                             letterSpacing: '0px',
                                             color: !passwordErr ? "red" : "#330F1B", // Cambia a rojo si hay error
+                                            marginTop: "-8px",
+                                            marginBottom: "-8px",
                                             opacity: 1,
                                         }}
                                     >
                                         Contraseña
                                     </Typography>
                                     <TextField
-                                            type={showPassword ? "text" : "password"}
+                                            type={showPasswordu ? "text" : "password"}
                                             value={password}
                                             onChange={handlePasswordChange}
                                             variant="outlined"
                                             fullWidth
                                             margin="normal"
                                             error={!passwordErr} // Muestra error en el campo
-                                            helperText={!passwordErr ? "Ingresa una contraseña válida" : ""} // Mensaje de error
-                                />
+                                            helperText={
+                                                <span style={{ minHeight: "20px", display: "inline-block", 
+                                                fontFamily: 'Poppins',
+                                                fontSize: "12px", 
+                                                color: "#D01247" }}>
+                                                    {!passwordErr ? "Ingresa una contraseña válida" : " "}
+                                                </span>
+                                            } // Mensaje de error
+                                            InputProps={{
+                                                sx: {
+                                                    "& input": {
+                                                        backgroundColor: "transparent !important",
+                                                    },
+                                                    "& input:focus": {
+                                                        backgroundColor: "transparent !important",
+                                                        boxShadow: "none !important",
+                                                        outline: "none !important",
+                                                    },
+                                                    fontStyle: "normal",
+                                                    fontVariant: "normal",
+                                                    fontWeight: "500",
+                                                    fontSize: "16px",
+                                                    lineHeight: "54px",
+                                                    fontFamily: "Poppins",
+                                                    letterSpacing: "0.3px",
+                                                    color: "#574B4F",
+                                                    opacity: 1,
+                                                },
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <Tooltip title={
+                                                        <Box
+                                                            sx={{
+                                                                backgroundColor: "#FFFFFF",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                padding: "8px 12px",
+                                                                font: "normal normal medium 16px/24px Poppins",
+                                                                fontFamily: "Poppins",
+                                                                color: "#000000",
+                                                                whiteSpace: "pre-line",
+                                                            }}
+                                                        >
+                                                            <>
+                                                            •Ver / Ocultar contraseña <br />
+                                                            </>
+                                                        </Box>
+                                                    }
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                padding: 0, // Removes padding around the Box
+                                                            },
+                                                        },
+                                                    }}
+                                                >
+                                                            <IconButton onClick={togglePasswordVisibility}>
+                                                                <img 
+                                                                    alt={!showPasswordu ? "Iconeyesopen" : "Iconeyeslash"} 
+                                                                    src={!showPasswordu ? Iconeyesopen : Iconeyeslash}
+                                                                    style={{ width: 20, height: 20 }} 
+                                                                />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            required
+                                        />
+
                                 </Box>
 
                                 <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={2}>
@@ -396,10 +524,14 @@ const Login: React.FC = () => {
                                         sx={{
                                             textAlign: 'center',
                                             textDecoration: 'underline',
-                                            font: 'normal normal 600 14px/54px Poppins',
+                                            fontStyle: "normal",
+                                            fontVariant: "normal",
+                                            fontWeight: "600",
+                                            fontSize: "14px",
+                                            lineHeight: "54px",
+                                            fontFamily: "Poppins",
                                             letterSpacing: '0px',
                                             color: '#8F4D63',
-                                            
                                             opacity: 1,
                                         }}
                                     >
@@ -495,6 +627,26 @@ const Login: React.FC = () => {
                                         Registrate
                                     </Link>
                                 </Box>
+
+                                <Typography
+                            sx={{
+                                position: "absolute",
+                                marginLeft: "870px",
+                                marginTop: "150px",
+                                fontStyle: "normal",
+                                fontVariant: "normal",
+                                fontWeight: "398",
+                                fontSize: "12px",
+                                lineHeight: "22px",
+                                fontFamily: "Poppins",
+                                letterSpacing: "0px",
+                                color: "#FFFFFF",
+                                opacity: 0.7, 
+                            }}
+                        >
+                            Copyright © 2024 Nuxiba. Todos los derechos reservados. Se prohíbe el uso no autorizado.
+                        </Typography>
+
                                 <Typography
                                     variant="caption"
                                     align="center"
