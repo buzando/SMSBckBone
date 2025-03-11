@@ -18,7 +18,7 @@ import Countdown from 'react-countdown';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Modal } from "@mui/material";
 import "../chooseroom.css"
-import { styled } from "@mui/system";
+import { height, margin, styled, width } from "@mui/system";
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 
@@ -399,7 +399,8 @@ const TermsAndConditions: React.FC = () => {
     const CustomStepConnector = styled(StepConnector)(() => ({
         "& .MuiStepConnector-line": {
             borderColor: "#DADADA",
-            borderTopWidth: 2,
+            borderTopWidth: 3,
+
         },
     }));
 
@@ -431,14 +432,18 @@ const TermsAndConditions: React.FC = () => {
     >   
         
         <PublicLayout>
-            <Container maxWidth="sm" fixed sx={{ marginTop: 2, marginBottom: 8 }}>
+            <Container maxWidth="sm" fixed sx={{ marginTop: "71px", marginBottom: 8 }}>
                 <Typography
-                    variant="h4"
+                    
                     align="center"
                     gutterBottom
                     sx={{
                         textAlign: "center",
-                        font: "normal normal medium 28px/55px Poppins",
+                        fontStyle: "normal",
+                        fontVariant: "normal",
+                        fontWeight: "500",
+                        lineHeight: "55px",
+                        fontFamily: "Poppins",
                         letterSpacing: "0px",
                         color: "#330F1B",
                         opacity: 1,
@@ -453,6 +458,7 @@ const TermsAndConditions: React.FC = () => {
                         activeStep={activeStep}
                         connector={<CustomStepConnector />}
                         alternativeLabel
+                        sx={{ gap: "40px" }}
                     >
                         {steps.map((label, index) => (
                             <Step key={label}>
@@ -500,10 +506,12 @@ const TermsAndConditions: React.FC = () => {
                                 justifyContent: 'space-between', // Espacio uniforme entre elementos
                             }}>
                                 <Typography
-                                    variant="body1"
                                     sx={{
                                         textAlign: "left",
-                                        font: "normal normal normal 16px/20px Poppins",
+                                        fontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "500",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#330F1B",
                                         opacity: 1,
@@ -539,12 +547,67 @@ const TermsAndConditions: React.FC = () => {
                                     variant="outlined"
                                     fullWidth
                                     required
+                                    /*Fuente del campo de texto*/
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        "& .MuiInputBase-input": {
+                                            fontFamily: "Poppins",
+                                        },
+                                        "& .MuiOutlinedInput-root": {
+                                        "& fieldset": {
+                                            borderColor: "#DADADA", // Color de borde normal
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "#9B9295", // Color de borde al pasar el mouse
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#9B9295", // Color de borde cuando el campo está enfocado
+                                            borderWidth: "1px",
+
+                                        },
+                                    },
+
+
+                                    }}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <Tooltip title="Ingrese su correo registrado en el sistema">
+                                                <Tooltip 
+                                                title={
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#FFFFFF",
+                                                            borderRadius: "8px",
+                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                            padding: "8px 12px",
+                                                            font: "normal normal medium 16px/24px Poppins",
+                                                            fontFamily: "Poppins",
+                                                            color: "#000000",
+                                                            whiteSpace: "pre-line",
+                                                            transform: "translate(-10px, -22px)",
+                                                            borderColor: "#00131F3D",
+                                                            borderStyle: "solid",
+                                                            borderWidth: "1px"
+                                                        }}
+                                                    >
+                                                        <>
+                                                        • Ingrese su correo registrado en el sistema
+                                                        </>
+                                                    </Box>
+                                                }
+                                                
+                                                placement="bottom-end"
+                                                componentsProps={{
+                                                    tooltip: {
+                                                        sx: {
+                                                            backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                            padding: 0, // Removes padding around the Box
+                                                        },
+                                                    },
+                                                }}
+                                            >
                                                     <IconButton>
-                                                        <InfoIcon />
+                                                    <img src={infoicon} style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
                                             </InputAdornment>
@@ -594,9 +657,16 @@ const TermsAndConditions: React.FC = () => {
                                             variant="outlined"
                                             onClick={() => navigate("/")}
                                             sx={{
-                                                border: "1px solid #60293C",
+                                                border: "1px solid #CCCFD2",
                                                 borderRadius: "4px",
                                                 color: "#833A53",
+                                                fontFamily: "Poppins",
+                                                fontStyle: "normal",
+                                                fontVariant: "normal",
+                                                letterSpacing: "1.12px",
+                                                fontSize: "14px",
+                                                lineHeight: "54px",
+                                                fontWeight: "600",
                                                 height: "38px",
                                                 backgroundColor: "transparent",
                                                 "&:hover": {
@@ -616,7 +686,10 @@ const TermsAndConditions: React.FC = () => {
                                                 padding: "10px 20px",
                                                 textTransform: "uppercase",
                                                 height: "38px",
-                                                fontWeight: "bold",
+                                                letterSpacing: "1.12px",
+                                                fontStyle: "normal",
+                                                fontVariant: "normal",
+                                                fontWeight: "500",
                                                 "&:hover": {
                                                     backgroundColor: "#A54261",
                                                 },
@@ -714,8 +787,10 @@ const TermsAndConditions: React.FC = () => {
                                     onClick={SendToken}
                                     sx={{
                                         textAlign: "center",
-                                        font: "normal normal 600 14px/54px Poppins",
                                         fontFamily: "Poppins",
+                                        FontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "500",
                                         letterSpacing: "1.12px",
                                         color: "#FFFFFF",
                                         textTransform: "uppercase",

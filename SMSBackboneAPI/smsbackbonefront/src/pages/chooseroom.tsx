@@ -363,6 +363,11 @@ const Chooseroom: React.FC = () => {
                         control={
                             <Checkbox
                                 checked={dontAskAgain}
+                                sx={{
+                                    color: '#6C3A52',
+                                    '&.Mui-checked': { color: '#6C3A52' },
+                                
+                                }}
                                 onChange={handleCheckboxChange}
                                 color="primary"
                             />

@@ -292,14 +292,25 @@ const Use: React.FC = () => {
                         <Box sx={{ maxHeight: '200px', overflowY: 'auto' }}>
                             {/* Checkbox de "Seleccionar todo" */}
                             <MenuItem onClick={handleSelectAllCampaigns}>
-                                <Checkbox checked={selectedCampaigns.length === campaigns.length} />
+                                <Checkbox checked={selectedCampaigns.length === campaigns.length}
+                                sx={{
+                                    color: '#6C3A52',
+                                    '&.Mui-checked': { color: '#6C3A52' },
+                                
+                                }} />
+                                
                                 <ListItemText primary="Seleccionar todo" />
                             </MenuItem>
 
                             {/* Lista de campañas */}
                             {campaigns.filter((campaign) => campaign.toLowerCase().includes(campaignSearch)).map((campaign) => (
                                 <MenuItem key={campaign} value={campaign} onClick={() => handleCampaignSelection(campaign)}>
-                                    <Checkbox checked={selectedCampaigns.includes(campaign)} />
+                                    <Checkbox checked={selectedCampaigns.includes(campaign)}
+                                    sx={{
+                                        color: '#6C3A52',
+                                        '&.Mui-checked': { color: '#6C3A52' },
+                                    
+                                    }} />
                                     <ListItemText primary={campaign} />
                                 </MenuItem>
                             ))}
@@ -360,12 +371,22 @@ const Use: React.FC = () => {
                         />
                         <Box sx={{ maxHeight: '200px', overflowY: 'auto' }}>
                             <MenuItem onClick={handleSelectAllUsers}>
-                                <Checkbox checked={selectedUsers.length === users.length} />
+                                <Checkbox checked={selectedUsers.length === users.length}
+                                sx={{
+                                    color: '#6C3A52',
+                                    '&.Mui-checked': { color: '#6C3A52' },
+                                
+                                }} />
                                 <ListItemText primary="Seleccionar todo" />
                             </MenuItem>
                             {users.filter((user) => user.toLowerCase().includes(userSearch)).map((user) => (
                                 <MenuItem key={user} value={user} onClick={() => handleUserSelection(user)}>
-                                    <Checkbox checked={selectedUsers.includes(user)} />
+                                    <Checkbox checked={selectedUsers.includes(user)}
+                                    sx={{
+                                        color: '#6C3A52',
+                                        '&.Mui-checked': { color: '#6C3A52' },
+                                    
+                                    }} />
                                     <ListItemText primary={user} />
                                 </MenuItem>
                             ))}
