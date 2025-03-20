@@ -30,6 +30,7 @@ import BillingInformation from './pages/BillingInformation'
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
 import { AppContextProvider } from './hooks/useContextInitialState'
+import Reports from './pages/Reports'
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import 'dayjs/locale/es-mx';
@@ -47,7 +48,6 @@ import HomePage from './pages/HomePage';
 //import MyNumbersPage from './pages/private/numbers_temp/MyNumbersPage';
 //import BuyNumbersPage from './pages/private/numbers_temp/BuyNumbersPage';
 import AccountRecharge2 from './pages/AccountRecharge2'
-import Openpayroute from './components/PrivateRouteOpenPay'
 function App() {
 
     console.log(`MODE: ${import.meta.env.MODE}`)
@@ -99,6 +99,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/PaymentMethods' element={<PaymentMethods />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/Reports' element={<Reports />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/Campaigns' element={<Campaigns />} />
