@@ -379,6 +379,7 @@ const Login: React.FC = () => {
                                                                 fontFamily: "Poppins",
                                                                 color: "#000000",
                                                                 whiteSpace: "pre-line",
+                                                                transform: "translate(-10px, -22px)",
                                                             }}
                                                         >
                                                             <>
@@ -474,6 +475,7 @@ const Login: React.FC = () => {
                                                                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                                                                 padding: "8px 12px",
                                                                 font: "normal normal medium 16px/24px Poppins",
+                                                                transform: "translate(-10px, -22px)",
                                                                 fontFamily: "Poppins",
                                                                 color: "#000000",
                                                                 whiteSpace: "pre-line",

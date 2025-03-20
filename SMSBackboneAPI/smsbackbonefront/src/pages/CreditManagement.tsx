@@ -222,9 +222,11 @@ const CreditManagement: React.FC = () => {
 
 
     return (
-        <Box p={4}>
+        <Box p={4}
+        sx={{ backgroundColor: "#F2F2F2" }}
+        >
             <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2, fontFamily: "Poppins, sans-serif", }}>
-                Gestión de Créditos
+                Gestión
             </Typography>
             <Divider sx={{ mb: 3 }} />
             <Box display="flex" alignItems="center" justifyContent="flex-start" mb={2}>

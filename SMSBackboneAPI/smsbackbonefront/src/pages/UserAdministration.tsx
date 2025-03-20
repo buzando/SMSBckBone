@@ -467,19 +467,31 @@ const ManageAccounts: React.FC = () => {
                 <CircularProgress color="inherit" />
             </Backdrop>
 
-            <Typography variant="h4" fontWeight="bold" mb={2}>
+            <Typography variant="h4" mb={2} fontFamily={"Poppins"}>
                 Administrar cuentas
             </Typography>
             <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                sx={{ mb: 3, backgroundColor: "#A05B71" }}
+                sx={{ mb: 3, backgroundColor: "#A05B71", fontFamily: "Poppins" }}
                 onClick={handleOpenModal}
             >
                 Añadir usuario
             </Button>
-            <TableContainer component={Paper}>
-                <Table>
+            <TableContainer component={Paper} 
+    sx={{
+        maxWidth: "84%", // 🔥 Limita el ancho de la tabla
+        marginLeft: "-200 auto", // 🔥 Centra la tabla en la pantalla
+        overflowX: "auto", // 🔥 Agrega scroll horizontal solo si es necesario
+    }}
+>
+    <Table 
+        sx={{ 
+            maxWidth: 1750,  // 🔥 Define un ancho mínimo para evitar que las celdas se compriman demasiado
+            tableLayout: "auto" // 🔥 Permite que las columnas se ajusten automáticamente
+        }} 
+        aria-label="tabla de usuarios"
+    >
                     <TableHead>
                         <TableRow>
                             <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Nombre</TableCell>
@@ -501,14 +513,24 @@ const ManageAccounts: React.FC = () => {
                                             alignItems: "center",
                                             justifyContent: "center",
                                             py: 4,
+                                            width: "100%",
+            maxWidth: "600px", // 🔥 Evita que el contenedor se expanda más de lo necesario
+            margin: "0 auto",
+                                            
                                         }}
                                     >
-                                        <img src={Nousers} alt="Sin usuarios" width="150" />
+                                        <img src={Nousers} alt="Sin usuarios" style={{
+            maxWidth: "250px", // 🔥 Define un tamaño máximo para evitar estiramientos
+            width: "auto",
+            height: "auto",
+            objectFit: "contain",
+        }} />
                                         <Typography
                                             variant="h6"
                                             sx={{
+                                                fontFamily: "Poppins",
                                                 color: "#A05B71",
-                                                fontWeight: "bold",
+                                               
                                                 mt: 2,
                                             }}
                                         >
@@ -659,7 +681,10 @@ const ManageAccounts: React.FC = () => {
                     </IconButton>
                     <Typography sx={{
                         textAlign: "left",
-                        font: "normal normal 600 20px/54px Poppins",
+                        fontStyle: "normal",
+                        fontVariant: "normal",
+                        fontWeight: "600",
+                        fontFamily: "Poppins",
                         letterSpacing: "0px",
                         color: "#574B4F",
                         opacity: 1,

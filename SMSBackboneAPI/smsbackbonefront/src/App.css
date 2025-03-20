@@ -1,8 +1,12 @@
 #root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+    width: 100vw; /* 🔥 Ocupa todo el ancho */
+    height: 100vh; /* 🔥 Ocupa toda la altura */
+    margin: 0;
+    padding: 0;
+    background-color: #F2F2F2 !important; /* 🔥 Asegura que el fondo sea gris */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .logo {

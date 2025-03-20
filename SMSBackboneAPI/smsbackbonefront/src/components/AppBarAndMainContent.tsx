@@ -16,9 +16,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import CssBaseline from '@mui/material/CssBaseline';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -736,10 +733,6 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </Box>
 
 
-
-
-
-
                     {/* Usuario */}
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, ml: 2 }}>
                         {/* Ícono de usuario grande */}
@@ -881,7 +874,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
 
 
-            <Drawer variant="permanent" open={true} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white' } }}>
+            <Drawer variant="permanent" open={true} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white',} }}>
                 <DrawerHeader />
 
                 <Box
@@ -1058,12 +1051,46 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     },
                                 }}
                             >
-                                <Tooltip title="Mis Números">
+                                <Tooltip title="Comprar números"
+                                placement="top"
+                                arrow
+
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 8, // Ajusta si es necesario
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#322D2E', // Fondo negro
+                                            color: '#FFFFFF', // Texto blanco para contraste
+                                            fontSize: '12px',
+                                            borderRadius: '4px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E', // Flecha con color negro también
+                                        },
+                                    },
+                                }}
+
+                                >
+                                    
                                     <img
                                         src={rentaNumerosUrl}
                                         alt="Renta Números"
                                         style={{ width: '30px', height: 'auto' }}
                                         onClick={() => navigate('/MyNumbers')}
+                                        
                                     />
                                 </Tooltip>
                             </IconButton>
@@ -1179,7 +1206,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 sx={{
 position: "relative",
 left: "17px",
-height: "520px",
+height: "480px",
 marginTop: "25px",
 width: "245px",
 borderRadius: "6px",
@@ -1563,13 +1590,20 @@ backgroundColor: "#5A4A63CC",
 </Box>
             </Drawer >
             <Container
-                fixed
-                maxWidth="xl"
-                sx={{
-                    marginLeft: `${drawerWidth}px`, // Respeta el ancho del Drawer
-                    marginTop: '5px', // Ajusta la altura de la AppBar (64px es el alto estándar)
-                    paddingBottom: '16px', // Opcional: espacio extra para evitar superposición con el footer
-                }}
+                
+                maxWidth={false} // 🔥 Permite que se expanda a todo el ancho
+            disableGutters // 🔥 Elimina el padding interno del contenedor
+            sx={{
+                width: '100vw',
+                height: '100vh',
+                overflow: 'hidden',
+                margin: 0,
+                marginLeft: "277px",
+                padding: 0,
+                backgroundColor: '#F2F2F2', // 🔥 Asegura que todo el fondo sea gris
+                display: 'flex',
+                flexDirection: 'column',
+            }}
             >
                 <Box sx={{ height: '4.5rem' }} />
                 {props.children}

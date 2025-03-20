@@ -2272,7 +2272,17 @@ const MyNumbers: React.FC = () => {
                     <CircularProgress />
                 </Box>
             ) : (
-                <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+                <div style={{ 
+                    padding: '20px', 
+                    fontFamily: 'Arial, sans-serif', 
+                    backgroundColor: '#F2F2F2', 
+                    width: '83vw',  //  Asegura que ocupe todo el ancho de la pantalla
+                    height: '90vh', //  Asegura que ocupe todo el alto de la pantalla
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    margin: '0', // Asegura que no haya márgenes externas
+                    overflow: 'hidden', // Evita barras de desplazamiento innecesarias
+                }}>
                     <Typography
                         sx={{
                             textAlign: "left",
@@ -2282,7 +2292,7 @@ const MyNumbers: React.FC = () => {
                             lineHeight: "55px",
                             letterSpacing: "0px",
                             color: "#330F1B",
-                            opacity: 1,
+                            opacity: 1, 
                             marginBottom: "20px",
                             // textTransform: "none" // Omitido por completo
                         }}
@@ -2887,7 +2897,8 @@ const MyNumbers: React.FC = () => {
                                 <span
                                     style={{
                                         textAlign: 'right',
-                                        font: 'normal normal medium 14px/54px Poppins',
+                                        fontFamily: "Poppins",
+                                        fontWeight: "500",
                                         letterSpacing: '0px',
                                         color: '#6F565E',
                                         opacity: 1,
@@ -3038,14 +3049,15 @@ const MyNumbers: React.FC = () => {
 
 
                     {/* Tabla */}
-                    <div style={{ border: '1px solid #dcdcdc', borderRadius: '8px', overflow: 'hidden' }}>
+                    <div style={{ border: '1px solid #dcdcdc', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
                         {currentItems.length === 0 ? (
                             <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" p={2}>
                                 <img src={NoResult} alt="No results" style={{ width: '150px', marginBottom: '16px' }} />
                                 <Typography
                                     style={{
                                         textAlign: 'center',
-                                        font: 'normal normal medium 14px/18px Poppins',
+                                        fontFamily: "Poppins",
+                                        fontWeight: "500",
                                         letterSpacing: '0px',
                                         color: '#7B354D',
                                         opacity: 1,
@@ -3078,6 +3090,7 @@ const MyNumbers: React.FC = () => {
                                                         justifyContent: 'space-between',
                                                         width: '100%',
                                                         position: 'relative',
+                                                        
                                                     }}
                                                 >
                                                     <Checkbox
@@ -3116,7 +3129,7 @@ const MyNumbers: React.FC = () => {
                                         </tr>
                                     ) : (
                                         <tr>
-                                            <th style={{ width: '50px', textAlign: 'left', padding: '10px 10px 10px 0px', backgroundColor: '#FFFFFF', }}>
+                                            <th style={{ width: '50px', textAlign: 'left', padding: '10px 10px 10px 0px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #dcdcdc' }}>
                                                 <Checkbox
                                                     indeterminate={isIndeterminate}
                                                     checked={isAllSelected}
@@ -3132,30 +3145,34 @@ const MyNumbers: React.FC = () => {
                                             </th>
                                             <th
                                                 style={{
-                                                    width: '200px',
+                                                    width: '180px',
                                                     textAlign: 'left',
                                                     padding: '10px',
-                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: "500",
                                                     letterSpacing: '0px',
                                                     color: '#330F1B',
                                                     opacity: 1,
-                                                    fontSize: '13px',
+                                                    fontSize: '15px',
                                                     backgroundColor: '#FFFFFF', // Fondo blanco
+                                                    borderBottom: '1px solid #dcdcdc'
                                                 }}
                                             >
                                                 Número
                                             </th>
                                             <th
                                                 style={{
-                                                    width: '300px',
+                                                    width: '280px',
                                                     textAlign: 'left',
                                                     padding: '10px',
-                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: "500",
                                                     letterSpacing: '0px',
                                                     color: '#330F1B',
                                                     opacity: 1,
-                                                    fontSize: '13px',
+                                                    fontSize: '15px',
                                                     backgroundColor: '#FFFFFF', // Fondo blanco
+                                                    borderBottom: '1px solid #dcdcdc'
                                                 }}
                                             >
                                                 Tipo
@@ -3164,13 +3181,15 @@ const MyNumbers: React.FC = () => {
                                                 style={{
                                                     width: '50px',
                                                     textAlign: 'left',
-                                                    padding: '10px',
-                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    paddingRight: '10px',
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: "500",
                                                     letterSpacing: '0px',
                                                     color: '#330F1B',
                                                     opacity: 1,
-                                                    fontSize: '13px',
+                                                    fontSize: '15px',
                                                     backgroundColor: '#FFFFFF', // Fondo blanco
+                                                    borderBottom: '1px solid #dcdcdc'
                                                 }}
                                             >
                                                 Servicio
@@ -3178,14 +3197,16 @@ const MyNumbers: React.FC = () => {
                                             <th
                                                 style={{
                                                     width: '200px',
-                                                    textAlign: 'right',
-                                                    padding: '10px',
-                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    textAlign: 'center',
+                                                    paddingRight: '0px',
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: "500",
                                                     letterSpacing: '0px',
                                                     color: '#330F1B',
                                                     opacity: 1,
-                                                    fontSize: '13px',
+                                                    fontSize: '15px',
                                                     backgroundColor: '#FFFFFF', // Fondo blanco
+                                                    borderBottom: '1px solid #dcdcdc'
                                                 }}
                                             >
                                                 Costo
@@ -3194,14 +3215,17 @@ const MyNumbers: React.FC = () => {
                                                 style={{
                                                     width: '350px',
                                                     textAlign: 'right',
-                                                    paddingRight: '70px',
+                                                    paddingRight: '65px',
                                                     borderRight: '1px solid #dcdcdc',
-                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: "500",
                                                     letterSpacing: '0px',
                                                     color: '#330F1B',
                                                     opacity: 1,
-                                                    fontSize: '13px',
+                                                    fontSize: '15px',
                                                     backgroundColor: '#FFFFFF', // Fondo blanco
+                                                    borderBottom: '1px solid #dcdcdc',
+                                                    borderRight: '1px solid #FFFFFF',
                                                 }}
                                             >
                                                 Fecha del próx. pago
@@ -3209,37 +3233,44 @@ const MyNumbers: React.FC = () => {
                                             <th
                                                 style={{
                                                     width: '350px',
-                                                    textAlign: 'right',
-                                                    paddingRight: '70px',
+                                                    textAlign: 'center',
+                                                    paddingRight: '30px',
                                                     borderRight: '1px solid #dcdcdc',
-                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: "500",
                                                     letterSpacing: '0px',
                                                     color: '#330F1B',
                                                     opacity: 1,
-                                                    fontSize: '13px',
+                                                    fontSize: '15px',
                                                     backgroundColor: '#FFFFFF', // Fondo blanco
+                                                    borderBottom: '1px solid #dcdcdc',
+                                                    borderRight: '1px solid #FFFFFF',
+                                                    
                                                 }}
                                             >
-                                                            Estado
+                                                    Estado
                                             </th>
                                             <th
                                                 style={{
                                                     width: '350px',
-                                                    textAlign: 'right',
-                                                    paddingRight: '70px',
+                                                    textAlign: 'center',
+                                                    paddingRight: '25px',
                                                     borderRight: '1px solid #dcdcdc',
-                                                    font: 'normal normal medium 13px/54px Poppins',
+                                                    fontFamily: "Poppins",
+                                                    fontWeight: "500",
                                                     letterSpacing: '0px',
                                                     color: '#330F1B',
                                                     opacity: 1,
-                                                    fontSize: '13px',
+                                                    fontSize: '15px',
                                                     backgroundColor: '#FFFFFF', // Fondo blanco
+                                                    borderBottom: '1px solid #dcdcdc',
+                                                    borderRight: '1px solid #dcdcdc',
                                                 }}
                                             >
                                                             Municipio
                                             </th>
                                             <th
-                                                style={{ width: '50px', backgroundColor: '#FFFFFF', }}>
+                                                style={{ width: '50px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #dcdcdc', }}>
                                             </th>
                                         </tr>
                                     )}
@@ -3247,7 +3278,7 @@ const MyNumbers: React.FC = () => {
                                 </thead>
                                 <tbody>
                                     {currentItems.map((number) => (
-                                        <tr key={number.id} style={{ borderBottom: '1px solid #dcdcdc' }}>
+                                        <tr key={number.id} style={{ borderBottom: '1px solid #dcdcdc', fontFamily: 'Poppins', fontWeight: "500", fontSize: "15px", color: "#787878"}}>
                                             <td style={{ textAlign: 'left', padding: '10px 10px 10px 0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>
                                                 <Checkbox
                                                     checked={selectedRows.includes(number.id)}
@@ -3265,29 +3296,27 @@ const MyNumbers: React.FC = () => {
                                             <td style={{ padding: '10px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>{number.type}</td>
                                             <td style={{ padding: '10px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>{number.service}</td>
                                             <td style={{
-                                                width: '300px',
-                                                textAlign: 'right', padding: '10px',
+                                                width: '100px',
+                                                textAlign: 'center', padding: '10px',
                                                 backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
                                             }}>${number.cost}</td>
                                             <td style={{
                                                 width: '350px',
-                                                textAlign: 'right',
+                                                textAlign: 'center',
                                                 paddingRight: '30px',
-                                                borderRight: '1px solid #dcdcdc',
                                                 backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
                                             }}
                                             >{formatDate(number.nextPaymentDate)}</td>
                                             <td style={{
                                                 width: '350px',
-                                                textAlign: 'right',
+                                                textAlign: 'center',
                                                 paddingRight: '30px',
-                                                borderRight: '1px solid #dcdcdc',
                                                 backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
                                             }}
                                             >{number.state}</td>
                                             <td style={{
                                                 width: '350px',
-                                                textAlign: 'right',
+                                                textAlign: 'center',
                                                 paddingRight: '30px',
                                                 borderRight: '1px solid #dcdcdc',
                                                 backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
