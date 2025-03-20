@@ -103,7 +103,7 @@ const Register: React.FC = () => {
                 lastName: formData.lastName,
                 phone: formData.phone,
                 email: formData.email,
-                extension: formData.extension?? 0,
+                extension: formData.extension,
                 emailConfirmation: formData.emailConfirmation,
                 sms: formData.sms,
                 llamada: formData.llamada,
@@ -132,8 +132,8 @@ const Register: React.FC = () => {
                 localStorage.setItem('userData', JSON.stringify(user));
                 navigate('/chooseroom');
             }
-        } catch {
-
+        } catch(error) {
+            console.error("Error en la solicitud:", error.response?.data || error.message);
             setIsButtonEnabled(true);
             handleOpenErrorModal();
         }
@@ -246,953 +246,964 @@ const Register: React.FC = () => {
 
 
     return (
-    //Color del fondo
-    <Box
-        sx={{
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "#F2F2F2"
-        }}
-    >
-        <PublicLayout>
-            <Container maxWidth="md">
-                <Box mt={4}>
-                    <Typography  
-                    sx={{
-                        fontStyle: "normal",
-                        fontVariant: "normal",
-                        fontWeight: "500",
-                        fontSize: "26px",
-                        lineHeight: "55px",
-                        fontFamily: "Poppins",
-                        color: "#330F1B",
-                        opacity: 1,
-                         }}>
-                        Registro
-                    </Typography>
-                    
-                    <Divider sx={{ marginBottom: 3 }} />
-                    <Paper elevation={3} sx={{ padding: 4, borderRadius: "12px" }}>
+        //Color del fondo
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                backgroundColor: "#F2F2F2"
+            }}
+        >
+            <PublicLayout>
+                <Container maxWidth="md">
+                    <Box mt={4}>
                         <Typography
                             sx={{
-                                position: "absolute",
-                                marginLeft: "470px",
                                 fontStyle: "normal",
                                 fontVariant: "normal",
-                                fontWeight: "398",
-                                fontSize: "14px",
-                                lineHeight: "22px",
+                                fontWeight: "500",
+                                fontSize: "26px",
+                                lineHeight: "55px",
                                 fontFamily: "Poppins",
-                                letterSpacing: "0px",
                                 color: "#330F1B",
-                                opacity: 0.7, 
-                                marginBottom: 3, // Espaciado inferior
-                            }}
-                        >
-                            *El asterisco indica los campos obligatorios.
+                                opacity: 1,
+                            }}>
+                            Registro
                         </Typography>
-                        <Grid container spacing={2}>
-                          
 
-                            {/* Client - Solo en la parte superior */}
-                            <Grid item xs={12} md={6}>
-                               
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        opacity: 1,
-                                        marginBottom: "4px",
-                                        color: !formData.client || (formData.client.length <= 40 && /^[a-zA-Z]+$/.test(formData.client))
-                                            ? "black"
-                                            : "red",
-                                    }}
-                                >
-                                    Cliente
-                                    <span style={{ color: "red" }}>*</span>
-                                </Typography>
-                                <TextField
-                                    name="client"
-                                    value={formData.client}
-                                    onChange={handleInputChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={
-                                        !!(formData.client && (formData.client.length > 40 || !/^[a-zA-Z]+$/.test(formData.client)))
-                                    } // Aseguramos que el resultado sea booleano
-                                    helperText={
-                                        formData.client && formData.client.length > 40
-                                            ? "Máximo 40 caracteres"
-                                            : formData.client && !/^[a-zA-Z]+$/.test(formData.client)
-                                                ? "Solo se permiten caracteres alfabéticos"
-                                                : ""
-                                                
-                                    }
-                                    /*Fuente del campo de texto*/
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        "& .MuiInputBase-input": {
+                        <Divider sx={{ marginBottom: 3 }} />
+                        <Paper elevation={3} sx={{ padding: 4, borderRadius: "12px", display: "flex", flexDirection: "column", height: "auto" }}>
+                            <Typography
+                                sx={{
+                                    position: "absolute",
+                                    marginLeft: "470px",
+                                    fontStyle: "normal",
+                                    fontVariant: "normal",
+                                    fontWeight: "398",
+                                    fontSize: "14px",
+                                    lineHeight: "22px",
+                                    fontFamily: "Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 0.7,
+                                    marginBottom: 3, // Espaciado inferior
+                                }}
+                            >
+                                *El asterisco indica los campos obligatorios.
+                            </Typography>
+                            <Grid container
+                                spacing={2}
+                                sx={{
+                                    flex: 1,
+                                    overflowY: "auto",
+                                    maxHeight: "450px",
+                                    paddingRight: 2,
+                                    scrollbarWidth: "thin",
+                                    scrollbarColor: "#d9d9d9 transparent",
+                                    "&::-webkit-scrollbar": { width: "8px" },
+                                    "&::-webkit-scrollbar-thumb": { background: "#d9d9d9", borderRadius: "4px" },
+                                }}>
+
+
+                                {/* Client - Solo en la parte superior */}
+                                <Grid item xs={12} md={6}>
+
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
                                             fontFamily: "Poppins",
-                                        },
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF",
-                                                                borderRadius: "8px",
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                                                                padding: "8px 12px",
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000",
-                                                                whiteSpace: "pre-line",
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            <>
-                                                            • Solo caracteres alfabéticos<br />
-                                                            • Longitud máxima de 40<br />
-                                                            caracteres
-                                                            </>
-                                                        </Box>
-                                                    }
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                                
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        
-                                                        <img
-                                                            src={
-                                                                formData.client &&
-                                                                    (formData.client.length > 40 || !/^[a-zA-Z]+$/.test(formData.client))
-                                                                    ? infoiconerror
-                                                                    : infoicon
-                                                            }
-                                                            alt="info-icon"
-                                                            style={{ width: 20, height: 20 }}
-                                                        />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-                            {/* Espacio para separación */}
-                            <Grid item xs={12} />
-
-                            {/* Name and Last Name */}
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName) ? "#D01247" : "#red",
-                                        opacity: 1,
-                                        marginBottom: "4px"
-                                    }}
-                                >
-                                    Nombre
-                                    <span style={{ color: "red" }}>*</span>
-                                </Typography>
-                                <TextField
-                                    name="firstName"
-                                    value={formData.firstName}
-                                    onChange={handleInputChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={!!(formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName))}
-                                    helperText={
-                                        formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName)
-                                            ? "Solo se permiten caracteres alfabéticos"
-                                            : ""
-                                    }
-                                    /*Fuente del campo de texto*/
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        "& .MuiInputBase-input": {
-                                            fontFamily: "Poppins",
-                                        },
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF",
-                                                                borderRadius: "8px",
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                                                                padding: "8px 12px",
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000",
-                                                                whiteSpace: "pre-line",
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            <>
-                                                            • Solo caracteres alfabéticos<br />
-                                                            • Longitud máxima de 40 caracteres
-                                                            </>
-                                                        </Box>
-                                                    }
-                                                    
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        <img
-                                                            src={
-                                                                formData.firstName &&
-                                                                    !/^[a-zA-Z]+$/.test(formData.firstName)
-                                                                    ? infoiconerror
-                                                                    : infoicon
-                                                            }
-                                                            alt="info-icon"
-                                                            style={{ width: 20, height: 20 }}
-                                                        />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName) ? "red" : "black",
-                                        opacity: 1,
-                                        marginBottom: "4px",
-                                    }}
-                                >
-                                    Apellido Paterno
-                                    <span style={{ color: "red" }}>*</span>
-                                </Typography>
-                                <TextField
-                                    name="lastName"
-                                    value={formData.lastName}
-                                    onChange={handleInputChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={!!(formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName))}
-                                    helperText={
-                                        formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName)
-                                            ? "Solo se permiten caracteres alfabéticos"
-                                            : ""
-                                    }
-                                    /*Fuente del campo de texto*/
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        "& .MuiInputBase-input": {
-                                            fontFamily: "Poppins",
-                                        },
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF",
-                                                                borderRadius: "8px",
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                                                                padding: "8px 12px",
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000",
-                                                                whiteSpace: "pre-line",
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            <>
-                                                            • Solo caracteres alfabéticos<br />
-                                                            • Longitud máxima de 40 caracteres
-                                                            </>
-                                                        </Box>
-                                                    }
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        <img
-                                                            src={
-                                                                formData.lastName &&
-                                                                    !/^[a-zA-Z]+$/.test(formData.lastName)
-                                                                    ? infoiconerror
-                                                                    : infoicon
-                                                            }
-                                                            alt="info-icon"
-                                                            style={{ width: 20, height: 20 }}
-                                                        />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-
-                            {/* Phone and Extension */}
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: errors.phone ? "red" : "black",
-                                        opacity: 1,
-                                        marginBottom: "4px",
-                                    }}
-                                >
-                                    Telefono
-                                    <span style={{ color: "red" }}>*</span>
-                                </Typography>
-                                <TextField
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={errors.phone}
-                                    helperText={errors.phone ? "Formato Inválido" : ""}
-                                    /*Fuente del campo de texto*/
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        "& .MuiInputBase-input": {
-                                            fontFamily: "Poppins",
-                                        },
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF", // Set background to white
-                                                                borderRadius: "8px", // Rounded corners
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
-                                                                padding: "8px 12px", // Padding for better spacing
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000", // Black font color
-                                                                whiteSpace: "pre-line", // Line breaks
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            <>
-                                                                • Solo caracteres numéricos<br />
-                                                                • Longitud exacta de 10 caracteres
-                                                            </>
-                                                        </Box>
-                                                    }
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        <img src={errors.phone ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    inputProps={{
-                                        maxLength: 10,
-                                    }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color:
-                                            formData.extension && !/^\d{1,5}$/.test(formData.extension)
-                                                ? "red" // Rojo si hay error
-                                                : "black", // Predeterminado si no hay error
-                                        opacity: 1,
-                                        marginBottom: "4px",
-                                    }}
-                                >
-                                    Extensión
-                                    
-                                </Typography>
-                                <TextField
-                                    name="extension"
-                                    value={formData.extension}
-                                    onChange={handleInputChange}
-                                    variant="outlined"
-                                    error={!!(formData.extension && !/^\d{1,5}$/.test(formData.extension))} // Error si no cumple la validación
-                                    helperText={
-                                        formData.extension && !/^\d{1,5}$/.test(formData.extension)
-                                            ? "Solo números con máximo 5 dígitos."
-                                            : ""
-                                    }
-                                    fullWidth
-                                    /*Fuente del campo de texto*/
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        "& .MuiInputBase-input": {
-                                            fontFamily: "Poppins",
-                                        },
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF", // Set background to white
-                                                                borderRadius: "8px", // Rounded corners
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
-                                                                padding: "8px 12px", // Padding for better spacing
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000", // Black font color
-                                                                whiteSpace: "pre-line", // Line breaks
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            <>
-                                                                • Solo caracteres numéricos<br />
-                                                                • Longitud máxima de 5 caracteres
-                                                            </>
-                                                        </Box>
-                                                    }
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        <img
-                                                            src={
-                                                                formData.extension && !/^\d{1,5}$/.test(formData.extension)
-                                                                    ? infoiconerror
-                                                                    : infoicon
-                                                            } // Cambia el ícono según el estado de error
-                                                            alt="info-icon"
-                                                            style={{ width: 20, height: 20 }}
-                                                        />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    inputProps={{
-                                        maxLength: 5,
-                                    }}
-                                />
-                            </Grid>
-
-                            {/* Email and Email Confirmation */}
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: errors.email ? "red" : "black",
-                                        opacity: 1,
-                                        marginBottom: "4px",
-                                    }}
-                                >
-                                    Correo electrónico
-                                    <span style={{ color: "red" }}>*</span>
-                                </Typography>
-                                <TextField
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={errors.email}
-                                    helperText={errors.email ? "Fomarto inválido" : ""}
-                                    /*Fuente del campo de texto*/
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        "& .MuiInputBase-input": {
-                                            fontFamily: "Poppins",
-                                        },
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF", // Set background to white
-                                                                borderRadius: "8px", // Rounded corners
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
-                                                                padding: "8px 12px", // Padding for better spacing
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000", // Black font color
-                                                                whiteSpace: "pre-line", // Line breaks
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            <>
-                                                                • Debe contener un formato válido<br />
-                                                                • Ejemplo: usuario@dominio.com
-                                                            </>
-                                                        </Box>
-                                                    }
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        <img src={errors.email ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: errors.emailConfirmation ? "red" : "black",
-                                        opacity: 1,
-                                        marginBottom: "4px",
-                                    }}
-                                >
-                                    Correo electrónico para envío de usuario
-                                    <span style={{ color: "red" }}>*</span>
-                                </Typography>
-                                <TextField
-                                    name="emailConfirmation"
-                                    value={formData.emailConfirmation}
-                                    onChange={handleInputChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={errors.emailConfirmation}
-                                    helperText={errors.emailConfirmation ? "Ingrese un correo válido" : ""}
-                                    /*Fuente del campo de texto*/
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        "& .MuiInputBase-input": {
-                                            fontFamily: "Poppins",
-                                        },
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF", // Set background to white
-                                                                borderRadius: "8px", // Rounded corners
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
-                                                                padding: "8px 12px", // Padding for better spacing
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000", // Black font color
-                                                                whiteSpace: "pre-line", // Line breaks
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            <>
-                                                                • Debe coincidir con el correo electrónico<br />
-                                                                • Ejemplo: usuario@dominio.com
-                                                            </>
-                                                        </Box>
-                                                    }
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        <img src={errors.emailConfirmation ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color:hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid) ? "red" : "black",
-                                        opacity: 1,
-                                        marginBottom: "4px",
-                                    }}
-                                >
-                                    Contraseña
-                                    <span style={{ color: "red" }}>*</span>
-                                </Typography>
-                                <TextField
-                                    name="password"
-                                    type="password"
-                                    value={password}
-                                    onChange={handlePasswordChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid)} // Mostrar error solo si ha tipeado
-                                    helperText={
-                                        hasPasswordInput && ( // Mostrar los errores solo si se ha tipeado
-                                            <>
-                                                {!passwordErrors.minLength && (
-                                                    <Typography variant="caption" color="error">
-                                                        • La contraseña debe tener al menos 8 caracteres.
-                                                    </Typography>
-                                                )}
-                                                {!passwordErrors.uppercase && (
-                                                    <Typography variant="caption" color="error">
-                                                        <br />• Debe contener al menos una letra mayúscula.
-                                                    </Typography>
-                                                )}
-                                                {!passwordErrors.lowercase && (
-                                                    <Typography variant="caption" color="error">
-                                                        <br />• Debe contener al menos una letra minúscula.
-                                                    </Typography>
-                                                )}
-                                                {!passwordErrors.number && (
-                                                    <Typography variant="caption" color="error">
-                                                        <br />• Debe contener al menos un número.
-                                                    </Typography>
-                                                )}
-                                            </>
-                                        )
-                                    }
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF", // Set background to white
-                                                                borderRadius: "8px", // Rounded corners
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
-                                                                padding: "8px 12px", // Padding for better spacing
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000", // Black font color
-                                                                whiteSpace: "pre-line", // Line breaks
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            • Mínimo 8 caracteres.
-                                                            <br />
-                                                            • Una letra mayúscula.
-                                                            <br />
-                                                            • Una letra minúscula.
-                                                            <br />
-                                                            • Un número.
-                                                        </Box>
-                                                    }
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        <img src={hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid) ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: (confirmPassword && confirmPassword !== password) ? "red" : "black",
-                                        opacity: 1,
-                                        marginBottom: "4px",
-                                    }}
-                                >
-                                    Confirmar Contraseña
-                                    <span style={{ color: "red" }}>*</span>
-                                </Typography>
-                                <TextField
-                                    name="confirmPassword"
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={handleConfirmPasswordChange}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={!!(confirmPassword && confirmPassword !== password)}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF", // Set background to white
-                                                                borderRadius: "8px", // Rounded corners
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
-                                                                padding: "8px 12px", // Padding for better spacing
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000", // Black font color
-                                                                whiteSpace: "pre-line", // Line breaks
-                                                                transform: "translate(-10px, -22px)",
-                                                                borderColor: "#00131F3D",
-                                                                borderStyle: "solid",
-                                                                borderWidth: "1px"
-                                                            }}
-                                                        >
-                                                            { confirmPassword && confirmPassword !== password
-                                                                ? "• Las contraseñas no coinciden"
-                                                                : "• Las contraseñas coinciden"}
-                                                        </Box>
-                                                    }
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                        <img src={(confirmPassword && confirmPassword !== password) ? infoiconerror: infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12}>
-                                {password && confirmPassword && !arePasswordsValid() && (
-                                    <Typography variant="caption" color="red" sx={{ marginBottom: 2 }}>
-                                        Asegúrate de cumplir con los requisitos de contraseña y que coincidan.
+                                            letterSpacing: "0px",
+                                            opacity: 1,
+                                            marginBottom: "4px",
+                                            color: !formData.client || (formData.client.length <= 40 && /^[a-zA-Z]+$/.test(formData.client))
+                                                ? "black"
+                                                : "red",
+                                        }}
+                                    >
+                                        Cliente
+                                        <span style={{ color: "red" }}>*</span>
                                     </Typography>
-                                )}
-                            </Grid>
-
-                            {/* Services */}
-                            <Grid item xs={12}>
-                                <Typography sx={{
-                                     fontStyle: "normal",
-                                     fontVariant: "normal",
-                                     fontWeight: "500",
-                                     fontSize: "16px",
-                                     fontFamily: "Poppins",
-                                     color: "#330F1B",
-                                     opacity: 1,
-                                     marginBottom: "-6px"
-                                     }}>
-                                    Servicios<span style={{ color: "red" }}>*</span>
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "flex-start",
-                                        fontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontFamily: "Poppins",
-                                    }}
-                                >
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={formData.sms}
-                                                sx={{
-                                                    borderRadius:'2px',
-                                                    color: '#91898C',
-                                                    '&.Mui-checked': { color: '#833A53' },
-                                                }}
-                                                onChange={(e) =>
-                                                    setFormData((prevState) => ({
-                                                        ...prevState,
-                                                        sms: e.target.checked,
-                                                    }))
-                                                }
-                                                
-                                            />
+                                    <TextField
+                                        name="client"
+                                        value={formData.client}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={
+                                            !!(formData.client && (formData.client.length > 40 || !/^[a-zA-Z]+$/.test(formData.client)))
+                                        } // Aseguramos que el resultado sea booleano
+                                        helperText={
+                                            formData.client && formData.client.length > 40
+                                                ? "Máximo 40 caracteres"
+                                                : formData.client && !/^[a-zA-Z]+$/.test(formData.client)
+                                                    ? "Solo se permiten caracteres alfabéticos"
+                                                    : ""
 
                                         }
-                                        label="SMS"
+                                        /*Fuente del campo de texto*/
                                         sx={{
-                                            fontFamily: "Poppins, sans-serif",
-                                            color: "#91898C", // Color del texto por defecto
-                                            "& .Mui-checked + span": { color: "#833A53" }, // Color del texto cuando está seleccionado
+                                            fontFamily: "Poppins",
+                                            "& .MuiInputBase-input": {
+                                                fontFamily: "Poppins",
+                                            },
                                         }}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={formData.llamada}
-                                                disabled={true} // Deshabilita el checkbox
-                                                sx={{
-                                                    color: '#91898C',
-                                                    '&.Mui-checked': { color: '#833A53' },
-                                                
-                                                }}
-                                                onChange={(e) =>
-                                                    setFormData((prevState) => ({
-                                                        ...prevState,
-                                                        llamada: e.target.checked,
-                                                    }))
-                                                }
-                                            />
-                                        } 
-                                        label="Llamada"
-                                        sx={{
-                                            fontFamily: "Poppins, sans-serif",
-                                            color: "#91898C", // Color del texto por defecto
-                                            "& .Mui-checked + span": { color: "#833A53" }, // Color del texto cuando está seleccionado
-                                        }}
-                                        
-                                    />
-                                </Box>
-                            </Grid>
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF",
+                                                                    borderRadius: "8px",
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                    padding: "8px 12px",
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000",
+                                                                    whiteSpace: "pre-line",
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Solo caracteres alfabéticos<br />
+                                                                    • Longitud máxima de 40<br />
+                                                                    caracteres
+                                                                </>
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
 
-                            {/* Buttons */}
-                            <Grid item xs={12}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <Button
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+
+                                                            <img
+                                                                src={
+                                                                    formData.client &&
+                                                                        (formData.client.length > 40 || !/^[a-zA-Z]+$/.test(formData.client))
+                                                                        ? infoiconerror
+                                                                        : infoicon
+                                                                }
+                                                                alt="info-icon"
+                                                                style={{ width: 20, height: 20 }}
+                                                            />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                                {/* Espacio para separación */}
+                                <Grid item xs={12} />
+
+                                {/* Name and Last Name */}
+                                <Grid item xs={12} md={6}>
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName) ? "#D01247" : "#red",
+                                            opacity: 1,
+                                            marginBottom: "4px"
+                                        }}
+                                    >
+                                        Nombre
+                                        <span style={{ color: "red" }}>*</span>
+                                    </Typography>
+                                    <TextField
+                                        name="firstName"
+                                        value={formData.firstName}
+                                        onChange={handleInputChange}
                                         variant="outlined"
-                                        color="secondary"
-                                        onClick={() => navigate('/')}  sx={{
-                                            border: "1px solid #CCCFD2",
-                                            borderRadius: "4px",
-                                            color: "#833A53",
-                                            backgroundColor: "transparent",
+                                        fullWidth
+                                        required
+                                        error={!!(formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName))}
+                                        helperText={
+                                            formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName)
+                                                ? "Solo se permiten caracteres alfabéticos"
+                                                : ""
+                                        }
+                                        /*Fuente del campo de texto*/
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            "& .MuiInputBase-input": {
+                                                fontFamily: "Poppins",
+                                            },
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF",
+                                                                    borderRadius: "8px",
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                    padding: "8px 12px",
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000",
+                                                                    whiteSpace: "pre-line",
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Solo caracteres alfabéticos<br />
+                                                                    • Longitud máxima de 40 caracteres
+                                                                </>
+                                                            </Box>
+                                                        }
+
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+                                                            <img
+                                                                src={
+                                                                    formData.firstName &&
+                                                                        !/^[a-zA-Z]+$/.test(formData.firstName)
+                                                                        ? infoiconerror
+                                                                        : infoicon
+                                                                }
+                                                                alt="info-icon"
+                                                                style={{ width: 20, height: 20 }}
+                                                            />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName) ? "red" : "black",
+                                            opacity: 1,
+                                            marginBottom: "4px",
+                                        }}
+                                    >
+                                        Apellido Paterno
+                                        <span style={{ color: "red" }}>*</span>
+                                    </Typography>
+                                    <TextField
+                                        name="lastName"
+                                        value={formData.lastName}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={!!(formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName))}
+                                        helperText={
+                                            formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName)
+                                                ? "Solo se permiten caracteres alfabéticos"
+                                                : ""
+                                        }
+                                        /*Fuente del campo de texto*/
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            "& .MuiInputBase-input": {
+                                                fontFamily: "Poppins",
+                                            },
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF",
+                                                                    borderRadius: "8px",
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                    padding: "8px 12px",
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000",
+                                                                    whiteSpace: "pre-line",
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Solo caracteres alfabéticos<br />
+                                                                    • Longitud máxima de 40 caracteres
+                                                                </>
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+                                                            <img
+                                                                src={
+                                                                    formData.lastName &&
+                                                                        !/^[a-zA-Z]+$/.test(formData.lastName)
+                                                                        ? infoiconerror
+                                                                        : infoicon
+                                                                }
+                                                                alt="info-icon"
+                                                                style={{ width: 20, height: 20 }}
+                                                            />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+
+                                {/* Phone and Extension */}
+                                <Grid item xs={12} md={6}>
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: errors.phone ? "red" : "black",
+                                            opacity: 1,
+                                            marginBottom: "4px",
+                                        }}
+                                    >
+                                        Telefono
+                                        <span style={{ color: "red" }}>*</span>
+                                    </Typography>
+                                    <TextField
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={errors.phone}
+                                        helperText={errors.phone ? "Formato Inválido" : ""}
+                                        /*Fuente del campo de texto*/
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            "& .MuiInputBase-input": {
+                                                fontFamily: "Poppins",
+                                            },
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF", // Set background to white
+                                                                    borderRadius: "8px", // Rounded corners
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                    padding: "8px 12px", // Padding for better spacing
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000", // Black font color
+                                                                    whiteSpace: "pre-line", // Line breaks
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Solo caracteres numéricos<br />
+                                                                    • Longitud exacta de 10 caracteres
+                                                                </>
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+                                                            <img src={errors.phone ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        inputProps={{
+                                            maxLength: 10,
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color:
+                                                formData.extension && !/^\d{1,5}$/.test(formData.extension)
+                                                    ? "red" // Rojo si hay error
+                                                    : "black", // Predeterminado si no hay error
+                                            opacity: 1,
+                                            marginBottom: "4px",
+                                        }}
+                                    >
+                                        Extensión
+
+                                    </Typography>
+                                    <TextField
+                                        name="extension"
+                                        value={formData.extension}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        error={!!(formData.extension && !/^\d{1,5}$/.test(formData.extension))} // Error si no cumple la validación
+                                        helperText={
+                                            formData.extension && !/^\d{1,5}$/.test(formData.extension)
+                                                ? "Solo números con máximo 5 dígitos."
+                                                : ""
+                                        }
+                                        fullWidth
+                                        /*Fuente del campo de texto*/
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            "& .MuiInputBase-input": {
+                                                fontFamily: "Poppins",
+                                            },
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF", // Set background to white
+                                                                    borderRadius: "8px", // Rounded corners
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                    padding: "8px 12px", // Padding for better spacing
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000", // Black font color
+                                                                    whiteSpace: "pre-line", // Line breaks
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Solo caracteres numéricos<br />
+                                                                    • Longitud máxima de 5 caracteres
+                                                                </>
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+                                                            <img
+                                                                src={
+                                                                    formData.extension && !/^\d{1,5}$/.test(formData.extension)
+                                                                        ? infoiconerror
+                                                                        : infoicon
+                                                                } // Cambia el ícono según el estado de error
+                                                                alt="info-icon"
+                                                                style={{ width: 20, height: 20 }}
+                                                            />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        inputProps={{
+                                            maxLength: 5,
+                                        }}
+                                    />
+                                </Grid>
+
+                                {/* Email and Email Confirmation */}
+                                <Grid item xs={12} md={6}>
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: errors.email ? "red" : "black",
+                                            opacity: 1,
+                                            marginBottom: "4px",
+                                        }}
+                                    >
+                                        Correo electrónico
+                                        <span style={{ color: "red" }}>*</span>
+                                    </Typography>
+                                    <TextField
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={errors.email}
+                                        helperText={errors.email ? "Fomarto inválido" : ""}
+                                        /*Fuente del campo de texto*/
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            "& .MuiInputBase-input": {
+                                                fontFamily: "Poppins",
+                                            },
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF", // Set background to white
+                                                                    borderRadius: "8px", // Rounded corners
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                    padding: "8px 12px", // Padding for better spacing
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000", // Black font color
+                                                                    whiteSpace: "pre-line", // Line breaks
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Debe contener un formato válido<br />
+                                                                    • Ejemplo: usuario@dominio.com
+                                                                </>
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+                                                            <img src={errors.email ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: errors.emailConfirmation ? "red" : "black",
+                                            opacity: 1,
+                                            marginBottom: "4px",
+                                        }}
+                                    >
+                                        Correo electrónico para envío de usuario
+                                        <span style={{ color: "red" }}>*</span>
+                                    </Typography>
+                                    <TextField
+                                        name="emailConfirmation"
+                                        value={formData.emailConfirmation}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={errors.emailConfirmation}
+                                        helperText={errors.emailConfirmation ? "Ingrese un correo válido" : ""}
+                                        /*Fuente del campo de texto*/
+                                        sx={{
+                                            fontFamily: "Poppins",
+                                            "& .MuiInputBase-input": {
+                                                fontFamily: "Poppins",
+                                            },
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF", // Set background to white
+                                                                    borderRadius: "8px", // Rounded corners
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                    padding: "8px 12px", // Padding for better spacing
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000", // Black font color
+                                                                    whiteSpace: "pre-line", // Line breaks
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Debe coincidir con el correo electrónico<br />
+                                                                    • Ejemplo: usuario@dominio.com
+                                                                </>
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+                                                            <img src={errors.emailConfirmation ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid) ? "red" : "black",
+                                            opacity: 1,
+                                            marginBottom: "4px",
+                                        }}
+                                    >
+                                        Contraseña
+                                        <span style={{ color: "red" }}>*</span>
+                                    </Typography>
+                                    <TextField
+                                        name="password"
+                                        type="password"
+                                        value={password}
+                                        onChange={handlePasswordChange}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid)} // Mostrar error solo si ha tipeado
+                                        helperText={
+                                            hasPasswordInput && ( // Mostrar los errores solo si se ha tipeado
+                                                <>
+                                                    {!passwordErrors.minLength && (
+                                                        <Typography variant="caption" color="error">
+                                                            • La contraseña debe tener al menos 8 caracteres.
+                                                        </Typography>
+                                                    )}
+                                                    {!passwordErrors.uppercase && (
+                                                        <Typography variant="caption" color="error">
+                                                            <br />• Debe contener al menos una letra mayúscula.
+                                                        </Typography>
+                                                    )}
+                                                    {!passwordErrors.lowercase && (
+                                                        <Typography variant="caption" color="error">
+                                                            <br />• Debe contener al menos una letra minúscula.
+                                                        </Typography>
+                                                    )}
+                                                    {!passwordErrors.number && (
+                                                        <Typography variant="caption" color="error">
+                                                            <br />• Debe contener al menos un número.
+                                                        </Typography>
+                                                    )}
+                                                </>
+                                            )
+                                        }
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF", // Set background to white
+                                                                    borderRadius: "8px", // Rounded corners
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                    padding: "8px 12px", // Padding for better spacing
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000", // Black font color
+                                                                    whiteSpace: "pre-line", // Line breaks
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                • Mínimo 8 caracteres.
+                                                                <br />
+                                                                • Una letra mayúscula.
+                                                                <br />
+                                                                • Una letra minúscula.
+                                                                <br />
+                                                                • Un número.
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+                                                            <img src={hasPasswordInput && !Object.values(passwordErrors).every((valid) => valid) ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <Typography
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal medium 16px/54px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: (confirmPassword && confirmPassword !== password) ? "red" : "black",
+                                            opacity: 1,
+                                            marginBottom: "4px",
+                                        }}
+                                    >
+                                        Confirmar Contraseña
+                                        <span style={{ color: "red" }}>*</span>
+                                    </Typography>
+                                    <TextField
+                                        name="confirmPassword"
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={handleConfirmPasswordChange}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={!!(confirmPassword && confirmPassword !== password)}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF", // Set background to white
+                                                                    borderRadius: "8px", // Rounded corners
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
+                                                                    padding: "8px 12px", // Padding for better spacing
+                                                                    font: "normal normal medium 16px/24px Poppins",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000", // Black font color
+                                                                    whiteSpace: "pre-line", // Line breaks
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                {confirmPassword && confirmPassword !== password
+                                                                    ? "• Las contraseñas no coinciden"
+                                                                    : "• Las contraseñas coinciden"}
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
+                                                                    padding: 0, // Removes padding around the Box
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton>
+                                                            <img src={(confirmPassword && confirmPassword !== password) ? infoiconerror : infoicon} alt="info-icon" style={{ width: 20, height: 20 }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12}>
+                                    {password && confirmPassword && !arePasswordsValid() && (
+                                        <Typography variant="caption" color="red" sx={{ marginBottom: 2 }}>
+                                            Asegúrate de cumplir con los requisitos de contraseña y que coincidan.
+                                        </Typography>
+                                    )}
+                                </Grid>
+
+                                {/* Services */}
+                                <Grid item xs={12}>
+                                    <Typography sx={{
+                                        fontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "500",
+                                        fontSize: "16px",
+                                        fontFamily: "Poppins",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        marginBottom: "-6px"
+                                    }}>
+                                        Servicios<span style={{ color: "red" }}>*</span>
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "flex-start",
+                                            fontStyle: "normal",
                                             fontVariant: "normal",
-                                            letterSpacing: "1.12px",
+                                            fontFamily: "Poppins",
+                                        }}
+                                    >
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={formData.sms}
+                                                    sx={{
+                                                        borderRadius: '2px',
+                                                        color: '#91898C',
+                                                        '&.Mui-checked': { color: '#833A53' },
+                                                    }}
+                                                    onChange={(e) =>
+                                                        setFormData((prevState) => ({
+                                                            ...prevState,
+                                                            sms: e.target.checked,
+                                                        }))
+                                                    }
+
+                                                />
+
+                                            }
+                                            label="SMS"
+                                            sx={{
+                                                fontFamily: "Poppins, sans-serif",
+                                                color: "#91898C", // Color del texto por defecto
+                                                "& .Mui-checked + span": { color: "#833A53" }, // Color del texto cuando está seleccionado
+                                            }}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={formData.llamada}
+                                                    disabled={true} // Deshabilita el checkbox
+                                                    sx={{
+                                                        color: '#91898C',
+                                                        '&.Mui-checked': { color: '#833A53' },
+
+                                                    }}
+                                                    onChange={(e) =>
+                                                        setFormData((prevState) => ({
+                                                            ...prevState,
+                                                            llamada: e.target.checked,
+                                                        }))
+                                                    }
+                                                />
+                                            }
+                                            label="Llamada"
+                                            sx={{
+                                                fontFamily: "Poppins, sans-serif",
+                                                color: "#91898C", // Color del texto por defecto
+                                                "& .Mui-checked + span": { color: "#833A53" }, // Color del texto cuando está seleccionado
+                                            }}
+
+                                        />
+                                    </Box>
+                                </Grid>
+
+                            </Grid>
+                            {/* Buttons */}
+                            <Box sx={{ display: "flex", justifyContent: "space-between", paddingTop: 2, backgroundColor: "white", position: "sticky", bottom: 0 }}>
+                                <Button
+                                    variant="outlined"
+                                    color="secondary"
+                                    onClick={() => navigate('/')} sx={{
+                                        border: "1px solid #CCCFD2",
+                                        borderRadius: "4px",
+                                        color: "#833A53",
+                                        backgroundColor: "transparent",
+                                        fontVariant: "normal",
+                                        letterSpacing: "1.12px",
                                         fontWeight: "600",
                                         fontSize: "14px",
                                         fontFamily: "Poppins",
-                                        opacity: 1, 
-                                            "&:hover": {
+                                        opacity: 1,
+                                        "&:hover": {
                                             backgroundColor: "#f3e6eb",
                                             fontStyle: "normal",
                                             fontVariant: "normal",
@@ -1201,423 +1212,429 @@ const Register: React.FC = () => {
                                             fontFamily: "Poppins",
                                             color: "#833A53",
                                             letterSpacing: "1.12px",
-                                            opacity: 1, 
+                                            opacity: 1,
                                         },
                                     }}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Box display="flex" flexDirection="column" alignItems="flex-start">
+                                    {/* Botón de registro */}
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        disabled={!isFormValid() || !arePasswordsValid()}
+                                        onClick={handleOpenModal}
+                                        sx={{
+                                            background: "#833A53 0% 0% no-repeat padding-box",
+                                            border: "1px solid #D4D1D1",
+                                            borderRadius: "4px",
+                                            opacity: 1,
+                                            fontVariant: "normal",
+                                            fontWeight: "500",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "1.12px",
+                                            color: "#FFFFFF", // Letra blanca
+                                        }}
                                     >
+                                        Registrarse
+                                    </Button>
+                                </Box>
+
+
+                            </Box>
+
+                        </Paper>
+                    </Box>
+                    {/* Modal de términos y condiciones */}
+                    <Modal
+                        open={modalOpen}
+                        onClose={handleModalClose}
+                        closeAfterTransition
+                        BackdropComponent={Backdrop}
+                        BackdropProps={{
+                            timeout: 500,
+                        }}
+                    >
+
+                        <Fade in={modalOpen}>
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                    width: "50%",
+                                    height: "85%",
+                                    bgcolor: "background.paper",
+                                    boxShadow: 24,
+                                    p: 4,
+                                    borderRadius: "12px",
+                                }}
+                            >
+                                {/* Botón de cierre (tache) */}
+                                <IconButton
+                                    onClick={handleModalClose}
+                                    sx={{
+                                        position: "absolute",
+                                        top: 6,
+                                        right: 12,
+                                        color: "#C6BFC2",
+                                        fontSize: "18px",
+                                    }}
+                                >
+                                    ✕
+                                </IconButton>
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        fontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "550",
+                                        fontSize: "26px",
+                                        lineHeight: "55px",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        marginBottom: 2,
+                                        marginTop: -1,
+                                    }}
+                                >
+                                    Términos y condiciones
+
+                                </Typography>
+                                <Divider sx={{ width: "100%", marginBottom: 2, marginTop: -1 }} />
+                                <Box
+                                    ref={termsContainerRef}
+                                    sx={{
+                                        maxHeight: "500px",
+                                        overflowY: "auto",
+                                        paddingRight: 2,
+                                        scrollbarWidth: "thin", // Para navegadores compatibles
+                                        scrollbarColor: "#d9d9d9 transparent", // Colores para Firefox
+                                        "&::-webkit-scrollbar": {
+                                            width: "8px",
+                                        },
+                                        "&::-webkit-scrollbar-track": {
+                                            background: "transparent",
+                                        },
+                                        "&::-webkit-scrollbar-thumb": {
+                                            background: "#d9d9d9",
+                                            borderRadius: "4px",
+                                        },
+                                        "&::-webkit-scrollbar-button": {
+                                            display: "none", // Ocultar flechas del scroll
+                                        },
+                                    }}
+                                >
+                                    {/* Contenido de los términos y condiciones */}
+                                    <Typography sx={{
+                                        textAlign: "left",
+                                        fontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "500",
+                                        fontSize: "16px",
+                                        lineHeight: "22px",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                    }} paragraph>
+                                        Aparte del crédito disponible en su cuenta, no establecemos un tope en el número de mensajes que puede enviar a través de nuestro servicio.
+                                    </Typography>
+                                    <Typography component="ul" variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "500",
+                                        fontSize: "16px",
+                                        lineHeight: "22px",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+
+                                    }}>
+                                        <li>Siguiendo estos términos y condiciones.</li>
+                                        <li>Con fines estrictamente apegados a la ley.</li>
+                                        <li>Respetando todas las leyes y normativas aplicables, tanto locales como internacionales.</li>
+                                        <li>Para los objetivos por los que fueron creados.</li>
+                                    </Typography>
+                                    <Typography variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "500",
+                                        fontSize: "16px",
+                                        lineHeight: "22px",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+
+                                    }} paragraph>
+                                        Al emplear nuestros servicios, deberá evitar:
+                                    </Typography>
+                                    <Typography component="ul" sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    }} variant="body1">
+                                        <li>Enviar mensajes SMS no solicitados o spam.</li>
+                                        <li>Alterar los detalles de origen en cualquier mensaje electrónico.</li>
+                                        <li>
+                                            Enviar mensajes que sean difamatorios, discriminatorios, obscenos, ofensivos,
+                                            amenazantes, abusivos, acosadores, dañinos, o violentos.
+                                        </li>
+                                        <li>Participar en fraudes o esquemas piramidales.</li>
+                                        <li>Transmitir códigos maliciosos como virus o troyanos.</li>
+                                        <li>Violar la privacidad de terceros.</li>
+                                    </Typography>
+                                    <Typography variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    }} paragraph>
+                                        Además de los términos ya establecidos, esta sección es aplicable si se emplea nuestro servicio de API.
+                                    </Typography>
+                                    <Typography variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    }} paragraph>
+                                        Hemos habilitado la posibilidad de que las empresas o los individuos se conecten a nuestro servidor para facilitar el envío de mensajes de texto directamente a nuestro sistema de SMS.
+                                    </Typography>
+                                    <Typography variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    }} paragraph>
+                                        Nos reservamos el derecho de aprobar o rechazar conexiones de clientes y APIs según nuestro propio criterio.
+                                    </Typography>
+                                    <Typography variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    }} paragraph>
+                                        Promovemos activamente las políticas contra el envío de spam (mensajes no solicitados).
+                                    </Typography>
+                                    <Typography variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    }} paragraph>
+                                        Proporcionaremos especificaciones para las conexiones API y nos esforzaremos por mantenerlas actualizadas. Estas especificaciones pueden estar incompletas y estar sujetas a cambios sin previo aviso.
+                                    </Typography>
+                                    <Typography variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    }} paragraph>
+                                        Para todos los servicios de mensajería SMS, le proporcionaremos un nombre de usuario y contraseña. Cualquier medida de seguridad adicional, incluyendo pero no limitado a la gestión de accesos y contraseñas, uso indebido, etc., quedará bajo responsabilidad del usuario.
+                                    </Typography>
+                                    <Typography variant="body1" sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                    }} paragraph>
+                                        EL CLIENTE será responsable totalmente de la gestión de las contraseñas y acceso al sistema donde se utiliza el servicio de SMS. CENTERNEXT quedará exento de cualquier uso inapropiado o indebido realizado por cuentas que gestionan el SMS.
+                                    </Typography>
+                                </Box>
+                                <Divider sx={{ marginBottom: 2, marginTop: 3.5 }} />
+                                <Box display="flex" justifyContent="space-between" mt={3.5} // Ajusta para subir o bajar los botones
+                                    sx={{
+                                        position: "absolute", // Fija los botones dentro del modal
+                                        bottom: "16px", // Asegura que queden dentro del Paper
+                                        left: 0,
+                                        width: "100%", // Ocupa todo el ancho del Paper
+                                        backgroundColor: "white",
+                                        padding: "12px 24px",
+                                        borderTop: "1px solid #E0E0E0", // Opcional: agrega una línea divisoria
+                                    }}>
+                                    <Button variant="outlined" onClick={handleModalClose}
+                                        sx={{
+                                            border: "1px solid #CCCFD2",
+                                            borderRadius: "4px",
+                                            color: "#833A53",
+                                            backgroundColor: "transparent",
+                                            fontVariant: "normal",
+                                            letterSpacing: "1.12px",
+                                            fontWeight: "600",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins",
+                                            height: "36px",
+                                            width: "116px",
+                                            opacity: 1,
+                                            marginRight: "20px",
+                                            marginTop: "-5px",
+                                            "&:hover": {
+                                                backgroundColor: "#f3e6eb",
+                                                fontStyle: "normal",
+                                                fontVariant: "normal",
+                                                fontWeight: "600",
+                                                fontSize: "14px",
+                                                fontFamily: "Poppins",
+                                                color: "#833A53",
+                                                letterSpacing: "1.12px",
+                                                opacity: 1,
+                                            },
+                                        }}>
                                         Cancelar
                                     </Button>
-                                    <Box display="flex" flexDirection="column" alignItems="flex-start">
-                                        {/* Botón de registro */}
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            disabled={!isFormValid() || !arePasswordsValid()}
-                                            onClick={handleOpenModal}
-                                            sx={{
-                                                background: "#833A53 0% 0% no-repeat padding-box",
-                                                border: "1px solid #D4D1D1",
-                                                borderRadius: "4px",
-                                                opacity: 1,
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleSubmit}
+                                        disabled={!isButtonEnabled}
+                                        sx={{
+                                            fontStyle: "normal",
+                                            fontVariant: "normal",
+                                            fontWeight: "500",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "1.12px",
+                                            height: "36px",
+                                            width: "114px",
+                                            color: "#FFFFFF",
+                                            opacity: 0.9,
+                                            marginLeft: "20px",
+                                            marginTop: "-5px",
+                                            backgroundColor: "#833A53",
+
+                                            padding: "10px 20px",
+                                            textTransform: "uppercase",
+
+                                            "&:hover": {
+                                                backgroundColor: "#A54261",
+                                                fontStyle: "normal",
                                                 fontVariant: "normal",
-                                                fontWeight: "500",
+                                                fontWeight: "600",
                                                 fontSize: "14px",
                                                 fontFamily: "Poppins",
                                                 letterSpacing: "1.12px",
-                                                color: "#FFFFFF", // Letra blanca
-                                            }}
-                                        >
-                                            Registrarse
-                                        </Button>
-                                    </Box>
-
-
+                                                color: "#FFFFFF",
+                                                opacity: 1,
+                                            },
+                                        }}
+                                    >
+                                        Aceptar
+                                    </Button>
                                 </Box>
-                            </Grid>
+                            </Box>
+                        </Fade>
+                    </Modal>
 
-                        </Grid>
-
-                    </Paper>
-                </Box>
-                {/* Modal de términos y condiciones */}
-                <Modal
-                    open={modalOpen}
-                    onClose={handleModalClose}
-                    closeAfterTransition
-                    BackdropComponent={Backdrop}
-                    BackdropProps={{
-                        timeout: 500,
-                    }}
-                >
-                    
-                    <Fade in={modalOpen}>
-                        <Box
-                            sx={{
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
-                                width: "50%",
-                                height: "85%",
-                                bgcolor: "background.paper",
-                                boxShadow: 24,
-                                p: 4,
-                                borderRadius: "12px",
-                            }}
-                        >
-                            {/* Botón de cierre (tache) */}
-                            <IconButton
-                                onClick={handleModalClose}
+                    <Modal
+                        open={errorModalOpen}
+                        onClose={handleErrorModalClose}
+                        closeAfterTransition
+                        BackdropComponent={Backdrop}
+                        BackdropProps={{
+                            timeout: 500,
+                        }}
+                    >
+                        <Fade in={errorModalOpen}>
+                            <Box
                                 sx={{
                                     position: "absolute",
-                                    top: 6,
-                                    right: 12,
-                                    color: "#C6BFC2",
-                                    fontSize: "18px",
+                                    top: "310px", // Posición desde la parte superior
+                                    left: "38%", // Posición desde la izquierda
+                                    width: "480px", // Ancho del modal
+                                    height: "228px", // Alto del modal
+                                    bgcolor: "#FFFFFF", // Fondo blanco
+                                    boxShadow: "0px 0px 16px #00131F52", // Sombra del modal
+                                    borderRadius: "8px", // Bordes redondeados
+                                    opacity: 1, // Opacidad completa
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "space-between",
+                                    p: 3, // Padding interno
                                 }}
                             >
-                                ✕
-                            </IconButton>
-                            <Typography
-                                sx={{
-                                    textAlign: "left",
-                                    fontStyle: "normal",
-                                    fontVariant: "normal",
-                                    fontWeight: "500",
-                                    fontSize: "26px",
-                                    lineHeight: "55px",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1, 
-                                    marginBottom: 2,
-                                    marginTop: -1,
-                                }}
-                            >
-                                Términos y condiciones
-                                
-                            </Typography>
-                            <Divider sx={{ width: "100%", marginBottom: 2, marginTop: -1 }} />
-                            <Box
-                                ref={termsContainerRef}
-                                sx={{
-                                    maxHeight: "580px",
-                                    overflowY: "auto",
-                                    paddingRight: 2,
-                                    scrollbarWidth: "thin", // Para navegadores compatibles
-                                    scrollbarColor: "#d9d9d9 transparent", // Colores para Firefox
-                                    "&::-webkit-scrollbar": {
-                                        width: "8px",
-                                    },
-                                    "&::-webkit-scrollbar-track": {
-                                        background: "transparent",
-                                    },
-                                    "&::-webkit-scrollbar-thumb": {
-                                        background: "#d9d9d9",
-                                        borderRadius: "4px",
-                                    },
-                                    "&::-webkit-scrollbar-button": {
-                                        display: "none", // Ocultar flechas del scroll
-                                    },
-                                }}
-                            >
-                                {/* Contenido de los términos y condiciones */}
-                                <Typography sx={{
-                                    textAlign: "left",
-                                    fontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontWeight: "500",
-                                        fontSize: "16px",
-                                        lineHeight: "22px",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: "#330F1B",
-                                        opacity: 1,
-                                }} paragraph>
-                                    Aparte del crédito disponible en su cuenta, no establecemos un tope en el número de mensajes que puede enviar a través de nuestro servicio.
-                                </Typography>
-                                <Typography component="ul" variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontWeight: "500",
-                                        fontSize: "16px",
-                                        lineHeight: "22px",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: "#330F1B",
-                                        opacity: 1,
-                                    
-                                }}>
-                                    <li>Siguiendo estos términos y condiciones.</li>
-                                    <li>Con fines estrictamente apegados a la ley.</li>
-                                    <li>Respetando todas las leyes y normativas aplicables, tanto locales como internacionales.</li>
-                                    <li>Para los objetivos por los que fueron creados.</li>
-                                </Typography>
-                                <Typography variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontWeight: "500",
-                                        fontSize: "16px",
-                                        lineHeight: "22px",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: "#330F1B",
-                                        opacity: 1,
-                                    
-                                }} paragraph>
-                                    Al emplear nuestros servicios, deberá evitar:
-                                </Typography>
-                                <Typography component="ul" sx={{
-                                    textAlign: "left",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                }} variant="body1">
-                                    <li>Enviar mensajes SMS no solicitados o spam.</li>
-                                    <li>Alterar los detalles de origen en cualquier mensaje electrónico.</li>
-                                    <li>
-                                        Enviar mensajes que sean difamatorios, discriminatorios, obscenos, ofensivos,
-                                        amenazantes, abusivos, acosadores, dañinos, o violentos.
-                                    </li>
-                                    <li>Participar en fraudes o esquemas piramidales.</li>
-                                    <li>Transmitir códigos maliciosos como virus o troyanos.</li>
-                                    <li>Violar la privacidad de terceros.</li>
-                                </Typography>
-                                <Typography variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                }} paragraph>
-                                    Además de los términos ya establecidos, esta sección es aplicable si se emplea nuestro servicio de API.
-                                </Typography>
-                                <Typography variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                }} paragraph>
-                                    Hemos habilitado la posibilidad de que las empresas o los individuos se conecten a nuestro servidor para facilitar el envío de mensajes de texto directamente a nuestro sistema de SMS.
-                                </Typography>
-                                <Typography variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                }} paragraph>
-                                    Nos reservamos el derecho de aprobar o rechazar conexiones de clientes y APIs según nuestro propio criterio.
-                                </Typography>
-                                <Typography variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                }} paragraph>
-                                    Promovemos activamente las políticas contra el envío de spam (mensajes no solicitados).
-                                </Typography>
-                                <Typography variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                }} paragraph>
-                                    Proporcionaremos especificaciones para las conexiones API y nos esforzaremos por mantenerlas actualizadas. Estas especificaciones pueden estar incompletas y estar sujetas a cambios sin previo aviso.
-                                </Typography>
-                                <Typography variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                }} paragraph>
-                                    Para todos los servicios de mensajería SMS, le proporcionaremos un nombre de usuario y contraseña. Cualquier medida de seguridad adicional, incluyendo pero no limitado a la gestión de accesos y contraseñas, uso indebido, etc., quedará bajo responsabilidad del usuario.
-                                </Typography>
-                                <Typography variant="body1" sx={{
-                                    textAlign: "left",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                }} paragraph>
-                                    EL CLIENTE será responsable totalmente de la gestión de las contraseñas y acceso al sistema donde se utiliza el servicio de SMS. CENTERNEXT quedará exento de cualquier uso inapropiado o indebido realizado por cuentas que gestionan el SMS.
-                                </Typography>
-                            </Box>
-                            <Divider sx={{ marginBottom: 2, marginTop: 3.5 }} />
-                            <Box display="flex" justifyContent="space-between" mt={3}>
-                                <Button variant="outlined" onClick={handleModalClose} 
+                                <Typography
                                     sx={{
-                                        border: "1px solid #CCCFD2",
-                                        borderRadius: "4px",
-                                        color: "#833A53",
-                                        backgroundColor: "transparent",
-                                        fontVariant: "normal",
-                                        letterSpacing: "1.12px",
-                                        fontWeight: "600",
-                                        fontSize: "14px",
-                                        fontFamily: "Poppins",
-                                        height: "36px",
-                                        width: "116px",
-                                        opacity: 1,
-                                        marginRight: "20px",
-                                        marginTop: "-5px",
-                                        "&:hover": {
-                                        backgroundColor: "#f3e6eb",
+                                        textAlign: "left",
                                         fontStyle: "normal",
                                         fontVariant: "normal",
                                         fontWeight: "600",
-                                        fontSize: "14px",
                                         fontFamily: "Poppins",
-                                        color: "#833A53",
-                                        letterSpacing: "1.12px",
-                                        opacity: 1, 
-                                    },
-                                }}>
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleSubmit}
-                                    disabled={!isButtonEnabled}
-                                    sx={{
-                                        fontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontWeight: "500",
-                                        fontSize: "14px",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "1.12px",
-                                        height: "36px",
-                                        width: "114px",
-                                        color: "#FFFFFF",
-                                        opacity: 0.9,
-                                        marginLeft: "20px",
-                                        marginTop: "-5px",
-                                                backgroundColor: "#833A53",
-                                                
-                                                padding: "10px 20px",
-                                                textTransform: "uppercase",
-                                                
-                                                "&:hover": {
-                                                    backgroundColor: "#A54261",
-                                                    fontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontWeight: "600",
-                                        fontSize: "14px",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "1.12px",
-                                        color: "#FFFFFF",
+                                        letterSpacing: "0px",
+                                        color: "#574B4F",
                                         opacity: 1,
-                                                },
-                                            }}
+                                        fontSize: "20px", // Tamaño de la fuente
+                                        lineHeight: "22px",
+                                        marginBottom: 2,
+                                    }}
                                 >
-                                    Aceptar
-                                </Button>
-                            </Box>
-                        </Box>
-                    </Fade>
-                </Modal>
-
-                <Modal
-                    open={errorModalOpen}
-                    onClose={handleErrorModalClose}
-                    closeAfterTransition
-                    BackdropComponent={Backdrop}
-                    BackdropProps={{
-                        timeout: 500,
-                    }}
-                >
-                    <Fade in={errorModalOpen}>
-                        <Box
-                            sx={{
-                                position: "absolute",
-                                top: "310px", // Posición desde la parte superior
-                                left: "38%", // Posición desde la izquierda
-                                width: "480px", // Ancho del modal
-                                height: "228px", // Alto del modal
-                                bgcolor: "#FFFFFF", // Fondo blanco
-                                boxShadow: "0px 0px 16px #00131F52", // Sombra del modal
-                                borderRadius: "8px", // Bordes redondeados
-                                opacity: 1, // Opacidad completa
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "space-between",
-                                p: 3, // Padding interno
-                            }}
-                        >
-                            <Typography
-                                sx={{
-                                    textAlign: "left",
-                                    fontStyle: "normal",
-                                    fontVariant: "normal",
-                                    fontWeight: "600",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#574B4F",
-                                    opacity: 1,
-                                    fontSize: "20px", // Tamaño de la fuente
-                                    lineHeight: "22px",
-                                    marginBottom: 2,
-                                }}
-                            >
-                                Error al realizar registro
-                            </Typography>
-                            <Typography
-                                sx={{
-                                    textAlign: "left",
-                                    font: "normal normal normal 16px/22px Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                }}
-                            >
-                                Algo salió mal. Inténtelo de nuevo o regrese más tarde.
-                            </Typography>
-                            <Box display="flex" justifyContent="flex-end" mt={3}>
-                                <Button
-                                    variant="text"
-                                    onClick={handleErrorModalClose}
+                                    Error al realizar registro
+                                </Typography>
+                                <Typography
                                     sx={{
-                                        border: "1px solid #CCCFD2",
-                                        borderRadius: "4px",
-                                        color: "#833A53",
-                                        fontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontWeight: "600",
-                                        fontSize: "14px",
-                                        fontFamily: "Poppins",
+                                        textAlign: "left",
+                                        font: "normal normal normal 16px/22px Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
                                         opacity: 1,
-                                        backgroundColor: "transparent",
-                                        "&:hover": {
-                                        backgroundColor: "#f3e6eb",
-                                    },
-                                }}>
-                                    Cerrar
-                                </Button>
+                                    }}
+                                >
+                                    Algo salió mal. Inténtelo de nuevo o regrese más tarde.
+                                </Typography>
+                                <Box display="flex" justifyContent="flex-end" mt={3}>
+                                    <Button
+                                        variant="text"
+                                        onClick={handleErrorModalClose}
+                                        sx={{
+                                            border: "1px solid #CCCFD2",
+                                            borderRadius: "4px",
+                                            color: "#833A53",
+                                            fontStyle: "normal",
+                                            fontVariant: "normal",
+                                            fontWeight: "600",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins",
+                                            opacity: 1,
+                                            backgroundColor: "transparent",
+                                            "&:hover": {
+                                                backgroundColor: "#f3e6eb",
+                                            },
+                                        }}>
+                                        Cerrar
+                                    </Button>
+                                </Box>
                             </Box>
-                        </Box>
-                    </Fade>
-                </Modal>
+                        </Fade>
+                    </Modal>
 
 
-            </Container>
-        </PublicLayout>
-    </Box>
+                </Container>
+            </PublicLayout>
+        </Box>
     );
 };
 export default Register;

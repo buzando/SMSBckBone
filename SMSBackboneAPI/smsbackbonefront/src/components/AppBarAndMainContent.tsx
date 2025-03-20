@@ -98,7 +98,7 @@ const pages: Page[] = [
             { id: 5, title: 'Ajustes de pago', path: '/PaymentSettings', icon: <SettingsSuggestIcon sx={{ color: 'white' }} /> },
         ]
     },
-    { id: 4, title: 'Reportes', path: '/reports', icon: <Iconreports sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 4, title: 'Reportes', path: '/Reports', icon: <Iconreports sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
         id: 5, title: 'SMS', path: '/numbers', icon: <Iconmesage sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Configuración SMS', path: '/sms', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
