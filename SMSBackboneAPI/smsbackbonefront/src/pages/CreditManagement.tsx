@@ -223,9 +223,15 @@ const CreditManagement: React.FC = () => {
 
     return (
         <Box p={4}
-        sx={{ backgroundColor: "#F2F2F2" }}
+        sx={{ 
+            position: "sticky",
+            top: 0,
+            backgroundColor: "#F2F2F2",
+            zIndex: 10,
+            paddingBottom: "16px" 
+            }}
         >
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2, fontFamily: "Poppins, sans-serif", }}>
+            <Typography variant="h4" sx={{ fontWeight: "500", mb: 2, fontFamily: "Poppins, sans-serif", }}>
                 Gestión
             </Typography>
             <Divider sx={{ mb: 3 }} />
@@ -294,7 +300,7 @@ const CreditManagement: React.FC = () => {
                 <Box
                     sx={{
                         display: 'grid', // Cambiamos el diseño a grid
-                        gap: '5px', // Espaciado entre los recuadros
+                        gap: '10px', // Espaciado entre los recuadros
                         gridTemplateColumns: '430px 430px', // Dos columnas con ancho fijo
                         columnGap: '10px', // Espacio horizontal entre columnas
                     }}
@@ -371,8 +377,8 @@ const CreditManagement: React.FC = () => {
                                                 src={HouseIcon}
                                                 alt="Rooms Icon"
                                                 style={{
-                                                    width: '40px', // Ajustado al tamaño del icono anterior
-                                                    height: '40px',
+                                                    width: '46px', // Ajustado al tamaño del icono anterior
+                                                    height: '46px',
                                                     marginRight: '16px',
                                                 }}
                                             />

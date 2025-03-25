@@ -127,7 +127,7 @@ const PaymentHistoric: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0' }}>
+        <div style={{ padding: '20px', maxWidth: '1000px', marginTop: '-80px' }}>
             <h2
                 style={{
                     textAlign: 'left',

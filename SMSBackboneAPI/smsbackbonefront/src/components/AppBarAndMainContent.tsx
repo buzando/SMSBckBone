@@ -55,7 +55,7 @@ import Iconmesage from '../assets/Iconmesage.svg';
 import Iconreports from '../assets/Iconreports.svg';
 import IconUserArrow from '../assets/CHEVRON_USER.svg';
 import CloseSession from '../assets/Icon-CerrarSesion.svg';
-import Iconfacturation from '../assets/Iconfacturation.svg';
+import facturicone from '../assets/facturicone.svg';
 import Iconhelpu from '../assets/Iconhelpu.svg';
 
 const drawerWidth = 278;
@@ -87,7 +87,7 @@ const pages: Page[] = [
         ]
     },
     {
-        id: 3, title: 'Facturación', path: '/billing', icon: <Iconfacturation sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 3, title: 'Facturación', path: '/billing', icon: <facturicone sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Historial de pagos', path: '/PaymentHistoric', icon: <HistoryIcon sx={{ color: 'white' }} /> },
             { id: 2, title: 'Métodos de pago', path: '/PaymentMethods', icon: <PaymentIcon sx={{ color: 'white' }} /> },
             { id: 3, title: 'Facturación', path: '/BillingInformation', icon: <DataUsageIcon sx={{ color: 'white' }} /> },
@@ -1415,7 +1415,7 @@ backgroundColor: "#5A4A63CC",
                     {/* Menú de Facturación */}
                     <ListItem disablePadding>
                         <ListItemButton onClick={() => setOpenSubMenuBilling(!openSubMenuBilling)} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconfacturation" src={Iconfacturation} style={{ width: 35, height: 20 }}/>
+                        <img alt="facturicone" src={facturicone} style={{ width: 35, height: 20 }}/>
                             <ListItemText
                                 primary="Facturación"
                                 primaryTypographyProps={{
@@ -1430,7 +1430,7 @@ backgroundColor: "#5A4A63CC",
                     </ListItem>
                     <Collapse in={openSubMenuBilling} timeout="auto">
                         {/* Historial de pagos */}
-                            <Link to="/billing/paymenthistory" style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <Link to="/Paymenthistoric" style={{ textDecoration: 'none', color: 'inherit' }}>
                             <ListItemButton
                             sx={{
                                 pl: 4,
@@ -1449,7 +1449,7 @@ backgroundColor: "#5A4A63CC",
                             },
                             },
                             }}
-                            selected={location.pathname === '/billing/paymenthistory'}
+                            selected={location.pathname === '/Paymenthistoric'}
                             onClick={() => handleSelection('Historial de pagos')}
                             >
                             {/*Linea Gris*/}
@@ -1475,7 +1475,7 @@ backgroundColor: "#5A4A63CC",
                             </ListItemButton>
                             </Link>
                         {/* Métodos de pago */}
-                        <Link to="/billing/paymentmethods" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link to="/Paymentmethods" style={{ textDecoration: 'none', color: 'inherit' }}>
                             <ListItemButton
                             sx={{
                                 pl: 4,
@@ -1494,7 +1494,7 @@ backgroundColor: "#5A4A63CC",
                             },
                             },
                             }}
-                            selected={location.pathname === '/billing/paymentmethods'}
+                            selected={location.pathname === '/Paymentmethods'}
                             onClick={() => handleSelection('Métodos de pago')}
                             >
                             {/*Linea Gris*/}
@@ -1521,7 +1521,7 @@ backgroundColor: "#5A4A63CC",
                             </Link>
 
                         {/* Ajustes de Pago */}
-                        <Link to="/billing/paymentsettings" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link to="/Paymentsettings" style={{ textDecoration: 'none', color: 'inherit' }}>
                             <ListItemButton
                             sx={{
                                 pl: 4,
@@ -1540,7 +1540,8 @@ backgroundColor: "#5A4A63CC",
                             },
                             },
                             }}
-                            selected={location.pathname === '/billing/paymentsettings'}
+                            selected={location.pathname === '/Paymentsettings'}
+                            onClick={() => handleSelection('Ajustes de pago')}
                             >
                             {/*Linea Gris*/}
                             
@@ -1550,7 +1551,7 @@ backgroundColor: "#5A4A63CC",
                             		left: "35px",                                    
                             		width: "4px",                                    
                             		height: "35px",                                    
-                            		backgroundColor: "#9F94A5",                        
+                                    backgroundColor: selectedLink === 'Ajustes de pago' ? '#FFFFFF' : '#9F94A5',                         
                             }}/>                                    
                             <ListItemText
                             	primary="Ajustes de pago"
@@ -1563,7 +1564,61 @@ backgroundColor: "#5A4A63CC",
                             	marginTop: "-5px"
                             }}/>
                             </ListItemButton>
-                            </Link>                            
+                            </Link>
+                            
+
+
+                           {/* Costos */}
+                        <Link to="/Costs" style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <ListItemButton
+                            sx={{
+                                pl: 4,
+	                            position: 'relative',
+	                            '&.Mui-selected': {
+	                            backgroundColor: '#290013',
+	                            color: '#FFFFFF',
+	                            '&::before': {
+	                            content: '""',
+	                            position: 'absolute',
+	                            left: 0,
+	                            top: 0,
+	                            bottom: 0,
+	                            width: '4px',
+	                            backgroundColor: '#FFFFFF',
+                            },
+                            },
+                            }}
+                            selected={location.pathname === '/Costs'}
+                            onClick={() => handleSelection('Costos')}
+                            >
+                            {/*Linea Gris*/}
+                            
+                            <Box 
+	                            sx={{                                    
+                            		position: "absolute",                                    
+                            		left: "35px",                                    
+                            		width: "4px",                                    
+                            		height: "35px",                                    
+                                    backgroundColor: selectedLink === 'Costos' ? '#FFFFFF' : '#9F94A5',                        
+                            }}/>                                    
+                            <ListItemText
+                            	primary="Costos"
+                            	primaryTypographyProps={{                                        
+                            	fontFamily: "Poppins",                                        
+                            	marginLeft: '30px',
+                            	fontSize: '14px',
+                            	color: selectedLink === 'Costos' ? '#FFFFFF' : '#9F94A5',
+                            	marginBottom: "-5px",                                        
+                            	marginTop: "-5px"
+                            }}/>
+                            </ListItemButton>
+                            </Link>
+
+
+
+
+
+                                                        
                             
                     </Collapse>
 
@@ -1599,6 +1654,7 @@ backgroundColor: "#5A4A63CC",
                 overflow: 'hidden',
                 margin: 0,
                 marginLeft: "277px",
+                marginTop: "70px",
                 padding: 0,
                 backgroundColor: '#F2F2F2', // 🔥 Asegura que todo el fondo sea gris
                 display: 'flex',

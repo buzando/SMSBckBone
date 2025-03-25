@@ -475,7 +475,7 @@ const PaymentSettings: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#ffffff', borderRadius: '8px' }}>
+        <div style={{ padding: '20px', maxWidth: '1000px', marginTop: "-20px", borderRadius: '8px' }}>
             <Backdrop
                 open={loading}
                 sx={{

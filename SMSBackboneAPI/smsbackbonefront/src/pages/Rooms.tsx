@@ -274,8 +274,15 @@ const Rooms: React.FC = () => {
     };
 
     return (
-        <Box p={4} sx={{ backgroundColor: "#F2F2F2" }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
+        <Box p={4} sx={{ 
+            position: "sticky",
+            top: 0,
+            backgroundColor: "#F2F2F2",
+            zIndex: 10,
+            paddingBottom: "16px" ,
+            marginLeft: "50px",
+            }}>
+            <Typography variant="h4" sx={{ fontWeight: "500", mb: 2, fontFamily: "Poppins" }}>
                 Salas
             </Typography>
             <Divider sx={{ mb: 3 }} />
@@ -342,7 +349,14 @@ const Rooms: React.FC = () => {
                     <CircularProgress />
                 </Box>
             ) : (
-                    <Grid container spacing={2}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: '16px',          // Espacio vertical (entre filas)
+                        columnGap: '24px',    // Espacio horizontal (entre columnas)
+                        gridTemplateColumns: '500px 500px',
+                    }}
+                    >
                         {rooms.filter((room) => {
                             const term = searchTerm.toLowerCase();
                             const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
@@ -355,6 +369,7 @@ const Rooms: React.FC = () => {
                                         alignItems="center"
                                         justifyContent="center"
                                         mt={3}
+                                        
                                     >
                                         <img
                                             src={NoResult}
@@ -387,12 +402,7 @@ const Rooms: React.FC = () => {
                                     return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
                                 })
                                 .map((room) => (
-                                    <Grid
-                                        item
-                                        xs={12}
-                                        sm={6}
-                                        md={4}
-                                        key={room.id}
+                                    <Grid item xs={12} sm={6} md={6} display="flex" justifyContent="flex-start"
                                     >
                                         <Box
                                             sx={{
@@ -403,18 +413,22 @@ const Rooms: React.FC = () => {
                                                 borderRadius: '8px',
                                                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                                                 padding: '16px',
-                                                height: '100%',
+                                                width: '100%',
+                                                height: '108px',
+                                                maxWidth: 600, // << Cambia este valor para ajustar el tamaño
                                             }}
                                         >
                                             {/* Left Section: Icon and Room Details */}
                                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                 <HomeIcon
                                                     sx={{
-                                                        backgroundColor: '#B0B0B0',
+                                                        backgroundColor: '#796E71',
                                                         borderRadius: '50%',
                                                         padding: '8px',
                                                         fontSize: 40,
                                                         color: 'white',
+                                                        width: "46px",
+                                                        height: "46px",
                                                         boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
                                                         marginRight: '16px',
                                                     }}
@@ -422,13 +436,13 @@ const Rooms: React.FC = () => {
                                                 <Box>
                                                     <Typography
                                                         variant="h6"
-                                                        sx={{ fontWeight: 'bold', fontSize: '16px', color: '#000' }}
+                                                        sx={{ fontWeight: '500', fontSize: '16px', color: '#574B4F', fontFamily: "Poppins", }}
                                                     >
                                                         {room.name}
                                                     </Typography>
                                                     <Typography
                                                         variant="body2"
-                                                        sx={{ fontSize: '14px', color: '#888' }}
+                                                        sx={{ fontSize: '14px', color: '#574B4F', fontFamily: "Poppins", }}
                                                     >
                                                         Cliente: {room.cliente}
                                                     </Typography>
@@ -442,8 +456,8 @@ const Rooms: React.FC = () => {
                                                         variant="body2"
                                                         sx={{
                                                             fontSize: '14px',
-                                                            color: '#833A53',
-                                                            fontWeight: 'bold',
+                                                            color: '#8D4B62',
+                                                            fontWeight: '500',
                                                         }}
                                                     >
                                                         SMS cortos: {room.short_sms.toLocaleString()}
@@ -452,8 +466,8 @@ const Rooms: React.FC = () => {
                                                         variant="body2"
                                                         sx={{
                                                             fontSize: '14px',
-                                                            color: '#833A53',
-                                                            fontWeight: 'bold',
+                                                            color: '#8D4B62',
+                                                            fontWeight: '500',
                                                         }}
                                                     >
                                                         SMS largos: {room.long_sms.toLocaleString()}
@@ -462,8 +476,8 @@ const Rooms: React.FC = () => {
                                                         variant="body2"
                                                         sx={{
                                                             fontSize: '14px',
-                                                            color: '#833A53',
-                                                            fontWeight: 'bold',
+                                                            color: '#8D4B62',
+                                                            fontWeight: '500',
                                                         }}
                                                     >
                                                         Llamada: {room.calls.toLocaleString()}
@@ -496,10 +510,10 @@ const Rooms: React.FC = () => {
                                                 </Box>
                                             </Box>
                                         </Box>
-                                    </Grid>
+                                    </Grid> //Cerración del GRID items
                                 ))
                         )}
-                    </Grid>
+                    </Box> 
 
             )}
 
@@ -532,8 +546,10 @@ const Rooms: React.FC = () => {
                             variant="h6"
                             sx={{
                                 textAlign: "left",
-                                font: "normal normal 600 20px/54px Poppins",
-                                letterSpacing: "0px",
+                                fontStyle: "normal",
+                                fontVariant: "normal",
+                                fontWeight: "600",
+                                letterSpacing: "1.12px",
                                 color: "#574B4F",
                                 opacity: 1,
                                 fontSize: "28px",

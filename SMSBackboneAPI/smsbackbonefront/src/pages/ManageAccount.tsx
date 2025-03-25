@@ -139,7 +139,7 @@ const ManageAccount: React.FC = () => {
     };
 
     return (
-        <Box p={4} maxWidth={600} mx="auto">
+        <Box p={6} maxWidth={800} sx={{marginTop: "-100px", textAlign: 'center'}} >
             <Typography
                 sx={{
                     textAlign: "left",

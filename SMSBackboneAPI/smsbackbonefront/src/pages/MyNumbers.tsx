@@ -2280,7 +2280,7 @@ const MyNumbers: React.FC = () => {
                     height: '90vh', //  Asegura que ocupe todo el alto de la pantalla
                     display: 'flex', 
                     flexDirection: 'column',
-                    margin: '0', // Asegura que no haya márgenes externas
+                    marginTop: '-80px',
                     overflow: 'hidden', // Evita barras de desplazamiento innecesarias
                 }}>
                     <Typography

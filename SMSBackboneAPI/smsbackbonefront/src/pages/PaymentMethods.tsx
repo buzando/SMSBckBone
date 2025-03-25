@@ -403,7 +403,7 @@ const PaymentMethods: React.FC = () => {
 
 
     return (
-        <div className="payment-methods-container p-4">
+        <div style={{ padding: '20px', marginTop: '-80px' }}>
             <h1
                 className="mb-2"
                 style={{

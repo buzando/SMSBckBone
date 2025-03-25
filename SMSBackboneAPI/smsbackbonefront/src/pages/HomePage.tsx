@@ -230,16 +230,17 @@ const HomePage: React.FC = () => {
     }, []);
 
     return (
-        <div style={{ padding: '20px', 
+        <div style={{ padding: '30px', 
             width: '100vw',  // Asegura que ocupe el ancho total de la pantalla
-            height: '100vh', // Asegura que ocupe el alto total de la pantalla
+            height: '100%', // Asegura que ocupe el alto total de la pantalla
             backgroundColor: '#F2F2F2',  // Aplica el color de fondo
             display: 'flex',
             flexDirection: 'column',
+            marginTop: "-70px"
             }}>
                 
             {/* Header con título */}
-            <Typography variant="h4" component="h1" style={{ textAlign: 'left', color: '#330F1B', fontFamily: "Poppins", fontSize: "26px", opacity: 1 }}>
+            <Typography variant="h4" component="h1" style={{ textAlign: 'left', color: '#330F1B', fontFamily: "Poppins", fontSize: "26px", opacity: 1, marginTop: "-10px" }}>
                 {firstname ? `¡Bienvenido de vuelta, ${firstname}!` : '¡Bienvenido!'}
             </Typography>
             <Typography variant="body1" style={{ textAlign: 'left', color: '#574B4F', fontFamily: "Poppins", fontSize: "18px", opacity: 1, marginBottom: '20px' }}>
@@ -334,7 +335,7 @@ const HomePage: React.FC = () => {
                 </Popper>
                 {/* Botones de la derecha alineados */}
                 {!!enableButtons &&(
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-start', transform: 'translateX(-330px)' }}>
                     
                     <Button
                         onClick={() => navigate('/Use')}

@@ -440,10 +440,10 @@ const AccountRecharge: React.FC = () => {
         <div style={{
             position: 'relative',
             maxWidth: '800px',
-            margin: '30px 0 0 30px',
+            margin: '-60px 0 0 30px',
             fontFamily: 'Arial, sans-serif',
             color: '#4a4a4a',
-            marginBottom: '40px'
+
         }}>
             {/* Modal de confirmación para eliminar */}
             {isDeleteModalOpen && (

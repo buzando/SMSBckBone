@@ -169,7 +169,7 @@ const Use: React.FC = () => {
 
 
     return (
-        <Box sx={{ padding: '20px', maxWidth: '1000px', marginLeft: 0 }}>
+        <Box sx={{ padding: '20px', maxWidth: '1000px', marginTop: "-80px" }}>
             {/* Encabezado */}
             <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#330F1B', display: 'flex', alignItems: 'center' }}>
                 <img src={IconLeft} width='24px' height='24px' style={{ transform: 'rotate(270deg)', cursor: 'pointer' }} onClick={() => navigate('/')} />Uso
@@ -501,10 +501,13 @@ const Use: React.FC = () => {
             {/* Imagen de vacío y mensaje */}
             {searchingData && (
                 <Box sx={emptyContainerStyle}>
-                    <Box component="img" src={BoxEmpty} alt="Caja Vacía" sx={{ width: '150px', height: 'auto' }} />
-                    <Typography sx={{ marginTop: '10px', color: '#8F4D63', fontWeight: '500' }}>
+                    <Box component="img" src={BoxEmpty} alt="Caja Vacía" 
+                    sx={{ width: '150px', height: 'auto' }} />
+                    
+                    <Typography sx={{ marginTop: '10px', color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins' }}>
                         Seleccione un rango para comenzar.
                     </Typography>
+                
                 </Box>
             )}
         </Box>
