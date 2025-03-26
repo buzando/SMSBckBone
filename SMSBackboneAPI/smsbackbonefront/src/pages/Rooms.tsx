@@ -537,6 +537,7 @@ const Rooms: React.FC = () => {
                             width: 500, // Más ancho
                             height: 430, // Más alto
                             bgcolor: "background.paper",
+                            fontFamily: "Poppins",
                             boxShadow: 24,
                             p: 4,
                             borderRadius: "12px",
@@ -548,6 +549,7 @@ const Rooms: React.FC = () => {
                                 textAlign: "left",
                                 fontStyle: "normal",
                                 fontVariant: "normal",
+                                fontFamily: "Poppins",
                                 fontWeight: "600",
                                 letterSpacing: "1.12px",
                                 color: "#574B4F",
