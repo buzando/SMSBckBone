@@ -132,8 +132,34 @@ const Reports: React.FC = () => {
         setSelectedUsers([]);
     };
 
+    //Estado para submenu SMS
+    const [smsMenuOpen, setSmsMenuOpen] = useState(false);
+    const [smsAnchorEl, setSmsAnchorEl] = useState<null | HTMLElement>(null);
+    const [selectedSmsOption, setSelectedSmsOption] = useState<string>("SMS");
+    const smsOptions = [
+    "SMS",
+    "Global",
+    "Mensajes entrantes",
+    "Mensajes enviados",
+    "Mensajes no enviados",
+    "Mensajes rechazados"
+    ];
+    //Función abrir /cerrar SMS
+    const handleSmsClick = (event: React.MouseEvent<HTMLDivElement>) => {
+        setSmsAnchorEl(event.currentTarget);
+        setSmsMenuOpen((prev) => !prev);
+    };
+    
+    const handleSmsOptionSelect = (option: string) => {
+        setSelectedSmsOption(option);
+        setSmsMenuOpen(false);
+    };    
+
+
+
+
     return (
-        <Box p={4} sx={{ padding: '20px', marginTop: "-76px" }}>
+        <Box p={4} sx={{ padding: '20px', marginTop: "-76px", marginLeft: "30px" }}>
             {/* Título principal */}
             <Typography variant="h4" fontWeight="medium" sx={{ textAlign: "left", fontSize: "26px", lineHeight: "55px", fontFamily: "Poppins, sans-serif", color: "#330F1B" }}>
                 Reportes
@@ -142,27 +168,32 @@ const Reports: React.FC = () => {
             {/* Tabs para SMS y Llamada */}
             <Divider sx={{ mt: 2, mb: 1, marginBottom: "0px" }} />
             <Tabs value={selectedTab} onChange={handleTabChange} TabIndicatorProps={{ style: { display: 'none' } }}>
-            <Tab label="SMS" value="SMS" 
+
+
+                    <Box
+            onClick={handleSmsClick}
                 sx={{ 
                     height: "43px",
-                    width: "109px",
+                    minWidth: "109px",
+                    px: 2,
                     fontFamily: "Poppins", 
                     fontStyle: "normal",
                     fontWeight: "500",
                     fontSize: "16px",
                     lineHeight: "25px",
                     color: "#574B4F !important",  // 🔥 Forzamos el color del texto
-                    backgroundColor: "transparent", // Fondo normal
-                    transition: "background-color 0.3s ease, color 0.3s ease", // Transición suave
-                    "&:hover": { 
-                        backgroundColor: "#EDD5DC99", // 🔥 Fondo cuando el mouse esté encima
-                        color: "#574B4F !important",  // 🔥 Forzamos el color del texto en hover
-                    },
-                    "&.Mui-selected": { 
-                        color: "#574B4F !important", // 🔥 Forzamos el color cuando está seleccionado
+                    backgroundColor: smsMenuOpen ? "#EDD5DC99" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    "&:hover": {
+                        backgroundColor: "#EDD5DC99",
                     }
-                }}  />
-                
+                    }} >
+                         {selectedSmsOption === "SMS" ? "SMS" : `SMS - ${selectedSmsOption}`}
+                         </Box>
                 
                 
                 <Tab label="Llamada" value="Llamada" 
@@ -174,10 +205,33 @@ const Reports: React.FC = () => {
                     fontSize: "16px" 
                 }} disabled={true} />
             
-            
+            <Popper open={smsMenuOpen} anchorEl={smsAnchorEl} placement="bottom-start">
+                <Paper sx={{ width: 379 }}>
+                    {smsOptions
+                    .filter((option) => option !== "SMS") // 👈 Aquí ocultamos "SMS"
+                    .map((option) => (
+                        
+                    <MenuItem
+                        key={option}
+                        selected={option === selectedSmsOption}
+                        onClick={() => handleSmsOptionSelect(option)}
+                        sx={{
+                            fontFamily: "Poppins",
+                            color: "#84797C",
+                            fontSize: "16px",
+                            "&:hover": {
+                            backgroundColor: "#F2EBED"
+                            }
+                          }}
+                    >
+                        {option}
+                    </MenuItem>
+                    ))}
+                </Paper>
+                </Popper>            
             
             </Tabs>
-            <Divider sx={{ mt: 1, mb: 2, marginTop: "0px" }} />
+            <Divider sx={{ mt: 1, mb: 2, marginTop: "-5px" }} />
 
             {/* Filtros de Fecha, Campaña y Usuario */}
             <Box display="flex" gap={2} mb={4} marginBottom={2}>
@@ -203,12 +257,24 @@ const Reports: React.FC = () => {
                     />
                     <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
                         <MenuItem onClick={handleSelectAllCampaigns}>
-                            <Checkbox checked={selectedCampaigns.length === campaigns.length} />
+                            <Checkbox checked={selectedCampaigns.length === campaigns.length} 
+                            sx={{
+                                color: '#6C3A52',
+                                '&.Mui-checked': { color: '#6C3A52' },
+                            
+                            }}
+                            />
                             <ListItemText primary="Seleccionar todo" />
                         </MenuItem>
                         {campaigns.filter(c => c.toLowerCase().includes(campaignSearch.toLowerCase())).map(c => (
                             <MenuItem key={c} onClick={() => handleCampaignSelection(c)}>
-                                <Checkbox checked={selectedCampaigns.includes(c)} />
+                                <Checkbox checked={selectedCampaigns.includes(c)} 
+                                sx={{
+                                    color: '#6C3A52',
+                                    '&.Mui-checked': { color: '#6C3A52' },
+                                
+                                }}
+                                />
                                 <ListItemText primary={c} />
                             </MenuItem>
                         ))}
@@ -235,12 +301,24 @@ const Reports: React.FC = () => {
                     />
                     <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
                         <MenuItem onClick={handleSelectAllUsers}>
-                            <Checkbox checked={selectedUsers.length === users.length} />
+                            <Checkbox checked={selectedUsers.length === users.length} 
+                            sx={{
+                                color: '#6C3A52',
+                                '&.Mui-checked': { color: '#6C3A52' },
+                            
+                            }}
+                            />
                             <ListItemText primary="Seleccionar todo" />
                         </MenuItem>
                         {users.filter(u => u.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
                             <MenuItem key={u} onClick={() => handleUserSelection(u)}>
-                                <Checkbox checked={selectedUsers.includes(u)} />
+                                <Checkbox checked={selectedUsers.includes(u)} 
+                                sx={{
+                                    color: '#6C3A52',
+                                    '&.Mui-checked': { color: '#6C3A52' },
+                                
+                                }}
+                                />
                                 <ListItemText primary={u} />
                             </MenuItem>
                         ))}
@@ -255,7 +333,7 @@ const Reports: React.FC = () => {
             <Divider sx={{ mb: 4 }} />
 
             {/* Contenido por defecto cuando no hay selección */}
-            <Card sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: 5, textAlign: "center", width: "83%" }}>
+            <Card sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: 5, textAlign: "center", width: "82%" }}>
                 <CardContent>
                     <Box component="img" src={BoxEmpty} alt="Caja Vacía" sx={{ width: '200px' }} />
                     <Typography mt={2} sx={{ color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins', fontSize: '14px' }}>

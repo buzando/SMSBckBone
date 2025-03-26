@@ -306,7 +306,11 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     }, [searchTerm, openSubMenuBilling, openSubMenuNumbers]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);  // Establecer correctamente el anchorEl
+        if (anchorEl) {
+            setAnchorEl(null); // Si ya está abierto, lo cierra
+        } else {
+            setAnchorEl(event.currentTarget); // Si está cerrado, lo abre
+        }  // Establecer correctamente el anchorEl
     };
 
     //const handleMenuClose = () => {

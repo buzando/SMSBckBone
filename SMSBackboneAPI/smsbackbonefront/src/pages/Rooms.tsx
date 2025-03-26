@@ -414,7 +414,7 @@ const Rooms: React.FC = () => {
                                                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                                                 padding: '16px',
                                                 width: '100%',
-                                                height: '108px',
+                                                height: '108|px',
                                                 maxWidth: 600, // << Cambia este valor para ajustar el tamaño
                                             }}
                                         >

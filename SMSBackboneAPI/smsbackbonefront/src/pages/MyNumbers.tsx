@@ -1877,6 +1877,22 @@ const MyNumbers: React.FC = () => {
     ];
     const [filteredStates, setFilteredStates] = useState(statesOfMexico);
 
+    const applySearchFilter = (term: string) => {
+        const value = term.toLowerCase();
+      
+        if (value.trim() === '') {
+          setFilteredData(numbersData);
+        } else {
+          const filtered = numbersData.filter((item) =>
+            item.number.toLowerCase().includes(value) ||
+            item.state.toLowerCase().includes(value) ||
+            item.municipality.toLowerCase().includes(value)
+          );
+          setFilteredData(filtered);
+        }
+      };
+
+
     const GetNumbers = async () => {
         setLoading(true);
         const usuario = localStorage.getItem("userData");
@@ -2212,17 +2228,19 @@ const MyNumbers: React.FC = () => {
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value.toLowerCase();
         setSearchTerm(value);
-
+        applySearchFilter(value);
+      
         if (value.trim() === '') {
-            setFilteredData(currentItems);
+          setFilteredData(numbersData); // Restaurar todos los datos
         } else {
-            setFilteredData(
-                currentItems.filter((item) =>
-                    item.number.toLowerCase().includes(value)
-                )
-            );
+          const filtered = numbersData.filter((item) =>
+            item.number.toLowerCase().includes(value) ||
+            item.state.toLowerCase().includes(value) ||
+            item.municipality.toLowerCase().includes(value)
+          );
+          setFilteredData(filtered);
         }
-    };
+      };
 
     const handleSearch2 = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value.toLowerCase();
@@ -2427,7 +2445,10 @@ const MyNumbers: React.FC = () => {
                                                                             height: "16px",
                                                                             cursor: "pointer",
                                                                         }}
-                                                                        onClick={() => setStateSearch2("")} // Borra el texto al hacer clic
+                                                                        onClick={() => {
+                                                                            setSearchTerm('');
+                                                                            setFilteredData(numbersData); // Restaurar datos
+                                                                        }}
                                                                     />
                                                                 </InputAdornment>
                                                             ) : null,
@@ -2670,12 +2691,11 @@ const MyNumbers: React.FC = () => {
                                                                     <img
                                                                         src={iconclose}
                                                                         alt="Limpiar búsqueda"
-                                                                        style={{
-                                                                            width: "16px",
-                                                                            height: "16px",
-                                                                            cursor: "pointer",
+                                                                        style={{ cursor: "pointer" }}
+                                                                        onClick={() => {
+                                                                            setSearchTerm('');
+                                                                            setFilteredData(numbersData); // Restaurar todos los datos al limpiar
                                                                         }}
-                                                                        onClick={() => setMunicipalitySearch2("")} // Borra el texto al hacer clic
                                                                     />
                                                                 </InputAdornment>
                                                             ) : null,
@@ -2875,7 +2895,10 @@ const MyNumbers: React.FC = () => {
                                                     height: "16px",
                                                     cursor: "pointer",
                                                 }}
-                                                onClick={() => setSearchTerm('')} // Borra el texto al hacer clic
+                                                onClick={() => {
+                                                    setSearchTerm('');
+                                                    applySearchFilter('');
+                                                  }}
                                             />
                                         )}
                                     </Box>
