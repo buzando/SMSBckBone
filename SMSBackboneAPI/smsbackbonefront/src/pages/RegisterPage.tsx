@@ -1265,8 +1265,8 @@ const Register: React.FC = () => {
                                     top: "50%",
                                     left: "50%",
                                     transform: "translate(-50%, -50%)",
-                                    width: "50%",
-                                    height: "85%",
+                                    width: { xs: "90%", sm: "80%", md: "65%", lg: "55%", xl: "45%" }, // más responsivo
+                                    maxHeight: "90vh", 
                                     bgcolor: "background.paper",
                                     boxShadow: 24,
                                     p: 4,
@@ -1309,7 +1309,7 @@ const Register: React.FC = () => {
                                 <Box
                                     ref={termsContainerRef}
                                     sx={{
-                                        maxHeight: "500px",
+                                        maxHeight: "430px",
                                         overflowY: "auto",
                                         paddingRight: 2,
                                         scrollbarWidth: "thin", // Para navegadores compatibles

@@ -1653,9 +1653,9 @@ backgroundColor: "#5A4A63CC",
                 maxWidth={false} // 🔥 Permite que se expanda a todo el ancho
             disableGutters // 🔥 Elimina el padding interno del contenedor
             sx={{
-                width: '100vw',
+                width: '100%',
                 height: '100vh',
-                overflow: 'hidden',
+                overflowX: 'hidden',
                 margin: 0,
                 marginLeft: "277px",
                 marginTop: "70px",
