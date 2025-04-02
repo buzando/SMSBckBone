@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="log4net" Version="2.0.17" />
+    <PackageReference Include="Openpay" Version="1.0.27" />
   </ItemGroup>
 
   <ItemGroup>

@@ -15,6 +15,10 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Modal.Model;
 using log4net;
+using Openpay;
+using Openpay.Entities;
+using Openpay.Entities.Request;
+
 namespace Business
 {
     public class UserManager
@@ -705,7 +709,27 @@ namespace Business
                 };
                 //aqui va el openpay
 
-                creditrecharge.Estatus = "Esperando";
+                // === Openpay ===
+                var apiKey = "sk_xxx"; // Tu API Key sandbox
+                var merchantId = "mxxxxx"; // Tu merchant ID
+
+                var openpay = new OpenpayAPI(apiKey, merchantId);
+                openpay.Production = false;
+
+                var chargeRequest = new ChargeRequest
+                {
+                    Method = "card",
+                    SourceId = "k2qkwygxfjhidmz5ogjk", // Token de prueba
+                    Amount = credit.QuantityMoney,
+                    Description = "Recarga de créditos",
+                    Currency = "MXN",
+                    DeviceSessionId = "kR1v4EXgk0kpbv2e4HkQWg9oBytTR84f" // Dummy
+                };
+
+                var charge = openpay.ChargeService.Create(chargeRequest);
+                creditrecharge.Estatus = "Completado";
+                //creditrecharge.transactionId = charge.Id;
+
                 using (var ctx = new Entities())
                 {
                     ctx.CreditRecharge.Add(creditrecharge);
