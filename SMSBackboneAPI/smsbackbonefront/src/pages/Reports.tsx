@@ -436,7 +436,8 @@ const Reports: React.FC = () => {
 
     const exportReport = async (format: 'csv' | 'xlsx' | 'pdf',
         onComplete?: () => void
-        ) => {
+    ) => {
+        const MAX_RECORDS_LOCAL = 100000;
         try {
 
             if (data.length <= MAX_RECORDS_LOCAL) {
