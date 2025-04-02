@@ -183,7 +183,9 @@ const Reports: React.FC = () => {
     const handleSmsOptionSelect = (option: string) => {
         setSelectedSmsOption(option);
         setSmsMenuOpen(false);
-    };
+        setSelectedDates(null);
+        setReports(undefined);
+    };    
 
 
 
@@ -356,12 +358,85 @@ const Reports: React.FC = () => {
         }
     };
 
+    {/*Spinner*/}
+    const handleExportClick = (
+        format: 'csv' | 'xlsx' | 'pdf',
+        setThisLoading: React.Dispatch<React.SetStateAction<boolean>>
+      ) => {
+        setThisLoading(true);
+      
+        setTimeout(() => {
+          exportReport(format, () => {
+            setThisLoading(false);
+          });
+        }, 1000); // Tiempo del spinner
+      };
 
-    const exportReport = async (format: 'csv' | 'xlsx' | 'pdf') => {
-        if (!data || data.length === 0) return;
+      const DualSpinner = () => (
+        <Box
+          sx={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Spinner de fondo */}
+          <CircularProgress
+            variant="determinate"
+            value={100}
+            size={24}
+            thickness={8}
+            sx={{
+              color: '#D6C4CB',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              zIndex: 1,
+            }}
+          />
+      
+          {/* Spinner (color principal) */}
+          <CircularProgress
+            size={24}
+            thickness={8}
+            sx={{
+              color: '#7B354D',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              zIndex: 2,
+              animationDuration: '1s',
+            }}
+          />
+      
+          {/* Centro blanco */}
+          <Box
+            sx={{
+              width: 16,
+              height: 16,
+              borderRadius: '50%',
+              backgroundColor: '#FFFFFF',
+              zIndex: 3,
+            }}
+          />
+        </Box>
+      );
 
-        const MAX_RECORDS_LOCAL = 100000;
 
+    const [isExportingCSV, setIsExportingCSV] = useState(false);
+    const [isExportingXLSX, setIsExportingXLSX] = useState(false);
+    const [isExportingPDF, setIsExportingPDF] = useState(false);
+    const anyExporting = isExportingCSV || isExportingXLSX || isExportingPDF;
+
+    
+
+    const exportReport = async (format: 'csv' | 'xlsx' | 'pdf',
+        onComplete?: () => void
+        ) => {
         try {
 
             if (data.length <= MAX_RECORDS_LOCAL) {
@@ -503,6 +578,9 @@ const Reports: React.FC = () => {
             }
         } catch (error) {
             console.error("Error exportando reporte:", error);
+        }
+        finally {
+            onComplete?.();
         }
     };
 
@@ -897,19 +975,19 @@ const Reports: React.FC = () => {
                         1-50 de 200
                     </Typography>
 
-                    <Box display="flex" gap={1}>
-                        {/* Primera página (doble flecha izquierda) */}
-                        <IconButton sx={{ p: 0 }}>
-                            <Box display="flex" alignItems="center">
-                                <img src={backarrow} alt="<<" style={{ marginRight: '-16px' }} />
-                                <img src={backarrow} alt="<<" />
-                            </Box>
-                        </IconButton>
+    <Box display="flex" gap={1}>
+        {/* Primera página (doble flecha izquierda) */}
+        <IconButton sx={{ p: 0 }}disabled>
+            <Box display="flex" alignItems="center" >
+                <img src={backarrow} alt="<<" style={{ marginRight: '-16px', opacity: 0.4 }} />
+                <img src={backarrow} alt="<<" style={{  opacity: 0.4 }}/>
+            </Box>
+        </IconButton>
 
-                        {/* Página anterior (flecha izquierda) */}
-                        <IconButton sx={{ p: 0 }}>
-                            <img src={backarrow} alt="<" />
-                        </IconButton>
+        {/* Página anterior (flecha izquierda) */}
+        <IconButton sx={{ p: 0 }}disabled>
+            <img src={backarrow} alt="<" style={{  opacity: 0.4 }}/>
+        </IconButton>
 
                         {/* Página siguiente (flecha derecha volteada) */}
                         <IconButton sx={{ p: 0 }}>
@@ -936,12 +1014,61 @@ const Reports: React.FC = () => {
                             </Box>
                         </IconButton>
 
-                        {/* Botones de CSV / Excel y PDF */}
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1160px", gap: 2 }}>
-                            <IconButton sx={{ p: 0 }} onClick={() => exportReport('csv')}>
-                                <Tooltip title="Exportar a CSV"
-                                    placement="top"
-                                    arrow
+        {/* Botones de CSV / Excel y PDF */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1160px", gap: 2}}>
+            <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                onClick={() => handleExportClick('csv', setIsExportingCSV)}
+                disabled={anyExporting && !isExportingCSV}
+            >
+            <Tooltip title="Exportar a CSV" placement="top" 
+            arrow
+
+            PopperProps={{
+                modifiers: [
+                    {
+                        name: 'arrow',
+                        options: {
+                            padding: 8, // Ajusta si es necesario
+                        },
+                    },
+                ],
+            }}
+            componentsProps={{
+                tooltip: {
+                    sx: {
+                        fontFamily: 'Poppins',
+                        backgroundColor: '#322D2E', // Fondo negro
+                        color: '#FFFFFF', // Texto blanco para contraste
+                        fontSize: '12px',
+                        borderRadius: '4px',
+                        padding: '6px 10px',
+                    },
+                },
+                arrow: {
+                    sx: {
+                        color: '#322D2E', // Flecha con color negro también
+                    },
+                },
+            }}
+
+            >
+                {isExportingCSV ? (
+                <DualSpinner /> 
+                ) : (
+                <img src={IconCSV} alt="csv" style={{ transform: 'rotate(0deg)' }} />
+                )}
+            </Tooltip>
+            </IconButton>
+
+            <IconButton sx={{ p: 0, opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
+                onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
+                disabled={anyExporting && !isExportingXLSX}
+            >
+
+
+            <Tooltip title="Exportar a Excel"
+                                placement="top"
+                                arrow
 
                                     PopperProps={{
                                         modifiers: [
@@ -972,63 +1099,22 @@ const Reports: React.FC = () => {
                                     }}
 
                                 >
-                                    <img
-                                        src={IconCSV}
-                                        alt="csv"
-                                        style={{ transform: "rotate(0deg)" }}
-                                    />
-                                </Tooltip>
-                            </IconButton>
+                {isExportingXLSX ? (
+                <DualSpinner />
+                ) : (
+                <img src={IconExcel} alt="xlsx" style={{ transform: 'rotate(0deg)' }} />
+                )}
+            </Tooltip>
+            </IconButton>
 
-                            <IconButton sx={{ p: 0 }} onClick={() => exportReport('xlsx')}>
-                                <Tooltip title="Exportar a Excel"
-                                    placement="top"
-                                    arrow
-
-                                    PopperProps={{
-                                        modifiers: [
-                                            {
-                                                name: 'arrow',
-                                                options: {
-                                                    padding: 8, // Ajusta si es necesario
-                                                },
-                                            },
-                                        ],
-                                    }}
-                                    componentsProps={{
-                                        tooltip: {
-                                            sx: {
-                                                fontFamily: 'Poppins',
-                                                backgroundColor: '#322D2E', // Fondo negro
-                                                color: '#FFFFFF', // Texto blanco para contraste
-                                                fontSize: '12px',
-                                                borderRadius: '4px',
-                                                padding: '6px 10px',
-                                            },
-                                        },
-                                        arrow: {
-                                            sx: {
-                                                color: '#322D2E', // Flecha con color negro también
-                                            },
-                                        },
-                                    }}
-
-                                >
-
-                                    <img
-                                        src={IconExcel}
-                                        alt="csv"
-                                        style={{ transform: "rotate(0deg)" }}
-                                    />
-
-                                </Tooltip>
-                            </IconButton>
-
-
-                            <IconButton sx={{ p: 0 }} onClick={() => exportReport('pdf')}>
-                                <Tooltip title="Exportar a PDF"
-                                    placement="top"
-                                    arrow
+            
+            <IconButton sx={{ p: 0, opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
+                onClick={() => handleExportClick('pdf', setIsExportingPDF)}
+                disabled={anyExporting && !isExportingPDF}
+            >
+                <Tooltip title="Exportar a PDF"
+                                placement="top"
+                                arrow
 
                                     PopperProps={{
                                         modifiers: [
@@ -1059,13 +1145,13 @@ const Reports: React.FC = () => {
                                     }}
 
                                 >
-                                    <img
-                                        src={IconPDF}
-                                        alt="csv"
-                                        style={{ transform: "rotate(0deg)" }}
-                                    />
-                                </Tooltip>
-                            </IconButton>
+                {isExportingPDF ? (
+                <DualSpinner />
+                ) : (
+                <img src={IconPDF} alt="pdf" style={{ transform: 'rotate(0deg)' }} />
+                )}
+            </Tooltip>
+            </IconButton>
 
 
 
