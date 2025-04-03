@@ -14,12 +14,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 import { InputAdornment, Tooltip, TooltipProps } from "@mui/material";
+import Radio from '@mui/material/Radio';
 import { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { styled } from '@mui/material/styles';
 import SecondaryButton from '../components/commons/SecondaryButton'
 import MainButton from '../components/commons/MainButton'
+import trash from '../assets/Icon-trash-Card.svg'
 import MainModal from "../components/commons/MainModal"
 import ChipBar from "../components/commons/ChipBar";
 
@@ -475,7 +477,7 @@ const PaymentSettings: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1000px', marginTop: "-20px", borderRadius: '8px' }}>
+        <div style={{ padding: '20px', maxWidth: '1000px', marginTop: "-0px", borderRadius: '8px',  marginLeft: "40px" }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -485,10 +487,10 @@ const PaymentSettings: React.FC = () => {
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            <h2
+            <th
                 style={{
                     textAlign: 'left',
-                    font: 'normal normal medium 26px/55px Poppins',
+                    fontFamily: "Poppins",
                     letterSpacing: '0px',
                     color: '#330F1B',
                     opacity: 1,
@@ -496,7 +498,7 @@ const PaymentSettings: React.FC = () => {
                 }}
             >
                 Ajustes de Pago
-            </h2>
+            </th>
             <hr style={{ width: '100%', border: '1px solid #ccc', margin: '10px 0' }} />
 
             {/* Checkbox para activar alertas */}
@@ -514,7 +516,7 @@ const PaymentSettings: React.FC = () => {
                 <span
                     style={{
                         textAlign: 'left',
-                        font: 'normal normal normal 16px/20px Poppins',
+                        fontFamily: "Poppins",
                         letterSpacing: '0px',
                         color: '#574B4FCC',
                         opacity: 1,
@@ -529,8 +531,9 @@ const PaymentSettings: React.FC = () => {
             <h3
                 style={{
                     textAlign: 'left',
-                    font: 'normal normal medium 16px/22px Poppins',
+                    fontFamily: "Poppins",
                     letterSpacing: '0px',
+                    fontWeight: "500",
                     color: isNotificationEnabled ? '#330F1B' : '#B0B0B0',
                     opacity: 1,
                     fontSize: '16px',
@@ -556,7 +559,7 @@ const PaymentSettings: React.FC = () => {
                             <span
                                 style={{
                                     textAlign: 'left',
-                                    font: 'normal normal normal 16px/20px Poppins',
+                                    fontFamily: "Poppins",
                                     letterSpacing: '0px',
                                     color: channel === 'Llamada' ? '#B0B0B0' : '#574B4FCC',  // 🔴 Texto gris para "Llamada"
                                     opacity: channel === 'Llamada' ? 0.5 : 1,  // 🔴 Opacidad baja para "Llamada"
@@ -569,40 +572,60 @@ const PaymentSettings: React.FC = () => {
                     ))}
                 </div>
 
-                {/* Cantidad */}
+                {/*Ingresar Cantidad */}
                 <h3
                     style={{
                         textAlign: 'left',
-                        font: 'normal normal medium 16px/22px Poppins',
+                        fontFamily: "Poppins",
+                        fontWeight: "500",
                         letterSpacing: '0px',
                         color: '#330F1B',
                         opacity: 1,
                         fontSize: '16px',
-                        marginTop: '20px'
+                        marginTop: '20px',
                     }}
                 >
-                    Cantidad
+                    Ingresar Cantidad
                 </h3>
                 <TextField
                     value={threshold}
                     onChange={(e) => setThreshold(e.target.value)}
                     type="number"
                     disabled={!isNotificationEnabled}
-                    style={{
-                        background: '#FFFFFF 0% 0% no-repeat padding-box',
-                        border: '1px solid #9B9295',
-                        borderRadius: '4px',
-                        opacity: 1,
-                        width: '220px',
-                        height: '54px'
-                    }}
+                    InputProps={{
+                                readOnly: true,  // 🔴 Solo lectura para evitar que el usuario lo edite manualmente
+                            }}
+                            sx={{
+                                background: '#FFFFFF',
+                                borderRadius: '4px',
+                                opacity: 1,
+                                width: '100%',
+                                maxWidth: '220px',
+                                height: '54px',
+                                '& .MuiInputBase-input': {
+                                  fontFamily: 'Poppins, sans-serif',
+                                  fontWeight: 500,
+                            
+                                  // 🔽 Remueve las flechas en navegadores
+                                  MozAppearance: 'textfield', // Firefox
+                                  '&::-webkit-outer-spin-button': {
+                                    WebkitAppearance: 'none',
+                                    margin: 0,
+                                  },
+                                  '&::-webkit-inner-spin-button': {
+                                    WebkitAppearance: 'none',
+                                    margin: 0,
+                                  },
+                                }
+                              }}
                 />
 
                 {/* Título de la tabla */}
                 <h3
                     style={{
                         textAlign: 'left',
-                        font: 'normal normal medium 16px/22px Poppins',
+                        fontFamily: "Poppins",
+                        fontWeight: "500",
                         letterSpacing: '0px',
                         color: '#330F1B',
                         opacity: 1,
@@ -668,7 +691,8 @@ const PaymentSettings: React.FC = () => {
              
 
             </div>
-            <h3 style={{ textAlign: 'left', font: 'normal normal medium 18px/22px Poppins', letterSpacing: '0px', color: '#330F1B', opacity: 1, fontSize: '18px', marginTop: '20px' }}>
+            <h3 style={{ textAlign: 'left', fontFamily: "Poppins", letterSpacing: '0px', fontWeight: "500",
+                color: '#330F1B', opacity: 1, fontSize: '18px', marginTop: '20px' }}>
                 Activar Autorecarga
             </h3>
             <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
@@ -683,7 +707,7 @@ const PaymentSettings: React.FC = () => {
                 />
 
 
-                <span style={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#8F4D63', opacity: 1, fontSize: '16px' }}>
+                <span style={{ textAlign: 'left', fontFamily: "Poppins", letterSpacing: '0px', color: '#8F4D63', opacity: 1, fontSize: '16px' }}>
                     Recibir una alerta y realizar autorecarga cuando los créditos se muestren por debajo de la cantidad seleccionada
                 </span>
             </label>
@@ -703,7 +727,8 @@ const PaymentSettings: React.FC = () => {
                     <div>
                         <h3 style={{
                             textAlign: 'left',
-                            font: 'normal normal medium 16px/22px Poppins',
+                            fontFamily: "Poppins",
+                            fontWeight: "500",
                             letterSpacing: '0px',
                             color: '#330F1B',
                             opacity: 1,
@@ -719,15 +744,29 @@ const PaymentSettings: React.FC = () => {
                             }}
                             type="number"
                             disabled={!isAutoRechargeEnabled}
-                            style={{
+                            sx={{
                                 background: '#FFFFFF 0% 0% no-repeat padding-box',
-                                border: '1px solid #9B9295',
                                 borderRadius: '4px',
                                 opacity: 1,
                                 width: '100%',
                                 maxWidth: '220px',
-                                height: '54px'
-                            }}
+                                height: '54px',
+                                '& .MuiInputBase-input': {
+                                  fontFamily: 'Poppins, sans-serif',
+                                  fontWeight: 500,
+                            
+                                  // 🔽 Remueve las flechas en navegadores
+                                  MozAppearance: 'textfield', // Firefox
+                                  '&::-webkit-outer-spin-button': {
+                                    WebkitAppearance: 'none',
+                                    margin: 0,
+                                  },
+                                  '&::-webkit-inner-spin-button': {
+                                    WebkitAppearance: 'none',
+                                    margin: 0,
+                                  },
+                                }
+                              }}
                         />
 
                     </div>
@@ -735,7 +774,8 @@ const PaymentSettings: React.FC = () => {
                     <div style={{ flex: '1' }}>
                         <h3 style={{
                             textAlign: 'left',
-                            font: 'normal normal medium 16px/22px Poppins',
+                            fontFamily: "Poppins",
+                            fontWeight: "500",
                             letterSpacing: '0px',
                             color: '#330F1B',
                             opacity: 1,
@@ -748,14 +788,18 @@ const PaymentSettings: React.FC = () => {
                             InputProps={{
                                 readOnly: true,  // 🔴 Solo lectura para evitar que el usuario lo edite manualmente
                             }}
-                            style={{
-                                background: '#F0F0F0 0% 0% no-repeat padding-box',  // 🔴 Color gris claro para indicar solo lectura
-                                border: '1px solid #9B9295',
+                            sx={{
+                                background: '#FFFFFF 0% 0% no-repeat padding-box',
                                 borderRadius: '4px',
                                 opacity: 1,
-                                width: '220px',
-                                height: '54px'
-                            }}
+                                width: '100%',
+                                maxWidth: '220px',
+                                height: '54px',
+                                '& .MuiInputBase-input': {
+                                  fontFamily: 'Poppins, sans-serif',
+                                  fontWeight: 500
+                                }
+                              }}
                         />
 
                     </div>
@@ -764,7 +808,8 @@ const PaymentSettings: React.FC = () => {
                 {/* SECCIÓN SEPARADA - Método de pago */}
                 <h3 style={{
                     textAlign: 'left',
-                    font: 'normal normal medium 18px/22px Poppins',
+                    fontFamily: "Poppins",
+                    fontWeight: "500",
                     letterSpacing: '0px',
                     color: '#330F1B',
                     opacity: 1,
@@ -798,6 +843,7 @@ const PaymentSettings: React.FC = () => {
                     paddingLeft: '10px',
                     paddingRight: '10px'
                 }}>
+                    <div style={{ display: 'flex', gap: '20px', margin: '20px 0', flexWrap: 'wrap' }}>
                     {creditCards.map((card) => (
                         <div
                             key={card.id}
@@ -812,6 +858,20 @@ const PaymentSettings: React.FC = () => {
                                 flex: '0 0 auto' // Para el scroll horizontal
                             }}
                         >
+                            {/* Barra lateral de color */}
+                        {selectedCard?.id === card.id && (
+                            <div style={{
+                                position: 'absolute',
+                                left: 0,
+                                top: 0,
+                                height: '100%',
+                                width: '8px',
+                                backgroundColor: '#8F4D63',
+                                borderTopLeftRadius: '8px',
+                                borderBottomLeftRadius: '8px',
+                            }}></div>
+                        )}
+                        {/* Marca de la tarjeta */}
                             <div style={{
                                 marginBottom: '10px',
                                 fontWeight: 'bold',
@@ -819,7 +879,7 @@ const PaymentSettings: React.FC = () => {
                                 alignItems: 'center',
                                 gap: '10px',
                                 textAlign: "left",
-                                font: "normal normal medium 14px/54px Poppins",
+                                fontFamily: "Poppins",
                                 letterSpacing: "0px",
                                 color: "#330F1B",
                                 opacity: 1,
@@ -831,29 +891,31 @@ const PaymentSettings: React.FC = () => {
                             <div
                                 style={{
                                     fontSize: '14px',
-                                    font: "normal normal normal 14px/20px Poppins",
+                                    fontFamily: "Poppins",
                                     display: 'flex',
                                     flexDirection: 'column',
                                     gap: '5px',
                                     lineHeight: '1.2',
                                 }}
                             >
-                                <span>{card.card_name}</span>
-                                <span>Terminación: •••• {card.card_number.slice(-4)}</span>
-                                <span>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
+                                <span style={{ margin: '0', padding: '0' }}>{card.card_name}</span>
+                            <span style={{ margin: '0', padding: '0' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
+                            <span style={{ margin: '0', padding: '0' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
                             </div>
 
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px', cursor: 'pointer' }} onClick={() => handleSelectCard(card)}>
-                                <input
-                                    type="radio"
-                                    name="selectedCard"
+                            {/* Radio para seleccionar */}
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px', cursor: 'pointer', }} onClick={() => handleSelectCard(card)} >
+                                <Radio
                                     checked={selectedCard?.id === card.id}
-                                    onChange={() => handleSelectCard(card)}
-                                    style={{ cursor: 'pointer' }}
+                                    readOnly
+                                    sx={{
+                                        color: '#8F4D63',
+                                        '&.Mui-checked': { color: '#8F4D63' },
+                                    }}
                                 />
                                 <span style={{
                                     textAlign: "left",
-                                    font: "normal normal normal 14px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#8F4D63",
                                     opacity: 1,
@@ -862,15 +924,33 @@ const PaymentSettings: React.FC = () => {
                                     {selectedCard?.id === card.id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}
                                 </span>
                             </label>
+                            {/* Botón para eliminar */}
+                            <button
+                            onClick={() => openDeleteModal(card)}
+                            style={{
+                                position: 'absolute',
+                                top: '10px',
+                                right: '10px',
+                                backgroundColor: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            <img src={trash} width='24px' height='24px' />
+                        </button>
                         </div>
                     ))}
                 </div>
+                </div>
             </div>
-                <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#ffffff', borderRadius: '8px' }}>
+                <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#F2F2F2', borderRadius: '8px', marginBottom: "50px" }}>
                     {/* Botones de acción debajo de las tarjetas de crédito */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-                        <SecondaryButton onClick={() => navigate(-1)} text="Cancelar" />
-                        <MainButton text="Aceptar" isLoading={loading} onClick={addRechargeSetting} disabled={isAcceptButtonDisabled} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0px'}}>
+                        <SecondaryButton onClick={() => navigate(-1)} text="Cancelar"  
+                        />
+                        <MainButton text="Aceptar" isLoading={loading} onClick={addRechargeSetting} disabled={isAcceptButtonDisabled} 
+                         
+                        />
                     </div>
                 </div>
 
@@ -910,7 +990,7 @@ const PaymentSettings: React.FC = () => {
                             id="add-card-modal-title"
                             style={{
                                 textAlign: "left",
-                                font: "normal normal 600 20px/54px Poppins",
+                                fontFamily: "Poppins",
                                 letterSpacing: "0px",
                                 color: "#574B4F",
                                 opacity: 1,
@@ -939,7 +1019,7 @@ const PaymentSettings: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -974,7 +1054,7 @@ const PaymentSettings: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -1009,7 +1089,7 @@ const PaymentSettings: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -1044,7 +1124,7 @@ const PaymentSettings: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -1079,7 +1159,7 @@ const PaymentSettings: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -1115,7 +1195,7 @@ const PaymentSettings: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -1149,7 +1229,7 @@ const PaymentSettings: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -1183,7 +1263,7 @@ const PaymentSettings: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -1217,7 +1297,7 @@ const PaymentSettings: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -1253,7 +1333,7 @@ const PaymentSettings: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -1267,7 +1347,7 @@ const PaymentSettings: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -1352,7 +1432,7 @@ const PaymentSettings: React.FC = () => {
                                 />
                                 <span style={{
                                     textAlign: "left",
-                                    font: "normal normal normal 16px/20px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#8F4D63",
                                     opacity: 1,
@@ -1370,10 +1450,14 @@ const PaymentSettings: React.FC = () => {
                         />
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '16px', width: '100%' }}>
                             <div style={{ gridColumn: '1 / 2', display: 'flex', justifyContent: 'flex-start' }}>
-                                <SecondaryButton onClick={() => handleCloseAddCardModal()} text="Cancelar" />
+                                <SecondaryButton onClick={() => handleCloseAddCardModal()} text="Cancel"    
+                                
+                                />
                             </div>
                             <div style={{ gridColumn: '2 / 3', display: 'flex', justifyContent: 'flex-end' }}>
-                                <MainButton text="Agregar" isLoading={loading} onClick={() => addCreditCard()} disabled={!areRequiredFieldsFilled()} />
+                                <MainButton text="Agregar" isLoading={loading} onClick={() => addCreditCard()} disabled={!areRequiredFieldsFilled()} 
+                                
+                                />
                             </div>
                         </div>
 

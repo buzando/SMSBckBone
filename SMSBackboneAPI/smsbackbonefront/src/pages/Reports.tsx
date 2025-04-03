@@ -1457,14 +1457,14 @@ const Reports: React.FC = () => {
                             </Box>
                         </IconButton>
 
-                        {/* Botones de CSV / Excel y PDF */}
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1160px", gap: 2 }}>
-                            <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
-                                onClick={() => handleExportClick('csv', setIsExportingCSV)}
-                                disabled={anyExporting && !isExportingCSV}
-                            >
-                                <Tooltip title="Exportar a CSV" placement="top"
-                                    arrow
+        {/* Botones de CSV / Excel y PDF */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1140px", gap: 2}}>
+            <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                onClick={() => handleExportClick('csv', setIsExportingCSV)}
+                disabled={anyExporting && !isExportingCSV}
+            >
+            <Tooltip title="Exportar a CSV" placement="top" 
+            arrow
 
                                     PopperProps={{
                                         modifiers: [

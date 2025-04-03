@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
-import { InputAdornment, Tooltip, TooltipProps } from "@mui/material";
+import { Divider, InputAdornment, Tooltip, TooltipProps } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import Checkbox from '@mui/material/Checkbox';
 import trash from '../assets/Icon-trash-Card.svg'
@@ -403,12 +403,13 @@ const PaymentMethods: React.FC = () => {
 
 
     return (
-        <div style={{ padding: '20px', marginTop: '-80px' }}>
-            <h1
+        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1540px" }}>
+            <td
                 className="mb-2"
                 style={{
                     textAlign: "left",
-                    font: "normal normal medium 26px/55px Poppins",
+                    fontFamily: "Poppins",
+                    fontWeight: "600",
                     letterSpacing: "0px",
                     color: "#330F1B",
                     opacity: 1,
@@ -416,20 +417,21 @@ const PaymentMethods: React.FC = () => {
                 }}
             >
                 Metodos de pago
-            </h1>
-            <hr style={{ width: "100%", border: "1px solid #ccc" }} />
+            </td>
+            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
             <p
                 className="mb-4"
                 style={{
                     textAlign: "left",
-                    font: "normal normal medium 18px/22px Poppins",
+                    fontFamily: "Poppins",
                     letterSpacing: "0px",
                     color: "#330F1B",
                     opacity: 1,
-                    fontSize: "18px"
+                    fontSize: "18px",
+                    marginBottom: "24px"
                 }}
             >
-                Agregué un metodo de pago o seleccione uno existente
+                Agregué un metodo de pago o seleccione uno existente.
             </p>
             <MainIcon
                 text="Agregar Tarjeta"
@@ -598,26 +600,26 @@ const PaymentMethods: React.FC = () => {
                         overflowY: 'auto',
                     }}
                 >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h2
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "20px" }}>
+                        <th
                             id="add-card-modal-title"
                             style={{
+                                marginTop: "-20px",
                                 textAlign: "left",
-                                font: "normal normal 600 20px/54px Poppins",
+                                fontFamily: "Poppins",
                                 letterSpacing: "0px",
                                 color: "#574B4F",
                                 opacity: 1,
                                 fontSize: "20px",
-                                margin: 0
                             }}
                         >
                             Agregar tarjeta
-                        </h2>
-                        <IconButton onClick={handleCloseModal} style={{ color: "#574B4F" }}>
+                        </th>
+                        <IconButton onClick={handleCloseModal} style={{ color: "#574B4F", marginBottom: "10px", marginTop: "-10px", }}>
                             <CloseIcon />
                         </IconButton>
                     </div>
-                    <hr style={{ width: '100%', border: '1px solid #ccc', margin: '10px 0' }} />
+                    <hr style={{ width: '100%', border: '1px solid #ccc', margin: '25px 0' }} />
                     <form
                         onSubmit={handleAddCardSubmit}
                         style={{
@@ -632,7 +634,7 @@ const PaymentMethods: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -650,6 +652,9 @@ const PaymentMethods: React.FC = () => {
                                     helperText={errors['cardNumber']}
                                     fullWidth
                                     InputProps={{
+                                        sx: {
+                                            fontFamily: 'Poppins, sans-serif'
+                                          },
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <WhiteTooltip title={<>
@@ -667,7 +672,7 @@ const PaymentMethods: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -685,6 +690,9 @@ const PaymentMethods: React.FC = () => {
                                     helperText={errors.cardName}
                                     fullWidth
                                     InputProps={{
+                                        sx: {
+                                            fontFamily: 'Poppins, sans-serif'
+                                          },
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <WhiteTooltip title={<>
@@ -702,7 +710,7 @@ const PaymentMethods: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -720,6 +728,9 @@ const PaymentMethods: React.FC = () => {
                                 helperText={errors.street}
                                 fullWidth
                                 InputProps={{
+                                    sx: {
+                                        fontFamily: 'Poppins, sans-serif'
+                                      },
                                     endAdornment: (
                                         <InputAdornment position="end">
                                             <WhiteTooltip title={<>
@@ -737,7 +748,7 @@ const PaymentMethods: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -756,6 +767,9 @@ const PaymentMethods: React.FC = () => {
                                     helperText={errors.exteriorNumber}
                                     fullWidth
                                     InputProps={{
+                                        sx: {
+                                            fontFamily: 'Poppins, sans-serif'
+                                          },
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <WhiteTooltip title={<>
@@ -772,7 +786,7 @@ const PaymentMethods: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -791,6 +805,9 @@ const PaymentMethods: React.FC = () => {
                                     helperText={errors.interiorNumber}
                                     fullWidth
                                     InputProps={{
+                                        sx: {
+                                            fontFamily: 'Poppins, sans-serif'
+                                          },
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <WhiteTooltip title={<>
@@ -808,7 +825,7 @@ const PaymentMethods: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -826,6 +843,9 @@ const PaymentMethods: React.FC = () => {
                                 helperText={errors.neighborhood}
                                 fullWidth
                                 InputProps={{
+                                    sx: {
+                                        fontFamily: 'Poppins, sans-serif'
+                                      },
                                     endAdornment: (
                                         <InputAdornment position="end">
                                             <WhiteTooltip title={<>
@@ -842,7 +862,7 @@ const PaymentMethods: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -860,6 +880,9 @@ const PaymentMethods: React.FC = () => {
                                 helperText={errors.city}
                                 fullWidth
                                 InputProps={{
+                                    sx: {
+                                        fontFamily: 'Poppins, sans-serif'
+                                      },
                                     endAdornment: (
                                         <InputAdornment position="end">
                                             <WhiteTooltip title={<>
@@ -876,7 +899,7 @@ const PaymentMethods: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -894,6 +917,9 @@ const PaymentMethods: React.FC = () => {
                                 helperText={errors.state}
                                 fullWidth
                                 InputProps={{
+                                    sx: {
+                                        fontFamily: 'Poppins, sans-serif'
+                                      },
                                     endAdornment: (
                                         <InputAdornment position="end">
                                             <WhiteTooltip title={<>
@@ -910,7 +936,7 @@ const PaymentMethods: React.FC = () => {
                             <label
                                 style={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
@@ -929,6 +955,9 @@ const PaymentMethods: React.FC = () => {
                                 helperText={errors.postalCode}
                                 fullWidth
                                 InputProps={{
+                                    sx: {
+                                        fontFamily: 'Poppins, sans-serif'
+                                      },
                                     endAdornment: (
                                         <InputAdornment position="end">
                                             <WhiteTooltip title={<>
@@ -946,7 +975,7 @@ const PaymentMethods: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -960,7 +989,7 @@ const PaymentMethods: React.FC = () => {
                                 <label
                                     style={{
                                         textAlign: "left",
-                                        font: "normal normal medium 16px/54px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
@@ -984,6 +1013,7 @@ const PaymentMethods: React.FC = () => {
                                             borderRadius: "8px",
                                             width: "87px",
                                             height: "40px",
+                                            
                                         }}
                                     >
                                         <MenuItem value="" disabled>Mes</MenuItem>
@@ -1020,6 +1050,9 @@ const PaymentMethods: React.FC = () => {
                                         helperText={errors.cvv}
                                         fullWidth
                                         InputProps={{
+                                            sx: {
+                                                fontFamily: 'Poppins, sans-serif'
+                                              },
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <WhiteTooltip title={<>
@@ -1047,19 +1080,17 @@ const PaymentMethods: React.FC = () => {
                                     checked={formData.isDefault}
                                     onChange={handleChange}
                                     sx={{
-                                        '&.Mui-checked': {
-                                            color: '#ffffff', // 🔥 Color del check (blanco)
-                                        },
-                                        '&.Mui-checked .MuiSvgIcon-root': {
-                                            backgroundColor: '#8F4D63', // 🔥 Cambia el color de adentro cuando está seleccionado
-                                            borderRadius: '4px',
-                                            color: '#ffffff', // 🔥 Cambia el color de la flecha (check) a blanco
-                                        }
+                                        marginBottom: "-10px",
+                                        marginTop: "-10px",
+                                        marginLeft: "-20px",
+                                        color: '#6C3A52',
+                                        '&.Mui-checked': { color: '#6C3A52' },
+
                                     }}
                                 />
                                 <span style={{
                                     textAlign: "left",
-                                    font: "normal normal normal 16px/20px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#8F4D63",
                                     opacity: 1,
