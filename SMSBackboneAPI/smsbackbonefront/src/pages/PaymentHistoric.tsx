@@ -127,8 +127,8 @@ const PaymentHistoric: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1000px', marginTop: '-80px' }}>
-            <h2
+        <div style={{ padding: '20px', maxWidth: '1000px', marginTop: '-70px', marginLeft: "35px" }}>
+            <th
                 style={{
                     textAlign: 'left',
                     fontFamily: 'Poppins',
@@ -136,11 +136,13 @@ const PaymentHistoric: React.FC = () => {
                     color: '#330F1B',
                     opacity: 1,
                     fontSize: '26px',
+                    fontWeight: "600",
+
                 }}
             >
                 Historial de pago
-            </h2>
-            <hr className="date-picker-divider" />
+            </th>
+            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
             <Button
                 variant="outlined"
                 sx={buttonStyle}
@@ -156,7 +158,8 @@ const PaymentHistoric: React.FC = () => {
                 onClose={() => setAnchorEl(null)}
             />
 
-            <hr className="date-picker-divider" />
+            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
+
             {/* Lógica para mostrar el contenido correcto */}
             {loading ? (
                 <Box
@@ -255,7 +258,11 @@ const PaymentHistoric: React.FC = () => {
                                     letterSpacing: '0px',
                                     color: '#330F1B',
                                     fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
+                                    backgroundColor: '#FFFFFF',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    
                                 }}>
                                     Fecha
                                 </th>
@@ -267,7 +274,10 @@ const PaymentHistoric: React.FC = () => {
                                     letterSpacing: '0px',
                                     color: '#330F1B',
                                     fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
+                                    backgroundColor: '#FFFFFF',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
                                 }}>
                                     Cliente
                                 </th>
@@ -279,7 +289,10 @@ const PaymentHistoric: React.FC = () => {
                                     letterSpacing: '0px',
                                     color: '#330F1B',
                                     fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
+                                    backgroundColor: '#FFFFFF',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
                                 }}>
                                     ID de pago
                                 </th>
@@ -291,7 +304,10 @@ const PaymentHistoric: React.FC = () => {
                                     letterSpacing: '0px',
                                     color: '#330F1B',
                                     fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
+                                    backgroundColor: '#FFFFFF',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
                                 }}>
                                     Cantidad
                                 </th>
@@ -303,7 +319,10 @@ const PaymentHistoric: React.FC = () => {
                                     letterSpacing: '0px',
                                     color: '#330F1B',
                                     fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
+                                    backgroundColor: '#FFFFFF',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
                                 }}>
                                     Métodos de pago
                                 </th>
@@ -315,7 +334,10 @@ const PaymentHistoric: React.FC = () => {
                                     letterSpacing: '0px',
                                     color: '#330F1B',
                                     fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
+                                    backgroundColor: '#FFFFFF',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
                                 }}>
                                     Estatus
                                 </th>
@@ -329,45 +351,60 @@ const PaymentHistoric: React.FC = () => {
                                     <td style={{
                                         padding: '10px',
                                         fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '11px',
+                                        fontSize: '13px',
                                         color: '#000000',
-                                        textAlign: 'left'
+                                        textAlign: 'left',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
                                     }}>
                                         {new Date(recarga.rechargeDate).toLocaleString()}
                                     </td>
                                     <td style={{
                                         padding: '10px',
                                         fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '11px',
+                                        fontSize: '13px',
                                         color: '#000000',
-                                        textAlign: 'left'
+                                        textAlign: 'left',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
                                     }}>
                                         {recarga.client}
                                     </td>
                                     <td style={{
                                         padding: '10px',
                                         fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '11px',
+                                        fontSize: '13px',
                                         color: '#000000',
-                                        textAlign: 'left'
+                                        textAlign: 'left',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
                                     }}>
                                         {recarga.id}
                                     </td>
                                     <td style={{
                                         padding: '10px',
                                         fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '11px',
+                                        fontSize: '13px',
                                         color: '#000000',
-                                        textAlign: 'left'
+                                        textAlign: 'left',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
                                     }}>
                                         ${recarga.quantityMoney.toLocaleString()}
                                     </td>
                                     <td style={{
                                         padding: '10px',
                                         fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '11px',
+                                        fontSize: '13px',
                                         color: '#000000',
-                                        textAlign: 'left'
+                                        textAlign: 'left',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
                                     }}>
                                         <Tooltip title={recarga.paymentMethod} arrow>
                                             <span style={truncatedStyle}>
@@ -378,9 +415,12 @@ const PaymentHistoric: React.FC = () => {
                                     <td style={{
                                         padding: '10px',
                                         fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '11px',
+                                        fontSize: '13px',
                                         color: '#000000',
-                                        textAlign: 'left'
+                                        textAlign: 'left',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
                                     }}>
                                         {recarga.estatus}
                                     </td>
@@ -407,11 +447,11 @@ const PaymentHistoric: React.FC = () => {
                         }} >
                             Generar Factura
                         </MenuItem>
-                        <MenuItem onClick={() => { handleAsyncAction('Consultar'); handleClose(); }} style={menuItemStyle}>
-                            <img src={EyeIcon} alt="Consultar" style={iconStyle} />
+                        <MenuItem onClick={() => { handleAsyncAction('Consultar'); handleClose(); }} style={menuItemStyle}disabled>
+                            <img src={EyeIcon} alt="Consultar" style={iconStyle}/>
                             Consultar Factura
                         </MenuItem>
-                        <MenuItem onClick={() => { handleAsyncAction('Descargar'); handleClose(); }} style={menuItemStyle}>
+                        <MenuItem onClick={() => { handleAsyncAction('Descargar'); handleClose(); }} style={menuItemStyle}disabled>
                             <img src={DownloadIcon} alt="Descargar" style={iconStyle} />
                             Descargar Factura
                         </MenuItem>

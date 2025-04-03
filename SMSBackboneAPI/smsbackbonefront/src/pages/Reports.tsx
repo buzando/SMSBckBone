@@ -1016,7 +1016,7 @@ const Reports: React.FC = () => {
                         </IconButton>
 
         {/* Botones de CSV / Excel y PDF */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1160px", gap: 2}}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1140px", gap: 2}}>
             <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
                 onClick={() => handleExportClick('csv', setIsExportingCSV)}
                 disabled={anyExporting && !isExportingCSV}
