@@ -80,6 +80,7 @@ const Reports: React.FC = () => {
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
     const [userSearch, setUserSearch] = useState('');
     const tableRef = React.useRef<HTMLDivElement>(null);
+    const [filteredReports, setFilteredReports] = useState<Reports[] | null>(null);
 
     // Maneja el cambio de tabs (SMS / Llamada)
     const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
@@ -125,12 +126,9 @@ const Reports: React.FC = () => {
     // Limpia todas las campañas seleccionadas
     const handleClearCampaignSelection = () => {
         setSelectedCampaigns([]);
+        setFilteredReports(null);
     };
 
-    // Aplica la selección de campañas y cierra el menú
-    const handleApplyCampaignSelection = () => {
-        setCampaignMenuOpen(false);
-    };
 
     // Abre o cierra el menú de usuarios
     const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -160,6 +158,7 @@ const Reports: React.FC = () => {
     // Limpia todos los usuarios seleccionados
     const handleClearUserSelection = () => {
         setSelectedUsers([]);
+        setFilteredReports(null);
     };
 
     //Estado para submenu SMS
@@ -185,7 +184,7 @@ const Reports: React.FC = () => {
         setSmsMenuOpen(false);
         setSelectedDates(null);
         setReports(undefined);
-    };    
+    };
 
 
 
@@ -344,6 +343,387 @@ const Reports: React.FC = () => {
         }
     ];
 
+    const dataEntrantes: Reports[] = [
+        {
+            id: 1,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña 2',
+            Idcampana: 1,
+            Usuario: 'Usuario 1',
+            Idmensaje: 11,
+            Mensaje: 'Hola'
+        },
+        {
+            id: 2,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña 1',
+            Idcampana: 2,
+            Usuario: 'Usuario 2',
+            Idmensaje: 13,
+            Mensaje: 'No gracias'
+        },
+        {
+            id: 3,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña 1',
+            Idcampana: 3,
+            Usuario: 'Usuario 3',
+            Idmensaje: 22,
+            Mensaje: 'Probando'
+        },
+        {
+            id: 4,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña 1',
+            Idcampana: 4,
+            Usuario: 'Usuario 4',
+            Idmensaje: 26,
+            Mensaje: 'Ejemplo mensaje muy largo que debe cortarse...'
+        },
+        {
+            id: 5,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña 1',
+            Idcampana: 5,
+            Usuario: 'Usuario 5',
+            Idmensaje: 34,
+            Mensaje: 'Hola'
+        },
+        {
+            id: 6,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña 1',
+            Idcampana: 6,
+            Usuario: 'Usuario 6',
+            Idmensaje: 39,
+            Mensaje: 'Adiós'
+        },
+        {
+            id: 7,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña 1',
+            Idcampana: 7,
+            Usuario: 'Usuario 7',
+            Idmensaje: 45,
+            Mensaje: 'No me interesa'
+        },
+        {
+            id: 8,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña 1',
+            Idcampana: 8,
+            Usuario: 'Usuario 8',
+            Idmensaje: 55,
+            Mensaje: 'Gracias'
+        }
+    ];
+
+    const dataEnviados: Reports[] = [
+        {
+            id: 1,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: '',
+            Campana: 'Campaña 1',
+            Idcampana: 1,
+            Usuario: 'Usuario 1',
+            Idmensaje: 23,
+            Mensaje: 'Hola',
+            Resultado: 'Enviado',
+            Fecharecepcion: new Date('2024-07-23T00:00:00')
+        },
+        {
+            id: 2,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: '',
+            Campana: 'Campaña 1',
+            Idcampana: 2,
+            Usuario: 'Usuario 2',
+            Idmensaje: 35,
+            Mensaje: 'Le informamos que su cuenta tal debe equis cantidad',
+            Resultado: 'Enviado',
+            Fecharecepcion: new Date('2024-07-23T00:00:00')
+        },
+        {
+            id: 3,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: '',
+            Campana: 'Campaña 1',
+            Idcampana: 3,
+            Usuario: 'Usuario 3',
+            Idmensaje: 54,
+            Mensaje: 'Probando',
+            Resultado: 'Enviado',
+            Fecharecepcion: new Date('2024-07-23T00:00:00')
+        },
+        {
+            id: 4,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: '',
+            Campana: 'Campaña 1',
+            Idcampana: 4,
+            Usuario: 'Usuario 4',
+            Idmensaje: 65,
+            Mensaje: 'One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.',
+            Resultado: 'Enviado',
+            Fecharecepcion: new Date('2024-07-23T00:00:00')
+        },
+        {
+            id: 5,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: '',
+            Campana: 'Campaña 1',
+            Idcampana: 5,
+            Usuario: 'Usuario 5',
+            Idmensaje: 77,
+            Mensaje: 'Hola',
+            Resultado: 'Enviado',
+            Fecharecepcion: new Date('2024-07-23T00:00:00')
+        },
+        {
+            id: 6,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: '',
+            Campana: 'Campaña 1',
+            Idcampana: 6,
+            Usuario: 'Usuario 6',
+            Idmensaje: 87,
+            Mensaje: 'Adiós',
+            Resultado: 'Enviado',
+            Fecharecepcion: new Date('2024-07-23T00:00:00')
+        },
+        {
+            id: 7,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: '',
+            Campana: 'Campaña 1',
+            Idcampana: 7,
+            Usuario: 'Usuario 7',
+            Idmensaje: 91,
+            Mensaje: 'No me interesa',
+            Resultado: 'Enviado',
+            Fecharecepcion: new Date('2024-07-23T00:00:00')
+        },
+        {
+            id: 8,
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Telefono: '525512121212',
+            Sala: '',
+            Campana: 'Campaña 1',
+            Idcampana: 8,
+            Usuario: 'Usuario 8',
+            Idmensaje: 93,
+            Mensaje: 'Gracias',
+            Resultado: 'Enviado',
+            Fecharecepcion: new Date('2024-07-23T00:00:00')
+        }
+    ];
+
+    const dataNoEnviados = [
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 1',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'No enviado',
+            Razon: 'Carrier no disponible',
+            Idmensaje: 23,
+            Mensaje: 'Hola'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 2',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'No enviado',
+            Razon: 'Carrier no disponible',
+            Idmensaje: 35,
+            Mensaje: 'Le informamos que su cuenta tal debe equis cantidad'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 3',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'No enviado',
+            Razon: 'Carrier no disponible',
+            Idmensaje: 54,
+            Mensaje: 'Probando'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 4',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'No enviado',
+            Razon: 'Carrier no disponible',
+            Idmensaje: 65,
+            Mensaje: 'One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed...'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 5',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'No enviado',
+            Razon: 'Excepción no controlada',
+            Idmensaje: 77,
+            Mensaje: 'Hola'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 6',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'No enviado',
+            Razon: 'Carrier no disponible',
+            Idmensaje: 87,
+            Mensaje: 'Adiós'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 7',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'No enviado',
+            Razon: 'Excepción no controlada',
+            Idmensaje: 91,
+            Mensaje: 'No me interesa'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 8',
+            Sala: 'Sala Tal',
+            Campana: '8Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'No enviado',
+            Razon: 'Carrier no disponible',
+            Idmensaje: 93,
+            Mensaje: 'Gracias'
+        }
+    ];
+
+    const dataRechazados = [
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 1',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'Rechazado',
+            Razon: 'Rechazo por el usuario',
+            Idmensaje: 23,
+            Mensaje: 'Hola'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 2',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'Rechazado',
+            Razon: 'Rechazo por red del destino',
+            Idmensaje: 35,
+            Mensaje: 'Le informamos que su cuenta tal debe equis cantidad'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 3',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'Rechazado',
+            Razon: 'Rechazo por red del destino',
+            Idmensaje: 54,
+            Mensaje: 'Probando'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 4',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'Rechazado',
+            Razon: 'Rechazo por el usuario',
+            Idmensaje: 65,
+            Mensaje: 'One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed...'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 5',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'Rechazado',
+            Razon: 'Rechazo por red del destino',
+            Idmensaje: 77,
+            Mensaje: 'Hola'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 6',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'Rechazado',
+            Razon: 'Rechazo por el usuario',
+            Idmensaje: 87,
+            Mensaje: 'Adiós'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 7',
+            Sala: 'Sala Tal',
+            Campana: 'Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'Rechazado',
+            Razon: 'Rechazo por el usuario',
+            Idmensaje: 91,
+            Mensaje: 'No me interesa'
+        },
+        {
+            Fecha: new Date('2024-07-23T00:00:00'),
+            Usuario: 'Usuario 8',
+            Sala: 'Sala Tal',
+            Campana: '8Campaña Tal',
+            Telefono: '525512121212',
+            Resultado: 'Rechazado',
+            Razon: 'Rechazo por el usuario',
+            Idmensaje: 93,
+            Mensaje: 'Gracias'
+        }
+    ];
+
+
     const handleDateSelectionApply = async (start: Date, end: Date, startHour: number, startMinute: number, endHour: number, endMinute: number) => {
         setSelectedDates({ start, end, startHour, startMinute, endHour, endMinute });
         setDatePickerOpen(false);
@@ -358,73 +738,73 @@ const Reports: React.FC = () => {
         }
     };
 
-    {/*Spinner*/}
+    {/*Spinner*/ }
     const handleExportClick = (
         format: 'csv' | 'xlsx' | 'pdf',
         setThisLoading: React.Dispatch<React.SetStateAction<boolean>>
-      ) => {
+    ) => {
         setThisLoading(true);
-      
-        setTimeout(() => {
-          exportReport(format, () => {
-            setThisLoading(false);
-          });
-        }, 1000); // Tiempo del spinner
-      };
 
-      const DualSpinner = () => (
+        setTimeout(() => {
+            exportReport(format, () => {
+                setThisLoading(false);
+            });
+        }, 1000); // Tiempo del spinner
+    };
+
+    const DualSpinner = () => (
         <Box
-          sx={{
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+            sx={{
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
         >
-          {/* Spinner de fondo */}
-          <CircularProgress
-            variant="determinate"
-            value={100}
-            size={24}
-            thickness={8}
-            sx={{
-              color: '#D6C4CB',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 1,
-            }}
-          />
-      
-          {/* Spinner (color principal) */}
-          <CircularProgress
-            size={24}
-            thickness={8}
-            sx={{
-              color: '#7B354D',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 2,
-              animationDuration: '1s',
-            }}
-          />
-      
-          {/* Centro blanco */}
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              borderRadius: '50%',
-              backgroundColor: '#FFFFFF',
-              zIndex: 3,
-            }}
-          />
+            {/* Spinner de fondo */}
+            <CircularProgress
+                variant="determinate"
+                value={100}
+                size={24}
+                thickness={8}
+                sx={{
+                    color: '#D6C4CB',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    zIndex: 1,
+                }}
+            />
+
+            {/* Spinner (color principal) */}
+            <CircularProgress
+                size={24}
+                thickness={8}
+                sx={{
+                    color: '#7B354D',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    zIndex: 2,
+                    animationDuration: '1s',
+                }}
+            />
+
+            {/* Centro blanco */}
+            <Box
+                sx={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: '50%',
+                    backgroundColor: '#FFFFFF',
+                    zIndex: 3,
+                }}
+            />
         </Box>
-      );
+    );
 
 
     const [isExportingCSV, setIsExportingCSV] = useState(false);
@@ -432,7 +812,7 @@ const Reports: React.FC = () => {
     const [isExportingPDF, setIsExportingPDF] = useState(false);
     const anyExporting = isExportingCSV || isExportingXLSX || isExportingPDF;
 
-    
+
 
     const exportReport = async (format: 'csv' | 'xlsx' | 'pdf',
         onComplete?: () => void
@@ -585,7 +965,61 @@ const Reports: React.FC = () => {
         }
     };
 
+    const handleFilter = () => {
+        let baseData: any[] = [];
 
+        // Selecciona el dataset base según la opción actual
+        switch (selectedSmsOption) {
+            case "Global":
+                baseData = data;
+                break;
+            case "Mensajes entrantes":
+                baseData = dataEntrantes;
+                break;
+            case "Mensajes enviados":
+                baseData = dataEnviados;
+                break;
+            case "Mensajes no enviados":
+                baseData = dataNoEnviados;
+                break;
+            case "Mensajes rechazados":
+                baseData = dataRechazados;
+                break;
+            default:
+                baseData = [];
+        }
+
+        // Aplica filtro por usuario si hay selección
+        let resultado = [...baseData];
+        if (selectedUsers.length > 0) {
+            resultado = resultado.filter(r => selectedUsers.includes(r.Usuario));
+        }
+        if (selectedCampaigns.length > 0) {
+            resultado = resultado.filter(r => selectedCampaigns.includes(r.Campana));
+        }
+        // En el futuro podés aplicar filtros por campaña u otros aquí
+
+        setFilteredReports(resultado);
+    };
+
+    const getCurrentDataLength = () => {
+        if (filteredReports) return filteredReports.length;
+
+        switch (selectedSmsOption) {
+            case "Global":
+                return data.length;
+            case "Mensajes entrantes":
+                return dataEntrantes.length;
+            case "Mensajes enviados":
+                return dataEnviados.length;
+            case "Mensajes no enviados":
+                return dataNoEnviados.length;
+            case "Mensajes rechazados":
+                return dataRechazados.length;
+            default:
+                return 0;
+        }
+    };
 
 
     return (
@@ -803,7 +1237,11 @@ const Reports: React.FC = () => {
 
 
 
-                        <Button variant="contained" onClick={handleApplyCampaignSelection}
+                        <Button variant="contained"
+                            onClick={() => {
+                                setCampaignMenuOpen(false);
+                                handleFilter();
+                            }}
                             sx={{
                                 backgroundColor: '#833A53',
                                 color: '#FFFFFF',
@@ -939,7 +1377,11 @@ const Reports: React.FC = () => {
                             }}
 
                         >LIMPIAR</Button>
-                        <Button variant="contained" onClick={() => setUserMenuOpen(false)}
+                        <Button variant="contained"
+                            onClick={() => {
+                                setUserMenuOpen(false);
+                                handleFilter();
+                            }}
                             sx={{
                                 backgroundColor: '#833A53',
                                 color: '#FFFFFF',
@@ -973,103 +1415,56 @@ const Reports: React.FC = () => {
                         fontSize: "14px",
                         marginLeft: "5px"
                     }}>
-                        1-50 de 200
+                        1-1 de {getCurrentDataLength()}
                     </Typography>
 
-    <Box display="flex" gap={1}>
-        {/* Primera página (doble flecha izquierda) */}
-        <IconButton sx={{ p: 0 }}disabled>
-            <Box display="flex" alignItems="center" >
-                <img src={backarrow} alt="<<" style={{ marginRight: '-16px', opacity: 0.4 }} />
-                <img src={backarrow} alt="<<" style={{  opacity: 0.4 }}/>
-            </Box>
-        </IconButton>
+                    <Box display="flex" gap={1}>
+                        {/* Primera página (doble flecha izquierda) */}
+                        <IconButton sx={{ p: 0 }} disabled>
+                            <Box display="flex" alignItems="center" >
+                                <img src={backarrow} alt="<<" style={{ marginRight: '-16px', opacity: 0.4 }} />
+                                <img src={backarrow} alt="<<" style={{ opacity: 0.4 }} />
+                            </Box>
+                        </IconButton>
 
-        {/* Página anterior (flecha izquierda) */}
-        <IconButton sx={{ p: 0 }}disabled>
-            <img src={backarrow} alt="<" style={{  opacity: 0.4 }}/>
-        </IconButton>
+                        {/* Página anterior (flecha izquierda) */}
+                        <IconButton sx={{ p: 0 }} disabled>
+                            <img src={backarrow} alt="<" style={{ opacity: 0.4 }} />
+                        </IconButton>
 
                         {/* Página siguiente (flecha derecha volteada) */}
-                        <IconButton sx={{ p: 0 }}>
+                        <IconButton sx={{ p: 0 }} disabled>
                             <img
                                 src={backarrow}
                                 alt=">"
-                                style={{ transform: 'scaleX(-1)' }}
+                                style={{ transform: 'scaleX(-1)', opacity: 0.4 }}
                             />
                         </IconButton>
 
                         {/* Última página (doble flecha derecha) */}
-                        <IconButton sx={{ p: 0 }}>
+                        <IconButton sx={{ p: 0 }} disabled>
                             <Box display="flex" alignItems="center">
                                 <img
                                     src={backarrow}
                                     alt=">>"
-                                    style={{ transform: 'scaleX(-1)', marginRight: '-4px' }}
+                                    style={{ transform: 'scaleX(-1)', marginRight: '-4px', opacity: 0.4 }}
                                 />
                                 <img
                                     src={backarrow}
                                     alt=">>"
-                                    style={{ transform: 'scaleX(-1)', marginLeft: '-12px' }}
+                                    style={{ transform: 'scaleX(-1)', marginLeft: '-12px', opacity: 0.4 }}
                                 />
                             </Box>
                         </IconButton>
 
-        {/* Botones de CSV / Excel y PDF */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1160px", gap: 2}}>
-            <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
-                onClick={() => handleExportClick('csv', setIsExportingCSV)}
-                disabled={anyExporting && !isExportingCSV}
-            >
-            <Tooltip title="Exportar a CSV" placement="top" 
-            arrow
-
-            PopperProps={{
-                modifiers: [
-                    {
-                        name: 'arrow',
-                        options: {
-                            padding: 8, // Ajusta si es necesario
-                        },
-                    },
-                ],
-            }}
-            componentsProps={{
-                tooltip: {
-                    sx: {
-                        fontFamily: 'Poppins',
-                        backgroundColor: '#322D2E', // Fondo negro
-                        color: '#FFFFFF', // Texto blanco para contraste
-                        fontSize: '12px',
-                        borderRadius: '4px',
-                        padding: '6px 10px',
-                    },
-                },
-                arrow: {
-                    sx: {
-                        color: '#322D2E', // Flecha con color negro también
-                    },
-                },
-            }}
-
-            >
-                {isExportingCSV ? (
-                <DualSpinner /> 
-                ) : (
-                <img src={IconCSV} alt="csv" style={{ transform: 'rotate(0deg)' }} />
-                )}
-            </Tooltip>
-            </IconButton>
-
-            <IconButton sx={{ p: 0, opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
-                onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
-                disabled={anyExporting && !isExportingXLSX}
-            >
-
-
-            <Tooltip title="Exportar a Excel"
-                                placement="top"
-                                arrow
+                        {/* Botones de CSV / Excel y PDF */}
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1160px", gap: 2 }}>
+                            <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                                onClick={() => handleExportClick('csv', setIsExportingCSV)}
+                                disabled={anyExporting && !isExportingCSV}
+                            >
+                                <Tooltip title="Exportar a CSV" placement="top"
+                                    arrow
 
                                     PopperProps={{
                                         modifiers: [
@@ -1100,22 +1495,23 @@ const Reports: React.FC = () => {
                                     }}
 
                                 >
-                {isExportingXLSX ? (
-                <DualSpinner />
-                ) : (
-                <img src={IconExcel} alt="xlsx" style={{ transform: 'rotate(0deg)' }} />
-                )}
-            </Tooltip>
-            </IconButton>
+                                    {isExportingCSV ? (
+                                        <DualSpinner />
+                                    ) : (
+                                        <img src={IconCSV} alt="csv" style={{ transform: 'rotate(0deg)' }} />
+                                    )}
+                                </Tooltip>
+                            </IconButton>
 
-            
-            <IconButton sx={{ p: 0, opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
-                onClick={() => handleExportClick('pdf', setIsExportingPDF)}
-                disabled={anyExporting && !isExportingPDF}
-            >
-                <Tooltip title="Exportar a PDF"
-                                placement="top"
-                                arrow
+                            <IconButton sx={{ p: 0, opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
+                                onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
+                                disabled={anyExporting && !isExportingXLSX}
+                            >
+
+
+                                <Tooltip title="Exportar a Excel"
+                                    placement="top"
+                                    arrow
 
                                     PopperProps={{
                                         modifiers: [
@@ -1146,13 +1542,59 @@ const Reports: React.FC = () => {
                                     }}
 
                                 >
-                {isExportingPDF ? (
-                <DualSpinner />
-                ) : (
-                <img src={IconPDF} alt="pdf" style={{ transform: 'rotate(0deg)' }} />
-                )}
-            </Tooltip>
-            </IconButton>
+                                    {isExportingXLSX ? (
+                                        <DualSpinner />
+                                    ) : (
+                                        <img src={IconExcel} alt="xlsx" style={{ transform: 'rotate(0deg)' }} />
+                                    )}
+                                </Tooltip>
+                            </IconButton>
+
+
+                            <IconButton sx={{ p: 0, opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
+                                onClick={() => handleExportClick('pdf', setIsExportingPDF)}
+                                disabled={anyExporting && !isExportingPDF}
+                            >
+                                <Tooltip title="Exportar a PDF"
+                                    placement="top"
+                                    arrow
+
+                                    PopperProps={{
+                                        modifiers: [
+                                            {
+                                                name: 'arrow',
+                                                options: {
+                                                    padding: 8, // Ajusta si es necesario
+                                                },
+                                            },
+                                        ],
+                                    }}
+                                    componentsProps={{
+                                        tooltip: {
+                                            sx: {
+                                                fontFamily: 'Poppins',
+                                                backgroundColor: '#322D2E', // Fondo negro
+                                                color: '#FFFFFF', // Texto blanco para contraste
+                                                fontSize: '12px',
+                                                borderRadius: '4px',
+                                                padding: '6px 10px',
+                                            },
+                                        },
+                                        arrow: {
+                                            sx: {
+                                                color: '#322D2E', // Flecha con color negro también
+                                            },
+                                        },
+                                    }}
+
+                                >
+                                    {isExportingPDF ? (
+                                        <DualSpinner />
+                                    ) : (
+                                        <img src={IconPDF} alt="pdf" style={{ transform: 'rotate(0deg)' }} />
+                                    )}
+                                </Tooltip>
+                            </IconButton>
 
 
 
@@ -1219,7 +1661,7 @@ const Reports: React.FC = () => {
                         No se encontraron resultados.
                     </Typography>
                 </Box>
-            ) : (
+            ) : selectedSmsOption === "Global" ? (
 
 
                 <Box
@@ -1562,7 +2004,190 @@ const Reports: React.FC = () => {
                         </tbody>
                     </table>
                 </Box>
-            )}
+            ) : selectedSmsOption === "Mensajes entrantes" ? (
+                <Box
+                    ref={tableRef}
+                    sx={{
+                        background: '#FFFFFF',
+                        border: '1px solid #E6E4E4',
+                        borderRadius: '8px',
+                        width: '1500px',
+                        maxWidth: '100%',
+                        padding: '20px',
+                        marginTop: '5px',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                    }}
+                >
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
+                                <th style={headerStyle}>Fecha</th>
+                                <th style={headerStyle}>Teléfono</th>
+                                <th style={headerStyle}>Sala</th>
+                                <th style={headerStyle}>Campaña</th>
+                                <th style={headerStyle}>Id de Campaña</th>
+                                <th style={headerStyle}>Usuario</th>
+                                <th style={headerStyle}>Id de Mensaje</th>
+                                <th style={headerStyle}>Mensaje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(filteredReports || dataEntrantes).map((item, index) => (
+                                <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
+                                    <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
+                                    <td style={cellStyle}>{item.Telefono}</td>
+                                    <td style={cellStyle}>{item.Sala}</td>
+                                    <td style={cellStyle}>{item.Campana}</td>
+                                    <td style={cellStyle}>{item.Idcampana}</td>
+                                    <td style={cellStyle}>{item.Usuario}</td>
+                                    <td style={cellStyle}>{item.Idmensaje}</td>
+                                    <td style={cellStyle}>{item.Mensaje}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Box>
+
+            ) : selectedSmsOption === "Mensajes enviados" ? (
+                <Box
+                    ref={tableRef}
+                    sx={{
+                        background: '#FFFFFF',
+                        border: '1px solid #E6E4E4',
+                        borderRadius: '8px',
+                        width: '1500px',
+                        maxWidth: '100%',
+                        padding: '20px',
+                        marginTop: '5px',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                    }}
+                >
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
+                                <th style={headerStyle}>Fecha</th>
+                                <th style={headerStyle}>Teléfono de destinatario</th>
+                                <th style={headerStyle}>Campaña</th>
+                                <th style={headerStyle}>ID de campaña</th>
+                                <th style={headerStyle}>Usuario</th>
+                                <th style={headerStyle}>Resultado</th>
+                                <th style={headerStyle}>Fecha de recepción</th>
+                                <th style={headerStyle}>ID de mensaje</th>
+                                <th style={headerStyle}>Mensaje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(filteredReports || dataEnviados).map((item, index) => (
+                                <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
+                                    <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
+                                    <td style={cellStyle}>{item.Telefono}</td>
+                                    <td style={cellStyle}>{item.Campana}</td>
+                                    <td style={cellStyle}>{item.Idcampana}</td>
+                                    <td style={cellStyle}>{item.Usuario}</td>
+                                    <td style={cellStyle}>{item.Resultado}</td>
+                                    <td style={cellStyle}>{new Date(item.Fecharecepcion).toLocaleString()}</td>
+                                    <td style={cellStyle}>{item.Idmensaje}</td>
+                                    <td style={cellStyle}>{item.Mensaje}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Box>
+            ) : selectedSmsOption === "Mensajes no enviados" ? (
+                <Box
+                    ref={tableRef}
+                    sx={{
+                        background: '#FFFFFF',
+                        border: '1px solid #E6E4E4',
+                        borderRadius: '8px',
+                        width: '1500px',
+                        maxWidth: '100%',
+                        padding: '20px',
+                        marginTop: '5px',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                    }}
+                >
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
+                                <th style={headerStyle}>Fecha</th>
+                                <th style={headerStyle}>Usuario</th>
+                                <th style={headerStyle}>Sala</th>
+                                <th style={headerStyle}>Campaña</th>
+                                <th style={headerStyle}>Teléfono de destinatario</th>
+                                <th style={headerStyle}>Resultado</th>
+                                <th style={headerStyle}>Razón</th>
+                                <th style={headerStyle}>ID de mensaje</th>
+                                <th style={headerStyle}>Mensaje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(filteredReports || dataNoEnviados).map((item, index) => (
+                                <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
+                                    <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
+                                    <td style={cellStyle}>{item.Usuario}</td>
+                                    <td style={cellStyle}>{item.Sala}</td>
+                                    <td style={cellStyle}>{item.Campana}</td>
+                                    <td style={cellStyle}>{item.Telefono}</td>
+                                    <td style={cellStyle}>{item.Resultado}</td>
+                                    <td style={cellStyle}>{item.Razon}</td>
+                                    <td style={cellStyle}>{item.Idmensaje}</td>
+                                    <td style={cellStyle}>{item.Mensaje}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Box>
+
+            ) : selectedSmsOption === "Mensajes rechazados" ? (<Box
+                ref={tableRef}
+                sx={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E6E4E4',
+                    borderRadius: '8px',
+                    width: '1500px',
+                    maxWidth: '100%',
+                    padding: '20px',
+                    marginTop: '5px',
+                    overflowX: 'auto',
+                    overflowY: 'hidden',
+                }}
+            >
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                    <thead>
+                        <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
+                            <th style={headerStyle}>Fecha</th>
+                            <th style={headerStyle}>Usuario</th>
+                            <th style={headerStyle}>Sala</th>
+                            <th style={headerStyle}>Campaña</th>
+                            <th style={headerStyle}>Teléfono de destinatario</th>
+                            <th style={headerStyle}>Resultado</th>
+                            <th style={headerStyle}>Razón</th>
+                            <th style={headerStyle}>ID de mensaje</th>
+                            <th style={headerStyle}>Mensaje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {(filteredReports || dataRechazados).map((item, index) => (
+                            <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
+                                <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
+                                <td style={cellStyle}>{item.Usuario}</td>
+                                <td style={cellStyle}>{item.Sala}</td>
+                                <td style={cellStyle}>{item.Campana}</td>
+                                <td style={cellStyle}>{item.Telefono}</td>
+                                <td style={cellStyle}>{item.Resultado}</td>
+                                <td style={cellStyle}>{item.Razon}</td>
+                                <td style={cellStyle}>{item.Idmensaje}</td>
+                                <td style={cellStyle}>{item.Mensaje}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </Box>
+            ) : (null)}
 
 
 
@@ -1598,6 +2223,25 @@ const buttonStyle = {
         background: '#E6C2CD',
         border: '1px solid #BE93A0',
     }
+};
+
+const headerStyle = {
+    textAlign: 'left',
+    padding: '10px',
+    fontFamily: 'Poppins, sans-serif',
+    fontSize: '13px',
+    color: '#330F1B',
+    backgroundColor: '#FFFFFF',
+};
+
+const cellStyle = {
+    padding: '10px',
+    fontFamily: 'Poppins, sans-serif',
+    fontSize: '13px',
+    color: '#574B4F',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
 };
 
 export default Reports;

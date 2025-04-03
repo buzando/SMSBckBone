@@ -726,7 +726,7 @@ namespace Business
                     DeviceSessionId = "kR1v4EXgk0kpbv2e4HkQWg9oBytTR84f" // Dummy
                 };
 
-                var charge = openpay.ChargeService.Create(chargeRequest);
+                //var charge = openpay.ChargeService.Create(chargeRequest);
                 creditrecharge.Estatus = "Completado";
                 //creditrecharge.transactionId = charge.Id;
 
