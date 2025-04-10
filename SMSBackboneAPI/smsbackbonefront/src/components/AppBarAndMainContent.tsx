@@ -1399,6 +1399,55 @@ backgroundColor: "#5A4A63CC",
                                 />
                             </ListItemButton>
                         </List>
+                                {/* Campañas */}
+                            <Link to="/Campains" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/Campains'}
+                                    onClick={() => handleSelection('Campañas')}
+                                >
+
+                            {/*Linea Gris*/}
+                                <Box
+                                sx={{
+                                    position: "absolute",
+                                    left: "35px",
+                                    width: "4px",
+                                    height: "35px",
+                                    backgroundColor: selectedLink === 'Campañas' ? '#FFFFFF' : '#9F94A5',
+                            }}/>
+
+                                    <ListItemText
+                                    primary="Campañas"
+                                    primaryTypographyProps={{
+                                        fontFamily: "Poppins",
+                                        marginLeft: '30px',
+                                        fontSize: '14px',
+                                        color: selectedLink === 'Campañas' ? '#FFFFFF' : '#9F94A5',
+                                        marginBottom: "-5px",
+                                        marginTop: "-5px"
+                                    }}
+                                />
+                                </ListItemButton>
+                            </Link>
+
+
                     </Collapse>
 
                     {/* Menú de Reportes */}

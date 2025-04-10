@@ -855,74 +855,63 @@ const Reports: React.FC = () => {
                 else if (format === 'pdf') {
                     const input = tableRef.current;
                     if (!input) return;
-
-                    // 🔒 Guardar estilos originales
-                    const originalStyle = {
-                        overflowX: input.style.overflowX,
-                        overflowY: input.style.overflowY,
-                        width: input.style.width,
-                        maxWidth: input.style.maxWidth
-                    };
-
-                    // 🔓 Expansión temporal
-                    input.style.overflowX = 'visible';
-                    input.style.overflowY = 'visible';
-                    input.style.width = 'fit-content';
-                    input.style.maxWidth = 'none';
-
-                    const canvas = await html2canvas(input, {
+                
+                    // 🔄 Crear un clon oculto para capturar sin afectar la vista
+                    const clone = input.cloneNode(true) as HTMLDivElement;
+                    clone.style.position = 'absolute';
+                    clone.style.top = '-9999px';
+                    clone.style.left = '-9999px';
+                    clone.style.overflow = 'visible';
+                    clone.style.width = 'fit-content';
+                    clone.style.maxWidth = 'none';
+                
+                    document.body.appendChild(clone);
+                
+                    const canvas = await html2canvas(clone, {
                         scale: 2,
                         useCORS: true
                     });
-
-                    // ✅ Restaurar estilos originales
-                    input.style.overflowX = originalStyle.overflowX;
-                    input.style.overflowY = originalStyle.overflowY;
-                    input.style.width = originalStyle.width;
-                    input.style.maxWidth = originalStyle.maxWidth;
-
+                
+                    document.body.removeChild(clone); // 🧹 Limpieza
+                
                     const imgData = canvas.toDataURL('image/png');
-
                     const pdf = new jsPDF('l', 'mm', 'a4');
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = pdf.internal.pageSize.getHeight();
-
+                
                     const imgProps = pdf.getImageProperties(imgData);
                     const imgWidth = pdfWidth;
                     const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
+                
                     let position = 0;
-
+                
                     if (imgHeight < pdfHeight) {
-                        // 📄 Imagen cabe en una sola página
                         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
                     } else {
-                        // 📄📄 Imagen requiere varias páginas
                         const canvasHeight = canvas.height;
                         const pageHeightPx = (pdfHeight * canvas.height) / imgHeight;
-
-                        let pageCanvas = document.createElement('canvas');
-                        let pageCtx = pageCanvas.getContext('2d')!;
+                
+                        const pageCanvas = document.createElement('canvas');
+                        const pageCtx = pageCanvas.getContext('2d')!;
                         pageCanvas.width = canvas.width;
                         pageCanvas.height = pageHeightPx;
-
+                
                         let pageCount = 0;
-
+                
                         for (let offset = 0; offset < canvasHeight; offset += pageHeightPx) {
                             pageCtx.clearRect(0, 0, pageCanvas.width, pageCanvas.height);
                             pageCtx.drawImage(canvas, 0, -offset);
-
                             const pageImg = pageCanvas.toDataURL('image/png');
                             if (pageCount > 0) pdf.addPage();
                             pdf.addImage(pageImg, 'PNG', 0, 0, imgWidth, pdfHeight);
-
                             pageCount++;
                         }
                     }
-
+                
                     pdf.save('Reporte.pdf');
                     return;
                 }
+                
 
             }
             else {
@@ -1031,7 +1020,7 @@ const Reports: React.FC = () => {
             </Typography>
 
             {/* Tabs para SMS y Llamada */}
-            <Divider sx={{ mt: 2, mb: 1, marginBottom: "0px" }} />
+            <Divider sx={{ mt: 2, mb: 0, maxWidth: "83%",  }} />
             <Tabs value={selectedTab} onChange={handleTabChange} TabIndicatorProps={{
                 style: {
                     display: 'none',
@@ -1049,9 +1038,10 @@ const Reports: React.FC = () => {
                         fontFamily: "Poppins",
                         fontStyle: "normal",
                         fontWeight: "500",
+                        opacity: 1,
                         fontSize: "16px",
                         lineHeight: "25px",
-                        color: "#574B4F !important",  // 🔥 Forzamos el color del texto
+                        color: selectedSmsOption !== "SMS" || smsMenuOpen ? "#864058 !important" : "#574B4F !important",
                         backgroundColor: selectedSmsOption !== "SMS" || smsMenuOpen ? "#EDD5DC99" : "transparent",
                         display: "flex",
                         alignItems: "center",
@@ -1059,7 +1049,8 @@ const Reports: React.FC = () => {
                         cursor: "pointer",
                         whiteSpace: "nowrap",
                         "&:hover": {
-                            backgroundColor: "#EDD5DC99",
+                            backgroundColor: "#EDD5DC99 !important",
+                            color: "#864058 !important"
                         }
                     }} >
                     {selectedSmsOption === "SMS" ? "SMS" : `SMS - ${selectedSmsOption}`}
@@ -1101,7 +1092,7 @@ const Reports: React.FC = () => {
                 </Popper>
 
             </Tabs>
-            <Divider sx={{ mt: 1, mb: 2, marginTop: "-5px" }} />
+            <Divider sx={{ mt: 1, mb: 2, marginTop: "-5px", maxWidth: "83%", }} />
 
             {/* Filtros de Fecha, Campaña y Usuario */}
             <Box display="flex" gap={2} mb={4} marginBottom={2}>
@@ -1123,7 +1114,7 @@ const Reports: React.FC = () => {
             <Popper open={campaignMenuOpen} anchorEl={anchorElC} placement="bottom-start">
                 <Paper sx={{ width: 280, p: 2 }}>
                     <TextField
-                        placeholder="Buscar campaña"
+                        placeholder="Buscar"
                         fullWidth
                         value={campaignSearch}
                         onChange={(e) => setCampaignSearch(e.target.value)}
@@ -1160,7 +1151,7 @@ const Reports: React.FC = () => {
 
 
                     {/* Línea horizontal*/}
-                    <Divider sx={{ my: 1.5, bgcolor: '#dcdcdc', marginBottom: "10px", marginTop: "15px" }} />
+                    <Divider sx={{ my: 1.5, bgcolor: '#dcdcdc', marginBottom: "10px", marginTop: "15px", }} />
                     <div style={{
                         position: 'absolute',
                         top: '74px', // ajusta según el contenido anterior
@@ -1172,7 +1163,7 @@ const Reports: React.FC = () => {
                     </div>
 
                     <Box sx={{ maxHeight: 140, overflowY: 'auto' }}>
-                        <MenuItem onClick={handleSelectAllCampaigns}>
+                        {/* <MenuItem onClick={handleSelectAllCampaigns}>
                             <Checkbox checked={selectedCampaigns.length === campaigns.length}
                                 sx={{
                                     marginBottom: "-10px",
@@ -1184,9 +1175,9 @@ const Reports: React.FC = () => {
                                 }}
                             />
                             <ListItemText primary="Seleccionar todo"
-                                primaryTypographyProps={{ fontFamily: 'Poppins' }}
+                                primaryTypographyProps={{ fontFamily: 'Poppins', fontWeight: "500" }}
                             />
-                        </MenuItem>
+                        </MenuItem> */}
                         {campaigns.filter(c => c.toLowerCase().includes(campaignSearch.toLowerCase())).map(c => (
                             <MenuItem key={c} onClick={() => handleCampaignSelection(c)}>
                                 <Checkbox checked={selectedCampaigns.includes(c)}
@@ -1194,13 +1185,17 @@ const Reports: React.FC = () => {
                                         marginBottom: "-10px",
                                         marginTop: "-10px",
                                         marginLeft: "-20px",
-                                        color: '#6C3A52',
+                                        color: '#786E71',
                                         '&.Mui-checked': { color: '#6C3A52' },
 
                                     }}
                                 />
-                                <ListItemText primary={c}
-                                    primaryTypographyProps={{ fontFamily: 'Poppins' }}
+                                <ListItemText
+                                    primary={c}
+                                    primaryTypographyProps={{
+                                        fontFamily: 'Poppins',
+                                        color: selectedCampaigns.includes(c) ? '#8F4E63' : '#786E71',
+                                    }}
                                 />
                             </MenuItem>
                         ))}
@@ -1266,7 +1261,7 @@ const Reports: React.FC = () => {
             <Popper open={userMenuOpen} anchorEl={userAnchorEl} placement="bottom-start">
                 <Paper sx={{ width: 280, p: 2 }}>
                     <TextField
-                        placeholder="Buscar usuario"
+                        placeholder="Buscar"
                         fullWidth
                         value={userSearch}
                         onChange={(e) => setUserSearch(e.target.value)}
@@ -1313,13 +1308,14 @@ const Reports: React.FC = () => {
                     }}>
                     </div>
 
-                    <Box sx={{ maxHeight: 140, overflowY: 'auto' }}>
-                        <MenuItem onClick={handleSelectAllUsers}>
+                    <Box sx={{ maxHeight: 140, overflowY: 'auto',  }}>
+                        {/* <MenuItem onClick={handleSelectAllUsers}>
                             <Checkbox checked={selectedUsers.length === users.length}
                                 sx={{
                                     marginBottom: "-10px",
                                     marginTop: "-10px",
                                     marginLeft: "-20px",
+                                    
                                     color: '#6C3A52',
                                     '&.Mui-checked': { color: '#6C3A52' },
 
@@ -1328,7 +1324,7 @@ const Reports: React.FC = () => {
                             <ListItemText primary="Seleccionar todo"
                                 primaryTypographyProps={{ fontFamily: 'Poppins' }}
                             />
-                        </MenuItem>
+                        </MenuItem> */}
                         {users.filter(u => u.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
                             <MenuItem key={u} onClick={() => handleUserSelection(u)}>
                                 <Checkbox checked={selectedUsers.includes(u)}
@@ -1336,13 +1332,17 @@ const Reports: React.FC = () => {
                                         marginBottom: "-10px",
                                         marginTop: "-10px",
                                         marginLeft: "-20px",
-                                        color: '#6C3A52',
+                                        color: '#786E71',
                                         '&.Mui-checked': { color: '#6C3A52' },
 
                                     }}
                                 />
                                 <ListItemText primary={u}
-                                    primaryTypographyProps={{ fontFamily: 'Poppins' }}
+                                    primary={u}
+                                    primaryTypographyProps={{
+                                      fontFamily: 'Poppins',
+                                      color: selectedUsers.includes(u) ? '#8F4E63' : '#786E71',
+                                    }}
                                 />
                             </MenuItem>
                         ))}
@@ -1403,7 +1403,7 @@ const Reports: React.FC = () => {
                 </Paper>
             </Popper>
 
-            <Divider sx={{ mb: 4 }} />
+            <Divider sx={{ mb: 4, maxWidth: "83%"}} />
 
 
             {/* Controles de paginación (solo visual) */}
@@ -1622,9 +1622,9 @@ const Reports: React.FC = () => {
                 // Imagen de caja cerrada cuando NO se ha seleccionado ninguna fecha
                 <Box>
                     {/* Contenido por defecto cuando no hay selección */}
-                    <Card sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: 5, textAlign: "center", width: "82%" }}>
+                    <Card sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: 5, textAlign: "center", maxWidth: "83%" }}>
                         <CardContent>
-                            <Box component="img" src={BoxEmpty} alt="Caja Vacía" sx={{ width: '200px' }} />
+                            <Box component="img" src={BoxEmpty} alt="Caja Vacía" sx={{ width: '200px', height: "400px" }} />
                             <Typography mt={2} sx={{ color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins', fontSize: '14px' }}>
                                 Seleccione un canal del menú superior para comenzar.
                             </Typography>
@@ -1647,7 +1647,7 @@ const Reports: React.FC = () => {
                         marginTop: '20px'
                     }}
                 >
-                    <img src={boxopen} alt="No results" style={{ width: '150px', height: '150px' }} />
+                    <img src={boxopen} alt="No results" style={{ width: '150px', height: '150px',  }} />
                     <Typography
                         sx={{
                             textAlign: 'center',
@@ -1676,18 +1676,20 @@ const Reports: React.FC = () => {
                         padding: '20px',
                         marginTop: '5px',
                         overflowX: 'auto', // Habilita scroll horizontal
-                        overflowY: 'hidden', // Opcional: oculta scroll vertical si no se necesita
+                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                        height: '500px',
+                        maxHeight: '100%',
 
                     }}
 
 
                 >
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                    <table style={{ maxWidth: "83%", borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         {/* Encabezados */}
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4', }}>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1700,7 +1702,7 @@ const Reports: React.FC = () => {
                                     Fecha
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1712,7 +1714,7 @@ const Reports: React.FC = () => {
                                     Teléfono
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1724,7 +1726,7 @@ const Reports: React.FC = () => {
                                     Sala
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1736,6 +1738,7 @@ const Reports: React.FC = () => {
                                     Campaña
                                 </th>
                                 <th style={{
+                                    fontWeight: "500",
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -1750,7 +1753,7 @@ const Reports: React.FC = () => {
                                     Id de Campaña
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1762,6 +1765,7 @@ const Reports: React.FC = () => {
                                     Usuario
                                 </th>
                                 <th style={{
+                                    fontWeight: "500",
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -1776,7 +1780,7 @@ const Reports: React.FC = () => {
                                     Id de Mensaje
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1788,7 +1792,7 @@ const Reports: React.FC = () => {
                                     Mensaje
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1800,7 +1804,7 @@ const Reports: React.FC = () => {
                                     Estado
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1812,7 +1816,7 @@ const Reports: React.FC = () => {
                                     Fecha de Recepción
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -1824,7 +1828,7 @@ const Reports: React.FC = () => {
                                     Costo
                                 </th>
                                 <th style={{
-
+                                    fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
                                     fontFamily: 'Poppins, sans-serif',
@@ -2017,20 +2021,111 @@ const Reports: React.FC = () => {
                         padding: '20px',
                         marginTop: '5px',
                         overflowX: 'auto',
-                        overflowY: 'hidden',
+                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                        height: '500px',
+                        maxHeight: '100%',
                     }}
                 >
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                    <table style={{ maxWidth: "83%", borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                                <th style={headerStyle}>Fecha</th>
-                                <th style={headerStyle}>Teléfono</th>
-                                <th style={headerStyle}>Sala</th>
-                                <th style={headerStyle}>Campaña</th>
-                                <th style={headerStyle}>Id de Campaña</th>
-                                <th style={headerStyle}>Usuario</th>
-                                <th style={headerStyle}>Id de Mensaje</th>
-                                <th style={headerStyle}>Mensaje</th>
+                            <th style={{
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF',
+                                    opacity: 1,
+                                }}>
+                                    Fecha
+                                </th>
+                                <th style={{
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Teléfono
+                                </th>
+                                <th style={{
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Sala
+                                </th>
+                                <th style={{
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Campaña
+                                </th>
+                                <th style={{
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Id de campaña
+                                </th>
+                                <th style={{
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Usuario
+                                </th>
+                                <th style={{
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Id de mensaje
+                                </th>
+                                <th style={{
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Mensaje
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2062,21 +2157,149 @@ const Reports: React.FC = () => {
                         padding: '20px',
                         marginTop: '5px',
                         overflowX: 'auto',
-                        overflowY: 'hidden',
+                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                        height: '500px',
+                        maxHeight: '100%',
                     }}
                 >
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                    <table style={{ width: '83%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                                <th style={headerStyle}>Fecha</th>
-                                <th style={headerStyle}>Teléfono de destinatario</th>
-                                <th style={headerStyle}>Campaña</th>
-                                <th style={headerStyle}>ID de campaña</th>
-                                <th style={headerStyle}>Usuario</th>
-                                <th style={headerStyle}>Resultado</th>
-                                <th style={headerStyle}>Fecha de recepción</th>
-                                <th style={headerStyle}>ID de mensaje</th>
-                                <th style={headerStyle}>Mensaje</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Fecha
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Teléfono de destinatario
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Campaña
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    ID de campaña
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Usuario
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Resultado
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Fecha de recepción
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    ID de mensaje
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Mensaje
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2108,21 +2331,149 @@ const Reports: React.FC = () => {
                         padding: '20px',
                         marginTop: '5px',
                         overflowX: 'auto',
-                        overflowY: 'hidden',
+                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                        height: '500px',
+                        maxHeight: '100%',
                     }}
                 >
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                    <table style={{ width: '83%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                                <th style={headerStyle}>Fecha</th>
-                                <th style={headerStyle}>Usuario</th>
-                                <th style={headerStyle}>Sala</th>
-                                <th style={headerStyle}>Campaña</th>
-                                <th style={headerStyle}>Teléfono de destinatario</th>
-                                <th style={headerStyle}>Resultado</th>
-                                <th style={headerStyle}>Razón</th>
-                                <th style={headerStyle}>ID de mensaje</th>
-                                <th style={headerStyle}>Mensaje</th>
+                            <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Fecha
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Usuario
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Sala
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Campaña
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Teléfono de destinatario
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Resultado
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Razón
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    ID de mensaje
+                                </th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Mensaje
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2154,21 +2505,140 @@ const Reports: React.FC = () => {
                     padding: '20px',
                     marginTop: '5px',
                     overflowX: 'auto',
-                    overflowY: 'hidden',
+                    overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                    height: '500px',
+                    maxHeight: '100%',
                 }}
             >
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                <table style={{ width: '83%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                     <thead>
                         <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                            <th style={headerStyle}>Fecha</th>
-                            <th style={headerStyle}>Usuario</th>
-                            <th style={headerStyle}>Sala</th>
-                            <th style={headerStyle}>Campaña</th>
-                            <th style={headerStyle}>Teléfono de destinatario</th>
-                            <th style={headerStyle}>Resultado</th>
-                            <th style={headerStyle}>Razón</th>
-                            <th style={headerStyle}>ID de mensaje</th>
-                            <th style={headerStyle}>Mensaje</th>
+                        <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Fecha</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Usuario</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Sala</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Campaña</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Teléfono de destinatario</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Resultado</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Razón</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    ID de mensaje</th>
+                                    <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Mensaje</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2209,7 +2679,7 @@ const buttonStyle = {
     border: '1px solid #C6BFC2',
     borderRadius: '18px',
     padding: '8px 16px',
-    fontWeight: '600',
+    fontWeight: '500',
     letterSpacing: "1.12px",
     height: "36px",
     fontFamily: 'Poppins',
