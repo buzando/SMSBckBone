@@ -52,6 +52,7 @@ interface Reports {
     Fecharecepcion: Date,
     Costo: number,
     Tipo: string,
+    Resultado: string,
 }
 
 // Datos simulados de campañas y usuarios
