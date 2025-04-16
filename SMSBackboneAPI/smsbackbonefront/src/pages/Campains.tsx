@@ -37,6 +37,7 @@ import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 import DeleteIcon from "@mui/icons-material/Delete";
 import RestoreIcon from "@mui/icons-material/Restore";
+import IconSMS from '../assets/IconSMS.svg';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { ComposableMap, Geographies, Geography, GeographyProps } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
@@ -111,8 +112,10 @@ const Campains: React.FC = () => {
     const colorScale = scaleLinear<string>()
         .domain([0, 50])
         .range(["#F5E8EA", "#7B354D"]);
+        
+    const [panelAbierto, setPanelAbierto] = useState(true);    
     return (
-        <Box sx={{ padding: "20px" }}>
+        <Box sx={{ padding: "20px", marginLeft: "56px", maxWidth: "81%" }}>
             {/* Título principal */}
             <Typography
                 variant="h4"
@@ -129,19 +132,23 @@ const Campains: React.FC = () => {
             </Typography>
 
             {/* Línea divisoria */}
-            <Divider sx={{ marginBottom: "20px" }} />
-
+            <Divider sx={{ marginBottom: "20px", marginTop: "17px" }} />
+            
             <Grid container spacing={2}>
                 {/* Listado de campañas */}
-                <Grid item>
+                
+                <Grid item sx={{ display: 'flex' }}>
+                    <Box sx={{ display: "flex", }}>
+                    {/* Panel de campañas */}
+                    {panelAbierto && (
                     <Paper
                         sx={{
                             padding: "15px",
-                            borderRadius: "8px",
-                            width: "350px", // 🔥 Ancho fijo
-                            height: "581px", // 🔥 Alto fijo
+                            borderRadius: "8px 0 0 8px", // borde izquierdo redondeado
+                            width: "370px",
+                            height: "581px",
                             display: "flex",
-                            flexDirection: "column",
+                            flexDirection: "column"
                         }}
                     >
                         <Box
@@ -259,7 +266,7 @@ const Campains: React.FC = () => {
                                 color: "#645E60",
                                 opacity: 1,
                                 fontSize: "12px"
-                            }} value="">Seleccionar estatus</MenuItem>
+                            }} value="">Todos</MenuItem>
                             <MenuItem sx={{
                                 marginTop: "10px",
                                 marginBottom: "10px",
@@ -311,27 +318,63 @@ const Campains: React.FC = () => {
                                             <Box sx={{ marginTop: "-5px", display: "flex", alignItems: "center" }}>
                                                 <Checkbox sx={{ color: '#6C3A52', '&.Mui-checked': { color: '#6C3A52' } }} />
                                                 <img src={smsico} alt="SMS" style={{ width: "18px", height: "18px", marginRight: "8px" }} />
-                                                <Typography sx={{ fontSize: "12px", fontWeight: "500", fontFamily: "Poppins", color: "#574B4F" }}>
+                                                <Typography sx={{ fontSize: "12px", fontWeight: "500", fontFamily: "Poppins", color: "#574B4F", marginBottom: "6px" }}>
                                                     {campaign.name}
                                                 </Typography>
                                             </Box>
-                                            <MoreVertIcon />
+                                            <MoreVertIcon
+                                                sx={{
+                                                    position: "absolute", // o "relative"
+                                                    top: "30px",          // distancia desde el top de su contenedor padre
+                                                    right: "30px",
+                                                    height: "24px",
+                                                    width: "24px"
+                                                }}
+                                                />
                                             <PushPinIcon sx={{ color: "#6C3A52", fontSize: "18px" }} />
                                         </Box>
                                         <Box sx={{ width: "65%", backgroundColor: "#E0E0E0", borderRadius: "6px", height: "10px", position: "relative", marginBottom: "10px", marginX: "auto" }}>
-                                            <Box sx={{ width: `${progreso}%`, backgroundColor: "#8F4D63", borderRadius: "3px", height: "6px", position: "absolute" }} />
+                                            <Box sx={{ width: `${progreso}%`, backgroundColor: "#AE7888", borderRadius: "3px", 
+                                            height: "8px", 
+                                            position: "absolute", 
+                                            marginTop: "-9px",
+                                            }} />
                                         </Box>
                                         <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center", width: "100%", marginTop: "0px", paddingLeft: "45px" }}>
-                                            <Typography sx={{ fontSize: "12px", fontWeight: "600", color: "#574B4FCC", marginRight: "8px" }}>{Math.round(progreso)}%</Typography>
-                                            <Typography sx={{ fontSize: "12px", color: "#574B4FCC" }}>{campaign.numeroActual}/{campaign.numeroInicial}</Typography>
+                                            <Typography sx={{ fontSize: "12px", fontWeight: "600", color: "#574B4FCC", marginLeft: "7px", marginTop: "-7px" }}>{Math.round(progreso)}%</Typography>
+                                            <Typography sx={{ fontSize: "12px", color: "#574B4FCC", marginTop: "-7px", marginLeft: "7px" }}>{campaign.numeroActual}/{campaign.numeroInicial}</Typography>
                                         </Box>
                                     </ListItem>
                                 );
                             })}
                         </List>
                     </Paper>
-                </Grid>
+                )}
+    <IconButton
+      onClick={() => setPanelAbierto(!panelAbierto)}
+      sx={{
+        height: "581px",
+        width: "30px",
+        borderRadius: "0 8px 8px 0", // redondeado derecho
+        borderLeft: "1px solid #D6D6D6", // 👉 esta es la línea gris
+        backgroundColor: "#FFFFFF",
+        '&:hover': { backgroundColor: "#FFFFFF" },
+        paddingX: "10px"
+      }}
+    >
+      <Typography sx={{
+        fontSize: "20px",
+        transform: panelAbierto ? "rotate(0deg)" : "rotate(180deg)",
+        transition: "transform 0.3s"
+      }}
+      >
+        ❮
+      </Typography>
+    </IconButton>
+    </Box>
+  </Grid>
 
+                
                 {/* Visualización de campaña */}
                 <Grid item xs>
                     <Typography
@@ -349,22 +392,26 @@ const Campains: React.FC = () => {
                     </Typography>
 
 
-                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "527px", height: "256px" }}>
+                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", maxWidth: "100%", height: "auto" }}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <Typography
-                                variant="subtitle1"
-                                sx={{
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                                <img alt="IconSMS" src={IconSMS}
+                                    style={{ width: 35, height: 20, marginRight: "10px" }} // 👈 Ajusta el espacio aquí
+                                />
+                                <Typography
+                                    variant="subtitle1"
+                                    sx={{
                                     textAlign: "left",
                                     fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#574B4F",
                                     opacity: 1,
                                     fontSize: "18px",
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                Nombre de campaña 1
-                            </Typography>
+                                    }}
+                                >
+                                    Nombre de campaña 1
+                                </Typography>
+                                </Box>
                             <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                 <MoreVertIcon sx={{ color: "#574B4F", fontSize: "20px", cursor: "pointer" }} />
                                 <PushPinIcon sx={{ color: "#6C3A52", fontSize: "20px", cursor: "pointer" }} />
@@ -376,31 +423,55 @@ const Campains: React.FC = () => {
                                 border: "1px solid #D6CED2",
                                 borderRadius: "10px",
                                 opacity: 1,
-                                width: "495px",
-                                height: "131px",
+                                width: "100%", height: "auto",
                                 padding: "12px",
                                 marginTop: "10px",
                             }}
                         >
-                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <Typography sx={{ fontWeight: "bold" }}>Progreso: <span style={{ color: "#8F4D63" }}>Completada 100%</span></Typography>
-                                <Typography>30/30</Typography>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center",  }}>
+                                <Typography sx={{ fontFamily: "Poppins", }}>Progreso: <span style={{ color: "#8F4D63" }}>Completada 100%</span></Typography>
+                                
                                 <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
                                     <AccessTimeIcon sx={{ fontSize: "16px" }} />
-                                    <Typography>02:10 min</Typography>
+                                    <Typography sx={{fontFamily: "Poppins", opacity: 0.7, fontSize: "14px"}}>02:10 min</Typography>
                                 </Box>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
                                     <AutorenewIcon sx={{ fontSize: "16px" }} />
                                     <Typography>1</Typography>
                                 </Box>
                             </Box>
-                            <LinearProgress variant="determinate" value={100} sx={{ marginTop: "8px", height: "6px", borderRadius: "3px", backgroundColor: "#E0E0E0", '& .MuiLinearProgress-bar': { backgroundColor: "#8F4D63" } }} />
-                            <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
-                                <Typography sx={{ fontSize: "12px" }}>Procesados: <strong>30</strong></Typography>
-                                <Typography sx={{ fontSize: "12px" }}>Respondidos: <strong>4</strong></Typography>
-                                <Typography sx={{ fontSize: "12px" }}>Fuera de horario: <strong>6</strong></Typography>
-                                <Typography sx={{ fontSize: "12px" }}>Bloqueados: <strong>6</strong></Typography>
-                                <Typography sx={{ fontSize: "12px" }}>Totales: <strong>30</strong></Typography>
+                            <LinearProgress variant="determinate" value={100} sx={{ marginTop: "8px", height: "12px", borderRadius: "6px", backgroundColor: "#E0E0E0", '& .MuiLinearProgress-bar': { backgroundColor: "#AE7888" } }} />
+                            <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "8px"}}>
+                                <Typography sx={{ fontSize: "12px", fontFamily: "Poppins", opacity: 0.7, textAlign: "center"  }}>
+                                Registros <br />procesados:<br />
+                                <Box component="span" sx={{ fontSize: "24px", fontWeight: "bold", color: "#574B4F" }}>
+                                    30
+                                </Box>
+                                </Typography>
+                                <Typography sx={{ fontSize: "12px", fontFamily: "Poppins", opacity: 0.7, textAlign: "center"  }}>
+                                Registros <br />respondidos:<br />
+                                <Box component="span" sx={{ fontSize: "24px", fontWeight: "bold", color: "#574B4F" }}>
+                                    4
+                                </Box>
+                                </Typography>
+                                <Typography sx={{ fontSize: "12px", fontFamily: "Poppins", opacity: 0.7, textAlign: "center"  }}>
+                                Registros <br />fuera de horario:<br />
+                                <Box component="span" sx={{ fontSize: "24px", fontWeight: "bold", color: "#574B4F" }}>
+                                    6
+                                </Box>
+                                </Typography>
+                                <Typography sx={{ fontSize: "12px", fontFamily: "Poppins", opacity: 0.7, textAlign: "center"  }}>
+                                Registros <br />bloqueados:<br />
+                                <Box component="span" sx={{ fontSize: "24px", fontWeight: "bold", color: "#574B4F", }}>
+                                    6
+                                </Box>
+                                </Typography>
+                                <Typography sx={{ fontSize: "12px", fontFamily: "Poppins", opacity: 0.7, textAlign: "center"  }}>
+                                Total de <br />registros:<br />
+                                <Box component="span" sx={{ fontSize: "24px", fontWeight: "bold", color: "#574B4F" }}>
+                                    30
+                                </Box>
+                                </Typography>
                             </Box>
                         </Box>
                         <Box sx={{ display: "flex", justifyContent: "right", marginTop: "8px" }}>
@@ -412,16 +483,16 @@ const Campains: React.FC = () => {
                     </Paper>
 
                     {/* Horarios */}
-                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "527px", height: "256px" }}>
+                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", maxWidth: "100%", height: "auto" }}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                            <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", }}>
                                 Horarios
                             </Typography>
                             <IconButton>
                                 <img src={iconclose} width="24px" height="24px" />
                             </IconButton>
                         </Box>
-                        <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "496px", height: "97px", backgroundColor: "#D6D6D64D" }}>
+                        <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", height: "auto", backgroundColor: "#D6D6D64D" }}>
                             <List>
                                 {["25 Mar, 09:30 - 10:30", "25 Mar, 11:00 - 11:30", "26 Mar, 12:00 - 28 Mar, 12:30"].map(
                                     (horario, index) => (
@@ -445,29 +516,38 @@ const Campains: React.FC = () => {
                             </List>
                         </Box>
                     </Paper>
-                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "527px", height: "256px" }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", height: "auto" }}>
+                        <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", marginBottom: "5px" }}>
                             Mensaje
                         </Typography>
-                        <Box sx={{ padding: "10px", borderRadius: "10px", width: "496px", backgroundColor: "#D6D6D64D" }}>
+                        <Box sx={{ padding: "10px", borderRadius: "10px", width: "100%", height: "auto", backgroundColor: "#D6D6D64D", opacity: 0.6 }}>
                             <Typography sx={{ textAlign: "left", fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
                                 A wonderful serenity has taken possession of my entire soul, like these sweet mornings of spring which I enjoy with my whole heart.
                             </Typography>
                         </Box>
                         <Divider sx={{ marginY: "15px" }} />
-                        <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "527px" }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                        <Paper sx={{ padding: "10px", marginTop: "15px", borderRadius: "10px", width: "100%", height: "auto", marginLeft: "-10px" }}>
+                            <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", marginBottom: "5px" }}>
                                 Prueba de envío
                             </Typography>
-                            <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "496px", backgroundColor: "#F5F5F5" }}>
+                            <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", height: "auto", backgroundColor: "#F5F5F5" }}>
                                 <Typography sx={{ textAlign: "left", fontFamily: "Poppins", fontSize: "14px", color: "#574B4F", marginBottom: "5px" }}>Teléfono</Typography>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <TextField
-                                        value={phone}
-                                        onChange={handlePhoneChange}
+                                <TextField
+                                    value={phone}
+                                    onChange={(e) => {
+                                        const onlyNumbers = e.target.value.replace(/\D/g, ""); // elimina todo lo que no sea número
+                                        setPhone(onlyNumbers);
+                                        setError(!validatePhone(onlyNumbers));
+                                    }}
                                         error={error}
                                         helperText={error ? "Formato inválido" : ""}
                                         placeholder="5255"
+                                        inputProps={{
+                                            inputMode: 'numeric', // muestra teclado numérico en móviles
+                                            pattern: '[0-9]*',    // ayuda extra para validar numérico
+                                            maxLength: 12         // opcional: máximo 12 dígitos
+                                        }}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
@@ -479,39 +559,49 @@ const Campains: React.FC = () => {
                                                 </InputAdornment>
                                             ),
                                         }}
-                                        sx={{
-                                            width: "75%",
-                                            backgroundColor: "#FFFFFF",
-                                            borderRadius: "4px",
-                                        }}
-                                    />
+                                            sx={{
+                                                width: "75%",
+                                                backgroundColor: "#FFFFFF",
+                                                borderRadius: "4px",
+                                                "& .MuiInputBase-input": {
+                                                    fontFamily: "Poppins, sans-serif",
+                                                },
+                                                "& .MuiFormHelperText-root": {
+                                                    fontFamily: "Poppins, sans-serif",
+                                                    backgroundColor: "#F2F2F2",
+                                                    padding: "4px 8px",
+                                                    borderRadius: "4px",
+                                                    margin: 0,
+                                                }
+                                            }}
+                                        />
                                     <MainButton text='Enviar' onClick={() => console.log('Enviar')} disabled={error} />
                                 </Box>
                             </Box>
                         </Paper>
                     </Paper>
 
-                    <Paper sx={{ padding: "10px", marginTop: "80px", borderRadius: "10px", width: "527px" }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
-                            Registros
+                    <Paper sx={{ padding: "10px", marginTop: "60px", borderRadius: "10px", width: "100%", height: "auto" }}>
+                        <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", marginBottom: "5px", marginLeft: "10px",  }}>
+                            Gestión de registros
                         </Typography>
                         <TableContainer>
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Tipo</TableCell>
-                                        <TableCell align="center">Total</TableCell>
-                                        <TableCell align="center">Porcentaje</TableCell>
-                                        <TableCell align="center">Acción</TableCell>
+                                        <TableCell sx={{ fontFamily: "Poppins, sans-serif", padding: "10px 8px", opacity: 0.8 }}>Tipo</TableCell>
+                                        <TableCell align="center" sx={{ fontFamily: "Poppins, sans-serif", opacity: 0.8, padding: "10px 8px", }}>Total</TableCell>
+                                        <TableCell align="center" sx={{ fontFamily: "Poppins, sans-serif", opacity: 0.8, padding: "10px 8px", }}>Porcentaje</TableCell>
+                                        <TableCell align="center" sx={{ fontFamily: "Poppins, sans-serif", opacity: 0.8, padding: "10px 8px", }}>Acción</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {registros.map((registro, index) => (
                                         <TableRow key={index}>
-                                            <TableCell>{registro.tipo}</TableCell>
-                                            <TableCell align="center">{registro.total}</TableCell>
-                                            <TableCell align="center">{registro.porcentaje}</TableCell>
-                                            <TableCell align="center">
+                                            <TableCell sx={{ fontSize: "13px", fontFamily: "Poppins, sans-serif", padding: "6px 8px", opacity: 0.5,  }}>{registro.tipo}</TableCell>
+                                            <TableCell align="center" sx={{ fontFamily: "Poppins, sans-serif", padding: "2px 8px", opacity: 0.6 }}>{registro.total}</TableCell>
+                                            <TableCell align="center" sx={{ fontFamily: "Poppins, sans-serif", padding: "2px 8px", opacity: 0.7 }}>{registro.porcentaje}</TableCell>
+                                            <TableCell align="center" sx={{ fontFamily: "Poppins, sans-serif", padding: "2px 8px", opacity: 0.6 }}>
                                                 <IconButton>
                                                     <DeleteIcon sx={{ color: "#9B9295" }} />
                                                 </IconButton>
@@ -526,16 +616,16 @@ const Campains: React.FC = () => {
                         </TableContainer>
                     </Paper>
 
-                    <Paper sx={{ padding: "10px", marginTop: "70px", borderRadius: "10px", width: "527px" }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                    <Paper sx={{ padding: "10px", marginTop: "25px", borderRadius: "10px", width: "100%", height: "auto" }}>
+                        <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", marginBottom: "10px", marginLeft: "10px" }}>
                             Resultados de envío
                         </Typography>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", padding: "10px", backgroundColor: "#F5F5F5", borderRadius: "10px", marginBottom: "20px" }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", padding: "10px", border: "2px solid #F2F2F2", borderRadius: "10px", marginBottom: "20px" }}>
                             {indicadores.map((indicador, index) => (
                                 <Box key={index} sx={{ textAlign: "center" }}>
                                     <img src={infoicon} width="24px" height="24px" />
                                     <Typography sx={{ fontSize: "10px", color: "#9B9295" }}>{indicador.label}</Typography>
-                                    <Typography sx={{ fontSize: "14px", color: indicador.color, fontWeight: "bold" }}>{indicador.value}</Typography>
+                                    <Typography sx={{ fontSize: "22px", color: indicador.color, fontWeight: "bold" }}>{indicador.value}</Typography>
                                 </Box>
                             ))}
                         </Box>
@@ -545,7 +635,7 @@ const Campains: React.FC = () => {
                                 <XAxis dataKey="name" />
                                 <YAxis />
                                 <Tooltip />
-                                <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                                <Bar dataKey="value">
                                     {data.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
@@ -553,8 +643,8 @@ const Campains: React.FC = () => {
                             </BarChart>
                         </ResponsiveContainer>
                     </Paper>
-                    <Paper sx={{ padding: "10px", marginTop: "30px", borderRadius: "10px", width: "527px" }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", marginBottom: "5px" }}>
+                    <Paper sx={{ padding: "10px", marginTop: "30px", borderRadius: "10px", width: "100%", height: "auto" }}>
+                        <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", marginBottom: "5px" }}>
                             Mapa de concentración de mensajes
                         </Typography>
                         <ComposableMap projection="geoMercator" projectionConfig={{ scale: 1200 }} style={{ width: "100%", height: "auto" }}>

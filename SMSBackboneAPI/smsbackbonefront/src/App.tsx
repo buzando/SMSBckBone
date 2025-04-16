@@ -104,7 +104,7 @@ function App() {
                                 <Route path='/Reports' element={<Reports />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
-                                <Route path='/Campaigns' element={<Campaigns />} />
+                                <Route path='/Campains' element={<Campaigns />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/Costs' element={<Costs />} />
