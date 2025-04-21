@@ -41,6 +41,8 @@ import infoiconerror from '../assets/Icon-infoerror.svg'
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChipBar from "../components/commons/ChipBar";
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
+
 type Account = {
     id: number;
     name: string;
@@ -86,7 +88,7 @@ const ManageAccounts: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [ConfirmationEmail, setConfirmationEmail] = useState("");
     const [isEditing, setIsEditing] = useState(false); // Para saber si es edición
-    const [loading, setLoading] = useState(false); 
+    const [loading, setLoading] = useState(false);
     const [showChipBarAdd, setshowChipBarAdd] = useState(false);
     const [formData, setFormData] = useState<FormData>({
         name: "",
@@ -456,7 +458,7 @@ const ManageAccounts: React.FC = () => {
 
 
     return (
-        <Box p ={3} sx={{marginTop: "-80px",}}>
+        <Box p={3} sx={{ marginTop: "-80px", }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -466,104 +468,146 @@ const ManageAccounts: React.FC = () => {
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <IconButton
+                    onClick={() => navigate('/')}
+                    sx={{ color: "#5A2836", mr: 1 }}
+                >
+                    <img
+                        src={ArrowBackIosNewIcon}
+                        alt="Regresar"
+                        style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
+                    />
+                </IconButton>
 
-            <Typography variant="h4" mb={2} fontFamily={"Poppins"}>
-                Administrar cuentas
-            </Typography>
-            <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                sx={{ mb: 3, backgroundColor: "#A05B71", fontFamily: "Poppins" }}
-                onClick={handleOpenModal}
-            >
-                Añadir usuario
-            </Button>
-            <TableContainer component={Paper} 
-    sx={{
-        maxWidth: "84%", // 🔥 Limita el ancho de la tabla
-        marginLeft: "-200 auto", // 🔥 Centra la tabla en la pantalla
-        overflowX: "auto", // 🔥 Agrega scroll horizontal solo si es necesario
-    }}
->
-    <Table 
-        sx={{ 
-            maxWidth: 1750,  // 🔥 Define un ancho mínimo para evitar que las celdas se compriman demasiado
-            tableLayout: "auto" // 🔥 Permite que las columnas se ajusten automáticamente
-        }} 
-        aria-label="tabla de usuarios"
-    >
-                    <TableHead>
-                        <TableRow>
-                            <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Nombre</TableCell>
-                            <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Correo Electrónico</TableCell>
-                            <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Rol</TableCell>
-                            <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Ícono</TableCell>
-                            <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Salas</TableCell>
-                            <TableCell align="right"></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {accounts.length === 0 ? (
+                <Typography
+                    variant="h4"
+                    fontFamily="Poppins"
+                    sx={{ color: "#5A2836", fontWeight: "bold" }}
+                >
+                    Usuarios
+                </Typography>
+            </Box>
+
+            {/* Contenido principal más a la derecha (título + línea) */}
+            <Box sx={{ pl: 5 }}> {/* Puedes ajustar a pl: 4, 5, 6 según tu diseño */}
+                <Box sx={{ maxWidth: "68%", mx: "auto", mb: 3 }}>
+                <Divider
+                    sx={{
+                        borderColor: "#DDD",
+                        mb: 3,
+                        width: "100%",
+                    }}
+                    />
+                </Box>
+                <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    sx={{ mb: 3, backgroundColor: "#A05B71", fontFamily: "Poppins" }}
+                    onClick={handleOpenModal}
+                >
+                    Añadir usuario
+                </Button>
+                <TableContainer component={Paper}
+                    sx={{
+                        maxWidth: "84%", // 🔥 Limita el ancho de la tabla
+                        marginLeft: "-200 auto", // 🔥 Centra la tabla en la pantalla
+                        overflowX: "auto", // 🔥 Agrega scroll horizontal solo si es necesario
+                    }}
+                >
+                    <Table
+                        sx={{
+                            maxWidth: 1750,  // 🔥 Define un ancho mínimo para evitar que las celdas se compriman demasiado
+                            tableLayout: "auto" // 🔥 Permite que las columnas se ajusten automáticamente
+                        }}
+                        aria-label="tabla de usuarios"
+                    >
+                        <TableHead>
                             <TableRow>
-                                <TableCell colSpan={6} align="center">
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            py: 4,
-                                            width: "100%",
-            maxWidth: "600px", // 🔥 Evita que el contenedor se expanda más de lo necesario
-            margin: "0 auto",
-                                            
-                                        }}
-                                    >
-                                        <img src={Nousers} alt="Sin usuarios" style={{
-            maxWidth: "250px", // 🔥 Define un tamaño máximo para evitar estiramientos
-            width: "auto",
-            height: "auto",
-            objectFit: "contain",
-        }} />
-                                        <Typography
-                                            variant="h6"
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Nombre</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Correo Electrónico</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Rol</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Ícono</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Salas</TableCell>
+                                <TableCell align="right"></TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {accounts.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} align="center">
+                                        <Box
                                             sx={{
-                                                fontFamily: "Poppins",
-                                                color: "#A05B71",
-                                               
-                                                mt: 2,
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                py: 4,
+                                                width: "100%",
+                                                maxWidth: "600px", // 🔥 Evita que el contenedor se expanda más de lo necesario
+                                                margin: "0 auto",
+
                                             }}
                                         >
-                                            Agrega un usuario para comenzar
-                                        </Typography>
-                                    </Box>
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            accounts.map((account) => (
-                                <TableRow key={account.id}>
-                                    <TableCell>{account.name}</TableCell>
-                                    <TableCell>{account.email}</TableCell>
-                                    <TableCell>{account.role}</TableCell>
-                                    {/* Ícono condicional */}
-                                    <TableCell>
-                                        {account.role === "Administrador" && (
-                                            <img src={usrAdmin} alt="Administrador" width="32" height="32" />
-                                        )}
-                                        {account.role === "Supervisor" && (
-                                            <img src={usrSup} alt="Supervisor" width="32" height="32" />
-                                        )}
-                                        {account.role === "Monitor" && (
-                                            <img src={usrMon} alt="Monitor" width="32" height="32" />
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        {account.rooms.length > 30 ? (
-                                            <Tooltip
-                                                title={account.rooms}
-                                                placement="top"
-                                                arrow
+                                            <img src={Nousers} alt="Sin usuarios" style={{
+                                                maxWidth: "250px", // 🔥 Define un tamaño máximo para evitar estiramientos
+                                                width: "auto",
+                                                height: "auto",
+                                                objectFit: "contain",
+                                            }} />
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    color: "#A05B71",
+
+                                                    mt: 2,
+                                                }}
                                             >
+                                                Agrega un usuario para comenzar
+                                            </Typography>
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                accounts.map((account) => (
+                                    <TableRow key={account.id}>
+                                        <TableCell>{account.name}</TableCell>
+                                        <TableCell>{account.email}</TableCell>
+                                        <TableCell>{account.role}</TableCell>
+                                        {/* Ícono condicional */}
+                                        <TableCell>
+                                            {account.role === "Administrador" && (
+                                                <img src={usrAdmin} alt="Administrador" width="32" height="32" />
+                                            )}
+                                            {account.role === "Supervisor" && (
+                                                <img src={usrSup} alt="Supervisor" width="32" height="32" />
+                                            )}
+                                            {account.role === "Monitor" && (
+                                                <img src={usrMon} alt="Monitor" width="32" height="32" />
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {account.rooms.length > 30 ? (
+                                                <Tooltip
+                                                    title={account.rooms}
+                                                    placement="top"
+                                                    arrow
+                                                >
+                                                    <Typography
+                                                        noWrap
+                                                        sx={{
+                                                            maxWidth: "200px", // Ajusta el ancho máximo visible
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis",
+                                                            whiteSpace: "nowrap",
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        {account.rooms}
+                                                    </Typography>
+                                                </Tooltip>
+                                            ) : (
                                                 <Typography
                                                     noWrap
                                                     sx={{
@@ -571,85 +615,71 @@ const ManageAccounts: React.FC = () => {
                                                         overflow: "hidden",
                                                         textOverflow: "ellipsis",
                                                         whiteSpace: "nowrap",
-                                                        cursor: "pointer",
                                                     }}
                                                 >
                                                     {account.rooms}
                                                 </Typography>
-                                            </Tooltip>
-                                        ) : (
-                                            <Typography
-                                                noWrap
-                                                sx={{
-                                                    maxWidth: "200px", // Ajusta el ancho máximo visible
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    whiteSpace: "nowrap",
-                                                }}
-                                            >
-                                                {account.rooms}
-                                            </Typography>
-                                        )}
-                                    </TableCell>
+                                            )}
+                                        </TableCell>
 
-                                    <TableCell
-                                        align="center"
-                                        sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            position: "relative",
-                                        }}
-                                    >
-                                        <Divider
-                                            orientation="vertical"
-                                            flexItem
+                                        <TableCell
+                                            align="center"
                                             sx={{
-                                                position: "absolute",
-                                                height: "100%", // Ocupa todo el alto de la celda
-                                                left: "10%", // Ajusta la posición hacia la izquierda
-                                                transform: "translateX(-50%)", // Centra la línea respecto a `left`
-                                                backgroundColor: "#ccc", // Color opcional
-                                                zIndex: 1,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                position: "relative",
                                             }}
-                                        />
-                                        <IconButton
-                                            onClick={(e) => handleMenuOpen(e, account)}
-                                            aria-label="more"
                                         >
-                                            <MoreVertIcon />
-                                        </IconButton>
-                                        <Menu
-                                            anchorEl={menuAnchorEl}
-                                            open={Boolean(menuAnchorEl)}
-                                            onClose={handleMenuClose}
-                                        >
-                                            <MenuItem
-                                                onClick={() => {
-                                                    handleEditClick(selectedAccount!); // Pasamos el account seleccionado
-                                                    handleMenuClose(); // Cerramos el menú
+                                            <Divider
+                                                orientation="vertical"
+                                                flexItem
+                                                sx={{
+                                                    position: "absolute",
+                                                    height: "100%", // Ocupa todo el alto de la celda
+                                                    left: "10%", // Ajusta la posición hacia la izquierda
+                                                    transform: "translateX(-50%)", // Centra la línea respecto a `left`
+                                                    backgroundColor: "#ccc", // Color opcional
+                                                    zIndex: 1,
                                                 }}
-                                            ><EditIcon sx={{ marginRight: 1, color: '#A05B71' }} />
-                                                Editar
-                                            </MenuItem>
-                                            <MenuItem
-                                                onClick={() => {
-                                                    setOpenDeleteModal(true);
-                                                    handleMenuClose();
-                                                }}
+                                            />
+                                            <IconButton
+                                                onClick={(e) => handleMenuOpen(e, account)}
+                                                aria-label="more"
                                             >
-                                                <DeleteIcon sx={{ marginRight: 1, color: '#A05B71' }} />
-                                                Eliminar
-                                            </MenuItem>
-                                        </Menu>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
+                                                <MoreVertIcon />
+                                            </IconButton>
+                                            <Menu
+                                                anchorEl={menuAnchorEl}
+                                                open={Boolean(menuAnchorEl)}
+                                                onClose={handleMenuClose}
+                                            >
+                                                <MenuItem
+                                                    onClick={() => {
+                                                        handleEditClick(selectedAccount!); // Pasamos el account seleccionado
+                                                        handleMenuClose(); // Cerramos el menú
+                                                    }}
+                                                ><EditIcon sx={{ marginRight: 1, color: '#A05B71' }} />
+                                                    Editar
+                                                </MenuItem>
+                                                <MenuItem
+                                                    onClick={() => {
+                                                        setOpenDeleteModal(true);
+                                                        handleMenuClose();
+                                                    }}
+                                                >
+                                                    <DeleteIcon sx={{ marginRight: 1, color: '#A05B71' }} />
+                                                    Eliminar
+                                                </MenuItem>
+                                            </Menu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
             <Modal open={openAddUserModal} onClose={handleCloseModal}>
                 <Box
                     sx={{
@@ -792,7 +822,7 @@ const ManageAccounts: React.FC = () => {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleInputChange}
-                                error={showErrors.email &&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)}
+                                error={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)}
                                 helperText={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && "Ingrese un correo válido."}
                                 InputProps={{
                                     endAdornment: (
@@ -861,7 +891,7 @@ const ManageAccounts: React.FC = () => {
                                             textAlign: "left",
                                             font: "normal normal medium 16px/54px Poppins",
                                             letterSpacing: "0px",
-                                            color: showErrors.password &&!isPasswordValid(formData.password) ? "#D11247" : "#000000",
+                                            color: showErrors.password && !isPasswordValid(formData.password) ? "#D11247" : "#000000",
                                             opacity: 1,
                                             fontSize: "16px",
                                             marginBottom: "8px",
@@ -875,14 +905,14 @@ const ManageAccounts: React.FC = () => {
                                         type="password"
                                         value={formData.password}
                                         onChange={handleInputChange}
-                                        error={showErrors.password &&!isPasswordValid(formData.password)}
-                                        helperText={showErrors.password &&!isPasswordValid(formData.password) && "La contraseña debe cumplir con los requisitos."}
+                                        error={showErrors.password && !isPasswordValid(formData.password)}
+                                        helperText={showErrors.password && !isPasswordValid(formData.password) && "La contraseña debe cumplir con los requisitos."}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <Tooltip title="Debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número.">
                                                         <img
-                                                            src={showErrors.password &&!isPasswordValid(formData.password) ? infoiconerror : infoicon}
+                                                            src={showErrors.password && !isPasswordValid(formData.password) ? infoiconerror : infoicon}
                                                             alt="Info"
                                                             style={{ width: 16, height: 16 }}
                                                         />
