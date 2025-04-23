@@ -1210,7 +1210,9 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 sx={{
 position: "relative",
 left: "17px",
-height: "480px",
+height: "auto",
+maxHeight: 'calc(100vh - 100px)',
+overflowY: "auto",
 marginTop: "25px",
 width: "245px",
 borderRadius: "6px",

@@ -42,7 +42,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChipBar from "../components/commons/ChipBar";
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
-
+import SecondaryButton from "../components/commons/SecondaryButton";
+import MainButton from "../components/commons/MainButton";
 type Account = {
     id: number;
     name: string;
@@ -458,7 +459,7 @@ const ManageAccounts: React.FC = () => {
 
 
     return (
-        <Box p={3} sx={{ marginTop: "-80px", }}>
+        <Box p={3} sx={{ marginTop: "-80px", width: '90%' }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -492,12 +493,12 @@ const ManageAccounts: React.FC = () => {
             {/* Contenido principal más a la derecha (título + línea) */}
             <Box sx={{ pl: 5 }}> {/* Puedes ajustar a pl: 4, 5, 6 según tu diseño */}
                 <Box sx={{ maxWidth: "68%", mx: "auto", mb: 3 }}>
-                <Divider
-                    sx={{
-                        borderColor: "#DDD",
-                        mb: 3,
-                        width: "100%",
-                    }}
+                    <Divider
+                        sx={{
+                            borderColor: "#DDD",
+                            mb: 3,
+                            width: "100%",
+                        }}
                     />
                 </Box>
                 <Button
@@ -524,11 +525,11 @@ const ManageAccounts: React.FC = () => {
                     >
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Nombre</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Correo Electrónico</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Rol</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Ícono</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836' }}>Salas</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Nombre</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Correo Electrónico</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Rol</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Ícono</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Salas</TableCell>
                                 <TableCell align="right"></TableCell>
                             </TableRow>
                         </TableHead>
@@ -572,9 +573,9 @@ const ManageAccounts: React.FC = () => {
                             ) : (
                                 accounts.map((account) => (
                                     <TableRow key={account.id}>
-                                        <TableCell>{account.name}</TableCell>
-                                        <TableCell>{account.email}</TableCell>
-                                        <TableCell>{account.role}</TableCell>
+                                        <TableCell><Typography sx={{ fontFamily: "Poppins" }}>{account.name} </Typography></TableCell>
+                                        <TableCell><Typography sx={{ fontFamily: "Poppins" }}>{account.email} </Typography></TableCell>
+                                        <TableCell><Typography sx={{ fontFamily: "Poppins" }}>{account.role} </Typography></TableCell>
                                         {/* Ícono condicional */}
                                         <TableCell>
                                             {account.role === "Administrador" && (
@@ -602,6 +603,7 @@ const ManageAccounts: React.FC = () => {
                                                             textOverflow: "ellipsis",
                                                             whiteSpace: "nowrap",
                                                             cursor: "pointer",
+                                                            fontFamily: "Poppins"
                                                         }}
                                                     >
                                                         {account.rooms}
@@ -615,6 +617,7 @@ const ManageAccounts: React.FC = () => {
                                                         overflow: "hidden",
                                                         textOverflow: "ellipsis",
                                                         whiteSpace: "nowrap",
+                                                        fontFamily: "Poppins"
                                                     }}
                                                 >
                                                     {account.rooms}
@@ -694,6 +697,8 @@ const ManageAccounts: React.FC = () => {
                         boxShadow: 24,
                         p: 4,
                         borderRadius: 2,
+                        display: "flex",
+                        flexDirection: "column",
                     }}
                 >
                     {/* Botón de cierre */}
@@ -719,581 +724,554 @@ const ManageAccounts: React.FC = () => {
                         color: "#574B4F",
                         opacity: 1,
                         fontSize: "20px",
+                        mt: -1,
+                        ml: -1
                     }}>
                         {isEditing ? "Editar usuario" : "Añadir usuario"}
                     </Typography>
                     <Divider sx={{ my: 2, backgroundColor: "#CCC" }} />
                     {/* Form */}
-                    <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
-                        {/* Nombre */}
-                        <Box gridColumn="span 6">
-                            <Typography
-                                sx={{
-                                    textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
-                                    letterSpacing: "0px",
-                                    color: !/^[a-zA-Z\s]*$/.test(formData.name) ? "#D11247" : "#000000",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                    marginBottom: "8px",
-                                }}
-                            >
-                                Nombre*
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                required
-                                error={!/^[a-zA-Z\s]*$/.test(formData.name)}
-                                helperText={!/^[a-zA-Z\s]*$/.test(formData.name) && "Solo letras y espacios."}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <Tooltip title="Número telefónico">
-                                                <img
-                                                    src={!/^[a-zA-Z\s]*$/.test(formData.name) ? infoiconerror : infoicon}
-                                                    alt="Info"
-                                                    style={{ width: 16, height: 16 }}
-                                                />
-                                            </Tooltip>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Box>
-                        <Box gridColumn="span 6"></Box>
-                        <Box gridColumn="span 6">
-                            <Typography
-                                sx={{
-                                    textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
-                                    letterSpacing: "0px",
-                                    color: showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) ? "#D11247" : "#000000",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                    marginBottom: "8px",
-                                }}
-                            >
-                                Telefono*
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                error={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone)}
-                                helperText={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) && "Debe tener 10 dígitos."}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <Tooltip title="Número telefónico">
-                                                <img
-                                                    src={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) ? infoiconerror : infoicon}
-                                                    alt="Info"
-                                                    style={{ width: 16, height: 16 }}
-                                                />
-                                            </Tooltip>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Box>
-                        {/* Teléfono */}
-                        {/* Correo y Confirmación de Correo */}
-                        {/* Correo Electrónico */}
-                        <Box gridColumn="span 6">
-                            <Typography
-                                sx={{
-                                    textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
-                                    letterSpacing: "0px",
-                                    color: showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ? "#D11247" : "#000000",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                    marginBottom: "8px",
-                                }}
-                            >
-                                Correo Electrónico*
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                error={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)}
-                                helperText={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && "Ingrese un correo válido."}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <Tooltip title="Ejemplo: usuario@dominio.com">
-                                                <img
-                                                    src={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ? infoiconerror : infoicon}
-                                                    alt="Info"
-                                                    style={{ width: 16, height: 16 }}
-                                                />
-                                            </Tooltip>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                required
-                            />
-                        </Box>
-
-                        {/* Confirmar Correo Electrónico */}
-                        <Box gridColumn="span 6">
-                            <Typography
-                                sx={{
-                                    textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
-                                    letterSpacing: "0px",
-                                    color: formData.email !== formData.confirmEmail ? "#D11247" : "#000000",
-                                    opacity: 1,
-                                    fontSize: "16px",
-                                    marginBottom: "8px",
-                                }}
-                            >
-                                Confirmar Correo electronico*
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                name="confirmEmail"
-                                value={formData.confirmEmail}
-                                onChange={handleInputChange}
-                                error={formData.email !== formData.confirmEmail}
-                                helperText={
-                                    formData.email !== formData.confirmEmail && "Los correos electrónicos no coinciden."
-                                }
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <Tooltip title="Debe coincidir con el correo ingresado.">
-                                                <img
-                                                    src={formData.email !== formData.confirmEmail ? infoiconerror : infoicon}
-                                                    alt="Info"
-                                                    style={{ width: 16, height: 16 }}
-                                                />
-                                            </Tooltip>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                required
-                            />
-                        </Box>
-                        {/* Contraseña y Confirmar Contraseña */}
-                        {!isEditing && (
-                            <>
-                                {/* Contraseña */}
-                                <Box gridColumn="span 6">
-                                    <Typography
-                                        sx={{
-                                            textAlign: "left",
-                                            font: "normal normal medium 16px/54px Poppins",
-                                            letterSpacing: "0px",
-                                            color: showErrors.password && !isPasswordValid(formData.password) ? "#D11247" : "#000000",
-                                            opacity: 1,
-                                            fontSize: "16px",
-                                            marginBottom: "8px",
-                                        }}
-                                    >
-                                        Contraseña*
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        name="password"
-                                        type="password"
-                                        value={formData.password}
-                                        onChange={handleInputChange}
-                                        error={showErrors.password && !isPasswordValid(formData.password)}
-                                        helperText={showErrors.password && !isPasswordValid(formData.password) && "La contraseña debe cumplir con los requisitos."}
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <Tooltip title="Debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número.">
-                                                        <img
-                                                            src={showErrors.password && !isPasswordValid(formData.password) ? infoiconerror : infoicon}
-                                                            alt="Info"
-                                                            style={{ width: 16, height: 16 }}
-                                                        />
-                                                    </Tooltip>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        required
-                                    />
-                                </Box>
-                                {/* Confirmar contraseña */}
-                                <Box gridColumn="span 6">
-                                    <Typography
-                                        sx={{
-                                            textAlign: "left",
-                                            font: "normal normal medium 16px/54px Poppins",
-                                            letterSpacing: "0px",
-                                            color: formData.password !== formData.confirmPassword ? "#D11247" : "#000000",
-                                            opacity: 1,
-                                            fontSize: "16px",
-                                            marginBottom: "8px",
-                                        }}
-                                    >
-                                        Confirma contraseña*
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        name="confirmPassword"
-                                        type="password"
-                                        value={formData.confirmPassword}
-                                        onChange={handleInputChange}
-                                        error={formData.password !== formData.confirmPassword}
-                                        helperText={
-                                            formData.password !== formData.confirmPassword && "Las contraseñas no coinciden."
-                                        }
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <Tooltip title="Deben coincidir las contraseñas">
-                                                        <img
-                                                            src={(formData.password !== formData.confirmPassword) ? infoiconerror : infoicon}
-                                                            alt="Info"
-                                                            style={{ width: 16, height: 16 }}
-                                                        />
-                                                    </Tooltip>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        required
-                                    />
-                                </Box>
-                            </>
-                        )}
-                    </Box>
-
-                    {/* Checkbox */}
-                    {!isEditing && (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={formData.useRecoveryEmail}
-                                        onChange={handleInputChange}
-                                        name="useRecoveryEmail"
-                                        sx={{
-                                            mt: 0, // Alineación precisa con el texto
-                                            color: "#FFFFFF",
-                                            '&.Mui-checked': {
-                                                color: "#FFFFFF",
-                                                '& .MuiSvgIcon-root': {
-                                                    backgroundColor: "#8F4D63",
-                                                    borderRadius: "4px",
-                                                    color: "#FFFFFF", // Color de la palomita
-                                                },
-                                            },
-                                            '& .MuiSvgIcon-root': {
-                                                border: "1px solid #8F4D63",
-                                                borderRadius: "4px",
-                                                backgroundColor: "#FFFFFF", // Fondo del checkbox por defecto
-                                            },
-                                        }}
-                                    />
-                                }
-                                label={
-                                    <Typography
-                                        sx={{
-                                            textAlign: "left",
-                                            font: "normal normal normal 16px/54px Poppins",
-                                            letterSpacing: "0px",
-                                            color: "#8F4D63",
-                                            opacity: 1,
-                                            fontSize: "16px",
-                                            lineHeight: "24px",
-                                        }}
-                                    >
-                                        Usar el correo de registro para la recuperación de cuenta
-                                    </Typography>
-                                }
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center", // Asegura alineación del checkbox y texto
-                                    gap: 1,
-                                }}
-                            />
-                        </Box>
-                    )}
-                    {/* Selección de roles */}
-                    {/* Roles en línea horizontal */}
-                    <Typography variant="subtitle1" fontWeight="bold" mb={2}>
-                        Rol de usuario*
-                    </Typography>
-                    <Typography variant="body2" mb={3}>
-                        Seleccione el rol que el colaborador podrá desempeñar.
-                    </Typography>
-                    <RadioGroup
-                        row
-                        value={formData.profile}
-                        onChange={(e) => setFormData({ ...formData, profile: e.target.value })}
-                    >
-                        <Box display="flex" justifyContent="space-between" gap={2}>
-                            <Box
-                                sx={{
-                                    border: "2px solid #C3B5E6",
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    position: "relative",
-                                    textAlign: "center",
-                                    width: "30%",
-                                    cursor: "pointer",
-                                    backgroundColor: formData.profile === "Monitor" ? "#E9DDF8" : "white",
-                                }}
-                            >
-                                <Radio
-                                    value="Monitor"
+                    <Box sx={{ overflowY: "auto", mt: -1, pt: 4, pr: 4, pb: 4, pl: 0, flexGrow: 1 }}>
+                        <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
+                            {/* Nombre */}
+                            <Box gridColumn="span 6">
+                                <Typography
                                     sx={{
-                                        position: "absolute",
-                                        top: 8,
-                                        right: 8,
-                                    }}
-                                />
-                                <img src={usrMon} alt="Monitor" width="50" height="50" />
-                                <Typography fontWeight="bold" color="#9C27B0" mt={1}>
-                                    Monitor
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    - Iniciar/detener campañas <br />
-                                    - Consultar reportes
-                                </Typography>
-                            </Box>
-                            <Box
-                                sx={{
-                                    border: "2px solid #FBC02D",
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    position: "relative",
-                                    textAlign: "center",
-                                    width: "30%",
-                                    cursor: "pointer",
-                                    backgroundColor: formData.profile === "Supervisor" ? "#FEF6E3" : "white",
-                                }}
-                            >
-                                <Radio
-                                    value="Supervisor"
-                                    sx={{
-                                        position: "absolute",
-                                        top: 8,
-                                        right: 8,
-                                    }}
-                                />
-                                <img src={usrSup} alt="Supervisor" width="50" height="50" />
-                                <Typography fontWeight="bold" color="#FB8C00" mt={1}>
-                                    Supervisor
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    - Iniciar/detener campañas <br />
-                                    - Consultar reportes <br />
-                                    - Crear/eliminar campañas
-                                </Typography>
-                            </Box>
-                            <Box
-                                sx={{
-                                    border: "2px solid #F48FB1",
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    position: "relative",
-                                    textAlign: "center",
-                                    width: "30%",
-                                    cursor: "pointer",
-                                    backgroundColor: formData.profile === "Administrador" ? "#FDEEF3" : "white",
-                                }}
-                            >
-                                <Radio
-                                    value="Administrador"
-                                    sx={{
-                                        position: "absolute",
-                                        top: 8,
-                                        right: 8,
-                                    }}
-                                />
-                                <img src={usrAdmin} alt="Administrador" width="50" height="50" />
-                                <Typography fontWeight="bold" color="#F06292" mt={1}>
-                                    Administrador
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    - Iniciar/detener campañas <br />
-                                    - Consultar reportes <br />
-                                    - Crear usuarios
-                                </Typography>
-                            </Box>
-                        </Box>
-                    </RadioGroup>
-
-
-
-
-
-                    <Box p={3}>
-                        <Typography variant="h6" fontWeight="bold" mb={2}>
-                            Salas a las que podrá acceder <span style={{ color: "red" }}>*</span>
-                        </Typography>
-                        <Typography variant="body2" mb={2}>
-                            Seleccione las salas a las que el usuario tendrá acceso.
-                        </Typography>
-
-                        <Box display="flex" flexDirection="column" gap={2}>
-                            {/* Checkboxes principales */}
-                            <Box display="flex" alignItems="center" gap={4}>
-                                {/* Checkbox "Todas" */}
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={areAllRoomsSelected}
-                                            onChange={(e) => handleSelectAll(e.target.checked)}
-                                            indeterminate={selectedRooms.length > 0 && selectedRooms.length < rooms.length}
-                                            sx={{
-                                                mt: 0, // Alineación precisa con el texto
-                                                color: "#FFFFFF",
-                                                '&.Mui-checked': {
-                                                    color: "#FFFFFF",
-                                                    '& .MuiSvgIcon-root': {
-                                                        backgroundColor: "#8F4D63",
-                                                        borderRadius: "4px",
-                                                        color: "#FFFFFF", // Color de la palomita
-                                                    },
-                                                },
-                                                '& .MuiSvgIcon-root': {
-                                                    border: "1px solid #8F4D63",
-                                                    borderRadius: "4px",
-                                                    backgroundColor: "#FFFFFF", // Fondo del checkbox por defecto
-                                                },
-                                            }}
-                                        />
-                                    }
-                                    label="Todas"
-                                />
-
-                                {/* Checkbox "Todas y futuras" */}
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={formData.allAndFuture}
-                                            onChange={(e) => handleSelectAllAndFuture(e.target.checked)}
-                                            sx={{
-                                                mt: 0, // Alineación precisa con el texto
-                                                color: "#FFFFFF",
-                                                '&.Mui-checked': {
-                                                    color: "#FFFFFF",
-                                                    '& .MuiSvgIcon-root': {
-                                                        backgroundColor: "#8F4D63",
-                                                        borderRadius: "4px",
-                                                        color: "#FFFFFF", // Color de la palomita
-                                                    },
-                                                },
-                                                '& .MuiSvgIcon-root': {
-                                                    border: "1px solid #8F4D63",
-                                                    borderRadius: "4px",
-                                                    backgroundColor: "#FFFFFF", // Fondo del checkbox por defecto
-                                                },
-                                            }}
-                                        />
-                                    }
-                                    label="Todas y futuras"
-                                />
-                            </Box>
-
-
-                            {/* Repetidor de Rooms */}
-                            {rooms.map((room) => (
-                                <Box
-                                    key={room.id}
-                                    sx={{
-                                        position: "relative",
-                                        marginBottom: 1,
-                                        marginLeft: "18px", // Mueve todo un poco a la derecha
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: !/^[a-zA-Z\s]*$/.test(formData.name) ? "#D11247" : "#000000",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        marginBottom: "8px",
                                     }}
                                 >
-                                    {/* Checkbox fuera del recuadro */}
-                                    <Checkbox
-                                        checked={selectedRooms.includes(room.id)}
-                                        onChange={() => handleCheckboxChange(room.id)}
+                                    Nombre<span style={{ color: "red" }}>*</span>
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    required
+                                    error={!/^[a-zA-Z\s]*$/.test(formData.name)}
+                                    helperText={!/^[a-zA-Z\s]*$/.test(formData.name) && "Solo letras y espacios."}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip title={
+                                                    <Box sx={{ fontSize: "14px", lineHeight: 1.5 }}>
+                                                        <div>• Solo caracteres alfabéticos</div>
+                                                        <div>• Longitud máxima de 40 caracteres</div>
+                                                    </Box>
+                                                }
+                                                    arrow>
+                                                    <img
+                                                        src={!/^[a-zA-Z\s]*$/.test(formData.name) ? infoiconerror : infoicon}
+                                                        alt="Info"
+                                                        style={{ width: 24, height: 24 }}
+                                                    />
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Box>
+                            <Box gridColumn="span 6"></Box>
+                            <Box gridColumn="span 6">
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) ? "#D11247" : "#000000",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        marginBottom: "8px",
+                                    }}
+                                >
+                                    Telefono<span style={{ color: "red" }}>*</span>
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleInputChange}
+                                    error={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone)}
+                                    helperText={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) && "Debe tener 10 dígitos."}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip title="Número telefónico">
+                                                    <img
+                                                        src={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) ? infoiconerror : infoicon}
+                                                        alt="Info"
+                                                        style={{ width: 24, height: 24 }}
+                                                    />
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Box>
+                            {/* Teléfono */}
+                            {/* Correo y Confirmación de Correo */}
+                            {/* Correo Electrónico */}
+                            <Box gridColumn="span 6">
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ? "#D11247" : "#000000",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        marginBottom: "8px",
+                                    }}
+                                >
+                                    Correo Electrónico<span style={{ color: "red" }}>*</span>
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    error={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)}
+                                    helperText={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && "Ingrese un correo válido."}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip title="Ejemplo: usuario@dominio.com">
+                                                    <img
+                                                        src={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ? infoiconerror : infoicon}
+                                                        alt="Info"
+                                                        style={{ width: 24, height: 24 }}
+                                                    />
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    required
+                                />
+                            </Box>
+
+                            {/* Confirmar Correo Electrónico */}
+                            <Box gridColumn="span 6">
+                                <Typography
+                                    sx={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: formData.email !== formData.confirmEmail ? "#D11247" : "#000000",
+                                        opacity: 1,
+                                        fontSize: "16px",
+                                        marginBottom: "8px",
+                                    }}
+                                >
+                                    Confirmar Correo electronico<span style={{ color: "red" }}>*</span>
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    name="confirmEmail"
+                                    value={formData.confirmEmail}
+                                    onChange={handleInputChange}
+                                    error={formData.email !== formData.confirmEmail}
+                                    helperText={
+                                        formData.email !== formData.confirmEmail && "Los correos electrónicos no coinciden."
+                                    }
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip title="Debe coincidir con el correo ingresado.">
+                                                    <img
+                                                        src={formData.email !== formData.confirmEmail ? infoiconerror : infoicon}
+                                                        alt="Info"
+                                                        style={{ width: 24, height: 24 }}
+                                                    />
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    required
+                                />
+                            </Box>
+
+                            {/* Contraseña y Confirmar Contraseña */}
+                            {!isEditing && (
+                                <>
+                                    {/* Contraseña */}
+                                    <Box gridColumn="span 6">
+                                        <Typography
+                                            sx={{
+                                                textAlign: "left",
+                                                fontFamily: "Poppins",
+                                                letterSpacing: "0px",
+                                                color: showErrors.password && !isPasswordValid(formData.password) ? "#D11247" : "#000000",
+                                                opacity: 1,
+                                                fontSize: "16px",
+                                                marginBottom: "8px",
+                                            }}
+                                        >
+                                            Contraseña<span style={{ color: "red" }}>*</span>
+                                        </Typography>
+                                        <TextField
+                                            fullWidth
+                                            name="password"
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            error={showErrors.password && !isPasswordValid(formData.password)}
+                                            helperText={showErrors.password && !isPasswordValid(formData.password) && "La contraseña debe cumplir con los requisitos."}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <Tooltip title="Debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número.">
+                                                            <img
+                                                                src={showErrors.password && !isPasswordValid(formData.password) ? infoiconerror : infoicon}
+                                                                alt="Info"
+                                                                style={{ width: 24, height: 24 }}
+                                                            />
+                                                        </Tooltip>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            required
+                                        />
+                                    </Box>
+                                    {/* Confirmar contraseña */}
+                                    <Box gridColumn="span 6">
+                                        <Typography
+                                            sx={{
+                                                textAlign: "left",
+                                                fontFamily: "Poppins",
+                                                letterSpacing: "0px",
+                                                color: formData.password !== formData.confirmPassword ? "#D11247" : "#000000",
+                                                opacity: 1,
+                                                fontSize: "16px",
+                                                marginBottom: "8px",
+                                            }}
+                                        >
+                                            Confirma contraseña<span style={{ color: "red" }}>*</span>
+                                        </Typography>
+                                        <TextField
+                                            fullWidth
+                                            name="confirmPassword"
+                                            type="password"
+                                            value={formData.confirmPassword}
+                                            onChange={handleInputChange}
+                                            error={formData.password !== formData.confirmPassword}
+                                            helperText={
+                                                formData.password !== formData.confirmPassword && "Las contraseñas no coinciden."
+                                            }
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <Tooltip title="Deben coincidir las contraseñas">
+                                                            <img
+                                                                src={(formData.password !== formData.confirmPassword) ? infoiconerror : infoicon}
+                                                                alt="Info"
+                                                                style={{ width: 24, height: 24 }}
+                                                            />
+                                                        </Tooltip>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            required
+                                        />
+                                    </Box>
+                                </>
+                            )}
+                        </Box>
+                        {/* Checkbox */}
+                        {!isEditing && (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2, marginLeft: '10px' }}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={formData.useRecoveryEmail}
+                                            onChange={handleInputChange}
+                                            name="useRecoveryEmail"
+                                            sx={{
+                                                color: '#6C3A52',
+                                                '&.Mui-checked': { color: '#6C3A52' },
+                                                marginLeft: '-5px',
+
+                                            }}
+                                        />
+                                    }
+                                    label={
+                                        <Typography
+                                            sx={{
+                                                textAlign: "left",
+                                                fontFamily: "Poppins",
+                                                letterSpacing: "0px",
+                                                color: "#8F4D63",
+                                                opacity: 1,
+                                                fontSize: "16px",
+                                                lineHeight: "24px",
+                                            }}
+                                        >
+                                            Usar el correo de registro para la recuperación de cuenta
+                                        </Typography>
+                                    }
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center", // Asegura alineación del checkbox y texto
+                                        gap: 1,
+                                    }}
+                                />
+                            </Box>
+                        )}
+                        {/* Selección de roles */}
+                        {/* Roles en línea horizontal */}
+                        <Divider sx={{ my: 2, backgroundColor: "#CCC" }} />
+                        <Typography variant="subtitle1" fontWeight="bold" mb={2} sx={{ fontFamily: "Poppins", }}>
+                            Rol de usuario<span style={{ color: "red" }}>*</span>
+                        </Typography>
+                        <Typography variant="body2" mb={3} sx={{ fontFamily: "Poppins", }}>
+                            Seleccione el rol que el colaborador podrá desempeñar.
+                        </Typography>
+                        <RadioGroup
+                            row
+                            value={formData.profile}
+                            onChange={(e) => setFormData({ ...formData, profile: e.target.value })}
+                        >
+                            <Box display="flex" justifyContent="space-between" gap={2}>
+                                <Box
+                                    sx={{
+                                        border: "2px solid #C3B5E6",
+                                        borderRadius: 2,
+                                        padding: 2,
+                                        position: "relative",
+                                        textAlign: "center",
+                                        width: "30%",
+                                        cursor: "pointer",
+                                        backgroundColor: formData.profile === "Monitor" ? "#E9DDF8" : "white",
+                                    }}
+                                >
+                                    <Radio
+                                        value="Monitor"
                                         sx={{
                                             position: "absolute",
-                                            left: -30, // Ajustado para mantener la posición del checkbox
-                                            top: "50%",
-                                            transform: "translateY(-50%)",
-                                            mt: 0, // Alineación precisa con el texto
-                                            color: "#FFFFFF",
-                                            '&.Mui-checked': {
-                                                color: "#FFFFFF",
-                                                '& .MuiSvgIcon-root': {
-                                                    backgroundColor: "#8F4D63",
-                                                    borderRadius: "4px",
-                                                    color: "#FFFFFF", // Color de la palomita
-                                                },
-                                            },
-                                            '& .MuiSvgIcon-root': {
-                                                border: "1px solid #8F4D63",
-                                                borderRadius: "4px",
-                                                backgroundColor: "#FFFFFF", // Fondo del checkbox por defecto
-                                            },
+                                            top: 8,
+                                            right: 8,
                                         }}
                                     />
-                                    <Paper
+                                    <img src={usrMon} alt="Monitor" width="50" height="50" />
+                                    <Typography fontWeight="bold" color="#9C27B0" mt={1} sx={{ fontFamily: "Poppins", }}>
+                                        Monitor
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary" sx={{ fontFamily: "Poppins", }}>
+                                        - Iniciar/detener campañas <br />
+                                        - Consultar reportes
+                                    </Typography>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        border: "2px solid #FBC02D",
+                                        borderRadius: 2,
+                                        padding: 2,
+                                        position: "relative",
+                                        textAlign: "center",
+                                        width: "30%",
+                                        cursor: "pointer",
+                                        backgroundColor: formData.profile === "Supervisor" ? "#FEF6E3" : "white",
+                                    }}
+                                >
+                                    <Radio
+                                        value="Supervisor"
                                         sx={{
-                                            display: "flex",
-                                            marginLeft: "15px",
-                                            alignItems: "center",
-                                            padding: 2,
-                                            border: selectedRooms.includes(room.id)
-                                                ? "2px solid #A05B71"
-                                                : "1px solid #E0E0E0",
-                                            backgroundColor: selectedRooms.includes(room.id)
-                                                ? "#F8E1E7"
-                                                : "#FFFFFF",
-                                            borderRadius: 2,
-                                            flex: 1,
-                                            width: "50%", // Mantén el ancho del recuadro
-                                            height: "60px", // Mantén la altura del recuadro
-                                            boxSizing: "border-box",
+                                            position: "absolute",
+                                            top: 8,
+                                            right: 8,
+                                        }}
+                                    />
+                                    <img src={usrSup} alt="Supervisor" width="50" height="50" />
+                                    <Typography fontWeight="bold" color="#FB8C00" mt={1} sx={{ fontFamily: "Poppins", }}>
+                                        Supervisor
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary" sx={{ fontFamily: "Poppins", }}>
+                                        - Iniciar/detener campañas <br />
+                                        - Consultar reportes <br />
+                                        - Crear/eliminar campañas
+                                    </Typography>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        border: "2px solid #F48FB1",
+                                        borderRadius: 2,
+                                        padding: 2,
+                                        position: "relative",
+                                        textAlign: "center",
+                                        width: "30%",
+                                        cursor: "pointer",
+                                        backgroundColor: formData.profile === "Administrador" ? "#FDEEF3" : "white",
+                                    }}
+                                >
+                                    <Radio
+                                        value="Administrador"
+                                        sx={{
+                                            position: "absolute",
+                                            top: 8,
+                                            right: 8,
+                                        }}
+                                    />
+                                    <img src={usrAdmin} alt="Administrador" width="50" height="50" />
+                                    <Typography fontWeight="bold" color="#F06292" mt={1} sx={{ fontFamily: "Poppins", }}>
+                                        Administrador
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary" sx={{ fontFamily: "Poppins", }}>
+                                        - Iniciar/detener campañas <br />
+                                        - Consultar reportes <br />
+                                        - Crear usuarios
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </RadioGroup>
+
+
+
+
+                        <Divider sx={{ my: 2, backgroundColor: "#CCC" }} />
+
+                        <Box p={3}>
+                            <Typography variant="h6" fontWeight="bold" mb={2} sx={{ fontFamily: "Poppins", }}>
+                                Salas a las que podrá acceder <span style={{ color: "red" }}>*</span>
+                            </Typography>
+                            <Typography variant="body2" mb={2} sx={{ fontFamily: "Poppins", }}>
+                                Seleccione las salas a las que el usuario tendrá acceso.
+                            </Typography>
+
+                            <Box display="flex" flexDirection="column" gap={2}>
+                                {/* Checkboxes principales */}
+                                <Box display="flex" alignItems="center" gap={4}>
+                                    {/* Checkbox "Todas" */}
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={areAllRoomsSelected}
+                                                onChange={(e) => handleSelectAll(e.target.checked)}
+                                                indeterminate={selectedRooms.length > 0 && selectedRooms.length < rooms.length}
+                                                sx={{
+                                                    color: '#6C3A52',
+                                                    '&.Mui-checked': { color: '#6C3A52' },
+                                                    marginLeft: '-5px',
+
+                                                }}
+                                            />
+                                        }
+                                        label="Todas"
+                                    />
+
+                                    {/* Checkbox "Todas y futuras" */}
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={formData.allAndFuture}
+                                                onChange={(e) => handleSelectAllAndFuture(e.target.checked)}
+                                                sx={{
+                                                    color: '#6C3A52',
+                                                    '&.Mui-checked': { color: '#6C3A52' },
+                                                    marginLeft: '-5px',
+
+                                                }}
+                                            />
+                                        }
+                                        label="Todas y futuras"
+                                    />
+                                </Box>
+
+
+                                {/* Repetidor de Rooms */}
+                                {rooms.map((room) => (
+                                    <Box
+                                        key={room.id}
+                                        sx={{
+                                            position: "relative",
+                                            marginBottom: 1,
+                                            fontFamily: "Poppins",
+                                            marginLeft: "18px", // Mueve todo un poco a la derecha
                                         }}
                                     >
-                                        <Grid container alignItems="center" flex={1}>
-                                            <Grid item display="flex" alignItems="center">
-                                                <HomeIcon
-                                                    sx={{
-                                                        backgroundColor: "#B0B0B0",
-                                                        borderRadius: "50%",
-                                                        padding: "8px",
-                                                        fontSize: 40,
-                                                        color: "white",
-                                                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                                                        marginRight: "16px",
-                                                    }}
-                                                />
-                                                <Typography fontWeight="bold" color="#5A2836">
-                                                    {room.name}
-                                                </Typography>
+                                        {/* Checkbox fuera del recuadro */}
+                                        <Checkbox
+                                            checked={selectedRooms.includes(room.id)}
+                                            onChange={() => handleCheckboxChange(room.id)}
+                                            sx={{
+                                                position: "absolute",
+                                                left: -30, // Ajustado para mantener la posición del checkbox
+                                                top: "50%",
+                                                transform: "translateY(-50%)",
+                                                mt: 0, // Alineación precisa con el texto
+                                                color: "#6C3A52",
+                                                '&.Mui-checked': { color: '#6C3A52' },
+
+                                            }}
+                                        />
+                                        <Paper
+                                            sx={{
+                                                display: "flex",
+                                                marginLeft: "15px",
+                                                alignItems: "center",
+                                                padding: 2,
+                                                border: selectedRooms.includes(room.id)
+                                                    ? "2px solid #A05B71"
+                                                    : "1px solid #E0E0E0",
+                                                backgroundColor: selectedRooms.includes(room.id)
+                                                    ? "#F8E1E7"
+                                                    : "#FFFFFF",
+                                                borderRadius: 2,
+                                                flex: 1,
+                                                width: "50%", // Mantén el ancho del recuadro
+                                                height: "60px", // Mantén la altura del recuadro
+                                                boxSizing: "border-box",
+                                            }}
+                                        >
+                                            <Grid container alignItems="center" flex={1}>
+                                                <Grid item display="flex" alignItems="center">
+                                                    <HomeIcon
+                                                        sx={{
+                                                            backgroundColor: "#B0B0B0",
+                                                            borderRadius: "50%",
+                                                            padding: "8px",
+                                                            fontSize: 40,
+                                                            color: "white",
+                                                            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                                                            marginRight: "16px",
+                                                        }}
+                                                    />
+                                                    <Typography fontWeight="bold" color="#5A2836">
+                                                        {room.name}
+                                                    </Typography>
+                                                </Grid>
                                             </Grid>
-                                        </Grid>
-                                    </Paper>
-                                </Box>
-                            ))}
+                                        </Paper>
+                                    </Box>
+                                ))}
 
 
 
 
+                            </Box>
                         </Box>
                     </Box>
+
                     {/* Buttons */}
-                    <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
-                        <Button onClick={handleCloseModal} color="secondary">
-                            Cancelar
-                        </Button>
-                        <Button
-                            onClick={handleAddUser}
-                            variant="contained"
-                            sx={{ backgroundColor: "#A05B71" }}
-                            disabled={!isFormValid()}  // 🔄 Solo depende de isFormValid()
-                        >
-                            {isEditing ? "Actualizar" : "Guardar"}
-                        </Button>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            borderTop: "1px solid #ddd",
+                            px: 2,
+                            pt: 2,
+                            pb: -6, // 🔽 menos padding abajo
+                        }}
+                    >
+                        <SecondaryButton onClick={handleCloseModal} text="Cancelar" />
+                        <MainButton onClick={handleAddUser} text={isEditing ? "Actualizar" : "Guardar"}
+                            disabled={!isFormValid()} />
+
 
                     </Box>
                 </Box>

@@ -26,6 +26,7 @@ import Use from './pages/Use'
 import Costs from './pages/Costs'
 import Help from './pages/Help'
 import BillingInformation from './pages/BillingInformation'
+import BlackList from './pages/BlackList'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -96,6 +97,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/TermsAndConditions' element={<TermsAndConditions />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/BlackList' element={<BlackList />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/PaymentMethods' element={<PaymentMethods />} />

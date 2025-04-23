@@ -954,5 +954,75 @@ namespace SMSBackboneAPI.Controllers
         }
 
         #endregion
+
+        #region BlackList
+        [HttpGet("GetBlackListByUsers")]
+        public async Task<IActionResult> GetBlackListByUsers(int id)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var BlackListManager = new Business.BlackListManager();
+            var responseDto = BlackListManager.GetRecordsByUser(id);
+            if (responseDto == null)
+            {
+
+
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Getting Billing Information ROOM" });
+
+
+
+            }
+            else
+            {
+                var response = Ok(responseDto);
+                return response;
+            }
+        }
+
+        [HttpPost("AddBlackList")]
+        public async Task<IActionResult> AddBlackList(BlackListRequest blacklist)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var BlackListManager = new Business.BlackListManager();
+            if (string.IsNullOrEmpty(blacklist.FileBase64))
+            {
+                var responsephones = BlackListManager.SavePhoneList(blacklist);
+                if (!responsephones)
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+                }
+                else
+                {
+                    var response = Ok(responsephones);
+                    return response;
+                }
+            }
+            else
+            {
+                var responseDto = BlackListManager.ProcessExcelBase64(blacklist);
+                if (!responseDto)
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+                }
+                else
+                {
+                    var response = Ok(responseDto);
+                    return response;
+                }
+            }
+
+
+        }
+
+        #endregion
     }
 }

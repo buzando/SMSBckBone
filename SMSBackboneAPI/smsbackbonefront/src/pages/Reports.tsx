@@ -37,6 +37,8 @@ import { unparse } from 'papaparse';
 import * as XLSX from 'xlsx';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 
 interface Reports {
     id: number,
@@ -82,6 +84,7 @@ const Reports: React.FC = () => {
     const [userSearch, setUserSearch] = useState('');
     const tableRef = React.useRef<HTMLDivElement>(null);
     const [filteredReports, setFilteredReports] = useState<Reports[] | null>(null);
+    const navigate = useNavigate();
 
     // Maneja el cambio de tabs (SMS / Llamada)
     const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
@@ -855,7 +858,7 @@ const Reports: React.FC = () => {
                 else if (format === 'pdf') {
                     const input = tableRef.current;
                     if (!input) return;
-                
+
                     // 🔄 Crear un clon oculto para capturar sin afectar la vista
                     const clone = input.cloneNode(true) as HTMLDivElement;
                     clone.style.position = 'absolute';
@@ -864,40 +867,40 @@ const Reports: React.FC = () => {
                     clone.style.overflow = 'visible';
                     clone.style.width = 'fit-content';
                     clone.style.maxWidth = 'none';
-                
+
                     document.body.appendChild(clone);
-                
+
                     const canvas = await html2canvas(clone, {
                         scale: 2,
                         useCORS: true
                     });
-                
+
                     document.body.removeChild(clone); // 🧹 Limpieza
-                
+
                     const imgData = canvas.toDataURL('image/png');
                     const pdf = new jsPDF('l', 'mm', 'a4');
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = pdf.internal.pageSize.getHeight();
-                
+
                     const imgProps = pdf.getImageProperties(imgData);
                     const imgWidth = pdfWidth;
                     const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-                
+
                     let position = 0;
-                
+
                     if (imgHeight < pdfHeight) {
                         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
                     } else {
                         const canvasHeight = canvas.height;
                         const pageHeightPx = (pdfHeight * canvas.height) / imgHeight;
-                
+
                         const pageCanvas = document.createElement('canvas');
                         const pageCtx = pageCanvas.getContext('2d')!;
                         pageCanvas.width = canvas.width;
                         pageCanvas.height = pageHeightPx;
-                
+
                         let pageCount = 0;
-                
+
                         for (let offset = 0; offset < canvasHeight; offset += pageHeightPx) {
                             pageCtx.clearRect(0, 0, pageCanvas.width, pageCanvas.height);
                             pageCtx.drawImage(canvas, 0, -offset);
@@ -907,11 +910,11 @@ const Reports: React.FC = () => {
                             pageCount++;
                         }
                     }
-                
+
                     pdf.save('Reporte.pdf');
                     return;
                 }
-                
+
 
             }
             else {
@@ -1013,14 +1016,41 @@ const Reports: React.FC = () => {
 
 
     return (
-        <Box p={4} sx={{ padding: '10px', marginTop: "-75px", marginLeft: "35px" }}>
-            {/* Título principal */}
-            <Typography variant="h4" fontWeight="medium" sx={{ textAlign: "left", fontSize: "26px", lineHeight: "55px", fontFamily: "Poppins, sans-serif", color: "#330F1B" }}>
-                Reportes
-            </Typography>
+        <Box p={4} sx={{ padding: '10px', marginLeft: "35px" }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', pl: '0px', mb: 1 }}>
+                <IconButton
+                    onClick={() => navigate('/')} // ← O ajusta la ruta a donde quieras volver
+                    sx={{
+                        ml: '-20px',
+                        p: 0,
+                        mr: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <img
+                        src={ArrowBackIosNewIcon}
+                        alt="Regresar"
+                        style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
+                    />
+                </IconButton>
+
+                <Typography
+                    variant="h4"
+                    sx={{
+                        fontWeight: 'bold',
+                        color: '#5A2836',
+                        fontFamily: 'Poppins',
+                        fontSize: '26px',
+                    }}
+                >
+                    Reportes
+                </Typography>
+            </Box>
 
             {/* Tabs para SMS y Llamada */}
-            <Divider sx={{ mt: 2, mb: 0, maxWidth: "83%",  }} />
+            <Divider sx={{ mt: 2, mb: 0, maxWidth: "83%", }} />
             <Tabs value={selectedTab} onChange={handleTabChange} TabIndicatorProps={{
                 style: {
                     display: 'none',
@@ -1308,7 +1338,7 @@ const Reports: React.FC = () => {
                     }}>
                     </div>
 
-                    <Box sx={{ maxHeight: 140, overflowY: 'auto',  }}>
+                    <Box sx={{ maxHeight: 140, overflowY: 'auto', }}>
                         {/* <MenuItem onClick={handleSelectAllUsers}>
                             <Checkbox checked={selectedUsers.length === users.length}
                                 sx={{
@@ -1340,8 +1370,8 @@ const Reports: React.FC = () => {
                                 <ListItemText primary={u}
                                     primary={u}
                                     primaryTypographyProps={{
-                                      fontFamily: 'Poppins',
-                                      color: selectedUsers.includes(u) ? '#8F4E63' : '#786E71',
+                                        fontFamily: 'Poppins',
+                                        color: selectedUsers.includes(u) ? '#8F4E63' : '#786E71',
                                     }}
                                 />
                             </MenuItem>
@@ -1403,7 +1433,7 @@ const Reports: React.FC = () => {
                 </Paper>
             </Popper>
 
-            <Divider sx={{ mb: 4, maxWidth: "83%"}} />
+            <Divider sx={{ mb: 4, maxWidth: "83%" }} />
 
 
             {/* Controles de paginación (solo visual) */}
@@ -1458,14 +1488,14 @@ const Reports: React.FC = () => {
                             </Box>
                         </IconButton>
 
-        {/* Botones de CSV / Excel y PDF */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1140px", gap: 2}}>
-            <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
-                onClick={() => handleExportClick('csv', setIsExportingCSV)}
-                disabled={anyExporting && !isExportingCSV}
-            >
-            <Tooltip title="Exportar a CSV" placement="top" 
-            arrow
+                        {/* Botones de CSV / Excel y PDF */}
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1140px", gap: 2 }}>
+                            <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                                onClick={() => handleExportClick('csv', setIsExportingCSV)}
+                                disabled={anyExporting && !isExportingCSV}
+                            >
+                                <Tooltip title="Exportar a CSV" placement="top"
+                                    arrow
 
                                     PopperProps={{
                                         modifiers: [
@@ -1647,7 +1677,7 @@ const Reports: React.FC = () => {
                         marginTop: '20px'
                     }}
                 >
-                    <img src={boxopen} alt="No results" style={{ width: '150px', height: '150px',  }} />
+                    <img src={boxopen} alt="No results" style={{ width: '150px', height: '150px', }} />
                     <Typography
                         sx={{
                             textAlign: 'center',
@@ -2029,7 +2059,7 @@ const Reports: React.FC = () => {
                     <table style={{ maxWidth: "83%", borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                            <th style={{
+                                <th style={{
                                     fontWeight: "500",
                                     textAlign: 'left',
                                     padding: '10px',
@@ -2165,7 +2195,7 @@ const Reports: React.FC = () => {
                     <table style={{ width: '83%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                                    <th style={{
+                                <th style={{
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -2339,7 +2369,7 @@ const Reports: React.FC = () => {
                     <table style={{ width: '83%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                            <th style={{
+                                <th style={{
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -2513,132 +2543,132 @@ const Reports: React.FC = () => {
                 <table style={{ width: '83%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                     <thead>
                         <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                        <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    Fecha</th>
-                                    <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    Usuario</th>
-                                    <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    Sala</th>
-                                    <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    Campaña</th>
-                                    <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    Teléfono de destinatario</th>
-                                    <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    Resultado</th>
-                                    <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    Razón</th>
-                                    <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    ID de mensaje</th>
-                                    <th style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    fontWeight: "500",
-                                    textAlign: 'left',
-                                    padding: '10px',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    letterSpacing: '0px',
-                                    color: '#330F1B',
-                                    fontSize: '13px',
-                                    backgroundColor: '#FFFFFF'
-                                }}>
-                                    Mensaje</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                Fecha</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                Usuario</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                Sala</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                Campaña</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                Teléfono de destinatario</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                Resultado</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                Razón</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                ID de mensaje</th>
+                            <th style={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: "500",
+                                textAlign: 'left',
+                                padding: '10px',
+                                fontFamily: 'Poppins, sans-serif',
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                fontSize: '13px',
+                                backgroundColor: '#FFFFFF'
+                            }}>
+                                Mensaje</th>
                         </tr>
                     </thead>
                     <tbody>

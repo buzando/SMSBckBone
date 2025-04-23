@@ -15,6 +15,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EyeIcon from '../assets/eye-icon.svg';
 import DownloadIcon from '../assets/download-icon.svg';
 import ModalError from '../components/commons/ModalError'
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
+import { useNavigate } from "react-router-dom";
 import Snackbar from '../components/commons/ChipBar'
 interface Historic {
     id: number,
@@ -52,7 +54,7 @@ const PaymentHistoric: React.FC = () => {
         if (!selectedDates) return 'FECHA'; // Muestra "FECHA" si no hay fechas seleccionadas
         return `${format(selectedDates.start, "dd MMM", { locale: es })}, ${String(selectedDates.startHour).padStart(2, '0')}:${String(selectedDates.startMinute).padStart(2, '0')} - ${format(selectedDates.end, "d MMM", { locale: es })} ${String(selectedDates.endHour).padStart(2, '0')}:${String(selectedDates.endMinute).padStart(2, '0')}`;
     };
-
+ const navigate = useNavigate();
     const handleDateSelectionApply = async (start: Date, end: Date, startHour: number, startMinute: number, endHour: number, endMinute: number) => {
         setSelectedDates({ start, end, startHour, startMinute, endHour, endMinute });
         setDatePickerOpen(false);
@@ -127,25 +129,59 @@ const PaymentHistoric: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1000px', marginTop: '-70px', marginLeft: "35px" }}>
-            <th
-                style={{
-                    textAlign: 'left',
-                    fontFamily: 'Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1,
-                    fontSize: '26px',
-                    fontWeight: "600",
+        <div style={{ padding: '20px', maxWidth: '930px', marginTop: '-70px', marginLeft: "35px" }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+  {/* FLECHA flotante */}
+  <IconButton
+    onClick={() => navigate('/')}
+    sx={{
+        p: 0,              // quita el padding interno del botón
+        mr: 1,
+        display: 'flex',
+        ml: '-28px',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+  >
+    <img
+      src={ArrowBackIosNewIcon}
+      alt="Regresar"
+      style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
+    />
+  </IconButton>
 
-                }}
-            >
-                Historial de pago
-            </th>
-            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
+  {/* TÍTULO alineado normal */}
+  <Typography
+  variant="h4"
+  sx={{
+    fontWeight: 'bold',
+    color: '#5A2836',
+    fontFamily: 'Poppins',
+    fontSize: '26px'
+  }}
+>
+  Historial de pago
+</Typography>
+</Box>
+            <Divider sx={{ marginBottom: "17px", marginTop: "16px", backgroundColor: '#E6E4E4' }} />
             <Button
                 variant="outlined"
-                sx={buttonStyle}
+                sx={{
+                    ...buttonStyle,
+                    width: selectedDates ? 'auto' : '90px',
+                    height: '36px',
+                    minWidth: '90px',
+                    ...(selectedDates && {
+                      border: '1px solid #8F4E63',
+                      color: '#8F4E63',
+                      background: '#F2E9EC', // estilo de hover
+                    }),
+                    ...(datePickerOpen && {
+                      border: '1px solid #8F4E63',
+                      color: '#8F4E63',
+                      background: '#E6C2CD', // estilo de active
+                    }),
+                  }}
                 onClick={handleDateClick}
             >
                 {formatDateRange()}
@@ -158,7 +194,7 @@ const PaymentHistoric: React.FC = () => {
                 onClose={() => setAnchorEl(null)}
             />
 
-            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
+            <Divider sx={{ marginBottom: "17px", marginTop: "16px", backgroundColor: '#E6E4E4' }} />
 
             {/* Lógica para mostrar el contenido correcto */}
             {loading ? (
@@ -537,16 +573,17 @@ const buttonStyle = {
     borderRadius: '18px',
     padding: '8px 16px',
     fontWeight: 'bold',
-    color: '#8F4D63',
+    color: '#330F1B',
     textTransform: 'none',
-    opacity: 1,
     '&:hover': {
         background: '#F2E9EC',
-        border: '1px solid #BE93A066',
+        border: '1px solid #8F4E63',
+        color: '#8F4E63'  
     },
     '&:active': {
         background: '#E6C2CD',
-        border: '1px solid #BE93A0',
+        border: '1px solid #8F4E63',
+    color: '#8F4E63'  
     }
 
 };
