@@ -25,9 +25,11 @@ import {
 } from "@mui/material";
 import seachicon from '../assets/icon-lupa.svg'
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import welcome from '../assets/icon-welcome.svg'
 import PushPinIcon from "@mui/icons-material/PushPin";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import iconplus from "../assets/Icon-plus.svg"; // 🔥 Importado correctamente
+import iconplus from "../assets/Icon-plus.svg"; 
+import CloseIcon from '@mui/icons-material/Close';
+import IconTache from "../assets/icon-close.svg"
 import iconclose from "../assets/icon-close.svg"
 import smsico from '../assets/Icon-sms.svg'
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -35,10 +37,14 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import MainButton from '../components/commons/MainButton'
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
+
+import RemoveIcon from "@mui/icons-material/Remove";
+
 import DeleteIcon from "@mui/icons-material/Delete";
 import RestoreIcon from "@mui/icons-material/Restore";
+import { Tooltip } from "@mui/material";
 import IconSMS from '../assets/IconSMS.svg';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 import { ComposableMap, Geographies, Geography, GeographyProps } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
 const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/mexico/mexico-states.json";
@@ -108,6 +114,12 @@ const Campains: React.FC = () => {
         { name: "Nombre de campaña 5", numeroInicial: 20, numeroActual: 10 },
         { name: "Nombre de campaña 6", numeroInicial: 15, numeroActual: 7 },
     ];
+
+    const [selectedCampaigns, setSelectedCampaigns] = useState<number[]>([]);
+
+    const filteredCampaigns = campaigns.filter((c) =>
+        c.name.toLowerCase().includes(Serchterm.toLowerCase())
+      );
 
     const colorScale = scaleLinear<string>()
         .domain([0, 50])
@@ -266,7 +278,7 @@ const Campains: React.FC = () => {
                                 color: "#645E60",
                                 opacity: 1,
                                 fontSize: "12px"
-                            }} value="">Todos</MenuItem>
+                            }} value="Todos">Todos</MenuItem>
                             <MenuItem sx={{
                                 marginTop: "10px",
                                 marginBottom: "10px",
@@ -290,20 +302,55 @@ const Campains: React.FC = () => {
                         </Select>
 
                         <Checkbox
+                            checked={selectedCampaigns.length > 0} // ✅ se selecciona si hay campañas seleccionadas
+                            icon={
+                                <Box
+                                sx={{
+                                    width: "20px",
+                                    height: "20px",
+                                    borderRadius: "4px",
+                                    border: "2px solid #6C3A52",
+                                }}
+                                />
+                            }
+                            checkedIcon={
+                                <Box
+                                sx={{
+                                    width: "20px",
+                                    height: "20px",
+                                    borderRadius: "4px",
+                                    backgroundColor: "#8F4D63",
+                                    border: "2px solid #8F4D63",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "20px",
+                                    color: "#FFFFFF",
+                                    fontWeight: "bold",
+                                    fontFamily: "Poppins, sans-serif",
+                                }}
+                                >
+                                −
+                                </Box>
+                            }
                             sx={{
-                                color: '#6C3A52',
-                                '&.Mui-checked': { color: '#6C3A52' },
-                                alignSelf: 'flex-start'
+                                color: "#6C3A52",
+                                "&.Mui-checked": { color: "#6C3A52" },
+                                alignSelf: "flex-start",
                             }}
-                        />
+                            />
+
+
                         <Divider sx={{ marginBottom: "5px" }} />
 
                         <List sx={{ overflowY: "auto", flexGrow: 1 }}>
-                            {campaigns.map((campaign, index) => {
+                            {filteredCampaigns.map((campaign, index) => {
+                                const isSelected = selectedCampaigns.includes(index); // Cambia por ID si tienes uno único
                                 const progreso = (campaign.numeroActual / campaign.numeroInicial) * 100;
                                 return (
                                     <ListItem key={index} sx={{
-                                        background: "#FFFFFF 0% 0% no-repeat padding-box",
+                                        background: "#FFFFFF",
+                                        backgroundColor: isSelected ? "rgba(209, 119, 154, 0.15)" : "#FFFFFF",
                                         border: "1px solid #AE78884D",
                                         opacity: 1,
                                         width: "100%",
@@ -313,25 +360,97 @@ const Campains: React.FC = () => {
                                         padding: "10px",
                                         display: "flex",
                                         flexDirection: "column",
+                                        transition: "background-color 0.3s",
+                                        "&:hover": {
+                                        backgroundColor: "#F2EBEDCC" // 🔥 Fondo cuando pasas el mouse
+                                        }
                                     }}>
                                         <Box sx={{ display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
                                             <Box sx={{ marginTop: "-5px", display: "flex", alignItems: "center" }}>
-                                                <Checkbox sx={{ color: '#6C3A52', '&.Mui-checked': { color: '#6C3A52' } }} />
-                                                <img src={smsico} alt="SMS" style={{ width: "18px", height: "18px", marginRight: "8px" }} />
-                                                <Typography sx={{ fontSize: "12px", fontWeight: "500", fontFamily: "Poppins", color: "#574B4F", marginBottom: "6px" }}>
+                                            <Checkbox
+                                                checked={isSelected}
+                                                onChange={() => {
+                                                    setSelectedCampaigns(prev =>
+                                                    isSelected ? prev.filter(i => i !== index) : [...prev, index]
+                                                    );
+                                                }}
+                                                icon={
+                                                    <Box
+                                                    sx={{
+                                                        width: "20px",
+                                                        height: "20px",
+                                                        borderRadius: "4px",
+                                                        border: "2px solid #8F4D63",
+                                                    }}
+                                                    />
+                                                }
+                                                checkedIcon={
+                                                    <Box
+                                                    sx={{
+                                                        width: "20px",
+                                                        height: "20px",
+                                                        borderRadius: "4px",
+                                                        backgroundColor: "#8F4D63",
+                                                        border: "2px solid #8F4D63",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                    }}
+                                                    >
+                                                    <Box
+                                                        component="span"
+                                                        sx={{
+                                                        color: "#FFFFFF",
+                                                        fontSize: "13px",
+                                                        fontWeight: "bold",
+                                                        lineHeight: "1",
+                                                        fontFamily: "Poppins, sans-serif",
+                                                        }}
+                                                    >
+                                                        ✓
+                                                    </Box>
+                                                    </Box>
+                                                }
+                                                sx={{
+                                                    color: "#8F4D63",
+                                                    "&.Mui-checked": { color: "#8F4D63" },
+                                                    alignSelf: "flex-start",
+                                                }}
+                                                />
+
+                                                <img src={smsico} alt="SMS" 
+                                                style={{ 
+                                                    width: "18px", 
+                                                    height: "18px", 
+                                                    marginRight: "8px",
+                                                    color: isSelected ? "#8E5065" : "#574B4F", 
+                                                 }} />
+                                                <Typography sx={{
+                                                                fontSize: "12px",
+                                                                fontWeight: "500",
+                                                                fontFamily: "Poppins",
+                                                                color: isSelected ? "#8E5065" : "#574B4F", // 👈 Cambia de color cuando está seleccionado
+                                                                marginBottom: "6px"
+                                                                }}
+                                                            >
                                                     {campaign.name}
                                                 </Typography>
                                             </Box>
                                             <MoreVertIcon
                                                 sx={{
-                                                    position: "absolute", // o "relative"
-                                                    top: "30px",          // distancia desde el top de su contenedor padre
+                                                    position: "absolute", // 3 puntillos fijos
+                                                    top: "30px",          // distancia desde el top de su contenedor padre #6C3A52
                                                     right: "30px",
                                                     height: "24px",
                                                     width: "24px"
                                                 }}
                                                 />
-                                            <PushPinIcon sx={{ color: "#6C3A52", fontSize: "18px" }} />
+                                            <PushPinIcon sx={{ 
+                                                color: isSelected ? "#8E5065" : "#574B4F", 
+                                                fontSize: "20px",
+                                                transform: isSelected ? "rotate(45deg)" : "none", // 👈 Rotación solo si está seleccionado
+                                                transition: "transform 0.3s ease" // 👌 Suaviza la animación
+                                                }} />
                                         </Box>
                                         <Box sx={{ width: "65%", backgroundColor: "#E0E0E0", borderRadius: "6px", height: "10px", position: "relative", marginBottom: "10px", marginX: "auto" }}>
                                             <Box sx={{ width: `${progreso}%`, backgroundColor: "#AE7888", borderRadius: "3px", 
@@ -341,8 +460,8 @@ const Campains: React.FC = () => {
                                             }} />
                                         </Box>
                                         <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center", width: "100%", marginTop: "0px", paddingLeft: "45px" }}>
-                                            <Typography sx={{ fontSize: "12px", fontWeight: "600", color: "#574B4FCC", marginLeft: "7px", marginTop: "-7px" }}>{Math.round(progreso)}%</Typography>
-                                            <Typography sx={{ fontSize: "12px", color: "#574B4FCC", marginTop: "-7px", marginLeft: "7px" }}>{campaign.numeroActual}/{campaign.numeroInicial}</Typography>
+                                            <Typography sx={{ fontSize: "12px", fontWeight: "600", color: "#574B4FCC", marginLeft: "7px", marginTop: "-7px", color: isSelected ? "#8E5065" : "#574B4F"}}>{Math.round(progreso)}%</Typography>
+                                            <Typography sx={{ fontSize: "12px", color: "#574B4FCC", marginTop: "-7px", marginLeft: "7px", color: isSelected ? "#8E5065" : "#574B4F", fontFamily: "Poppins" }}>{campaign.numeroActual}/{campaign.numeroInicial}</Typography>
                                         </Box>
                                     </ListItem>
                                 );
@@ -377,6 +496,7 @@ const Campains: React.FC = () => {
                 
                 {/* Visualización de campaña */}
                 <Grid item xs>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, marginBottom: "8px" }}>
                     <Typography
                         variant="h6"
                         sx={{
@@ -391,6 +511,49 @@ const Campains: React.FC = () => {
                         Visualización
                     </Typography>
 
+                        <Tooltip title="Añadir información" arrow placement="top"
+                         componentsProps={{
+                            tooltip: {
+                                sx: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)", // Fondo negro con transparencia
+                                    color: "#CCC3C3",            
+                                    fontFamily: "Poppins, sans-serif",    
+                                    fontSize: "12px",
+                                    padding: "6px 8px",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)" // Sombra opcional
+                                  }
+                                },
+                                arrow: {
+                                  sx: {
+                                    color: "rgba(0, 0, 0, 0.8)" // Flecha negra con transparencia
+                                  }
+                                }
+                              }}
+                            >
+                        <IconButton
+                        style={{
+                            backgroundColor: "#FFFFFF",
+                            left: "84%",
+                            border: '1px solid #CCCFD2',
+                            borderRadius: '8px',
+                            color: '#8F4D63',
+                            background: '#FFFFFF',
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.background = '#F2E9EC';
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.border = '1px solid #CCCFD2';
+                        }}
+                        >
+                        <img src={welcome} alt="Welcome" style={{ width: '24px', height: '24px' }} />
+                        
+                        </IconButton>
+
+                        </Tooltip>
+                </Box>
 
                     <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", maxWidth: "100%", height: "auto" }}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -484,101 +647,177 @@ const Campains: React.FC = () => {
 
                     {/* Horarios */}
                     <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", maxWidth: "100%", height: "auto" }}>
+                        
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
                             <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", }}>
                                 Horarios
                             </Typography>
                             <IconButton>
-                                <img src={iconclose} width="24px" height="24px" />
-                            </IconButton>
+                            <CloseIcon />
+                        </IconButton>
                         </Box>
-                        <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", height: "auto", backgroundColor: "#D6D6D64D" }}>
-                            <List>
-                                {["25 Mar, 09:30 - 10:30", "25 Mar, 11:00 - 11:30", "26 Mar, 12:00 - 28 Mar, 12:30"].map(
-                                    (horario, index) => (
-                                        <ListItem key={index}>
-                                            <ListItemIcon>
-                                                <CalendarTodayIcon />
-                                            </ListItemIcon>
-                                            <ListItemText primary={horario} sx={{
-                                                textAlign: "left",
-                                                fontFamily: "Poppins",
-                                                fontWeight: 500,
-                                                fontSize: "14px",
-                                                lineHeight: "22px",
-                                                letterSpacing: "0px",
-                                                color: "#844D5F",
-                                                opacity: 1,
-                                            }} />
-                                        </ListItem>
-                                    )
-                                )}
+                                <Box sx={{ display: "flex", gap: "16px", paddingLeft: "10px", paddingTop: "4px" }}>
+                                    {[
+                                        { label: "Vencido", color: "#B0B0B0" },
+                                        { label: "Vigente", color: "#5CB85C" },
+                                        { label: "Próximo", color: "#E38C28" }
+                                    ].map((item, index) => (
+                                        <Box key={index} sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                        <Box
+                                            sx={{
+                                            width: "10px",
+                                            height: "10px",
+                                            borderRadius: "50%",
+                                            backgroundColor: item.color
+                                            }}
+                                        />
+                                        <Typography sx={{ fontSize: "14px", fontFamily: "Poppins", color: "#574B4F" }}>
+                                            {item.label}
+                                        </Typography>
+                                        </Box>
+                                    ))}
+                                </Box>
+                        <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", height: "auto", backgroundColor: "#D6D6D64D" }}
+                        >
+                            
+                            <List sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
+                            {[
+                                { texto: "25 MAR–26 MAR, 09:30–22:00", estado: "vencido" },
+                                { texto: "26 JUL, 09:00–21:00", estado: "vigente" },
+                                { texto: "27 MAR, 09:30–22:00", estado: "proximo" },
+                                { texto: "28 MAR, 09:30–22:00", estado: "proximo", alineadoDerecha: true },
+                            ].map((horario, index) => (
+                                <Box
+                                key={index}
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: horario.alineadoDerecha ? "flex-end" : "flex-start",
+                                    width: horario.alineadoDerecha ? "100%" : "auto",
+                                    paddingY: "2px",
+                                    paddingX: "8px",
+                                }}
+                                >
+                                <Typography
+                                    sx={{
+                                    fontFamily: "Poppins",
+                                    fontWeight: 500,
+                                    fontSize: "14px",
+                                    lineHeight: "22px",
+                                    color:
+                                        horario.estado === "vencido"
+                                        ? "#B4ACAC"
+                                        : horario.estado === "vigente"
+                                        ? "#5CB85C"
+                                        : "#E38C28",
+                                    opacity: horario.estado === "vencido" ? 1 : 1,
+                                    }}
+                                >
+                                    {horario.texto}
+                                </Typography>
+                                </Box>
+                            ))}
                             </List>
                         </Box>
                     </Paper>
-                    <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", height: "auto" }}>
+                    <Paper sx={{ 
+                        padding: "10px", 
+                        marginTop: "10px", 
+                        borderRadius: "10px", 
+                        width: "100%", 
+                        height: "auto" 
+                        }}>
                         <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", marginBottom: "5px" }}>
                             Mensaje
                         </Typography>
+                        
                         <Box sx={{ padding: "10px", borderRadius: "10px", width: "100%", height: "auto", backgroundColor: "#D6D6D64D", opacity: 0.6 }}>
                             <Typography sx={{ textAlign: "left", fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
                                 A wonderful serenity has taken possession of my entire soul, like these sweet mornings of spring which I enjoy with my whole heart.
                             </Typography>
                         </Box>
                         <Divider sx={{ marginY: "15px" }} />
-                        <Paper sx={{ padding: "10px", marginTop: "15px", borderRadius: "10px", width: "100%", height: "auto", marginLeft: "-10px" }}>
+                        <Paper
+                            sx={{
+                                padding: "10px",
+                                marginTop: "15px",
+                                borderRadius: "10px",
+                                width: "100%",
+                                height: "auto",
+                                boxShadow: "none", // 👈 Esto elimina la sombra
+                            }}
+                            >
                             <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", marginBottom: "5px" }}>
                                 Prueba de envío
                             </Typography>
-                            <Box sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", height: "auto", backgroundColor: "#F5F5F5" }}>
-                                <Typography sx={{ textAlign: "left", fontFamily: "Poppins", fontSize: "14px", color: "#574B4F", marginBottom: "5px" }}>Teléfono</Typography>
-                                <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                <TextField
+                            <Box
+                                sx={{
+                                padding: "16px",
+                                marginTop: "10px",
+                                borderRadius: "10px",
+                                backgroundColor: "#F5F5F5",
+                                }}
+                            >
+                                <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                                <Box sx={{ flex: 1 }}>
+                                    <Typography
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        fontSize: "14px",
+                                        color: "#574B4F",
+                                        marginBottom: "6px",
+                                    }}
+                                    >
+                                    Teléfono
+                                    </Typography>
+                                    <TextField
+                                    fullWidth
                                     value={phone}
                                     onChange={(e) => {
-                                        const onlyNumbers = e.target.value.replace(/\D/g, ""); // elimina todo lo que no sea número
+                                        const onlyNumbers = e.target.value.replace(/\D/g, "");
                                         setPhone(onlyNumbers);
                                         setError(!validatePhone(onlyNumbers));
                                     }}
-                                        error={error}
-                                        helperText={error ? "Formato inválido" : ""}
-                                        placeholder="5255"
-                                        inputProps={{
-                                            inputMode: 'numeric', // muestra teclado numérico en móviles
-                                            pattern: '[0-9]*',    // ayuda extra para validar numérico
-                                            maxLength: 12         // opcional: máximo 12 dígitos
-                                        }}
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <img
-                                                        src={error ? infoiconerror : infoicon}
-                                                        alt="Info"
-                                                        style={{ width: "18px", height: "18px" }}
-                                                    />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                            sx={{
-                                                width: "75%",
-                                                backgroundColor: "#FFFFFF",
-                                                borderRadius: "4px",
-                                                "& .MuiInputBase-input": {
-                                                    fontFamily: "Poppins, sans-serif",
-                                                },
-                                                "& .MuiFormHelperText-root": {
-                                                    fontFamily: "Poppins, sans-serif",
-                                                    backgroundColor: "#F2F2F2",
-                                                    padding: "4px 8px",
-                                                    borderRadius: "4px",
-                                                    margin: 0,
-                                                }
-                                            }}
-                                        />
-                                    <MainButton text='Enviar' onClick={() => console.log('Enviar')} disabled={error} />
+                                    error={error}
+                                    helperText={error ? "Formato inválido" : ""}
+                                    placeholder="5255"
+                                    inputProps={{
+                                        inputMode: "numeric",
+                                        pattern: "[0-9]*",
+                                        maxLength: 12,
+                                    }}
+                                    InputProps={{
+                                        endAdornment: (
+                                        <InputAdornment position="end">
+                                            <img
+                                            src={error ? infoiconerror : infoicon}
+                                            alt="Info"
+                                            style={{ width: "18px", height: "18px" }}
+                                            />
+                                        </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{
+                                        backgroundColor: "#FFFFFF",
+                                        borderRadius: "4px",
+                                        "& .MuiInputBase-input": {
+                                        fontFamily: "Poppins, sans-serif",
+                                        },
+                                        "& .MuiFormHelperText-root": {
+                                        fontFamily: "Poppins, sans-serif",
+                                        backgroundColor: "#F2F2F2",
+                                        padding: "4px 8px",
+                                        borderRadius: "4px",
+                                        margin: 0,
+                                        },
+                                    }}
+                                    />
+                                </Box>
+                                <MainButton text="Enviar" onClick={() => console.log("Enviar")} disabled={error} />
                                 </Box>
                             </Box>
-                        </Paper>
+                            </Paper>
                     </Paper>
 
                     <Paper sx={{ padding: "10px", marginTop: "60px", borderRadius: "10px", width: "100%", height: "auto" }}>
@@ -620,11 +859,11 @@ const Campains: React.FC = () => {
                         <Typography variant="subtitle1" sx={{ fontFamily: "Poppins", marginBottom: "10px", marginLeft: "10px" }}>
                             Resultados de envío
                         </Typography>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", padding: "10px", border: "2px solid #F2F2F2", borderRadius: "10px", marginBottom: "20px" }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", padding: "10px", border: "2px solid #F2F2F2", borderRadius: "10px", marginBottom: "20px", }}>
                             {indicadores.map((indicador, index) => (
                                 <Box key={index} sx={{ textAlign: "center" }}>
                                     <img src={infoicon} width="24px" height="24px" />
-                                    <Typography sx={{ fontSize: "10px", color: "#9B9295" }}>{indicador.label}</Typography>
+                                    <Typography sx={{ fontSize: "14px", color: "#9B9295", fontWeight: "bold" }}>{indicador.label}</Typography>
                                     <Typography sx={{ fontSize: "22px", color: indicador.color, fontWeight: "bold" }}>{indicador.value}</Typography>
                                 </Box>
                             ))}

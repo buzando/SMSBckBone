@@ -388,6 +388,8 @@ const HomePage: React.FC = () => {
                     >
                         <img src={fast} alt="Welcome" style={{ width: '24px', height: '24px' }} />
                     </IconButton>
+
+                    
                     <Tooltip title="Editar información" arrow placement="top">
                         <IconButton
                         
