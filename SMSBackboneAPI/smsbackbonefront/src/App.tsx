@@ -32,6 +32,7 @@ import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
 import { AppContextProvider } from './hooks/useContextInitialState'
 import Reports from './pages/Reports'
+import Templates from './pages/Templates'
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import 'dayjs/locale/es-mx';
@@ -97,6 +98,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/TermsAndConditions' element={<TermsAndConditions />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/Templates' element={<Templates />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/BlackList' element={<BlackList />} />

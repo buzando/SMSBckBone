@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
-import { Divider, InputAdornment, Tooltip, TooltipProps, Typography } from "@mui/material";
+import { Divider, InputAdornment, Tooltip, TooltipProps, Typography, Paper, ToggleButton, ToggleButtonGroup, Switch, FormControl, FormControlLabel, List, ListItemText, ListItemButton, ListItem } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import Checkbox from '@mui/material/Checkbox';
 import trash from '../assets/Icon-trash-Card.svg'
@@ -25,12 +25,24 @@ import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import seachicon from '../assets/icon-lupa.svg'
 import iconclose from "../assets/icon-close.svg"
 import BoxEmpty from '../assets/Nousers.svg';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomDateTimePicker from '../components/commons/DatePickerOneDate';
 import AddIcon from '../assets/Icon-plus.svg'
 import Thrashicon from '../assets/Icon-trash-Card.svg'
+import backarrowD from '../assets/MoveTabledesactivated.svg'
+import backarrow from '../assets/MoveTable.svg'
 import Snackbar from '../components/commons/ChipBar'
+import Menu from '@mui/material/Menu';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ListIcon from '@mui/icons-material/List';
+import Emptybox from '../assets/NoResultados.svg';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SyncIcon from '@mui/icons-material/Sync';
+import * as XLSX from 'xlsx';
+import DropZone from '../components/commons/DropZone';
+import { SelectChangeEvent } from '@mui/material';
+
 interface BlackList {
     id: number;
     creationDate: string;
@@ -44,6 +56,34 @@ interface FormData {
     Phones: string[];
     ExpirationDate: Date | null;
     File: string;
+}
+
+interface ManageRecordsPayload {
+    operation: 'agregar' | 'eliminar' | 'actualizar';
+    name: string;
+    idRoom: number;
+
+    // solo para modo por Excel
+    sheetName?: string;
+    columnPhone?: string;
+    columnData?: string;
+    omitHeaders?: boolean;
+    filterType?: string;
+    fileBase64?: string;
+    eliminationname?: string;
+    // solo para modo por teléfonos manuales
+    phones?: string[];
+}
+
+
+interface BlackListPhones {
+    phone: string;
+    dato: string;
+}
+
+interface CampainsBlackListResponse {
+    chanel: string;
+    campainName: string;
 }
 
 type Errors = {
@@ -77,8 +117,75 @@ const BlackList: React.FC = () => {
     const [fileError, setFileError] = useState(false);
     const [fileSuccess, setFileSuccess] = useState(false);
     const [datePickerOpen, setDatePickerOpen] = useState(false);
+    const [originalName, setOriginalName] = useState('');
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const navigate = useNavigate();
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [rowToDelete, setRowToDelete] = useState<BlackList | null>(null);
+
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const filteredBlackList = BlackList.filter((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const totalItems = filteredBlackList.length;
+
+    const itemsPerPage = 50;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const currentItems = filteredBlackList.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+
+
+    const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+    const [menuRowId, setMenuRowId] = useState<number | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editData, setEditData] = useState<BlackList | null>(null);
+
+    const [isInspectModalOpen, setIsInspectModalOpen] = useState(false);
+    const [inspectTab, setInspectTab] = useState<'registros' | 'campañas'>('registros');
+    const [inspectData, setInspectData] = useState<BlackListPhones[]>([]);
+    const [inspectSearch, setInspectSearch] = useState('');
+    const [inspectPage, setInspectPage] = useState(1);
+
+    const [campaignData, setCampaignData] = useState<CampainsBlackListResponse[]>([]);
+    const [campaignSearch, setCampaignSearch] = useState('');
+    const [campaignPage, setCampaignPage] = useState(1);
+
+    const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+    const [manageOperation, setManageOperation] = useState<'agregar' | 'eliminar' | 'actualizar'>('agregar');
+    const [manageByList, setManageByList] = useState(false);
+    const [manageByIndividual, setManageByIndividual] = useState(false);
+
+    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+    const fileInputManageRef = useRef<HTMLInputElement>(null);
+
+    const [sheetNames, setSheetNames] = useState<string[]>([]);
+    const [selectedSheet, setSelectedSheet] = useState('');
+    const [columns, setColumns] = useState<string[]>([]);
+    const [selectedTelefonoCol, setSelectedTelefonoCol] = useState('');
+    const [selectedDatoCol, setSelectedDatoCol] = useState('');
+    const [excelData, setExcelData] = useState<any[][]>([]);
+    const [processedRows, setProcessedRows] = useState<any[]>([]);
+    const [base64File, setBase64File] = useState('');
+    const [workbook, setWorkbook] = useState<any>(null);
+    const [omitHeaders, setOmitHeaders] = useState(false);
+    const [telefonoFilter, setTelefonoFilter] = useState('');
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [selectedPhoneColumn, setSelectedPhoneColumn] = useState('');
+    const [selectedDataColumn, setSelectedDataColumn] = useState('');
+    const [selectedPhoneFilter, setSelectedPhoneFilter] = useState('');
+    const [uploadedFileBase64, setUploadedFileBase64] = useState('');
+    const [individualPhones, setIndividualPhones] = useState<string[]>([]);
+    const [selectedBlackListName, setSelectedBlackListName] = useState<string>('');
+    const [selectedRows, setSelectedRows] = useState<BlackList[]>([]);
+
+    const [allRows, setAllRows] = useState<BlackList[]>([]);
 
     const WhiteTooltip = styled(({ className, ...props }: TooltipProps) => (
         <Tooltip {...props} classes={{ popper: className }} />
@@ -92,87 +199,113 @@ const BlackList: React.FC = () => {
         },
     }));
 
-    const validateField = (name: string, value: string) => {
-        let error = '';
-        const cardRegex = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$/;
-        const textRegex = /^[a-zA-ZÀ-ÿ\s]+$/;
-        const numberRegex = /^[0-9]+$/;
-        const postalCodeRegex = /^[0-9]{5}$/;
-        const cvvRegex = /^[0-9]{3,4}$/; // CVV debe ser 3 o 4 dígitos según el tipo de tarjeta
+    const openEditModal = (item: BlackList) => {
+        setEditData(item);
+        setFormData({
+            Name: item.name,
+            ExpirationDate: item.expirationDate ? new Date(item.expirationDate) : null,
+            Phones: [''],
+            File: ''
+        });
+        setOriginalName(item.name);
+        setIsEditModalOpen(true);
+    };
 
-        switch (name) {
-            case 'cardNumber':
-                if (!cardRegex.test(value)) {
-                    error = 'Número de tarjeta no válido';
-                } else {
-                    const detectedType = detectCardType(value);
-                    setFormData((prev) => ({
-                        ...prev,
-                        type: detectedType, // Se actualiza automáticamente el tipo de tarjeta
-                    }));
-                }
-                break;
-            case 'cardName':
-            case 'street':
-            case 'neighborhood':
-            case 'city':
-            case 'state':
-                if (!textRegex.test(value)) error = 'No se permiten caracteres especiales';
-                break;
-            case 'exteriorNumber':
-                if (!numberRegex.test(value)) error = 'Solo se permiten números';
-                break;
-            case 'interiorNumber':
-                if (value && !numberRegex.test(value)) error = 'Solo se permiten números';
-                break;
-            case 'postalCode':
-                if (!postalCodeRegex.test(value)) error = 'Debe ser un código postal válido (5 dígitos)';
-                break;
-            case 'cvv':
-                if (!cvvRegex.test(value)) error = 'CVV no válido. Debe contener 3 o 4 dígitos';
-                break;
-            case 'month':
-                if (!numberRegex.test(value) || parseInt(value, 10) < 1 || parseInt(value, 10) > 12) error = 'Mes no válido';
-                break;
-            case 'year':
-                if (!numberRegex.test(value) || value.length !== 4) error = 'Año no válido';
-                break;
-            default:
-                break;
+    const handleUpdateBlackList = async () => {
+        if (!editData) return;
+
+        setLoading(true);
+        const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+
+        if (!salaId) {
+            console.error("No se encontró el ID del usuario.");
+            return;
         }
-        return error;
+
+        try {
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_UPDATE_BLACKLIST}`;
+            const payload = {
+                oldname: originalName,
+                newname: formData.Name,
+                expiration: formData.ExpirationDate,
+                idRoom: salaId,
+            };
+
+            const response = await axios.post(requestUrl, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 200) {
+                setMessageChipBar('Lista negra actualizada correctamente');
+                setshowChipBarCard(true);
+                setTimeout(() => setshowChipBarCard(false), 3000);
+                await fetchBlackListsByUser();
+                setIsEditModalOpen(false);
+            }
+        } catch (error) {
+            setIsErrorModalOpen(true);
+            setTitleErrorModal('Error al actualizar la lista negra');
+            setMessageErrorModal('No se pudo actualizar. Intente más tarde.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (base64File) {
+            setFormData(prev => ({ ...prev, File: base64File }));
+        }
+    }, [base64File]);
+
+    useEffect(() => {
+        if (uploadedFileBase64) {
+            console.log("✅ uploadedFileBase64 cargado:", uploadedFileBase64.substring(0, 50));
+        }
+    }, [uploadedFileBase64]);
+
+    useEffect(() => {
+        if (manageByIndividual && individualPhones.length === 0) {
+            setIndividualPhones(['']);
+        }
+    }, [manageByIndividual]);
+
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: number) => {
+        setMenuAnchorEl(event.currentTarget);
+        setMenuRowId(id);
+    };
+
+    const handleMenuClose = () => {
+        setMenuAnchorEl(null);
+        setMenuRowId(null);
     };
 
 
-    const openDeleteModal = (card: BlackList) => {
-        setCardToDelete(card);
-        setTitleMainModal('Eliminar Lista negra');
-        setMessageMainModal('¿Estás seguro de que deseas eliminar la lista negra? Esta acción no podrá revertida.');
-        setOpenModal(true);
-    };
 
     const fetchBlackListsByUser = async () => {
-        const usuario = localStorage.getItem("userData");
-        const obj = usuario ? JSON.parse(usuario) : null;
-      
-        if (!obj?.id) {
-          console.error("No se encontró el ID del usuario.");
-          return;
+        const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+        if (!salaId) {
+            console.error("No se encontró el ID de la sala.");
+            return;
         }
-      
+
         try {
-          const requestUrl = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_BLACKLIST}${obj.id}`;
-          const response = await axios.get(requestUrl);
-      
-          if (response.status === 200) {
-            setBlackList(response.data);
-          }
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_BLACKLIST}${salaId}`;
+            const response = await axios.get(requestUrl);
+
+            if (response.status === 200) {
+                setBlackList(response.data);
+            }
         } catch (error) {
-          setTitleErrorModal("Error al cargar listas negras");
-          setMessageErrorModal("No se pudo obtener la información. Inténtalo más tarde.");
-          setIsErrorModalOpen(true);
+            setTitleErrorModal("Error al cargar listas negras");
+            setMessageErrorModal("No se pudo obtener la información. Inténtalo más tarde.");
+            setIsErrorModalOpen(true);
         }
-      };
+    };
 
     useEffect(() => {
         fetchBlackListsByUser();
@@ -183,14 +316,61 @@ const BlackList: React.FC = () => {
         setIsblacklistModalOpen(false);
     };
 
+    const handleSendToServer = async () => {
+        const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+        const payload: ManageRecordsPayload = {
+            operation: manageOperation,                         // 'agregar' | 'eliminar' | 'actualizar'
+            name: selectedBlackList?.name || '',
+            idRoom: salaId,
+            sheetName: selectedSheet,
+            columnPhone: selectedTelefonoCol,
+            columnData: selectedDatoCol,
+            omitHeaders: omitHeaders,
+            filterType: selectedPhoneFilter,
+            fileBase64: uploadedFileBase64,
+            phones: individualPhones,
+            eliminationname: selectedBlackListName || '',
+        };
+
+
+        try {
+            setLoading(true);
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_UPDATERECORDS_BLACKLIST}`;
+            const response = await axios.post(requestUrl, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.status === 200) {
+                setMessageChipBar('La lista negra se gestiono correctamente');
+                setshowChipBarCard(true);
+                setTimeout(() => setshowChipBarCard(false), 3000);
+                await fetchBlackListsByUser();
+                setIsManageModalOpen(false);
+            }
+        } catch (err) {
+            setTitleErrorModal('Error al Gestionar la lista negra');
+            setMessageErrorModal('Algo salió mal. Inténtelo de nuevo o regreso más tarde.');
+            setIsErrorModalOpen(true);
+
+            setIsManageModalOpen(false);
+        } finally {
+            setBase64File('');
+            setFileSuccess(false);
+            setFileError(false);
+            setUploadedFile(null);
+            setLoading(false);
+        }
+    };
 
     const addBlackList = async () => {
         setLoading(true);
-        const usuario = localStorage.getItem("userData");
-        const obj = usuario ? JSON.parse(usuario) : null;
+        const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
 
-        if (!obj?.id) {
-            console.error("No se encontró el ID del usuario.");
+
+        if (!salaId) {
+            console.error("No se encontró el ID de la sala.");
             return;
         }
 
@@ -199,7 +379,7 @@ const BlackList: React.FC = () => {
             const payload = {
                 Name: formData.Name,
                 ExpirationDate: formData.ExpirationDate,
-                IdUser: obj.id,
+                IdRoom: salaId,
                 Phones: formData.Phones,
                 FileBase64: formData.File
             };
@@ -211,7 +391,7 @@ const BlackList: React.FC = () => {
             });
 
             if (response.status === 200) {
-                setMessageChipBar('La tarjeta se añadió correctamente');
+                setMessageChipBar('La lista negra');
                 setshowChipBarCard(true);
                 setTimeout(() => setshowChipBarCard(false), 3000);
                 await fetchBlackListsByUser();
@@ -224,18 +404,14 @@ const BlackList: React.FC = () => {
         } finally {
             handleCloseModal();
             setLoading(false);
+            setBase64File('');
+            setFileSuccess(false);
+            setFileError(false);
+            setUploadedFile(null);
+            setLoading(false);
         }
     };
 
-    const areRequiredFieldsFilled = (): boolean => {
-        // Verifica que los campos requeridos no estén vacíos
-        const requiredFields = [
-            formData.Name,
-        ];
-
-        // Devuelve true si todos los campos requeridos están llenos y sin errores
-        return requiredFields.every((field) => field.trim() !== '') && Object.values(errors).every((error) => !error);
-    };
 
     const handleCloseAddCardModal = () => {
         setTitleMainModal('Cancelación');
@@ -262,26 +438,6 @@ const BlackList: React.FC = () => {
         setIsblacklistModalOpen(false); // Cierra el modal principal
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        let name: string, value: string | number | boolean;
-
-        if ("target" in e) { // ✅ TypeScript ya reconoce que e tiene target
-            const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-            name = target.name;
-            value = target.type === "checkbox" ? (target as HTMLInputElement).checked : target.value;
-        } else {
-            return; // Evita que TypeScript marque un error
-        }
-
-        // Aseguramos que los valores de 'month' y 'year' sean strings
-        if (name === "month" || name === "year") {
-            value = value.toString();
-        }
-
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev) => ({ ...prev, [name]: validateField(name, value.toString()) }));
-    };
-
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value.toLowerCase();
@@ -301,23 +457,89 @@ const BlackList: React.FC = () => {
             hour12: true
         });
     };
+    useEffect(() => {
+        if (selectedTelefonoCol && selectedDatoCol && excelData.length > 1) {
+            const telefonoIndex = columns.indexOf(selectedTelefonoCol);
+            const datoIndex = columns.indexOf(selectedDatoCol);
+
+            const rows = excelData.slice(1).map((row) => ({
+                telefono: row[telefonoIndex],
+                dato: row[datoIndex],
+            }));
+
+            setProcessedRows(rows); // ✅ esto puedes mandarlo junto con el archivo base64
+        }
+    }, [selectedTelefonoCol, selectedDatoCol]);
 
     const handleFile = (file: File) => {
         const isValid = file.name.endsWith('.xlsx');
-        setSelectedFile(isValid ? file : null);
-        setFileError(!isValid);
-        setFileSuccess(isValid);
-      
-        if (isValid) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const base64String = reader.result?.toString().split(',')[1] || '';
-            setFormData((prev) => ({ ...prev, File: base64String }));
-          };
-          reader.readAsDataURL(file);
+
+        if (!isValid) {
+            setUploadedFile(null);
+            setFileError(true);
+            setFileSuccess(false);
+            setSheetNames([]);
+            setColumns([]);
+            setExcelData([]);
+            setBase64File('');
+            return;
         }
-      };
-      
+
+        setUploadedFile(file);
+        setFileError(false);
+        setFileSuccess(true);
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const arrayBuffer = e.target?.result as ArrayBuffer;
+            const data = new Uint8Array(arrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            const sheetNames = workbook.SheetNames;
+            setSheetNames(sheetNames);
+            setSelectedSheet(sheetNames[0]);
+
+            const sheet = workbook.Sheets[sheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+
+            setExcelData(jsonData);
+            setColumns(jsonData[0] as string[]);
+        };
+
+        reader.readAsArrayBuffer(file);
+
+        // Extraer base64 también
+        const readerB64 = new FileReader();
+        readerB64.onloadend = () => {
+            const base64 = (readerB64.result as string).split(',')[1];
+            setBase64File(base64);
+            setUploadedFileBase64(base64);
+        };
+        readerB64.readAsDataURL(file);
+    };
+
+
+    const extractBase64 = (file: File) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            setBase64File(base64);
+        };
+        reader.readAsDataURL(file);
+    };
+
+
+    const handleSheetChange = (event: SelectChangeEvent<string>) => {
+        const selected = event.target.value;
+        setSelectedSheet(selected);
+
+        const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[selected], { header: 1 });
+        const jsonData = sheet as any[][];
+        setExcelData(jsonData);
+        setColumns(jsonData[0] as string[]);
+    };
+
 
     const handlePhoneChange = (index: number, value: string) => {
         const updated = [...formData.Phones];
@@ -346,11 +568,186 @@ const BlackList: React.FC = () => {
         setFormData(prev => ({ ...prev, Phones: updatedPhones }));
     };
 
-    const handleDateChange = (date: Date | null) => {
-        setFormData(prev => ({ ...prev, ExpirationDate: date }));
+    const handleDateChange = (date: Date) => {
+        setFormData(prev => ({
+            ...prev,
+            ExpirationDate: date
+        }));
+    };
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedRows(allRows);
+        } else {
+            setSelectedRows([]);
+        }
     };
 
+    const isAllSelected = selectedRows.length === allRows.length && allRows.length > 0;
+    const isIndeterminate = selectedRows.length > 0 && selectedRows.length < allRows.length;
 
+    const handleSelectOne = (id: number) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
+    const openInspectModal = async (blackList: BlackList) => {
+        try {
+            const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+            if (!salaId) {
+
+                console.error("No se encontró el ID de la sala.");
+
+                return;
+
+            }
+            const apicall = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_BLACKLISTRECORDS}`;
+            const payload = {
+                Name: blackList.name,
+                id: salaId,
+            };
+
+            const response = await axios.post(apicall, payload, {
+
+                headers: {
+
+                    'Content-Type': 'application/json',
+
+                },
+            });
+            if (response.status === 200) {
+                setInspectData(response.data.blackListPhones);
+                setCampaignData(response.data.campains);
+                setIsInspectModalOpen(true);
+                setInspectTab('registros');
+                setInspectPage(1);
+            }
+        } catch (error) {
+            console.error("Error al obtener registros:", error);
+        }
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setUploadedFile(file);
+        }
+    };
+
+    const handleManageFile = (file: File) => {
+        console.log("📁 Archivo recibido:", file.name); // agrega esto
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target?.result as ArrayBuffer);
+            const wb = XLSX.read(data, { type: 'array' });
+            setWorkbook(wb);
+            setSheetNames(wb.SheetNames);
+            const firstSheet = wb.SheetNames[0];
+            setSelectedSheet(firstSheet);
+            const sheetData = XLSX.utils.sheet_to_json(wb.Sheets[firstSheet], { header: 1 }) as any[][];
+            setExcelData(sheetData);
+            setColumns(sheetData[0] as string[]);
+        };
+        reader.readAsArrayBuffer(file);
+
+        // === BASE64 ===
+        const readerB64 = new FileReader();
+        readerB64.onloadend = () => {
+            const base64 = (readerB64.result as string).split(',')[1];
+            setBase64File(base64);
+            setUploadedFileBase64(base64); // <- este es el que usas en el payload
+        };
+        readerB64.readAsDataURL(file);
+    };
+
+    const handleIndividualPhoneChange = (index: number, value: string) => {
+        const updated = [...individualPhones];
+        updated[index] = value;
+        setIndividualPhones(updated);
+    };
+
+    const handleAddIndividualPhone = () => {
+        if (individualPhones.length < 5) {
+            setIndividualPhones(prev => [...prev, '']);
+        }
+    };
+
+    const handleRemoveIndividualPhone = (index: number) => {
+        const updated = [...individualPhones];
+        updated.splice(index, 1);
+        setIndividualPhones(updated);
+    };
+
+    const handleSelectRow = (row: BlackList) => {
+        const isSelected = selectedRows.some(r => r.id === row.id);
+        if (isSelected) {
+            setSelectedRows(prev => prev.filter(r => r.id !== row.id));
+        } else {
+            setSelectedRows(prev => [...prev, row]);
+        }
+    };
+
+    const handleDeleteSelected = async (blackList: BlackList) => {
+        const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+        const payload = {
+            names: blackList ? [blackList.name] : selectedRows.map(row => row.name),
+            idroom: salaId
+        };
+
+
+        try {
+            setLoading(true);
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_DELETE_BLACKLISTRECORDS}`;
+            const response = await axios.post(requestUrl, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.status === 200) {
+                if (selectedRows.map(row => row.name).length > 1) {
+                    setMessageChipBar('Las listas negras se elimino correctamente');
+
+                } else {
+
+                    setMessageChipBar('La lista negra se elimino correctamente');
+                }
+                setshowChipBarCard(true);
+                setTimeout(() => setshowChipBarCard(false), 3000);
+                await fetchBlackListsByUser();
+                setIsManageModalOpen(false);
+            }
+        } catch (err) {
+            setTitleErrorModal('Error al eliminar la lista negra');
+            setMessageErrorModal('Algo salió mal. Inténtelo de nuevo o regreso más tarde.');
+            setIsErrorModalOpen(true);
+
+            setIsManageModalOpen(false);
+        } finally {
+            setBase64File('');
+            setFileSuccess(false);
+            setFileError(false);
+            setUploadedFile(null);
+            setLoading(false);
+            setSelectedRows([]);
+        }
+    };
+
+    const handleOpenDeleteModal = (blackList: BlackList) => {
+        setRowToDelete(blackList);
+        setOpenDeleteModal(true);
+    };
+    const handleCloseDeleteModal = () => {
+        setRowToDelete(null);
+        setOpenDeleteModal(false);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (rowToDelete) {
+            await handleDeleteSelected(rowToDelete); // tu función ya existente
+            handleCloseDeleteModal();
+        }
+    };
     return (
         <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1040px" }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -459,6 +856,78 @@ const BlackList: React.FC = () => {
                     </Box>
                 </div>
             </div>
+            <Box sx={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', marginTop: '-46px',
+            }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
+                        {startItem}–{endItem} de {totalItems}
+                    </Typography>
+
+                    {/* Ir al inicio */}
+                    <IconButton
+                        onClick={() => setCurrentPage(1)}
+                        disabled={currentPage === 1}
+                        sx={{ p: 0 }}
+                    >
+                        <img
+                            src={currentPage === 1 ? backarrowD : backarrow}
+                            style={{ transform: 'rotate(0deg)', width: 22 }}
+                            alt="Primera página"
+                        />
+                        <img
+                            src={currentPage === 1 ? backarrowD : backarrow}
+                            style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
+                            alt=""
+                        />
+                    </IconButton>
+
+                    {/* Anterior */}
+                    <IconButton
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        sx={{ p: 0 }}
+                    >
+                        <img
+                            src={currentPage === 1 ? backarrowD : backarrow}
+                            style={{ transform: 'rotate(0deg)', width: 22 }}
+                            alt="Anterior"
+                        />
+                    </IconButton>
+
+                    {/* Siguiente */}
+                    <IconButton
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        sx={{ p: 0 }}
+                    >
+                        <img
+                            src={currentPage === totalPages ? backarrowD : backarrow}
+                            style={{ transform: 'rotate(180deg)', width: 22 }}
+                            alt="Siguiente"
+                        />
+                    </IconButton>
+
+                    {/* Ir al final */}
+                    <IconButton
+                        onClick={() => setCurrentPage(totalPages)}
+                        disabled={currentPage === totalPages}
+                        sx={{ p: 0 }}
+                    >
+                        <img
+                            src={currentPage === totalPages ? backarrowD : backarrow}
+                            style={{ transform: 'rotate(180deg)', width: 22 }}
+                            alt="Última página"
+                        />
+                        <img
+                            src={currentPage === totalPages ? backarrowD : backarrow}
+                            style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
+                            alt=""
+                        />
+                    </IconButton>
+                </Box>
+            </Box>
+
 
             <div style={{ display: 'flex', gap: '20px', margin: '20px 0', flexWrap: 'wrap' }}>
                 {BlackList.length === 0 && (
@@ -506,31 +975,90 @@ const BlackList: React.FC = () => {
                     >
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
                             <thead>
-                                <tr style={{ backgroundColor: '#F5F5F5', textAlign: 'left' }}>
-                                    <th style={{ padding: '16px' }}><Checkbox /></th>
-                                    <th style={{ padding: '16px' }}>Fecha de creación</th>
-                                    <th style={{ padding: '16px' }}>Nombre de lista</th>
-                                    <th style={{ padding: '16px' }}>Fecha de expiración</th>
-                                    <th style={{ padding: '16px' }}>Cantidad de registros</th>
-                                    <th style={{ padding: '16px' }}></th>
-                                </tr>
+                                {selectedRows.length === 0 ? (
+                                    <tr style={{ backgroundColor: '#F5F5F5', textAlign: 'left' }}>
+                                        <th style={{ padding: '16px' }}>
+                                            <Checkbox
+                                                sx={{
+                                                    color: '#8F4E63',
+                                                    '&.Mui-checked': { color: '#8F4E63' },
+                                                    '&.MuiCheckbox-indeterminate': { color: '#8F4E63' }
+                                                }}
+                                                checked={isAllSelected}
+                                                indeterminate={isIndeterminate}
+                                                onChange={handleSelectAll}
+                                            />
+                                        </th>
+                                        <th style={{ padding: '16px', fontFamily: 'Poppins' }}>Fecha de creación</th>
+                                        <th style={{ padding: '16px', fontFamily: 'Poppins' }}>Nombre de lista</th>
+                                        <th style={{ padding: '16px', fontFamily: 'Poppins' }}>Fecha de expiración</th>
+                                        <th style={{ padding: '16px', fontFamily: 'Poppins' }}>Cantidad de registros</th>
+                                        <th style={{ padding: '16px' }}></th>
+                                    </tr>
+                                ) : (
+                                    <tr style={{ backgroundColor: '#F5F5F5' }}>
+                                        <th colSpan={6}>
+                                            <Box display="flex" alignItems="center" gap={1} pl={1}>
+                                                <Checkbox
+                                                    sx={{
+                                                        color: '#8F4E63',
+                                                        '&.Mui-checked': { color: '#8F4E63' },
+                                                        '&.MuiCheckbox-indeterminate': { color: '#8F4E63' }
+                                                    }}
+                                                    checked={isAllSelected}
+                                                    indeterminate={selectedRows.length > 0 && selectedRows.length < allRows.length}
+                                                    onChange={handleSelectAll}
+                                                />
+                                                <Tooltip title="Eliminar">
+                                                    <IconButton onClick={handleDeleteSelected}>
+                                                        <img src={Thrashicon} alt="Eliminar" style={{ width: 20, height: 20 }} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Box>
+                                        </th>
+                                    </tr>
+                                )}
                             </thead>
+
+
                             <tbody>
-                                {BlackList.map((black) => (
+                                {currentItems.map((black) => (
                                     <tr key={black.id} style={{ borderTop: '1px solid #E0E0E0' }}>
                                         <td style={{ padding: '16px' }}>
-                                            <Checkbox />
+                                            <Checkbox
+                                                sx={{
+                                                    color: '#8F4E63',
+                                                    '&.Mui-checked': { color: '#8F4E63' },
+                                                }}
+                                                checked={selectedRows.includes(black)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedRows(prev => [...prev, black]);
+                                                    } else {
+                                                        setSelectedRows(prev => prev.filter(id => id !== black));
+                                                    }
+                                                }}
+                                            />
                                         </td>
-                                        <td style={{ padding: '16px' }}>{formatDate(black.creationDate)}</td>
-                                        <td style={{ padding: '16px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        <td style={{ padding: '16px', fontFamily: 'Poppins', }}>{formatDate(black.creationDate)}</td>
+                                        <td style={{ padding: '16px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'Poppins', }}>
                                             {black.name}
                                         </td>
-                                        <td style={{ padding: '16px' }}>{formatDate(black.expirationDate)}</td>
-                                        <td style={{ padding: '16px' }}>{black.quantity}</td>
-                                        <td style={{ padding: '16px' }}>
-                                            <IconButton>
+                                        <td style={{ padding: '16px', fontFamily: 'Poppins', }}>{formatDate(black.expirationDate)}</td>
+                                        <td style={{ padding: '16px', textAlign: 'center', fontFamily: 'Poppins', }}>{black.quantity}</td>
+                                        <td style={{
+                                            padding: '16px',
+                                            borderLeft: '1px solid #E0E0E0',
+                                            textAlign: 'center'
+                                        }}>
+                                            <IconButton onClick={(e) => {
+                                                setMenuAnchorEl(e.currentTarget);
+                                                setSelectedBlackList(black); // GUÁRDALO DIRECTO
+                                            }}>
+
                                                 <span style={{ fontSize: '24px', color: '#7B354D' }}>⋮</span>
                                             </IconButton>
+
                                         </td>
                                     </tr>
                                 ))}
@@ -540,6 +1068,8 @@ const BlackList: React.FC = () => {
                 )}
 
             </div>
+
+
             <ModalError
                 isOpen={isErrorModalOpen}
                 title={TitleErrorModal}
@@ -573,7 +1103,17 @@ const BlackList: React.FC = () => {
                 onSecondaryClick={handleCloseCancelationModal}
 
             />
-            {/* Modal para agregar tarjeta */}
+            <MainModal
+                isOpen={openDeleteModal}
+                Title='Elimianr lista negra'
+                message='Estas seguro de eliminar la lista negra'
+                primaryButtonText="Aceptar"
+                secondaryButtonText="Cancelar"
+                onPrimaryClick={handleConfirmDelete}
+                onSecondaryClick={handleCloseDeleteModal}
+
+            />
+            {/* Modal para agregar */}
             <Modal
                 open={isblacklistdModalOpen}
                 onClose={handleCloseModal}
@@ -885,6 +1425,1146 @@ const BlackList: React.FC = () => {
 
                 </Box>
             </Modal>
+
+            <Modal
+                open={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '80px',
+                        left: '350px',
+                        width: '580px',
+                        height: '409px',
+                        bgcolor: 'background.paper',
+                        borderRadius: '8px',
+                        boxShadow: 24,
+                        p: 4,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2
+                    }}
+                >
+                    {/* Encabezado */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '20px', fontWeight: 600, color: '#330F1B' }}>
+                            Editar lista negra
+                        </Typography>
+                        <IconButton onClick={() => setIsEditModalOpen(false)}>
+                            <CloseIcon sx={{ color: '#A6A6A6' }} />
+                        </IconButton>
+                    </Box>
+
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px' }} />
+
+                    {/* Nombre */}
+                    <Box>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
+                            Nombre<span style={{ color: 'red' }}>*</span>
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            value={formData.Name}
+                            onChange={(e) => handleNameChange(e.target.value)}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <img src={infoicon} alt="info" />
+                                    </InputAdornment>
+                                )
+                            }}
+                            sx={{
+                                width: '100%',
+                                height: '54px',
+                                '& .MuiInputBase-root': {
+                                    height: '100%'
+                                },
+                                '& input': {
+                                    fontFamily: 'Poppins',
+                                    fontSize: '14px'
+                                }
+                            }}
+                        />
+                    </Box>
+
+                    {/* Fecha */}
+                    <Box>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
+                            Fecha de expiración (opcional)
+                        </Typography>
+                        <Box>
+                            <Box
+                                onClick={(e) => {
+                                    setAnchorEl(e.currentTarget);
+                                    setDatePickerOpen(true);
+                                }}
+                                sx={{
+                                    width: '100%',
+                                    height: '54px',
+                                    border: '1px solid #D9B4C3',
+                                    borderRadius: '4px',
+                                    padding: '10px 12px',
+                                    fontSize: '14px',
+                                    fontFamily: 'Poppins',
+                                    color: '#574B4F',
+                                    backgroundColor: '#fff',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                {formData.ExpirationDate
+                                    ? formData.ExpirationDate.toLocaleString('es-MX', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })
+                                    : 'Selecciona fecha y hora'}
+                            </Box>
+
+                            {datePickerOpen && anchorEl && (
+                                <CustomDateTimePicker
+                                    open={datePickerOpen}
+                                    anchorEl={anchorEl}
+                                    placement="top-start"
+                                    onApply={(date, hour, minute) => {
+                                        const newDate = new Date(date);
+                                        newDate.setHours(hour);
+                                        newDate.setMinutes(minute);
+                                        handleDateChange(newDate);
+                                        setDatePickerOpen(false);
+                                        setAnchorEl(null);
+                                    }}
+                                    onClose={() => {
+                                        setDatePickerOpen(false);
+                                        setAnchorEl(null);
+                                    }}
+                                    modifiers={[
+                                        {
+                                            name: 'offset',
+                                            options: {
+                                                offset: [0, -380], // 🔥 prueba valores como -4, -6 o incluso 0 si quieres que quede más abajo
+                                            },
+                                        },
+                                    ]}
+                                />
+
+                            )}
+
+                        </Box>
+
+                    </Box>
+
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 2 }} />
+
+                    {/* Botones */}
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                        <SecondaryButton text="Cancelar" onClick={() => setIsEditModalOpen(false)} />
+                        <MainButton text="Guardar cambios" onClick={handleUpdateBlackList} />
+                    </Box>
+                </Box>
+            </Modal>
+
+            <Modal open={isInspectModalOpen} onClose={() => setIsInspectModalOpen(false)}>
+                <Box sx={{
+                    position: 'absolute',
+                    top: '60px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '546px',
+                    height: '667px',
+                    maxHeight: 'calc(100vh - 100px)',
+                    bgcolor: 'white',
+                    borderRadius: '8px',
+                    p: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '20px', color: '#330F1B' }}>
+                            Inspeccionar lista negra
+                        </Typography>
+                        <IconButton onClick={() => setIsInspectModalOpen(false)}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+
+                    {/* Tabs */}
+                    <Box sx={{ display: 'flex', gap: 4, borderBottom: '1px solid #E0E0E0', mb: 2 }}>
+                        <Typography
+                            onClick={() => setInspectTab('registros')}
+                            sx={{
+                                fontFamily: 'Poppins',
+                                fontWeight: 500,
+                                fontSize: '14px',
+                                borderBottom: inspectTab === 'registros' ? '2px solid #7B354D' : 'none',
+                                color: inspectTab === 'registros' ? '#7B354D' : '#9B9295',
+                                cursor: 'pointer',
+                                pb: 1
+                            }}
+                        >
+                            REGISTROS
+                        </Typography>
+                        <Typography
+                            onClick={() => setInspectTab('campañas')}
+                            sx={{
+                                fontFamily: 'Poppins',
+                                fontWeight: 500,
+                                fontSize: '14px',
+                                borderBottom: inspectTab === 'campañas' ? '2px solid #7B354D' : 'none',
+                                color: inspectTab === 'campañas' ? '#7B354D' : '#9B9295',
+                                cursor: 'pointer',
+                                pb: 1
+                            }}
+                        >
+                            CAMPAÑAS ASIGNADAS
+                        </Typography>
+                    </Box>
+                    {inspectTab === 'campañas' && (
+                        <>
+                            {/* Header: paginación + buscador */}
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                mb: 2,
+                                mt: '-10px'
+                            }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
+                                        {Math.min(campaignPage * 50 - 49, campaignData.length)}–{Math.min(campaignPage * 50, campaignData.length)} de {campaignData.length}
+                                    </Typography>
+
+                                    {/* Flechas */}
+                                    <IconButton onClick={() => setCampaignPage(1)} disabled={campaignPage === 1} sx={{ p: 0 }}>
+                                        <img src={campaignPage === 1 ? backarrowD : backarrow} style={{ transform: 'rotate(0deg)', width: 22 }} />
+                                        <img src={campaignPage === 1 ? backarrowD : backarrow} style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }} />
+                                    </IconButton>
+
+                                    <IconButton onClick={() => setCampaignPage(prev => Math.max(prev - 1, 1))} disabled={campaignPage === 1} sx={{ p: 0 }}>
+                                        <img src={campaignPage === 1 ? backarrowD : backarrow} style={{ transform: 'rotate(0deg)', width: 22 }} />
+                                    </IconButton>
+
+                                    <IconButton onClick={() => setCampaignPage(prev => prev + 1)} disabled={campaignPage * 50 >= campaignData.length} sx={{ p: 0 }}>
+                                        <img src={campaignPage * 50 >= campaignData.length ? backarrowD : backarrow} style={{ transform: 'rotate(180deg)', width: 22 }} />
+                                    </IconButton>
+
+                                    <IconButton onClick={() => setCampaignPage(Math.ceil(campaignData.length / 50))} disabled={campaignPage * 50 >= campaignData.length} sx={{ p: 0 }}>
+                                        <img src={campaignData.length === 0 || campaignPage * 50 >= campaignData.length ? backarrowD : backarrow} style={{ transform: 'rotate(180deg)', width: 22 }} />
+                                        <img src={campaignData.length === 0 || campaignPage * 50 >= campaignData.length ? backarrowD : backarrow} style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }} />
+                                    </IconButton>
+                                </Box>
+
+                                {/* Buscador */}
+                                <Box
+                                    display="flex"
+                                    alignItems="center"
+                                    sx={{
+                                        backgroundColor: "#FFFFFF",
+                                        border: campaignSearch ? "1px solid #7B354D" : "1px solid #9B9295",
+                                        borderRadius: "4px",
+                                        padding: "6px 10px",
+                                        width: "220px",
+                                        height: "38px",
+                                    }}
+                                >
+                                    <img src={seachicon} alt="Buscar" style={{
+                                        marginRight: "8px",
+                                        width: "16px",
+                                        height: "16px",
+                                        filter: campaignSearch ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none"
+                                    }} />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar campaña"
+                                        value={campaignSearch}
+                                        onChange={(e) => setCampaignSearch(e.target.value)}
+                                        style={{
+                                            border: "none",
+                                            outline: "none",
+                                            width: "100%",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins, sans-serif",
+                                            color: campaignSearch ? "#7B354D" : "#9B9295",
+                                            backgroundColor: "transparent",
+                                        }}
+                                    />
+                                </Box>
+                            </Box>
+
+                            {/* Tabla o mensaje vacío */}
+                            <Box sx={{ flex: 1, overflowY: 'auto' }}>
+                                {campaignData.filter(c => c.campainName.toLowerCase().includes(campaignSearch.toLowerCase()))
+                                    .slice((campaignPage - 1) * 50, campaignPage * 50).length === 0 ? (
+                                    <Box sx={{ height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                        <img src={Emptybox} alt="No campaigns" style={{ width: '120px', marginBottom: '16px' }} />
+                                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#7B354D', fontWeight: 500 }}>
+                                            No se encontraron resultados.
+                                        </Typography>
+                                    </Box>
+                                ) : (
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: '#F5F5F5' }}>
+                                                <th style={{ padding: '12px', textAlign: 'left' }}>Canal</th>
+                                                <th style={{ padding: '12px', textAlign: 'left' }}>Ícono</th>
+                                                <th style={{ padding: '12px', textAlign: 'left' }}>Campaña</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {campaignData
+                                                .filter(c => c.campainName.toLowerCase().includes(campaignSearch.toLowerCase()))
+                                                .slice((campaignPage - 1) * 50, campaignPage * 50)
+                                                .map((row, index) => (
+                                                    <tr key={index} style={{ borderTop: '1px solid #E0E0E0' }}>
+                                                        <td style={{ padding: '12px' }}>{row.chanel}</td>
+                                                        <td style={{ padding: '12px' }}>
+                                                        </td>
+                                                        <td style={{ padding: '12px' }}>{row.campainName}</td>
+                                                    </tr>
+                                                ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </Box>
+                        </>
+                    )}
+
+                    {inspectTab === 'registros' && (
+                        <>
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginBottom: '20px',
+                                marginTop: '-10px',
+                            }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
+                                        {Math.min(inspectPage * 50 - 49, inspectData.length)}–{Math.min(inspectPage * 50, inspectData.length)} de {inspectData.length}
+                                    </Typography>
+
+                                    {/* Flechas */}
+                                    <IconButton
+                                        onClick={() => setInspectPage(1)}
+                                        disabled={inspectPage === 1}
+                                        sx={{ p: 0 }}
+                                    >
+                                        <img
+                                            src={inspectPage === 1 ? backarrowD : backarrow}
+                                            style={{ transform: 'rotate(0deg)', width: 22 }}
+                                            alt="Primera página"
+                                        />
+                                        <img
+                                            src={inspectPage === 1 ? backarrowD : backarrow}
+                                            style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
+                                            alt=""
+                                        />
+                                    </IconButton>
+
+                                    <IconButton
+                                        onClick={() => setInspectPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={inspectPage === 1}
+                                        sx={{ p: 0 }}
+                                    >
+                                        <img
+                                            src={inspectPage === 1 ? backarrowD : backarrow}
+                                            style={{ transform: 'rotate(0deg)', width: 22 }}
+                                            alt="Anterior"
+                                        />
+                                    </IconButton>
+
+                                    <IconButton
+                                        onClick={() => setInspectPage(prev => prev + 1)}
+                                        disabled={inspectPage * 50 >= inspectData.length}
+                                        sx={{ p: 0 }}
+                                    >
+                                        <img
+                                            src={inspectPage * 50 >= inspectData.length ? backarrowD : backarrow}
+                                            style={{ transform: 'rotate(180deg)', width: 22 }}
+                                            alt="Siguiente"
+                                        />
+                                    </IconButton>
+
+                                    <IconButton
+                                        onClick={() => setInspectPage(Math.ceil(inspectData.length / 50))}
+                                        disabled={inspectPage * 50 >= inspectData.length}
+                                        sx={{ p: 0 }}
+                                    >
+                                        <img
+                                            src={inspectPage * 50 >= inspectData.length ? backarrowD : backarrow}
+                                            style={{ transform: 'rotate(180deg)', width: 22 }}
+                                            alt="Última página"
+                                        />
+                                        <img
+                                            src={inspectPage * 50 >= inspectData.length ? backarrowD : backarrow}
+                                            style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
+                                            alt=""
+                                        />
+                                    </IconButton>
+                                </Box>
+
+                                {/* Buscador */}
+                                <Box
+                                    display="flex"
+                                    alignItems="center"
+                                    sx={{
+                                        backgroundColor: "#FFFFFF",
+                                        border: inspectSearch ? "1px solid #7B354D" : "1px solid #9B9295",
+                                        borderRadius: "4px",
+                                        padding: "6px 10px",
+                                        width: "220px",
+                                        height: "38px",
+                                        boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.1)",
+                                    }}
+                                >
+                                    <img
+                                        src={seachicon}
+                                        alt="Buscar"
+                                        style={{
+                                            marginRight: "8px",
+                                            width: "16px",
+                                            height: "16px",
+                                            filter: inspectSearch
+                                                ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)"
+                                                : "none",
+                                        }}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar teléfono"
+                                        value={inspectSearch}
+                                        onChange={(e) => setInspectSearch(e.target.value)}
+                                        style={{
+                                            border: "none",
+                                            outline: "none",
+                                            width: "100%",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins, sans-serif",
+                                            color: inspectSearch ? "#7B354D" : "#9B9295",
+                                            backgroundColor: "transparent",
+                                        }}
+                                    />
+                                </Box>
+
+                            </Box>
+
+                            {/* Tabla */}
+                            <Box
+                                sx={{
+                                    flex: 1,
+                                    overflowY: 'auto',
+                                    border: '1px solid transparent' // opcional para testeo visual
+                                }}
+                            >                                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#F5F5F5' }}>
+                                            <th style={{ padding: '12px', textAlign: 'left' }}>Teléfono</th>
+                                            <th style={{ padding: '12px', textAlign: 'left' }}>Dato</th>
+                                        </tr>
+                                    </thead>
+                                    {inspectData
+                                        .filter((d) => d.phone.includes(inspectSearch))
+                                        .slice((inspectPage - 1) * 50, inspectPage * 50).length === 0 ? (
+                                        <Box
+                                            sx={{
+                                                width: '100%',
+                                                height: '300px',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <img src={Emptybox} alt="No results" style={{ width: '120px', marginBottom: '16px' }} />
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: '14px',
+                                                    color: '#7B354D',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                No se encontraron resultados.
+                                            </Typography>
+                                        </Box>
+                                    ) : (
+                                        <tbody>
+                                            {inspectData
+                                                .filter((d) => d.phone.includes(inspectSearch))
+                                                .slice((inspectPage - 1) * 50, inspectPage * 50)
+                                                .map((row, index) => (
+                                                    <tr key={index} style={{ borderTop: '1px solid #E0E0E0' }}>
+                                                        <td style={{ padding: '12px' }}>{row.phone}</td>
+                                                        <td style={{ padding: '12px' }}>Dato 1</td>
+                                                    </tr>
+                                                ))}
+                                        </tbody>
+                                    )}
+                                </table>
+                            </Box>
+                        </>
+                    )}
+
+
+                </Box>
+            </Modal>
+
+            <Modal open={isManageModalOpen} onClose={() => setIsManageModalOpen(false)}>
+                <Box sx={{
+                    width: 600,
+                    maxHeight: '85vh',
+                    bgcolor: 'white',
+                    borderRadius: '10px',
+                    mx: 'auto',
+                    mt: '5%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    fontFamily: 'Poppins',
+                    overflow: 'hidden', // 🔥 evita doble scroll
+                    boxShadow: 24,
+                }}>
+
+
+                    <Box sx={{ px: 4, pt: 4 }}>
+                        <Typography fontWeight="600" fontSize="18px">
+                            Gestionar registros: <span style={{ color: '#7B354D' }}>{selectedBlackList ? `${selectedBlackList.name}` : ''}</span>
+                        </Typography>
+
+                        <Typography mt={3} fontWeight="500" fontSize="14px">Seleccionar operación</Typography>
+                        <ToggleButtonGroup
+                            exclusive
+                            value={manageOperation}
+                            onChange={(e, value) => value && setManageOperation(value)}
+                            sx={{ mt: 1 }}
+                        >
+                            <ToggleButton value="agregar" sx={{ flex: 1 }}>
+                                <img src={AddIcon} style={{ marginRight: 8, width: 18, height: 18 }} /> Cargar
+                            </ToggleButton>
+
+                            <ToggleButton value="eliminar" sx={{ flex: 1 }}>
+                                <DeleteIcon sx={{ mr: 1, color: '#7B354D' }} /> Eliminar
+                            </ToggleButton>
+
+                            <ToggleButton value="actualizar" sx={{ flex: 1 }}>
+                                <SyncIcon sx={{ mr: 1, color: '#7B354D' }} /> Actualizar
+                            </ToggleButton>
+
+                        </ToggleButtonGroup>
+
+                        <Divider sx={{ my: 3 }} />
+                    </Box>
+                    <Box
+                        sx={{
+                            flex: 1,
+                            overflowY: 'auto',
+                            px: 4,
+                            py: 3,
+                            maxHeight: 'calc(85vh - 200px)', // 🔥 ajusta el espacio restante después del header y los botones
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                flex: 1,
+                                px: 4,
+                                py: 3,
+                                maxHeight: 'calc(90vh - 180px)', // o lo que uses
+                                overflowX: 'hidden', // 🔥 Esto evita scroll lateral
+                            }}
+                        >
+                            <Typography fontWeight="500" fontSize="14px" mb={1}>Seleccionar fuente de registros</Typography>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                                <Typography fontSize="14px">Por lista</Typography>
+                                <Switch
+                                    checked={manageByList}
+                                    onChange={() => {
+                                        setManageByList(true);
+                                        setManageByIndividual(false);
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+
+                        <Box mt={3}>
+                            {manageByList && (
+                                <>
+                                    {manageOperation === 'agregar' && (
+                                        <Box display="flex" alignItems="flex-start" gap={3} mt={2} flexWrap="wrap">
+                                            <Box>
+                                                <DropZone
+                                                    onDrop={handleManageFile}
+                                                    file={uploadedFile}
+                                                    fileError={fileError}
+                                                    fileSuccess={fileSuccess}
+                                                    helperText="Arrastre un archivo aquí, o selecciónelo."
+                                                    acceptedFiles=".xlsx"
+                                                />
+                                            </Box>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                {/* Seleccionar hoja */}
+                                                <Box>
+                                                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '15px', mb: 1 }}>
+                                                        Seleccionar hoja
+                                                    </Typography>
+                                                    <FormControl fullWidth size="small">
+                                                        <Select
+                                                            displayEmpty
+                                                            value={selectedSheet}
+                                                            onChange={handleSheetChange}
+                                                            sx={{ borderRadius: '8px' }}
+                                                        >
+                                                            {sheetNames.map((name, index) => (
+                                                                <MenuItem key={index} value={name}>{name}</MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Box>
+
+                                                {/* Seleccionar columnas */}
+                                                {columns.length > 0 && (
+                                                    <Box>
+                                                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '15px', mb: 1 }}>
+                                                            Seleccionar columnas
+                                                        </Typography>
+                                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                            <FormControl fullWidth size="small">
+                                                                <Select
+                                                                    displayEmpty
+                                                                    value={selectedDatoCol}
+                                                                    onChange={(e) => setSelectedTelefonoCol(e.target.value)}
+                                                                    sx={{ borderRadius: '8px' }}
+                                                                >
+                                                                    <MenuItem disabled value=""></MenuItem>
+                                                                    {columns
+                                                                        .filter((col) => col !== selectedTelefonoCol)
+                                                                        .map((col, idx) => (
+                                                                            <MenuItem key={idx} value={col}>{col}</MenuItem>
+                                                                        ))}
+                                                                </Select>
+                                                            </FormControl>
+
+                                                            {/* Columna de teléfono */}
+                                                            <FormControl fullWidth size="small">
+                                                                <Select
+                                                                    displayEmpty
+                                                                    value={selectedTelefonoCol}
+                                                                    onChange={(e) => setSelectedDatoCol(e.target.value)}
+                                                                    sx={{ borderRadius: '8px' }}
+                                                                >
+                                                                    <MenuItem disabled value=""></MenuItem>
+                                                                    {columns
+                                                                        .filter((col) => col !== selectedDatoCol)
+                                                                        .map((col, idx) => (
+                                                                            <MenuItem key={idx} value={col}>{col}</MenuItem>
+                                                                        ))}
+                                                                </Select>
+                                                            </FormControl>
+                                                            <Box mt={3}>
+                                                                {/* Checkbox Omitir encabezados */}
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Checkbox
+                                                                            checked={omitHeaders}
+                                                                            onChange={(e) => setOmitHeaders(e.target.checked)}
+                                                                            sx={{
+                                                                                color: '#7B354D',
+                                                                                '&.Mui-checked': {
+                                                                                    color: '#7B354D',
+                                                                                },
+                                                                            }}
+                                                                        />
+                                                                    }
+                                                                    label={
+                                                                        <Typography sx={{ color: '#330F1B', fontSize: '14px' }}>
+                                                                            Omitir encabezados de columna
+                                                                        </Typography>
+                                                                    }
+                                                                />
+
+                                                                {/* Select filtrado de teléfonos */}
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontWeight: 600,
+                                                                        fontSize: '14px',
+                                                                        color: '#330F1B',
+                                                                        mt: 2,
+                                                                        mb: 1,
+                                                                    }}
+                                                                >
+                                                                    Seleccionar filtrado de teléfonos
+                                                                </Typography>
+
+                                                                <FormControl fullWidth size="small">
+                                                                    <Select
+                                                                        value={telefonoFilter}
+                                                                        onChange={(e) => setTelefonoFilter(e.target.value)}
+                                                                        displayEmpty
+                                                                        sx={{ borderRadius: '8px' }}
+                                                                    >
+                                                                        <MenuItem value="">Limpiar</MenuItem>
+                                                                        <MenuItem value="10">Verificar</MenuItem>
+                                                                        {/* Agrega más reglas si las tienes definidas */}
+                                                                    </Select>
+                                                                </FormControl>
+                                                            </Box>
+
+                                                        </Box>
+                                                    </Box>
+                                                )}
+                                            </Box>
+
+
+                                        </Box>
+
+                                    )}
+                                    {manageOperation === 'eliminar' && (
+                                        <Box sx={{ display: 'flex', gap: 2, mt: 2, alignItems: 'flex-start' }}>
+                                            <Box>
+
+                                                <DropZone
+                                                    onDrop={handleManageFile}
+                                                    file={uploadedFile}
+                                                    fileError={fileError}
+                                                    fileSuccess={fileSuccess}
+                                                    helperText="Arrastre un archivo aquí, o selecciónelo."
+                                                    acceptedFiles=".xlsx"
+                                                />
+                                            </Box>
+
+                                            {!uploadedFileBase64 && (
+                                                <>
+                                                    <Box sx={{ flex: 1 }}>
+                                                        <Typography fontWeight={600} fontSize="14px" mb={1}>
+                                                            O seleccionar archivos actuales
+                                                        </Typography>
+                                                        <Paper
+                                                            variant="outlined"
+                                                            sx={{
+                                                                borderRadius: 2,
+                                                                borderColor: '#D9B4C3',
+                                                                maxHeight: 180,
+                                                                overflowY: 'auto',
+                                                                p: 1,
+                                                            }}
+                                                        >
+                                                            <List dense>
+                                                                {BlackList.map((bl) => (
+                                                                    <ListItem
+                                                                        key={bl.id}
+                                                                        sx={{
+                                                                            px: 1,
+                                                                            color: selectedBlackList?.id === bl.id ? '#8F4E63' : '#330F1B',
+                                                                            fontFamily: 'Poppins',
+                                                                        }}
+                                                                        disablePadding
+                                                                    >
+                                                                        <ListItemButton onClick={() => setSelectedBlackListName(bl.name)} dense>
+                                                                            <Checkbox
+                                                                                edge="start"
+                                                                                tabIndex={-1}
+                                                                                disableRipple
+                                                                                checked={selectedBlackListName === bl.name}
+                                                                                sx={{
+                                                                                    color: '#8F4E63',
+                                                                                    '&.Mui-checked': {
+                                                                                        color: '#8F4E63',
+                                                                                    }
+                                                                                }}
+                                                                            />
+                                                                            <ListItemText primary={bl.name} />
+                                                                        </ListItemButton>
+                                                                    </ListItem>
+                                                                ))}
+                                                            </List>
+                                                        </Paper>
+                                                    </Box>
+                                                </>
+                                            )}
+
+                                            {uploadedFileBase64 && (
+                                                <Box mt={3} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                    <Typography fontSize="14px" fontWeight={600}>Seleccionar hoja</Typography>
+                                                    <Select
+                                                        fullWidth
+                                                        value={selectedSheet}
+                                                        onChange={handleSheetChange}
+                                                        displayEmpty
+                                                        sx={{ fontFamily: 'Poppins', fontSize: '14px' }}
+                                                    >
+                                                        <MenuItem disabled value="">Seleccione una hoja</MenuItem>
+                                                        {sheetNames.map((name, index) => (
+                                                            <MenuItem key={index} value={name}>
+                                                                {name}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+
+                                                    <Typography fontSize="14px" fontWeight={600}>Seleccionar columnas</Typography>
+                                                    <Select
+                                                        fullWidth
+                                                        value={selectedDataColumn}
+                                                        onChange={(e) => setSelectedTelefonoCol(e.target.value)}
+                                                        displayEmpty
+                                                        sx={{ fontFamily: 'Poppins', fontSize: '14px' }}
+                                                    >
+                                                        <MenuItem disabled value=""></MenuItem>
+                                                        {columns
+                                                            .filter((col) => col !== selectedPhoneColumn)
+                                                            .map((col, index) => (
+                                                                <MenuItem key={index} value={col}>
+                                                                    {col}
+                                                                </MenuItem>
+                                                            ))}
+                                                    </Select>
+
+                                                    <Select
+                                                        fullWidth
+                                                        value={selectedPhoneColumn}
+                                                        onChange={(e) => setSelectedDatoCol(e.target.value)}
+                                                        displayEmpty
+                                                        sx={{ fontFamily: 'Poppins', fontSize: '14px' }}
+                                                    >
+                                                        <MenuItem disabled value=""></MenuItem>
+                                                        {columns
+                                                            .filter((col) => col !== selectedDataColumn)
+                                                            .map((col, index) => (
+                                                                <MenuItem key={index} value={col}>
+                                                                    {col}
+                                                                </MenuItem>
+                                                            ))}
+                                                    </Select>
+
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={omitHeaders}
+                                                                onChange={(e) => setOmitHeaders(e.target.checked)}
+                                                                sx={{
+                                                                    color: '#8F4E63',
+                                                                    '&.Mui-checked': {
+                                                                        color: '#8F4E63',
+                                                                    },
+                                                                }}
+                                                            />
+                                                        }
+                                                        label={
+                                                            <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B' }}>
+                                                                Omitir encabezados de columna
+                                                            </Typography>
+                                                        }
+                                                    />
+
+                                                    <Typography fontSize="14px" fontWeight={600}>Seleccionar filtrado de teléfonos</Typography>
+                                                    <Select
+                                                        fullWidth
+                                                        value={selectedPhoneFilter}
+                                                        onChange={(e) => setSelectedPhoneFilter(e.target.value)}
+                                                        displayEmpty
+                                                        sx={{ fontFamily: 'Poppins', fontSize: '14px' }}
+                                                    >
+                                                        <MenuItem value="limpiar">Limpiar</MenuItem>
+                                                        <MenuItem value="remover guiones">Remover guiones</MenuItem>
+                                                        <MenuItem value="formato 10 dígitos">Formato 10 dígitos</MenuItem>
+                                                    </Select>
+                                                </Box>
+                                            )}
+
+
+                                        </Box>
+
+                                    )}
+                                    {manageOperation === 'actualizar' && (
+                                        <Box display="flex" alignItems="flex-start" gap={3} mt={2} flexWrap="wrap">
+                                            <Box>
+                                                <DropZone
+                                                    onDrop={handleManageFile}
+                                                    file={uploadedFile}
+                                                    fileError={fileError}
+                                                    fileSuccess={fileSuccess}
+                                                    helperText="Arrastre un archivo aquí, o selecciónelo."
+                                                    acceptedFiles=".xlsx"
+                                                />
+                                            </Box>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                {/* Seleccionar hoja */}
+                                                <Box>
+                                                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '15px', mb: 1 }}>
+                                                        Seleccionar hoja
+                                                    </Typography>
+                                                    <FormControl fullWidth size="small">
+                                                        <Select
+                                                            displayEmpty
+                                                            value={selectedSheet}
+                                                            onChange={handleSheetChange}
+                                                            sx={{ borderRadius: '8px' }}
+                                                        >
+                                                            {sheetNames.map((name, index) => (
+                                                                <MenuItem key={index} value={name}>{name}</MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Box>
+
+                                                {/* Seleccionar columnas */}
+                                                {columns.length > 0 && (
+                                                    <Box>
+                                                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '15px', mb: 1 }}>
+                                                            Seleccionar columnas
+                                                        </Typography>
+                                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                            <FormControl fullWidth size="small">
+                                                                <Select
+                                                                    displayEmpty
+                                                                    value={selectedDatoCol}
+                                                                    onChange={(e) => setSelectedTelefonoCol(e.target.value)}
+                                                                    sx={{ borderRadius: '8px' }}
+                                                                >
+                                                                    <MenuItem disabled value=""></MenuItem>
+                                                                    {columns
+                                                                        .filter((col) => col !== selectedTelefonoCol)
+                                                                        .map((col, idx) => (
+                                                                            <MenuItem key={idx} value={col}>{col}</MenuItem>
+                                                                        ))}
+                                                                </Select>
+                                                            </FormControl>
+
+                                                            {/* Columna de teléfono */}
+                                                            <FormControl fullWidth size="small">
+                                                                <Select
+                                                                    displayEmpty
+                                                                    value={selectedTelefonoCol}
+                                                                    onChange={(e) => setSelectedDatoCol(e.target.value)}
+                                                                    sx={{ borderRadius: '8px' }}
+                                                                >
+                                                                    <MenuItem disabled value=""></MenuItem>
+                                                                    {columns
+                                                                        .filter((col) => col !== selectedDatoCol)
+                                                                        .map((col, idx) => (
+                                                                            <MenuItem key={idx} value={col}>{col}</MenuItem>
+                                                                        ))}
+                                                                </Select>
+                                                            </FormControl>
+                                                            <Box mt={3}>
+                                                                {/* Checkbox Omitir encabezados */}
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Checkbox
+                                                                            checked={omitHeaders}
+                                                                            onChange={(e) => setOmitHeaders(e.target.checked)}
+                                                                            sx={{
+                                                                                color: '#7B354D',
+                                                                                '&.Mui-checked': {
+                                                                                    color: '#7B354D',
+                                                                                },
+                                                                            }}
+                                                                        />
+                                                                    }
+                                                                    label={
+                                                                        <Typography sx={{ color: '#330F1B', fontSize: '14px' }}>
+                                                                            Omitir encabezados de columna
+                                                                        </Typography>
+                                                                    }
+                                                                />
+
+                                                                {/* Select filtrado de teléfonos */}
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontWeight: 600,
+                                                                        fontSize: '14px',
+                                                                        color: '#330F1B',
+                                                                        mt: 2,
+                                                                        mb: 1,
+                                                                    }}
+                                                                >
+                                                                    Seleccionar filtrado de teléfonos
+                                                                </Typography>
+
+                                                                <FormControl fullWidth size="small">
+                                                                    <Select
+                                                                        value={telefonoFilter}
+                                                                        onChange={(e) => setTelefonoFilter(e.target.value)}
+                                                                        displayEmpty
+                                                                        sx={{ borderRadius: '8px' }}
+                                                                    >
+                                                                        <MenuItem value="">Limpiar</MenuItem>
+                                                                        <MenuItem value="10">Verificar</MenuItem>
+                                                                        {/* Agrega más reglas si las tienes definidas */}
+                                                                    </Select>
+                                                                </FormControl>
+                                                            </Box>
+
+                                                        </Box>
+                                                    </Box>
+                                                )}
+                                            </Box>
+
+
+                                        </Box>
+                                    )}
+                                </>
+                            )}
+                            {manageOperation !== 'actualizar' && (
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                                    <Typography fontSize="14px">Por registro individual</Typography>
+                                    <Switch checked={manageByIndividual} onChange={() => {
+                                        setManageByIndividual(true);
+                                        setManageByList(false);
+                                    }} />
+                                </Box>
+                            )}
+                            {manageByIndividual && (
+                                <Box mt={3}>
+                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', fontWeight: 600, mb: 1 }}>
+                                        Teléfono(s)
+                                    </Typography>
+
+                                    <Box
+                                        sx={{
+                                            maxHeight: '160px',
+                                            overflowY: 'auto',
+                                            pr: 1,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1
+                                        }}
+                                    >
+                                        {individualPhones.map((phone, index) => (
+                                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <TextField
+                                                    value={phone}
+                                                    onChange={(e) => handleIndividualPhoneChange(index, e.target.value)}
+                                                    placeholder="5255..."
+                                                    sx={{
+                                                        width: '50%',
+                                                        backgroundColor: '#FFFFFF',
+                                                        '& input': {
+                                                            fontFamily: 'Poppins',
+                                                            fontSize: '14px',
+                                                            height: '18px',
+                                                            padding: '14px',
+                                                        },
+                                                    }}
+                                                    InputProps={{
+                                                        endAdornment: (
+                                                            <InputAdornment position="end">
+                                                                <Tooltip title="Teléfono válido de 10 dígitos">
+                                                                    <img src={infoicon} alt="info" style={{ width: 18, height: 18 }} />
+                                                                </Tooltip>
+                                                            </InputAdornment>
+                                                        )
+                                                    }}
+                                                />
+
+                                                {index === individualPhones.length - 1 && individualPhones.length < 5 && (
+                                                    <Tooltip title="Agregar otro teléfono">
+                                                        <IconButton onClick={handleAddIndividualPhone}>
+                                                            <img src={AddIcon} alt="Agregar teléfono" style={{ width: 18, height: 18 }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+
+                                                {index > 0 && (
+                                                    <Tooltip title="Eliminar teléfono">
+                                                        <IconButton onClick={() => handleRemoveIndividualPhone(index)}>
+                                                            <img src={Thrashicon} alt="Eliminar" style={{ width: 18, height: 18 }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            )}
+
+
+
+                        </Box>
+                    </Box>
+                    <Box sx={{
+                        px: 4,
+                        py: 3,
+                        borderTop: '1px solid #EEE',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                    }}>
+                        <SecondaryButton onClick={() => setIsManageModalOpen(false)} text='Cancelar' />
+                        <MainButton
+                            onClick={handleSendToServer}
+                            text='Guardar Cambios'
+                        />
+
+                    </Box>
+                </Box>
+            </Modal>
+
+
+            <Menu
+                anchorEl={menuAnchorEl}
+                open={Boolean(menuAnchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                        boxShadow: '0px 2px 12px rgba(0, 0, 0, 0.1)',
+                        minWidth: 200,
+                        fontFamily: 'Poppins'
+                    }
+                }}
+            >
+                <MenuItem onClick={() => {
+                    handleMenuClose();
+                    openEditModal(selectedBlackList);
+                }}>
+                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#7B354D' }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+
+                        Editar
+                    </Typography>
+                </MenuItem>
+                <MenuItem onClick={() => {
+                    handleMenuClose();
+                    if (selectedBlackList) {
+                        console.log("✅ Abriendo modal para:", selectedBlackList.name);
+                        openInspectModal(selectedBlackList);
+                    } else {
+                        console.warn("⚠ No se encontró lista seleccionada.");
+                    }
+
+                }}>
+                    <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '#7B354D' }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                        Consultar
+                    </Typography>
+                </MenuItem>
+                <MenuItem onClick={() => {
+                    handleMenuClose();
+                    setSelectedBlackList(selectedBlackList); // pasa el objeto de la lista
+                    setIsManageModalOpen(true);
+
+                }}>
+                    <ListIcon fontSize="small" sx={{ mr: 1, color: '#7B354D' }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>Gestionar registros</Typography>
+                </MenuItem>
+                <MenuItem
+                    onClick={() => {
+
+                        handleOpenDeleteModal(selectedBlackList);
+
+                        handleMenuClose();
+                    }}
+                >
+                    <img src={Thrashicon} alt="Eliminar" />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                        Eliminar
+                    </Typography>
+                </MenuItem>
+            </Menu>
+
 
         </div >
     );

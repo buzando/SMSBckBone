@@ -1023,6 +1023,120 @@ namespace SMSBackboneAPI.Controllers
 
         }
 
+        [HttpPost("UpdateBlackList")]
+        public async Task<IActionResult> UpdateBlackList(UpdateBlackList blacklist)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var BlackListManager = new Business.BlackListManager();
+            var response = BlackListManager.UpdateBlacklist(blacklist);
+            if (response)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+
+            }
+
+
+        }
+        [HttpPost("GetBlackListRecords")]
+        public async Task<IActionResult> GetBlackListRecords(BlackListRecords blacklist)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var BlackListManager = new Business.BlackListManager();
+            var response = BlackListManager.GetRecordsBlackList(blacklist);
+            if (response != null)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+
+            }
+
+
+        }
+        [HttpPost("UpdateBlackListRecord")]
+        public async Task<IActionResult> UpdateBlackListRecord(BlackListManagment blacklist)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var BlackListManager = new Business.BlackListManager();
+            if (string.IsNullOrEmpty(blacklist.FileBase64))
+            {
+                var response = BlackListManager.UpdateRecordsBlackList(blacklist);
+                if (response)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+
+                }
+            }
+            else
+            {
+                var response = BlackListManager.ProcessExcelUpdateBase64(blacklist);
+                if (response)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+
+
+                }
+
+            }
+
+
+        }
+
+        [HttpPost("DeleteBlackList")]
+        public async Task<IActionResult> DeleteBlackList(DeleteBlackList blacklist)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var BlackListManager = new Business.BlackListManager();
+
+                var response = BlackListManager.DeletePhoneList(blacklist);
+                if (response)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });
+
+                }
+
+
+
+        }
+
         #endregion
     }
 }

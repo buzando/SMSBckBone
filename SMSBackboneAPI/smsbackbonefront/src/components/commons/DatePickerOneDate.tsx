@@ -8,6 +8,7 @@ import { es } from 'date-fns/locale';
 import Iconarrow from '../../assets/icon-punta-flecha-bottom.svg';
 import MainButton from '../commons/MainButton';
 import SecondaryButton from '../commons/SecondaryButton';
+import { PopperProps } from '@mui/material/Popper';
 
 interface DatePickerProps {
     open: boolean;
@@ -15,10 +16,11 @@ interface DatePickerProps {
     onApply: (date: Date, hour: number, minute: number) => void;
     onClose: () => void;
     placement?: 'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
+    modifiers?: PopperProps['modifiers']; 
 }
 
 const DatePickerOneDate: React.FC<DatePickerProps> = ({
-    open, anchorEl, onApply, onClose, placement = 'bottom-start'
+    open, anchorEl, onApply, onClose, placement = 'bottom-start',modifiers
 }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [hour, setHour] = useState(0);
@@ -36,10 +38,10 @@ const DatePickerOneDate: React.FC<DatePickerProps> = ({
             anchorEl={anchorEl}
             placement={placement}
             sx={{ zIndex: 1500 }}
-            modifiers={[
+            modifiers={modifiers ?? [
                 { name: 'preventOverflow', options: { boundary: 'window', padding: 10 } },
-                { name: 'offset', options: { offset: [0, 10] } },
-            ]}
+                { name: 'offset', options: { offset: [0, 10] } }, // fallback por defecto
+              ]}
         >
             <Paper elevation={3} className="date-picker-container">
                 <div className="date-picker-divider"></div>

@@ -32,5 +32,7 @@ namespace Modal
         public DbSet<AmountNotification> AmountNotification { get; set; }
         public DbSet<AmountNotificationUser> AmountNotificationUser { get; set; }
         public DbSet<BlackList> BlackList { get; set; }
+        public DbSet<blacklistcampains> blacklistcampains { get; set; }
+        public DbSet<ccCamps> ccCamps { get; set; }
     }
 }

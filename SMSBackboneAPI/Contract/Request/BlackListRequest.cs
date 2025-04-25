@@ -13,7 +13,7 @@ namespace Contract.Request
 
         public DateTime? ExpirationDate { get; set; }
 
-        public int IdUser { get; set; }
+        public int IdRoom { get; set; }
 
         public List<string> Phones { get; set; }
 

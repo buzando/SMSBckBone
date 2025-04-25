@@ -16,7 +16,7 @@ namespace Modal.Model.Model
 
         public DateTime? ExpirationDate { get; set; }
 
-        public int IdUser { get; set; }
+        public int idroom { get; set; }
         public string phone { get; set; }
 
         // Relación con la entidad User (opcional si usas EF)
