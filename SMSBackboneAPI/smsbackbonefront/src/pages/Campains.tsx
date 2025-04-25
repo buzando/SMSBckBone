@@ -382,34 +382,41 @@ const Campains: React.FC = () => {
                             }}
                             />
 
-                            <Tooltip title="Eliminar" arrow placement="top"
-                                componentsProps={{
-                                tooltip: {
-                                    sx: {
-                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                    color: "#CCC3C3",
-                                    fontFamily: "Poppins, sans-serif",
-                                    fontSize: "12px",
-                                    padding: "6px 8px",
-                                    borderRadius: "8px",
-                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
-                                    }
-                                },
-                                arrow: {
-                                    sx: {
-                                    color: "rgba(0, 0, 0, 0.8)"
-                                    }
-                                }
-                                }}
-                            >
+                              <Tooltip title="Eliminar" arrow placement="top"
+                                  componentsProps={{
+                                  tooltip: {
+                                      sx: {
+                                      backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                      color: "#CCC3C3",
+                                      fontFamily: "Poppins, sans-serif",
+                                      fontSize: "12px",
+                                      padding: "6px 8px",
+                                      borderRadius: "8px",
+                                      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                      }
+                                  },
+                                  arrow: {
+                                      sx: {
+                                      color: "rgba(0, 0, 0, 0.8)"
+                                      }
+                                  }
+                                  }}
+                                  PopperProps={{
+                                    modifiers: [
+                                      {
+                                        name: 'offset',
+                                        options: {
+                                          offset: [0, -7] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                        }
+                                      }
+                                    ]
+                                  }}
+                              >
                                 <IconButton onClick={() => setOpenModal(true)} sx={{ padding: 0 }}>
-    <Box
-        component="img"
-        src={IconTrash}
-        alt="Eliminar"
-        sx={{ width: "20px", height: "20px", cursor: "pointer" }}
-    />
-</IconButton>
+                                    <Box component="img" src={IconTrash} alt="Eliminar"
+                                        sx={{ width: "20px", height: "20px", cursor: "pointer" }}
+                                    />
+                                </IconButton>
                             </Tooltip>
                             </Box>
 
@@ -417,19 +424,19 @@ const Campains: React.FC = () => {
                         <Divider sx={{ marginBottom: "5px" }} />
 
                         <List sx={{ overflowY: "auto", flexGrow: 1 }}>
-    {filteredCampaigns.length === 0 ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', textAlign: 'center' }}>
-            <Box component="img" src={boxopen} alt="Caja Vacía" sx={{ width: '250px', height: 'auto' }} />
-            <Typography sx={{ marginTop: '10px', color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins' }}>
-                No se encontraron resultados.
-            </Typography>
-        </Box>
-    ) : (
-        filteredCampaigns.map((campaign, index) => {
-            const isSelected = selectedCampaigns.includes(index);
-            const progreso = (campaign.numeroActual / campaign.numeroInicial) * 100;
+                      {filteredCampaigns.length === 0 ? (
+                          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', textAlign: 'center' }}>
+                              <Box component="img" src={boxopen} alt="Caja Vacía" sx={{ width: '250px', height: 'auto' }} />
+                              <Typography sx={{ marginTop: '10px', color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins' }}>
+                                  No se encontraron resultados.
+                              </Typography>
+                          </Box>
+                      ) : (
+                          filteredCampaigns.map((campaign, index) => {
+                              const isSelected = selectedCampaigns.includes(index);
+                              const progreso = (campaign.numeroActual / campaign.numeroInicial) * 100;
 
-            return (
+                              return (
                                     <ListItem key={index} sx={{
                                         background: "#FFFFFF",
                                         backgroundColor: isSelected ? "rgba(209, 119, 154, 0.15)" : "#FFFFFF",
@@ -565,29 +572,29 @@ const Campains: React.FC = () => {
                     </List>
                     </Paper>
                 )}
-    <IconButton
-      onClick={() => setPanelAbierto(!panelAbierto)}
-      sx={{
-        height: "581px",
-        width: "30px",
-        borderRadius: "0 8px 8px 0", // redondeado derecho
-        borderLeft: "1px solid #D6D6D6", // 👉 esta es la línea gris
-        backgroundColor: "#FFFFFF",
-        '&:hover': { backgroundColor: "#FFFFFF" },
-        paddingX: "10px"
-      }}
-    >
-      <Typography sx={{
-        fontSize: "20px",
-        transform: panelAbierto ? "rotate(0deg)" : "rotate(180deg)",
-        transition: "transform 0.3s"
-      }}
-      >
-        ❮
-      </Typography>
-    </IconButton>
-    </Box>
-  </Grid>
+                <IconButton
+                  onClick={() => setPanelAbierto(!panelAbierto)}
+                  sx={{
+                    height: "581px",
+                    width: "30px",
+                    borderRadius: "0 8px 8px 0", // redondeado derecho
+                    borderLeft: "1px solid #D6D6D6", // 👉 esta es la línea gris
+                    backgroundColor: "#FFFFFF",
+                    '&:hover': { backgroundColor: "#FFFFFF" },
+                    paddingX: "10px"
+                  }}
+                >
+                  <Typography sx={{
+                    fontSize: "20px",
+                    transform: panelAbierto ? "rotate(0deg)" : "rotate(180deg)",
+                    transition: "transform 0.3s"
+                  }}
+                  >
+                    ❮
+                  </Typography>
+                </IconButton>
+                </Box>
+              </Grid>
 
                 
                 {/* Visualización de campaña */}
@@ -627,28 +634,27 @@ const Campains: React.FC = () => {
                                 }
                               }}
                             >
-                        <IconButton
-  style={{
-    backgroundColor: "#FFFFFF",
-    left: "84%",
-    border: '1px solid #CCCFD2',
-    borderRadius: '8px',
-    color: '#8F4D63',
-    background: '#FFFFFF',
-  }}
-  onMouseOver={(e) => {
-    e.currentTarget.style.background = '#F2E9EC';
-  }}
-  onMouseOut={(e) => {
-    e.currentTarget.style.background = 'transparent';
-    e.currentTarget.style.border = '1px solid #CCCFD2';
-  }}
-  onClick={() => setOpenInfoModal(true)} // 👈 Aquí
->
-  <img src={welcome} alt="Welcome" style={{ width: '24px', height: '24px' }} />
-</IconButton>
-
-                        </Tooltip>
+                      <IconButton
+                          style={{
+                            backgroundColor: "#FFFFFF",
+                            left: "84%",
+                            border: '1px solid #CCCFD2',
+                            borderRadius: '8px',
+                            color: '#8F4D63',
+                            background: '#FFFFFF',
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.background = '#F2E9EC';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.border = '1px solid #CCCFD2';
+                          }}
+                          onClick={() => setOpenInfoModal(true)} // 👈 Aquí
+                        >
+                          <img src={welcome} alt="Welcome" style={{ width: '24px', height: '24px' }} />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
 
                     <Paper sx={{ padding: "10px", marginTop: "10px", borderRadius: "10px", width: "100%", maxWidth: "100%", height: "auto" }}>
@@ -936,10 +942,10 @@ const Campains: React.FC = () => {
           padding: "16px",
           marginTop: "10px",
           borderRadius: "10px",
-          backgroundColor: "#F5F5F5"
+          backgroundColor: "#FFFFFF"
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "16px" }}>
           <Box sx={{ flex: 1 }}>
             <Typography
               sx={{
@@ -960,7 +966,7 @@ const Campains: React.FC = () => {
                 setError(!validatePhone(onlyNumbers));
               }}
               error={error}
-              helperText={error ? "Formato inválido" : ""}
+              helperText={error ? "Número inválido" : ""}
               placeholder="5255"
               inputProps={{
                 inputMode: "numeric",
@@ -970,36 +976,88 @@ const Campains: React.FC = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
+                    <Tooltip
+                    placement="bottom-start"
+                    arrow
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#FFFFFF",
+                          color: "#574B4F",
+                          fontFamily: "Poppins, sans-serif",
+                          fontSize: "13px",
+                          padding: "8px 12px",
+                          borderRadius: "10px",
+                          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                          maxWidth: 220,
+                          border: "1px solid #9B9295" // 🔥 borde nuevo
+                        }
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#FFFFFF", opacity: 0.0
+                        }
+                      }
+                    }}
+                    PopperProps={{
+                      modifiers: [
+                        {
+                          name: 'offset',
+                          options: {
+                            offset: [-200, -15] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                          }
+                        }
+                      ]
+                    }}
+                    title={
+                      <Box>
+                        <Typography component="div" sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
+                          • Solo caracteres numéricos
+                        </Typography>
+                        <Typography component="div" sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
+                          • El teléfono debe incluir el número del país
+                        </Typography>
+                      </Box>
+                    }
+                  >
                     <img
                       src={error ? infoiconerror : infoicon}
                       alt="Info"
-                      style={{ width: "18px", height: "18px" }}
+                      style={{ width: "24px", height: "24px", cursor: "pointer" }}
                     />
-                  </InputAdornment>
-                )
-              }}
-              sx={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: "4px",
-                "& .MuiInputBase-input": {
-                  fontFamily: "Poppins, sans-serif"
-                },
-                "& .MuiFormHelperText-root": {
-                  fontFamily: "Poppins, sans-serif",
-                  backgroundColor: "#F2F2F2",
-                  padding: "4px 8px",
-                  borderRadius: "4px",
-                  margin: 0
-                }
-              }}
-            />
-          </Box>
-          <MainButton text="Enviar" onClick={() => console.log("Enviar")} disabled={error} />
-        </Box>
-      </Box>
-    </Paper>
-  </Paper>
-)}
+                  </Tooltip>
+                </InputAdornment>
+
+                                  )
+                                }}
+                                sx={{
+                                  backgroundColor: "#FFFFFF",
+                                  borderRadius: "4px",
+                                  "& .MuiInputBase-input": {
+                                    fontFamily: "Poppins, sans-serif"
+                                  },
+                                  "& .MuiFormHelperText-root": {
+                                    fontFamily: "Poppins, sans-serif",
+                                    backgroundColor: "#FFFFFF",
+                                    padding: "4px 8px",
+                                    borderRadius: "4px",
+                                    margin: 0
+                                  }
+                                }}
+                              />
+                            </Box>
+                            <Box sx={{ marginTop: "38px" }}>
+                              <MainButton
+                                text="Enviar"
+                                onClick={() => console.log("Enviar")}
+                                disabled={error}
+                              />
+                            </Box>
+                          </Box>
+                        </Box>
+                      </Paper>
+                    </Paper>
+                  )}
 
                     {/*Paper Gestión de registros*/}
                     {infoChecks["Registros"] && (
@@ -1061,6 +1119,36 @@ const Campains: React.FC = () => {
                                             <TableCell align="center" sx={{ fontFamily: "Poppins, sans-serif", padding: "2px 8px", opacity: 0.7 }}>{registro.porcentaje}</TableCell>
                                             <TableCell align="center" sx={{ fontFamily: "Poppins, sans-serif", padding: "2px 8px", opacity: 0.6 }}>
                                                 
+                                        <Tooltip title="Eliminar" arrow placement="top"
+                                            componentsProps={{
+                                              tooltip: {
+                                                  sx: {
+                                                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                  color: "#CCC3C3",
+                                                  fontFamily: "Poppins, sans-serif",
+                                                  fontSize: "12px",
+                                                  padding: "6px 8px",
+                                                  borderRadius: "8px",
+                                                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                  }
+                                              },
+                                              arrow: {
+                                                  sx: {
+                                                  color: "rgba(0, 0, 0, 0.8)"
+                                                  }
+                                              }
+                                              }}
+                                              PopperProps={{
+                                                modifiers: [
+                                                  {
+                                                    name: 'offset',
+                                                    options: {
+                                                      offset: [0, -15] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                    }
+                                                  }
+                                                ]
+                                              }}
+                                        >
                                             <IconButton>
                                                 <Box
                                                     component="img"
@@ -1069,6 +1157,8 @@ const Campains: React.FC = () => {
                                                     sx={{ width: "25px", height: "25px", cursor: "pointer", opacity: 0.6 }}
                                                 />
                                             </IconButton>
+                                            </Tooltip>
+
                                                 <IconButton>
                                                     <RestoreIcon sx={{ color: "#9B9295" }} />
                                                 </IconButton>
