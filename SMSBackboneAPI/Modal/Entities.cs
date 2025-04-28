@@ -28,11 +28,18 @@ namespace Modal
         public DbSet<MyNumbers> MyNumbers { get; set; }
         public DbSet<BillingInformation> BillingInformation { get; set; }
         public DbSet<CreditRecharge> CreditRecharge { get; set; }
-
+        public DbSet<CreditRechargeOpenPay> CreditRechargeOpenPay { get; set; }
         public DbSet<AmountNotification> AmountNotification { get; set; }
         public DbSet<AmountNotificationUser> AmountNotificationUser { get; set; }
         public DbSet<BlackList> BlackList { get; set; }
         public DbSet<blacklistcampains> blacklistcampains { get; set; }
-        public DbSet<ccCamps> ccCamps { get; set; }
+        public DbSet<Campaigns> Campaigns { get; set; }
+        public DbSet<CampaignContact> CampaignContact { get; set; }
+        public DbSet<CampaignRecycleSetting> CampaignRecycleSetting { get; set; }
+
+        public DbSet<Template> Template { get; set; }
+
+        public DbSet<CampaignSchedule> CampaignSchedule { get; set; }
+
     }
 }

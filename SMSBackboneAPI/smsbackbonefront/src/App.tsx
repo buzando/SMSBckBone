@@ -27,6 +27,7 @@ import Costs from './pages/Costs'
 import Help from './pages/Help'
 import BillingInformation from './pages/BillingInformation'
 import BlackList from './pages/BlackList'
+import TestSMS from './pages/TestSMS'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -104,6 +105,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/BlackList' element={<BlackList />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/TestSMS' element={<TestSMS />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/PaymentMethods' element={<PaymentMethods />} />
