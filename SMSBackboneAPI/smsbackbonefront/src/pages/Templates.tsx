@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Divider, Modal, FormControl, TextField, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Typography, IconButton, Divider, Modal, FormControl, TextField, InputLabel, Select, MenuItem, Menu, Tooltip, ListItemText, ListItemIcon, Checkbox } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import MainIcon from '../components/commons/MainButtonIcon';
 import seachicon from '../assets/icon-lupa.svg';
@@ -10,7 +10,26 @@ import SecondaryButton from '../components/commons/SecondaryButton'
 import MainButton from '../components/commons/MainButton'
 import infoicon from '../assets/Icon-info.svg'
 import DynamicMessageEditor from '../components/commons/DymanicMessageEditor';
+import axios from 'axios';
+import ModalError from "../components/commons/ModalError"
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DeleteIcon from '../assets/Icon-trash-Card.svg'
+import SmsIcon from '@mui/icons-material/Sms';
+import Emptybox from '../assets/NoResultados.svg';
+import MainModal from "../components/commons/MainModal"
+import ChipBar from "../components/commons/ChipBar";
 
+
+
+export interface Template {
+    id: number;
+    name: string;
+    message: string;
+    creationDate: string; // DateTime en C# es string en JS/TS
+    idRoom: number;
+}
 const Templates = () => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const navigate = useNavigate();
@@ -22,16 +41,351 @@ const Templates = () => {
     const [selectedDato, setSelectedDato] = React.useState('');
     const [openPreviewModal, setOpenPreviewModal] = useState(false);
     const [templateName, setTemplateName] = useState('');
+    const [templates, setTemplates] = useState<Template[]>([]);
+    const [loadingTemplates, setLoadingTemplates] = useState(false);
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+    const [TitleErrorModal, setTitleErrorModal] = useState('');
+    const [MessageErrorModal, setMessageErrorModal] = useState('');
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+    const [isInspectModalOpen, setIsInspectModalOpen] = useState(false);
+    const [assignedCampaigns, setAssignedCampaigns] = useState<string[]>([]);
+    const open = Boolean(anchorEl);
+    const [hasAssignedCampaigns, setHasAssignedCampaigns] = useState(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [templateToDelete, setTemplateToDelete] = useState<Template | null>(null);
+    const [showChipBar, setShowChipBar] = useState(false);
+    const [messageChipBar, setMessageChipBar] = useState('');
+    const [selectedTemplates, setSelectedTemplates] = useState<Template[]>([]);
+    const [openMassiveDeleteModal, setOpenMassiveDeleteModal] = useState(false);
+    const [isEditingTemplate, setIsEditingTemplate] = useState(false);
+    const [templateToEdit, setTemplateToEdit] = useState<Template | null>(null);
+
+    const handleOpenEditTemplate = (template: Template) => {
+        setIsEditingTemplate(true);
+        setTemplateToEdit(template);
+        setTemplateName(template.name);
+        setMensaje(template.message);
+        setOpenModal(true);
+    };
+
+
+    const resetTemplateForm = () => {
+        setIsEditingTemplate(false);
+        setTemplateToEdit(null);
+        setTemplateName('');
+        setMensaje('');
+    };
+
+
+    const handleOpenDeleteModal = (template: Template) => {
+        setTemplateToDelete(template);
+        setOpenDeleteModal(true);
+    };
+
+    const handleOpenDeleteSelectedTemplates = async () => {
+        try {
+            const room = JSON.parse(localStorage.getItem('selectedRoom') || '{}');
+
+            // 🔥 Revisión de campañas asignadas
+            let hasAssigned = false;
+
+            for (const template of selectedTemplates) {
+                const payload = {
+                    name: template.name,
+                    idRoom: room.id
+                };
+
+                const response = await axios.post(
+                    `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_ADD_GETCAMPAINSBYTEMPLATE}`,
+                    payload,
+                    { headers: { 'Content-Type': 'application/json' } }
+                );
+
+                if (response.data && response.data.length > 0) {
+                    hasAssigned = true;
+                    break;
+                }
+            }
+
+            if (hasAssigned) {
+                setTitleErrorModal('Error al eliminar plantillas');
+                setMessageErrorModal('Alguna o todas las plantillas seleccionadas se encuentran asignadas a una campaña que está en curso. No es posible eliminarla(s).');
+                setIsErrorModalOpen(true);
+            } else {
+                setOpenMassiveDeleteModal(true); // ✅ Modal de confirmación
+            }
+        } catch (err) {
+            console.error('Error verificando campañas asignadas:', err);
+            setTitleErrorModal('Error inesperado');
+            setMessageErrorModal('No se pudo verificar el estado de las plantillas. Intente más tarde.');
+            setIsErrorModalOpen(true);
+        }
+    };
+
+
+
+    const handleConfirmDeleteTemplate = async () => {
+        if (!templateToDelete) return;
+
+        try {
+            const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+            const payload = {
+                name: templateToDelete.name,
+                idRoom: salaId
+            };
+
+            const response = await axios.post(`${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_DELETE_TEMPLATE}`, payload, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 200) {
+                setTemplates(prev => prev.filter(t => t.id !== templateToDelete.id));
+                setMessageChipBar('Plantilla eliminada correctamente');
+                setShowChipBar(true);
+                setTimeout(() => setShowChipBar(false), 3000);
+            }
+        } catch (err) {
+            setTitleErrorModal("Error al eliminar");
+            setMessageErrorModal("No se pudo eliminar la plantilla. Intenta más tarde.");
+            setIsErrorModalOpen(true);
+        } finally {
+            setOpenDeleteModal(false);
+            setTemplateToDelete(null);
+        }
+    };
+
+    const handleDeleteSelectedTemplates = async () => {
+        try {
+            const room = JSON.parse(localStorage.getItem('selectedRoom') || '{}');
+
+            for (const template of selectedTemplates) {
+                const payload = {
+                    name: template.name,
+                    idRoom: room.id
+                };
+
+                await axios.post(
+                    `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_DELETE_TEMPLATE}`,
+                    payload,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+            }
+
+            // 🔥 Mostrar mensaje y limpiar selección
+            setTemplates(prev => prev.filter(t => !selectedTemplates.find(sel => sel.id === t.id)));
+            setSelectedTemplates([]);
+            setMessageChipBar("Plantillas eliminadas correctamente");
+            setShowChipBar(true);
+            setTimeout(() => setShowChipBar(false), 3000);
+        } catch (err) {
+            console.error("Error al eliminar plantillas", err);
+            setTitleErrorModal("Error al eliminar plantillas");
+            setMessageErrorModal("No se pudieron eliminar una o más plantillas.");
+            setIsErrorModalOpen(true);
+        } finally {
+            setOpenMassiveDeleteModal(false);
+        }
+    };
+
+
+    const handleSelectTemplate = (template: Template) => {
+        const isSelected = selectedTemplates.some((t) => t.id === template.id);
+
+        if (isSelected) {
+            setSelectedTemplates(prev => prev.filter((t) => t.id !== template.id));
+        } else {
+            setSelectedTemplates(prev => [...prev, template]);
+        }
+    };
+
+    const handleSelectAllTemplates = () => {
+        if (selectedTemplates.length === templates.length) {
+            setSelectedTemplates([]);
+        } else {
+            setSelectedTemplates(templates);
+        }
+    };
+
+
+    const handleMenuClick = async (event: React.MouseEvent<HTMLElement>, template: Template) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedTemplate(template);
+
+        // Cargar campañas al abrir el menú
+        try {
+            const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+            const payload = {
+                name: template.name,
+                idRoom: salaId
+            };
+
+            const response = await axios.post(`${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_GETCAMPAINSBYTEMPLATE}`, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            setAssignedCampaigns(response.data);
+            setHasAssignedCampaigns(response.data.length > 0);
+        } catch (error) {
+            console.error('Error cargando campañas para validar eliminar:', error);
+            setAssignedCampaigns([]);
+            setHasAssignedCampaigns(false);
+        }
+    };
+
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+        setSelectedTemplate(null);
+    };
+
+    const handleInspectTemplate = async (template: Template) => {
+        try {
+            setIsInspectModalOpen(true);
+            const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+            const payload = {
+                name: selectedTemplate?.name,
+                idRoom: salaId
+            }
+
+            const response = await axios.post(`${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_DELETE_TEMPLATE}`, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            setAssignedCampaigns(response.data);
+        } catch (error) {
+            console.error('Error cargando campañas asignadas:', error);
+            setTitleErrorModal('Error al inspeccionar plantilla');
+            setMessageErrorModal('No se pudieron cargar las campañas asociadas.');
+            setIsErrorModalOpen(true);
+            setIsInspectModalOpen(false);
+        }
+    };
+
+
+    useEffect(() => {
+        const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+        const fetchTemplates = async () => {
+
+            try {
+
+                setLoadingTemplates(true);
+                const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GET_GETTEMPLATESBYROOM + salaId}`;
+                const response = await axios.get(requestUrl);
+                setTemplates(response.data);
+            }
+            catch (error) {
+                console.error(error);
+                setIsErrorModalOpen(true);
+                setTitleErrorModal('Error al traer las plantillas');
+                setMessageErrorModal('Ocurrió un error al intentar guardar la plantilla. Inténtalo más tarde.');
+            } finally {
+                setLoadingTemplates(false);
+            }
+        };
+
+        fetchTemplates();
+    }, []);
+
+    const handleSaveTemplate = async () => {
+        setLoadingTemplates(true);
+        const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+        try {
+            if (isEditingTemplate && templateToEdit) {
+                // 🔥 Estamos editando un template existente
+                const payload = {
+                    oldName: templateToEdit.name,
+                    idRoom: salaId,
+                    newName: templateName,
+                    newMessage: mensaje
+                };
+
+                const response = await axios.post(
+                    `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_UPDATE_TEMPLATES}`,
+                    payload,
+                    { headers: { 'Content-Type': 'application/json' } }
+                );
+
+                if (response.status === 200) {
+                    // 🔥 Actualizar localmente la lista
+                    setTemplates(prevTemplates =>
+                        prevTemplates.map(t =>
+                            t.id === templateToEdit.id
+                                ? { ...t, name: templateName, message: mensaje }
+                                : t
+                        )
+                    );
+                    setMessageChipBar('Plantilla actualizada correctamente');
+                }
+            } else {
+                // 🔥 Estamos creando un nuevo template
+                const payload = {
+                    name: templateName,
+                    message: mensaje,
+                    idRoom: salaId
+                };
+
+                const response = await axios.post(
+                    `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_ADD_TEMPLATE}`,
+                    payload,
+                    { headers: { 'Content-Type': 'application/json' } }
+                );
+
+                if (response.status === 200) {
+                    setMessageChipBar('Plantilla agregada correctamente');
+                }
+            }
+
+            setShowChipBar(true);
+            setTimeout(() => setShowChipBar(false), 3000);
+            setOpenModal(false);
+            resetTemplateForm(); // 🔥 Limpieza segura
+        } catch (error) {
+            console.error(error);
+            setIsErrorModalOpen(true);
+            setTitleErrorModal(isEditingTemplate ? 'Error al actualizar la plantilla' : 'Error al guardar la plantilla');
+            setMessageErrorModal('Ocurrió un error al intentar guardar la plantilla. Inténtalo más tarde.');
+        } finally {
+            setLoadingTemplates(false);
+        }
+    };
+
 
 
     const getProcessedMessage = () => {
-        return mensaje
-            .replace(/\bID\b/gi, selectedID || 'ID')
-            .replace(/\bTel[eé]fono\b/gi, selectedPhone || 'Teléfono')
-            .replace(/\bDato\b/gi, selectedDato || 'Dato');
+        if (!mensaje) return '';
+
+        let processed = mensaje;
+
+        if (processed.includes('{ID}')) {
+            processed = processed.replace(/\{ID\}/gi, selectedID || '[ID]');
+        }
+        if (processed.includes('{Teléfono}')) {
+            processed = processed.replace(/\{Tel[eé]fono\}/gi, selectedPhone || '[Teléfono]');
+        }
+        if (processed.includes('{Dato}')) {
+            processed = processed.replace(/\{Dato\}/gi, selectedDato || '[Dato]');
+        }
+
+        return processed;
     };
-    
-    
+
+
 
     const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => setOpenModal(false);
@@ -40,10 +394,14 @@ const Templates = () => {
         console.log("Mensaje crudo:", mensaje);
         setOpenPreviewModal(true);
     };
-    
+
     const handleMessageChange = (text: string) => {
         setMensaje(text);
     };
+
+    const filteredTemplates = templates.filter(t =>
+        t.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div style={{ padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1040px' }}>
@@ -149,33 +507,189 @@ const Templates = () => {
                 </div>
             </div>
 
-            <Box
-                sx={{
-                    width: '100%',
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '8px',
-                    padding: '60px 0',
-                    height: '332px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
-                    mt: 3,
-                }}
-            >
-                <img src={BoxEmpty} alt="Caja vacía" style={{ width: '120px', marginBottom: '16px' }} />
-                <Typography
+
+            {templates.length === 0 ? (
+                <Box
                     sx={{
-                        fontFamily: 'Poppins',
-                        fontSize: '14px',
-                        color: '#7B354D',
-                        fontWeight: 500,
+                        width: '100%',
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: '8px',
+                        padding: '60px 0',
+                        height: '332px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                        mt: 3,
                     }}
                 >
-                    Crea una plantilla para comenzar.
-                </Typography>
-            </Box>
+                    <img src={BoxEmpty} alt="Caja vacía" style={{ width: '120px', marginBottom: '16px' }} />
+                    <Typography
+                        sx={{
+                            fontFamily: 'Poppins',
+                            fontSize: '14px',
+                            color: '#7B354D',
+                            fontWeight: 500,
+                        }}
+                    >
+                        Crea una plantilla para comenzar.
+                    </Typography>
+                </Box>
+            ) : (
+                <Box
+                    sx={{
+                        backgroundColor: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0px 2px 6px rgba(0,0,0,0.05)',
+                        overflow: 'hidden',
+                        mt: 3
+                    }}
+                >
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
+                        <thead>
+                            {selectedTemplates.length === 0 ? (
+                                <tr style={{ backgroundColor: '#F5F5F5', textAlign: 'left' }}>
+                                    <th style={{ padding: '12px 16px' }}>
+                                        <Checkbox
+                                            checked={selectedTemplates.length === templates.length && templates.length > 0}
+                                            indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
+                                            onChange={handleSelectAllTemplates}
+                                            sx={{
+                                                color: '#7B354D',
+                                                '&.Mui-checked': {
+                                                    color: '#7B354D'
+                                                },
+                                                '&.MuiCheckbox-indeterminate': {
+                                                    color: '#7B354D'
+                                                }
+                                            }}
+                                        />
+                                    </th><th style={{ padding: '12px 16px', fontWeight: 600 }}>Fecha de creación</th>
+                                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Nombre</th>
+                                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Contenido</th>
+                                    <th style={{ padding: '12px 16px', fontWeight: 600 }}></th>
+                                </tr>
+                            ) : (
+                                <tr style={{ backgroundColor: '#F5F5F5' }}>
+                                    <th colSpan={5}>
+                                        <Box display="flex" alignItems="center" gap={1}>
+                                            <Checkbox
+                                                checked={selectedTemplates.length === templates.length}
+                                                indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
+                                                onChange={handleSelectAllTemplates}
+                                                sx={{
+                                                    color: '#7B354D',
+                                                    '&.Mui-checked': {
+                                                        color: '#7B354D'
+                                                    },
+                                                    '&.MuiCheckbox-indeterminate': {
+                                                        color: '#7B354D'
+                                                    }
+                                                }}
+                                            />
+                                            <Tooltip title="Eliminar seleccionados">
+                                                <IconButton onClick={handleOpenDeleteSelectedTemplates}>
+                                                    <img src={DeleteIcon} alt="Eliminar" style={{ width: 20, height: 20 }} />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Box>
+                                    </th>
+                                </tr>
+                            )}
+                        </thead>
+
+
+
+                        <tbody>
+                            {filteredTemplates.length === 0 ? (
+                                <Box
+                                    sx={{
+                                        width: '100%',
+                                        backgroundColor: '#FFFFFF',
+                                        borderRadius: '8px',
+                                        padding: '60px 0',
+                                        height: '332px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                                        mt: 3,
+                                    }}
+                                >
+                                    <img src={Emptybox} alt="Caja vacía" style={{ width: '120px', marginBottom: '16px' }} />
+                                    <Typography
+                                        sx={{
+                                            fontFamily: 'Poppins',
+                                            fontSize: '14px',
+                                            color: '#7B354D',
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        No se encontraron resultados.
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                filteredTemplates.map((template) => (
+                                    <tr key={template.id} style={{ borderBottom: '1px solid #eee' }}>
+                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>
+                                            <Checkbox
+                                                checked={selectedTemplates.some((t) => t.id === template.id)}
+                                                onChange={() => handleSelectTemplate(template)}
+                                                sx={{
+                                                    color: '#7B354D',
+                                                    '&.Mui-checked': {
+                                                        color: '#7B354D'
+                                                    },
+                                                    '&.MuiCheckbox-indeterminate': {
+                                                        color: '#7B354D'
+                                                    }
+                                                }}
+                                            />
+                                        </td>
+
+                                        {/* Fecha */}
+                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>
+                                            {new Date(template.creationDate).toLocaleDateString('es-MX')}
+                                        </td>
+
+                                        {/* Nombre con Tooltip */}
+                                        <td style={{ padding: '12px 16px', fontSize: '14px', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {template.name.length > 15 ? (
+                                                <Tooltip title={template.name} arrow>
+                                                    <span>{template.name.slice(0, 15) + '...'}</span>
+                                                </Tooltip>
+                                            ) : (
+                                                template.name
+                                            )}
+                                        </td>
+
+                                        {/* Contenido */}
+                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>{template.message}</td>
+
+                                        {/* Menú de acciones */}
+                                        <td
+                                            style={{
+                                                padding: '12px 16px',
+                                                textAlign: 'center',
+                                                borderLeft: '1px solid #D9D9D9',
+                                            }}
+                                        >
+                                            <IconButton onClick={(e) => handleMenuClick(e, template)}>
+                                                <MoreVertIcon sx={{ color: '#7B354D' }} />
+                                            </IconButton>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+
+                        </tbody>
+
+                    </table>
+                </Box>
+            )}
+
 
 
             <Modal open={openModal} onClose={handleCloseModal}>
@@ -220,13 +734,18 @@ const Templates = () => {
 
 
                     <DynamicMessageEditor
+                        initialMessage={mensaje}
                         selectedValues={{
                             id: selectedID,
                             telefono: selectedPhone,
                             dato: selectedDato
                         }}
                         onChange={handleMessageChange}
+                        onSelectID={(val) => setSelectedID(val)}
+                        onSelectTelefono={(val) => setSelectedPhone(val)}
+                        onSelectDato={(val) => setSelectedDato(val)}
                     />
+
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                         <SecondaryButton onClick={handlePreviewClick} text='Vista Previa'
@@ -238,7 +757,7 @@ const Templates = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <SecondaryButton text='Cancelar' onClick={handleCloseModal} />
 
-                        <MainButton text='Aceptar' onClick={() => console.log("")} />
+                        <MainButton text='Aceptar' onClick={handleSaveTemplate} />
                     </Box>
                 </Box>
             </Modal>
@@ -267,8 +786,149 @@ const Templates = () => {
                     </Box>
                 </Box>
             </Modal>
+            <ModalError
+                isOpen={isErrorModalOpen}
+                title={TitleErrorModal}
+                message={MessageErrorModal}
+                buttonText="Cerrar"
+                onClose={() => setIsErrorModalOpen(false)}
+            />
+            <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleMenuClose}
+                PaperProps={{
+                    elevation: 3,
+                    sx: {
+                        borderRadius: 2,
+                        mt: 1,
+                        minWidth: 160,
+                        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                        '& .MuiMenuItem-root': {
+                            fontFamily: 'Poppins',
+                            fontSize: '14px',
+                            color: '#333',
+                            '&:hover': { backgroundColor: '#F6F6F6' }
+                        }
+                    }
+                }}
+            >
+                <MenuItem disabled={hasAssignedCampaigns} onClick={() => !hasAssignedCampaigns && handleOpenEditTemplate(selectedTemplate!)}>
+                    <ListItemIcon>
+                        <EditIcon sx={{ color: hasAssignedCampaigns ? '#B0A8A8' : '#7B354D' }} />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary="Editar"
+                        primaryTypographyProps={{
+                            fontFamily: 'Poppins',
+                            color: hasAssignedCampaigns ? '#B0A8A8' : 'inherit'
+                        }}
+                    />
+                </MenuItem>
 
 
+
+                <MenuItem onClick={() => { handleMenuClose(); handleInspectTemplate(selectedTemplate!); }}>
+                    <ListItemIcon>
+                        <VisibilityIcon fontSize="small" sx={{ color: '#7B354D' }} />
+                    </ListItemIcon>
+                    <ListItemText>Inspeccionar</ListItemText>
+                </MenuItem>
+                <MenuItem
+                    onClick={() => { handleMenuClose(); handleOpenDeleteModal(selectedTemplate!); }}
+                    disabled={hasAssignedCampaigns}
+
+                >
+                    <ListItemIcon>
+                        <img src={DeleteIcon} alt="Borrar"
+                            style={{
+                                width: 24,
+                                height: 24,
+                                display: 'block',
+                                opacity: hasAssignedCampaigns ? 0.5 : 1 // 🔥 Se pone más clarito si está deshabilitado
+                            }}
+                        />
+                    </ListItemIcon>
+                    <ListItemText>Eliminar</ListItemText>
+                </MenuItem>
+            </Menu>
+
+            <Modal open={isInspectModalOpen} onClose={() => setIsInspectModalOpen(false)}>
+                <Box sx={{
+                    width: '440px',
+                    backgroundColor: 'white',
+                    borderRadius: '12px',
+                    p: 3,
+                    m: 'auto',
+                    mt: '10%',
+                    outline: 'none',
+                    maxHeight: '80vh',
+                    overflowY: 'auto'
+                }}>
+                    <Typography variant="h6" sx={{ fontFamily: 'Poppins', fontWeight: 600, mb: 2 }}>
+                        Inspeccionar plantilla
+                    </Typography>
+
+                    <Typography variant="subtitle1" sx={{ fontFamily: 'Poppins', fontWeight: 500, mb: 1, color: '#7B354D' }}>
+                        Campañas asignadas
+                    </Typography>
+
+                    {assignedCampaigns.length > 0 ? (
+                        assignedCampaigns.map((campaignName, index) => (
+                            <Box
+                                key={index}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    p: 1,
+                                    borderBottom: '1px solid #eee',
+                                    fontFamily: 'Poppins',
+                                    fontSize: '14px',
+                                    color: '#333'
+                                }}
+                            >
+                                <SmsIcon sx={{ color: '#7B354D' }} />
+                                {campaignName}
+                            </Box>
+                        ))
+                    ) : (
+                        <Box sx={{ height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src={Emptybox} alt="No campaigns" style={{ width: '120px', marginBottom: '16px' }} />
+                            <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', mt: 1, color: '#999' }}>
+                                No hay campañas asignadas.
+                            </Typography>
+                        </Box>
+                    )}
+                </Box>
+            </Modal>
+
+            <MainModal
+                isOpen={openDeleteModal}
+                Title="Eliminar plantilla"
+                message="¿Está seguro de que desea eliminar la plantilla seleccionada? Esta acción no podrá revertirse."
+                primaryButtonText="Eliminar"
+                secondaryButtonText="Cancelar"
+                onPrimaryClick={handleConfirmDeleteTemplate}
+                onSecondaryClick={() => setOpenDeleteModal(false)}
+            />
+            <MainModal
+                isOpen={openMassiveDeleteModal}
+                Title="Eliminar plantillas"
+                message="¿Está seguro de que desea eliminar las plantillas seleccionadas? Esta acción no podrá revertirse."
+                primaryButtonText="Eliminar"
+                secondaryButtonText="Cancelar"
+                onPrimaryClick={handleDeleteSelectedTemplates}
+                onSecondaryClick={() => setOpenMassiveDeleteModal(false)}
+            />
+
+            {showChipBar && (
+                <ChipBar
+                    message={messageChipBar}
+                    buttonText="Cerrar"
+                    onClose={() => setShowChipBar(false)}
+                />
+            )}
         </div>
     );
 };

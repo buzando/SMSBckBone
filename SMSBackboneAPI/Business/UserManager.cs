@@ -18,6 +18,8 @@ using log4net;
 using Openpay;
 using Openpay.Entities;
 using Openpay.Entities.Request;
+using Contract;
+using Contract.Other;
 
 namespace Business
 {
@@ -54,7 +56,7 @@ namespace Business
             //    status = true
             //};
             return userdto;
-        }  
+        }
 
         public UserDto FindEmail(string email)
         {
@@ -392,7 +394,7 @@ namespace Business
         {
             try
             {
-                
+
                 var user = new Users
                 {
                     accessFailedCount = 0,
@@ -418,7 +420,7 @@ namespace Business
                 var cliente = new ClientManager().ObtenerClienteporNombre(register.client);
                 if (cliente != null)
                 {
-                    
+
                     user.IdCliente = cliente.id;
                     using (var ctx = new Entities())
                     {
@@ -695,8 +697,17 @@ namespace Business
         #region recharge
         public bool RechargeUser(CreditRechargeRequest credit)
         {
+            var tarjeta = new creditcards();
+            var usuario = new Users();
             try
             {
+                using (var ctx = new Entities())
+                {
+                    tarjeta = ctx.creditcards.Where(x => x.Id == credit.IdCreditCard).FirstOrDefault();
+                    usuario = ctx.Users.Where(x => x.Id == credit.IdUser).FirstOrDefault();
+                }
+
+
                 var creditrecharge = new CreditRecharge
                 {
                     Chanel = credit.Chanel,
@@ -704,35 +715,104 @@ namespace Business
                     quantityCredits = credit.QuantityCredits,
                     quantityMoney = credit.QuantityMoney,
                     RechargeDate = DateTime.Now,
-                    idUser = credit.IdUser, 
+                    idUser = credit.IdUser,
                     AutomaticInvoice = credit.AutomaticInvoice
                 };
                 //aqui va el openpay
 
                 // === Openpay ===
-                var apiKey = "sk_xxx"; // Tu API Key sandbox
-                var merchantId = "mxxxxx"; // Tu merchant ID
 
+                var apiKey = Common.ConfigurationManagerJson("APIKEY"); // Tu API Key sandbox
+                var merchantId = Common.ConfigurationManagerJson("MERCHANTID"); // Tu merchant ID
                 var openpay = new OpenpayAPI(apiKey, merchantId);
-                openpay.Production = false;
+
+                var cardRequest = new Openpay.Entities.Card
+                {
+                    CardNumber = $"{tarjeta.card_number}",
+                    HolderName = $"{tarjeta.card_name}",
+                    ExpirationMonth = $"{tarjeta.expiration_month}",
+                    ExpirationYear = $"{tarjeta.expiration_year.ToString().Substring(2)}",
+                    Cvv2 = $"{tarjeta.CVV}",
+                    DeviceSessionId = "kR1v4EXgk0kpbv2e4HkQWg9oBytTR84f"
+                };
+
+                var card = openpay.CardService.Create(cardRequest);
+
+
+                var boolproduction = Common.ConfigurationManagerJson("OPENPAYPRODUCTION");
+                var prodution = bool.Parse(boolproduction);
+                openpay.Production = prodution;
 
                 var chargeRequest = new ChargeRequest
                 {
                     Method = "card",
-                    SourceId = "k2qkwygxfjhidmz5ogjk", // Token de prueba
+                    SourceId = card.Id,
                     Amount = credit.QuantityMoney,
                     Description = "Recarga de créditos",
                     Currency = "MXN",
-                    DeviceSessionId = "kR1v4EXgk0kpbv2e4HkQWg9oBytTR84f" // Dummy
+                    DeviceSessionId = "kR1v4EXgk0kpbv2e4HkQWg9oBytTR84f", // Dummy
+                    Customer = new Openpay.Entities.Customer
+                    {
+                        Name = usuario.firstName,
+                        LastName = usuario.lastName,
+                        Email = usuario.email,
+                        PhoneNumber = usuario.phonenumber,
+                        Address = new Openpay.Entities.Address
+                        {
+                            Line1 = $"{tarjeta.street} {tarjeta.interior_number}",
+                            Line2 = "",
+                            Line3 = "",
+                            PostalCode = "57800",
+                            State = "Mexico",
+                            City = "Mexico",
+                            CountryCode = "MX",        // 🔥 Código de país de México
+                        }
+                    }
                 };
 
-                //var charge = openpay.ChargeService.Create(chargeRequest);
-                creditrecharge.Estatus = "Completado";
+                var charge = openpay.ChargeService.Create(chargeRequest);
+                creditrecharge.Estatus = charge.Status;
+                switch (charge.Status.ToLower())
+                {
+                    case "completed":
+                        creditrecharge.Estatus = "Exitoso";
+                        break;
+                    case "in_progress":
+                        creditrecharge.Estatus = "En progreso";
+                        break;
+                    case "failed":
+                        creditrecharge.Estatus = "Fallida";
+                        break;
+                    case "cancelled":
+                        creditrecharge.Estatus = "Cancelada";
+                        break;
+                    default:
+                        break;
+                }
                 //creditrecharge.transactionId = charge.Id;
 
                 using (var ctx = new Entities())
                 {
                     ctx.CreditRecharge.Add(creditrecharge);
+
+                    ctx.SaveChanges();
+
+                    var openpayRecord = new CreditRechargeOpenPay
+                    {
+                        IdCreditRecharge = creditrecharge.Id,
+                        ChargeId = charge.Id,
+                        idopenpay = charge.Id,
+                        BankAuthorization = charge.Authorization,
+                        Amount = charge.Amount,
+                        Status = charge.Status,
+                        CreationDate = charge.CreationDate.HasValue ? charge.CreationDate.Value: DateTime.Now,
+                        CardId = charge.Card?.Id,
+                        CustomerId = charge.Customer?.Id,
+                        Conciliated = charge.Conciliated,
+                        Description = charge.Description
+                    };
+
+                    ctx.CreditRechargeOpenPay.Add(openpayRecord);
                     ctx.SaveChanges();
                 }
                 return true;
@@ -748,7 +828,7 @@ namespace Business
             var historic = new List<CreditHystoric>();
             try
             {
-               
+
                 using (var ctx = new Entities())
                 {
                     historic = (from cr in ctx.CreditRecharge

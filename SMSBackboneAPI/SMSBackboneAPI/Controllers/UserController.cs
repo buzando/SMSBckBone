@@ -1138,5 +1138,64 @@ namespace SMSBackboneAPI.Controllers
         }
 
         #endregion
+
+        #region templates
+
+        [HttpPost("AddTemplate")]
+        public IActionResult AddTemplate(AddTemplate addTemplate)
+        {
+            var templateManager = new TemplateManager();
+            var result = templateManager.CreateTemplate(addTemplate);
+
+            if (result)
+                return Ok(new { message = "Template creado correctamente." });
+            else
+                return BadRequest(new GeneralErrorResponseDto() { code = "ErrorCreatingTemplate", description = "Error al crear template." });
+        }
+        [HttpGet("GetTemplatesByRoom")]
+        public IActionResult GetTemplatesByRoom(int idRoom)
+        {
+            var templateManager = new TemplateManager();
+            var templates = templateManager.GetTemplatesByRoom(idRoom);
+
+            if (templates != null)
+                return Ok(templates);
+            else
+                return BadRequest(new GeneralErrorResponseDto() { code = "TemplatesNotFound", description = "No se encontraron plantillas para este Room." });
+        }
+        [HttpPost("UpdateTemplate")]
+        public IActionResult UpdateTemplate(UpdateTemplateRequest updateTemplate)
+        {
+            var templateManager = new TemplateManager();
+            var result = templateManager.UpdateTemplateByNameAndRoom(updateTemplate);
+
+            if (result)
+                return Ok(new { message = "Template actualizado correctamente." });
+            else
+                return BadRequest(new GeneralErrorResponseDto() { code = "TemplateNotFound", description = "No se encontró el template para actualizar." });
+        }
+        [HttpPost("DeleteTemplate")]
+        public IActionResult DeleteTemplate(TemplateRequest deleteTemplate)
+        {
+            var templateManager = new TemplateManager();
+            var result = templateManager.DeleteTemplateByNameAndRoom(deleteTemplate);
+
+            if (result)
+                return Ok(new { message = "Template eliminado correctamente." });
+            else
+                return BadRequest(new GeneralErrorResponseDto() { code = "TemplateNotFound", description = "No se encontró el template para eliminar." });
+        }
+        [HttpPost("getcampaignsbytemplate")]
+        public IActionResult getcampaignsbytemplate(TemplateRequest Template)
+        {
+            var templateManager = new TemplateManager();
+            var result = templateManager.GetCampainsByTemplate(Template);
+
+            if (result != null)
+                return Ok(result);
+            else
+                return BadRequest(new GeneralErrorResponseDto() { code = "TemplateNotFound", description = "No se encontró el template para actualizar." });
+        }
+        #endregion
     }
 }
