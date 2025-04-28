@@ -88,6 +88,16 @@ const Campains: React.FC = () => {
         { label: "Tasa de excepción", value: "90%", color: "#7DD584" }
     ];
 
+    const mensajesIndicadores = [
+      ["Mensajes entregados de forma correcta."],
+      ["Mensaje no entregado.", "Esta condición se presenta cuando se ha vencido el tiempo de entrega asignado."],
+      ["Mensaje en espera.", "El mensaje ha sido aceptado por la red destino, pero el usuario tiene apagado su teléfono."],
+      ["Mensaje fallido.", "La red destino ha enviado el mensaje al usuario, pero el usuario ha rechazado su entrega."],
+      ["Mensaje rechazado.", "Esta condición se presenta cuando la red destino rechaza el mensaje."],
+      ["Mensaje no enviado.", "No hubo un carrier disponible para enviarlo.", "No se consumieron créditos."],
+      ["Excepción no controlada en el sistema.", "No se consumieron créditos."]
+    ];
+
     const data = [
         { name: "Recibidos", value: 90, color: "#A17EFF" },
         { name: "No recibidos", value: 10, color: "#F6B960" },
@@ -129,6 +139,10 @@ const Campains: React.FC = () => {
         "Mapa de concentración de mensajes": true,
         "Resultados de envío por día": true,
       });
+
+
+      const [openCreateCampaignModal, setOpenCreateCampaignModal] = useState(false);
+      const [activeStep, setActiveStep] = useState<number>(-1);
 
 
     const campaigns = [
@@ -213,10 +227,42 @@ const Campains: React.FC = () => {
                                 }}
                             >
                                 Listado de campañas
-                            </Typography>
-                            <IconButton>
-                                <img src={iconplus} alt="Agregar" style={{ width: "20px", height: "20px" }} />
+                            </Typography>´
+
+                            <Tooltip title="Crear" arrow placement="top"
+                                componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                    backgroundColor: "#000000",
+                                    color: "#CCC3C3",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "12px",
+                                    padding: "6px 8px",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.7)"
+                                    }
+                                },
+                                arrow: {
+                                    sx: {
+                                    color: "#000000"
+                                    }
+                                }
+                                }}
+                                PopperProps={{
+                                    modifiers: [
+                                      {
+                                        name: 'offset',
+                                        options: {
+                                          offset: [0, -15] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                        }
+                                      }
+                                    ]
+                                  }}
+                            >
+                            <IconButton onClick={() => setOpenCreateCampaignModal(true)}>
+                              <img src={iconplus} alt="Agregar" style={{ width: "20px", height: "20px" }} />
                             </IconButton>
+                            </Tooltip>
                         </Box>
 
                         <TextField
@@ -1012,10 +1058,10 @@ const Campains: React.FC = () => {
                     title={
                       <Box>
                         <Typography component="div" sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
-                          • Solo caracteres numéricos
+                          Solo caracteres numéricos
                         </Typography>
                         <Typography component="div" sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
-                          • El teléfono debe incluir el número del país
+                          El teléfono debe incluir el número del país
                         </Typography>
                       </Box>
                     }
@@ -1216,10 +1262,70 @@ const Campains: React.FC = () => {
                         <Box sx={{ display: "flex", justifyContent: "space-between", padding: "10px", border: "2px solid #F2F2F2", borderRadius: "10px", marginBottom: "20px", }}>
                             {indicadores.map((indicador, index) => (
                                 <Box key={index} sx={{ textAlign: "center" }}>
-                                    <img src={infoicon} width="24px" height="24px" />
-                                    <Typography sx={{ fontSize: "14px", color: "#9B9295", fontWeight: "bold" }}>{indicador.label}</Typography>
-                                    <Typography sx={{ fontSize: "22px", color: indicador.color, fontWeight: "bold" }}>{indicador.value}</Typography>
-                                </Box>
+                                <Tooltip
+                                  placement="bottom-start"
+                                  arrow
+                                  componentsProps={{
+                                    tooltip: {
+                                      sx: {
+                                        backgroundColor: "#FFFFFF",
+                                        color: "#574B4F",
+                                        fontFamily: "Poppins, sans-serif",
+                                        fontSize: "13px",
+                                        padding: "8px 12px",
+                                        borderRadius: "10px",
+                                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                                        maxWidth: 220,
+                                        border: "1px solid #9B9295"
+                                      }
+                                    },
+                                    arrow: {
+                                      sx: {
+                                        color: "#FFFFFF", opacity: 0
+                                      }
+                                    }
+                                  }}
+                                  PopperProps={{
+                                    modifiers: [
+                                      {
+                                        name: 'offset',
+                                        options: {
+                                          offset: [-90, -15]
+                                        }
+                                      }
+                                    ]
+                                  }}
+                                  title={
+                                    <Box>
+                                      {mensajesIndicadores[index].map((mensaje, i) => (
+                                        <Typography key={i} component="div" sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
+                                          {mensaje}
+                                        </Typography>
+                                      ))}
+                                    </Box>
+                                  }
+                                >
+                                  <img src={infoicon} width="24px" height="24px" style={{ cursor: "pointer" }} />
+                                </Tooltip>
+                                
+                                <Typography
+                                  sx={{
+                                    fontSize: "14px",
+                                    color: "#9B9295",
+                                    fontWeight: "500",
+                                    fontFamily: "Poppins, sans-serif",
+                                    whiteSpace: "pre-line",
+                                    lineHeight: "16px" 
+                                  }}
+                                  dangerouslySetInnerHTML={{
+                                    __html: indicador.label.replace("Tasa de ", "Tasa de<br/>")
+                                  }}
+                                />
+                                <Typography sx={{ fontSize: "22px", color: indicador.color, fontWeight: "500", fontFamily: "Poppins" }}>
+                                  {indicador.value}
+                                </Typography>
+                              </Box>
+                              
                             ))}
                         </Box>
                         <ResponsiveContainer width="100%" height={250}>
@@ -1341,7 +1447,7 @@ const Campains: React.FC = () => {
       paddingBottom: 0,
       textTransform: "none",
       pl: "5px" ,
-      marginTop: "-20px"
+      marginTop: "-20px",
     }}
   >
     Información visible en la sección campañas
@@ -1352,7 +1458,7 @@ const Campains: React.FC = () => {
     position: "absolute",
     marginY: "47px",
     left: "0px",
-    backgroundColor: "#9F94A5", // Rojo o tono vino
+    backgroundColor: "#9F94A5", 
     height: "1px",
     width: "100%",
     opacity: 0.3
@@ -1553,6 +1659,504 @@ const Campains: React.FC = () => {
   </DialogActions>
 </Dialog>    
         
+      {/*Modal Creación*/}
+
+      <Dialog
+  open={openCreateCampaignModal}
+  onClose={() => setOpenCreateCampaignModal(false)}
+  maxWidth={false} // 🔥 Le quitamos el límite de ancho
+  fullWidth // 🔥 Forzamos que se respete el ancho del Paper
+  PaperProps={{
+    sx: {
+      width: "810px",
+      height: "668px",
+      borderRadius: "12px",
+      padding: "32px",
+      boxSizing: "border-box",
+    }
+  }}
+>
+  <DialogTitle
+    sx={{
+      fontFamily: "Poppins",
+      fontWeight: 600,
+      fontSize: "20px",
+      color: "#574B4F",
+      paddingBottom: "0px",
+      pl: "9px",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      textTransform: "none",
+      marginTop: "-25px",
+      marginLeft: "-20px"
+    }}
+  >
+    Crear campaña SMS
+    <IconButton onClick={() => setOpenCreateCampaignModal(false)}>
+      <CloseIcon sx={{ fontSize: "22px", color: "#574B4F", 
+        marginLeft: "65px",
+        marginTop: "-20px",
+        position: "absolute"
+        }} />
+    </IconButton>
+  </DialogTitle>
+
+        {/* Línea divisoria */}
+          <Divider
+          sx={{
+            position: "absolute",
+            marginY: "36px",
+            left: "0px",
+            backgroundColor: "#9F94A5", 
+            height: "1px",
+            width: "100%",
+            opacity: 0.3
+          }}
+        />
+
+  <Divider sx={{ marginTop: "10px", marginBottom: "18px", opacity: 0.3 }} />
+
+       {/*Stepper */}
+  <DialogContent sx={{ overflowY: "auto", padding: "0 8px" }}>
+
+
+  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "24px", width: "100%" }}>
+  {["Nombre y horarios", "Registros", "Mensaje", "Configuraciones"].map((label, index) => {
+    const isActive = index === activeStep;
+    const isLast = index === 3;
+
+    return (
+      <React.Fragment key={label}>
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: "80px" }}>
+        <Box
+  sx={{
+    width: "24px",
+    height: "24px",
+    borderRadius: "50%",
+    border: `2px solid ${isActive ? "#8F4D63" : "#D6D6D6"}`,
+    backgroundColor: isActive ? "#8F4D63" : "#FFFFFF",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  {isActive && (
+    <Box
+      component="span"
+      sx={{
+        color: "#FFFFFF",
+        fontSize: "14px",
+        fontWeight: "bold",
+        fontFamily: "Poppins",
+      }}
+    >
+      ✓
+    </Box>
+  )}
+</Box>
+
+<Typography
+  sx={{
+    marginTop: "6px",
+    fontSize: "12px",
+    fontFamily: "Poppins",
+    color: isActive ? "#8F4D63" : "#9B9295",
+    textAlign: "center",
+    fontWeight: 500,
+    whiteSpace: "nowrap", // 🔥 Esto fuerza que no se haga salto de línea
+    overflow: "hidden",    // 🔥 Opcional: para evitar desbordamiento feo
+    textOverflow: "ellipsis", // 🔥 Opcional: agrega "..." si el texto fuera muy largo
+    maxWidth: "80px", // 🔥 Opcional: un ancho controlado
+  }}
+>
+  {label}
+</Typography>
+
+        </Box>
+        {!isLast && (
+          <Box
+          sx={{
+            width: "80px", // 🔥 Ancho de la línea
+            height: "2px",
+            backgroundColor: "#D6D6D6",
+            mx: "20px", // 🔥 Separación entre punto y línea
+          }}
+        />
+        )}
+      </React.Fragment>
+    );
+  })}
+</Box>
+
+
+
+  </DialogContent>
+
+
+        {/* Línea divisoria */}
+        <Divider
+          sx={{
+            position: "absolute",
+            marginY: "126px",
+            left: "0px",
+            backgroundColor: "#9F94A5", 
+            height: "1px",
+            width: "100%",
+            opacity: 0.3
+          }}
+        />
+        
+{activeStep === -1 && (
+  <Box sx={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: 4 }}>
+
+  {/* Box 1: Ingrese un nombre */}
+  
+  <Box
+    sx={{
+      width: "340px",
+      height: "88px",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+    }}
+  >
+    <Typography
+      sx={{
+        fontFamily: "Poppins",
+        fontSize: "18px",
+        color: "#574B4F",
+      }}
+    >
+      Ingrese un nombre
+    </Typography>
+    <TextField
+      variant="outlined"
+      placeholder="Nombre"
+      sx={{
+        width: "340px",
+        height: "54px",
+        fontFamily: "Poppins",
+        "& .MuiInputBase-input": {
+          fontFamily: "Poppins",
+          height: "54px",
+          boxSizing: "border-box",
+          padding: "0 14px"
+        }
+      }}
+    />
+  </Box>
+
+  {/* Box 2: Horarios */}
+<Box
+  sx={{
+    width: "612px",
+    height: "149px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    gap: "8px",
+  }}
+>
+  {/* Título "Horarios" */}
+  <Typography
+    sx={{
+      fontFamily: "Poppins",
+      fontSize: "18px",
+      fontWeight: 500,
+      color: "#574B4F",
+    }}
+  >
+    Horarios
+  </Typography>
+
+  {/* Caja interna con fondo rosita */}
+  <Box
+    sx={{
+      width: "612px",
+      height: "115px",
+      backgroundColor: "#F2EBEDCC",
+      borderRadius: "8px",
+      padding: "16px", // Espaciado interno
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      gap: "12px"
+    }}
+  >
+    {/* Título "Horario 1" */}
+    <Typography
+      sx={{
+        fontFamily: "Poppins",
+        fontSize: "16px",
+        fontWeight: 500,
+        color: "#574B4F",
+      }}
+    >
+      Horario 1
+    </Typography>
+
+    {/* Inputs */}
+    <Box sx={{ display: "flex", gap: 2 }}>
+      <TextField
+        variant="outlined"
+        placeholder="Inicia"
+        sx={{
+          width: "262px",
+          height: "56px",
+          fontFamily: "Poppins",
+          backgroundColor: "#FFFFFF",
+          "& .MuiInputBase-input": {
+            fontFamily: "Poppins",
+            height: "56px",
+            boxSizing: "border-box",
+            padding: "0 14px",
+            fontSize: "16px",
+          },
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <img
+                src="/ruta/al/icono-calendario.svg"
+                alt="Calendario"
+                style={{ width: "20px", height: "20px" }}
+              />
+            </InputAdornment>
+          )
+        }}
+      />
+
+      <TextField
+        variant="outlined"
+        placeholder="Termina"
+        sx={{
+          width: "262px",
+          height: "56px",
+          fontFamily: "Poppins",
+          backgroundColor: "#FFFFFF",
+          "& .MuiInputBase-input": {
+            fontFamily: "Poppins",
+            height: "56px",
+            boxSizing: "border-box",
+            padding: "0 14px",
+            fontSize: "16px",
+          },
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <img
+                src="/ruta/al/icono-calendario.svg"
+                alt="Calendario"
+                style={{ width: "20px", height: "20px" }}
+              />
+            </InputAdornment>
+          )
+        }}
+      />
+    </Box>
+  </Box>
+</Box>
+
+
+<Box
+  sx={{
+    width: "250px",
+    height: "80px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  }}
+>
+  <Box sx={{ display: "flex", alignItems: "center", gap: "8px", position: "absolute",
+    marginTop: "-60px"
+   }}>
+    <Checkbox
+      icon={
+        <Box
+          sx={{
+            width: "20px", // 🔥 Corregido
+            height: "20px",
+            borderRadius: "4px",
+            border: "2px solid #8F4D63",
+          }}
+        />
+      }
+      checkedIcon={
+        <Box
+          sx={{
+            width: "20px",
+            height: "20px",
+            borderRadius: "4px",
+            backgroundColor: "#8F4D63",
+            border: "2px solid #8F4D63",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box
+            component="span"
+            sx={{
+              color: "#FFFFFF",
+              fontSize: "13px",
+              fontWeight: "bold",
+              lineHeight: "1",
+              fontFamily: "Poppins, sans-serif",
+            }}
+          >
+            ✓
+          </Box>
+        </Box>
+      }
+      sx={{
+        color: "#8F4D63",
+        "&.Mui-checked": { color: "#8F4D63" },
+        alignSelf: "flex-start",
+        padding: 0,
+      }}
+    />
+
+    <Typography
+      sx={{
+        fontFamily: "Poppins",
+        fontSize: "14px",
+        color: "#574B4F",
+        whiteSpace: "nowrap", // 🔥 Mantiene el texto en una sola línea
+      }}
+    >
+      Iniciar campaña automáticamente
+    </Typography>
+  </Box>
+</Box>
+
+
+</Box>
+)}
+
+{activeStep === 0 && (
+  // 🟰 CONTENIDO de "Registros" nuevo (el que quieres mostrar)
+  <Box sx={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: 2 }}>
+    <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', mt: 1 }}>
+    Cargue un archivo desde su biblioteca.
+    </Typography>
+
+    <Box sx={{ display: 'flex', gap: 3 }}>
+      {/* Subir archivo */}
+      <Box
+        sx={{
+          border: `2px dashed #D9B4C3`,
+          backgroundColor: 'transparent',
+          borderRadius: '8px',
+          width: '200px',
+          height: '140px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          fontFamily: 'Poppins',
+          fontSize: '13px',
+          color: '#330F1B',
+          position: 'relative',
+          cursor: 'pointer',
+          px: 1
+        }}
+      >
+        <img
+          src="/ruta/a/icono-nube.svg"
+          alt="Subir archivo"
+          style={{ marginBottom: '8px', width: '40px', height: '40px' }}
+        />
+        <Typography sx={{ fontWeight: 600 }}>
+          Subir archivo
+        </Typography>
+        <Typography>
+          Arrastre un archivo aquí, o selecciónelo.
+        </Typography>
+      </Box>
+
+    </Box>
+  </Box>
+)}
+
+
+{/* Línea divisoria */}
+<Divider
+          sx={{
+            position: "absolute",
+            marginY: "520px",
+            left: "0px",
+            backgroundColor: "#9F94A5", 
+            height: "1px",
+            width: "100%",
+            opacity: 0.3
+          }}
+        />
+
+        {/*Poscionador de contenido top - bottom */}
+  <DialogActions sx={{ padding: "16px", justifyContent: "space-between", 
+      marginTop: "0px",
+      marginLeft: "-15px",
+    }}>
+    <Button
+      variant="outlined"
+      onClick={() => setOpenCreateCampaignModal(false)}
+      sx={{
+        marginTop: "18px", 
+        width: "118px",
+        height: "36px",
+        border: "1px solid #CCCFD2",
+        borderRadius: "4px",
+        color: "#833A53",
+        backgroundColor: "transparent",
+        fontVariant: "normal",
+        letterSpacing: "1.12px",
+        fontWeight: "500",
+        fontSize: "14px",
+        fontFamily: "Poppins",
+        opacity: 1,
+        "&:hover": {
+            backgroundColor: "#f3e6eb",
+            fontSize: "14px",
+            fontFamily: "Poppins",
+            color: "#833A53",
+            letterSpacing: "1.12px",
+            opacity: 1,
+        },
+    }}
+    >
+      Cancelar
+    </Button>
+    <Button 
+  variant="contained"
+  onClick={() => setActiveStep((prevStep) => prevStep + 1)}
+  sx={{
+    marginRight: "-15px",
+    marginTop: "18px", 
+    width: "118px",
+    height: "36px",
+    background: "#833A53 0% 0% no-repeat padding-box",
+    border: "1px solid #D4D1D1",
+    borderRadius: "4px",
+    opacity: 1,
+    fontVariant: "normal",
+    fontWeight: "500",
+    fontSize: "14px",
+    fontFamily: "Poppins",
+    letterSpacing: "1.12px",
+    color: "#FFFFFF", // Letra blanca
+  }}
+>
+  Siguiente
+</Button>
+
+  </DialogActions>
+</Dialog>
+
+
+
         </Box>
     );
 };
