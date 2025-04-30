@@ -41,5 +41,6 @@ namespace Modal
 
         public DbSet<CampaignSchedule> CampaignSchedule { get; set; }
 
+        public DbSet<ClientAccess> ClientAccess { get; set; }
     }
 }

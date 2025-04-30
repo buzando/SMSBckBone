@@ -236,5 +236,12 @@ CREATE TABLE blacklistcampains (
     FOREIGN KEY (idblacklist) REFERENCES BlackList(Id)
 );
 
-drop table blacklistcampains
 
+CREATE TABLE client_access (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    client_id INT NOT NULL FOREIGN KEY REFERENCES clients(id),
+    username NVARCHAR(100) NOT NULL,
+    password NVARCHAR(300) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    status BIT NOT NULL DEFAULT 1 -- activo/inactivo
+);
