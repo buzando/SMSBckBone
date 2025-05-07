@@ -77,13 +77,13 @@ namespace Business
         }
 
         // CRUD para CampaignContact
-        public bool AddCampaignContact(CampaignContact contact)
+        public bool AddCampaignContact(CampaignContacts contact)
         {
             try
             {
                 using (var ctx = new Entities())
                 {
-                    ctx.CampaignContact.Add(contact);
+                    ctx.CampaignContacts.Add(contact);
                     ctx.SaveChanges();
                 }
                 return true;
@@ -100,10 +100,10 @@ namespace Business
             {
                 using (var ctx = new Entities())
                 {
-                    var contact = ctx.CampaignContact.FirstOrDefault(c => c.Id == contactId);
+                    var contact = ctx.CampaignContacts.FirstOrDefault(c => c.Id == contactId);
                     if (contact == null) return false;
-
-                    ctx.CampaignContact.Remove(contact);
+                    
+                    ctx.CampaignContacts.Remove(contact);
                     ctx.SaveChanges();
                     return true;
                 }
@@ -153,18 +153,18 @@ namespace Business
         }
 
         // CRUD para CampaignSchedule
-        public bool AddCampaignSchedule(CampaignSchedule schedule)
+        public bool AddCampaignSchedule(CampaignSchedules schedule)
         {
             try
             {
                 using (var ctx = new Entities())
                 {
-                    ctx.CampaignSchedule.Add(schedule);
+                    ctx.CampaignSchedules.Add(schedule);
                     ctx.SaveChanges();
                 }
                 return true;
             }
-            catch
+            catch(Exception e)
             {
                 return false;
             }
@@ -176,10 +176,10 @@ namespace Business
             {
                 using (var ctx = new Entities())
                 {
-                    var schedule = ctx.CampaignSchedule.FirstOrDefault(s => s.Id == scheduleId);
+                    var schedule = ctx.CampaignSchedules.FirstOrDefault(s => s.Id == scheduleId);
                     if (schedule == null) return false;
 
-                    ctx.CampaignSchedule.Remove(schedule);
+                    ctx.CampaignSchedules.Remove(schedule);
                     ctx.SaveChanges();
                     return true;
                 }
@@ -224,6 +224,44 @@ namespace Business
             }
             catch
             {
+                return false;
+            }
+        }
+
+        public bool InsertBatchFromSession(string sessionId, int campaignId)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var contactosTemporales = ctx.tpm_CampaignContacts
+                        .Where(c => c.SessionId == sessionId)
+                        .ToList();
+
+                    if (!contactosTemporales.Any())
+                        return false;
+
+
+                    var contactosDefinitivos = contactosTemporales.Select(temp => new CampaignContacts
+                    {
+                        CampaignId = campaignId,
+                        PhoneNumber = temp.PhoneNumber,
+                        Dato = temp.Dato,
+                        DatoId = temp.DatoId,
+                        Misc01 = temp.Misc01,
+                        Misc02 = temp.Misc02
+                    }).ToList();
+
+
+                    ctx.CampaignContacts.AddRange(contactosDefinitivos);
+                    ctx.SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Aquí puedes loguear el error si usas algún sistema de logging
                 return false;
             }
         }

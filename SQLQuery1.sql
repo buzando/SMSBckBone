@@ -217,6 +217,17 @@ CREATE TABLE CampaignContacts (
     FOREIGN KEY (CampaignId) REFERENCES Campaigns(Id)
 );
 
+CREATE TABLE CampaignContactsTemp (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    SessionId UNIQUEIDENTIFIER NOT NULL, -- lo generas en frontend
+    PhoneNumber NVARCHAR(20) NOT NULL,
+    Dato NVARCHAR(40) NULL,
+    DatoId NVARCHAR(40) NULL,
+    Misc01 NVARCHAR(30) NULL,
+    Misc02 NVARCHAR(30) NULL,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
 -- Tabla CampaignRecycleSettings
 CREATE TABLE CampaignRecycleSettings (
     Id INT IDENTITY(1,1) PRIMARY KEY,
@@ -244,4 +255,16 @@ CREATE TABLE client_access (
     password NVARCHAR(300) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     status BIT NOT NULL DEFAULT 1 -- activo/inactivo
+);
+
+CREATE TABLE dbo.tpm_CampaignContacts (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    SessionId NVARCHAR(100) NOT NULL,
+    PhoneNumber NVARCHAR(20) NOT NULL,
+    Dato NVARCHAR(100) NULL,
+    DatoId NVARCHAR(100) NULL,
+    Misc01 NVARCHAR(100) NULL,
+    Misc02 NVARCHAR(100) NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    CreatedBy NVARCHAR(100) NULL
 );

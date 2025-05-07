@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Modal\Modal.csproj" />
+  </ItemGroup>
+
 </Project>

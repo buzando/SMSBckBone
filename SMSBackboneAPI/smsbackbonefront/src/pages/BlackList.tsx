@@ -748,6 +748,7 @@ const BlackList: React.FC = () => {
             handleCloseDeleteModal();
         }
     };
+    
     return (
         <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1040px" }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>

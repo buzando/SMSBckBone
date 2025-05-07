@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Modal.Model.Model
 {
-    public class CampaignSchedule
+    public class CampaignSchedules
     {
         public int Id { get; set; }
         public int CampaignId { get; set; }
