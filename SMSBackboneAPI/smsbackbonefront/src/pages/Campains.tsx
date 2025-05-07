@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
   Typography,
   Divider,
@@ -14,6 +14,7 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  RadioGroup,
   Checkbox,
   LinearProgress,
   Table,
@@ -26,8 +27,11 @@ import {
   FormControl,
   FormControlLabel,
   SelectChangeEvent,
+  Switch,
   Radio
 } from "@mui/material";
+import axios from 'axios';
+import AddIcon from '@mui/icons-material/Add';
 import seachicon from '../assets/icon-lupa.svg'
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import welcome from '../assets/icon-welcome.svg'
@@ -37,32 +41,37 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconTache from "../assets/icon-close.svg";
 import iconclose from "../assets/icon-close.svg";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-
+import CheckIcon from '@mui/icons-material/Check';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import DynamicCampaignText from '../components/commons/DynamicCampaignText'
 import IconTrash from "../assets/IconTrash.svg";
 import IconCirclePlus from "../assets/IconCirclePlus.svg";
-
+import SecondaryButton from '../components/commons/SecondaryButton'
 import MainModal from '../components/commons/MainModal';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
 import CustomDateTimePicker from '../components/commons/DatePickerOneDate';
-
+import TemplateViewer from '../components/commons/TemplateViewer'
 import smsico from '../assets/Icon-sms.svg'
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import MainButton from '../components/commons/MainButton'
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
+import ModalError from "../components/commons/ModalError"
 
 import boxopen from '../assets/NoResultados.svg';
 import * as XLSX from 'xlsx';
 import RemoveIcon from "@mui/icons-material/Remove";
 
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult
 } from 'react-beautiful-dnd';
-
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import DeleteIcon from "@mui/icons-material/Delete";
 import RestoreIcon from "@mui/icons-material/Restore";
 import { Tooltip } from "@mui/material";
@@ -71,13 +80,70 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell }
 import { ComposableMap, Geographies, Geography, GeographyProps } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
 import DropZone from '../components/commons/DropZone';
+import { Tabs, Tab } from '@mui/material';
+
+interface Horario {
+  titulo: string;
+  start: Date | null;
+  end: Date | null;
+  operationMode?: number; // 1 o 2
+  order?: number;
+}
+
+export interface Template {
+  id: number;
+  name: string;
+  message: string;
+  creationDate: string; // DateTime en C# es string en JS/TS
+  idRoom: number;
+}
+
+export interface BlackList {
+  id: number;
+  name: string;
+  creationDate: string;
+  expirationDate: string;
+  quantity: number;
+}
 const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/mexico/mexico-states.json";
 
 const Campains: React.FC = () => {
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | undefined>(undefined);
+  const [campaignName, setCampaignName] = useState('');
   const [Serchterm, setSerchterm] = useState('');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState(false);
+  const [tipoMensaje, setTipoMensaje] = useState<'escrito' | 'plantilla'>('escrito');
+  const [mensajeAceptado, setMensajeAceptado] = useState(false);
+  const [mensajeTexto, setMensajeTexto] = useState('');
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [tipoNumero, setTipoNumero] = useState('corto');
+  const [flashEnabled, setFlashEnabled] = useState(false);
+  const [aniEnabled, setAniEnabled] = useState(false);
+  const [recycleEnabled, setRecycleEnabled] = useState(false);
+  const [recycleType, setRecycleType] = useState('todos'); // 'todos' o 'rechazados'
+  const [includeUncontacted, setIncludeUncontacted] = useState(false);
+  const [recycleCount, setRecycleCount] = useState(1);
+  const [blacklistEnabled, setBlacklistEnabled] = useState(false);
+  const [blackLists, setBlackLists] = useState<BlackList[]>([]);
+  const [searchTermBlacklist, setSearchTermBlacklist] = useState('');
+  const [selectedAni, setSelectedAni] = useState('');
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [messageChipBar, setMessageChipBar] = useState("");
+  const [TitleErrorModal, setTitleErrorModal] = useState('');
+  const [MessageErrorModal, setMessageErrorModal] = useState('');
+  const [currentHorarioIndex, setCurrentHorarioIndex] = useState<number | null>(null);
 
+
+
+  const [estadisticasCarga, setEstadisticasCarga] = useState<{
+    registrosCargados: number;
+    registrosFallidos: number;
+    telefonosCargados: number;
+    telefonosFallidos: number;
+  } | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
   const dataCountry = [
     { id: "01", state: "Aguascalientes", value: 10 },
     { id: "02", state: "Baja California", value: 20 },
@@ -121,6 +187,39 @@ const Campains: React.FC = () => {
     { name: "No enviados", value: 90, color: "#A6A6A6" },
     { name: "Excepciones", value: 90, color: "#7DD584" }
   ];
+  const aniOptions = ['Regionalizado', '557685943', '5760548473'];
+  const filteredBlackLists = blackLists.filter((item) =>
+    item.name.toLowerCase().includes(searchTermBlacklist.toLowerCase())
+  );
+
+  const fetchTemplates = async () => {
+    const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+    try {
+      setLoadingTemplates(true);
+      const requestUrl = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_GETTEMPLATESBYROOM}${salaId}`;
+      const response = await axios.get(requestUrl);
+      setTemplates(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const fetchBlackLists = async () => {
+    const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+    if (!salaId) return;
+
+    try {
+
+      const requestUrl = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_BLACKLIST}${salaId}`;
+      const response = await axios.get(requestUrl);
+      if (response.status === 200) {
+        setBlackLists(response.data);
+      }
+    } finally {
+    }
+  };
 
   const validatePhone = (value: string) => {
     const phoneRegex = /^\d{10,12}$/; // Acepta entre 10 y 12 dígitos
@@ -141,7 +240,8 @@ const Campains: React.FC = () => {
   };
 
   const [checkedTelefonos, setCheckedTelefonos] = useState<string[]>([]);
-
+  const [selectedTab, setSelectedTab] = useState<'telefonos' | 'variables'>('telefonos');
+  const [postCargaActiva, setPostCargaActiva] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
   const [openInfoModal, setOpenInfoModal] = useState(false);
@@ -156,6 +256,8 @@ const Campains: React.FC = () => {
     "Resultados de envío por día": true,
   });
 
+  const [selectedTelefonos, setSelectedTelefonos] = useState<string[]>([]);
+  const [selectedVariables, setSelectedVariables] = useState<string[]>([]);
 
   const [openCreateCampaignModal, setOpenCreateCampaignModal] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(-1);
@@ -208,10 +310,30 @@ const Campains: React.FC = () => {
   const [excelData, setExcelData] = useState<any[][]>([]);
   const [base64File, setBase64File] = useState('');
   const [uploadedFileBase64, setUploadedFileBase64] = useState('');
-
+  const [dragColumns, setDragColumns] = useState<string[]>([]);
+  const [selectedBlackListIds, setSelectedBlackListIds] = useState<number[]>([]);
 
   const handleAgregarHorario = () => {
-    setHorarios((prev) => [...prev, { titulo: `Horario ${prev.length + 1}` }]);
+    setHorarios((prev) => [
+      ...prev,
+      {
+        titulo: `Horario ${prev.length + 1}`,
+        start: new Date(), // o null si usas DatePicker
+        end: new Date()
+      }
+    ]);
+
+    const handleStartDateChange = (index: number, newStart: Date) => {
+      setHorarios(prev =>
+        prev.map((h, i) => i === index ? { ...h, start: newStart } : h)
+      );
+    };
+
+    const handleEndDateChange = (index: number, newEnd: Date) => {
+      setHorarios(prev =>
+        prev.map((h, i) => i === index ? { ...h, end: newEnd } : h)
+      );
+    };
 
     // Mostrar solo si aún no se ha mostrado
     if (!mostrarModoOperacion) {
@@ -221,6 +343,34 @@ const Campains: React.FC = () => {
   const handleEliminarHorario = (index: number) => {
     setHorarios((prev) => prev.filter((_, i) => i !== index));
   };
+
+  useEffect(() => {
+    const currentSet = selectedTab === 'telefonos' ? selectedTelefonos : selectedVariables;
+    setDragColumns(columns.filter(col =>
+      !selectedTelefonos.includes(col) || selectedTab === 'telefonos'
+    ).filter(col =>
+      !selectedVariables.includes(col) || selectedTab === 'variables'
+    ));
+  }, [selectedTelefonos, selectedVariables, selectedTab, columns]);
+
+  const handleContinue = async () => {
+    if (activeStep === 0 && !postCargaActiva) {
+      const cargaExitosa = await handleSaveTemplate();
+      if (!cargaExitosa) return;
+      setPostCargaActiva(true);
+    } else if (activeStep === 2) {
+      await handleSaveCampaign(); // Aquí se guarda la campaña
+    } else if (activeStep === 1) {
+      if (!mensajeAceptado) {
+        setMensajeAceptado(true);
+        return;
+      }
+      setActiveStep((prev) => prev + 1);
+    } else {
+      setActiveStep((prev) => prev + 1);
+    }
+  };
+
 
   const handleSheetChange = (event: SelectChangeEvent<string>) => {
     const selected = event.target.value;
@@ -266,30 +416,223 @@ const Campains: React.FC = () => {
 
   const [panelAbierto, setPanelAbierto] = useState(true);
 
-  const [horarios, setHorarios] = useState([{ titulo: "Horario 1" }]);
-
+  const [horarios, setHorarios] = useState<Horario[]>([{
+    titulo: "Horario 1",
+    start: null,
+    end: null,
+    operationMode: 1, // opcional
+    order: 1          // opcional
+  }]);
   const [mostrarModoOperacion, setMostrarModoOperacion] = useState(false);
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const current = selectedTab === 'telefonos' ? [...selectedTelefonos] : [...selectedVariables];
+    const [moved] = current.splice(result.source.index, 1);
+    current.splice(result.destination.index, 0, moved);
+
+    if (selectedTab === 'telefonos') {
+      setSelectedTelefonos(current);
+    } else {
+      setSelectedVariables(current);
+    }
+  };
+
+  const columnsToRender = selectedTab === 'telefonos'
+    ? [...telefonos, ...variables.filter(v => !telefonos.includes(v))]
+    : [...variables, ...telefonos.filter(t => !variables.includes(t))];
+
+  const currentSelected = selectedTab === 'telefonos' ? selectedTelefonos : selectedVariables;
+
+  const handleOpenModal = () => {
+    if (templates.length === 0) {
+      fetchTemplates();
+    }
+    if (blackLists.length === 0) {
+      fetchBlackLists();
+    }
+    setOpenCreateCampaignModal(true);
+  };
+
+  const navigate = useNavigate();
+
+  const handleSaveTemplate = async (): Promise<boolean> => {
+    setLoadingTemplates(true);
+    const sessionId = crypto.randomUUID();
+    const createdBy = localStorage.getItem("userName") || "frontend"; // o ajústalo si usas otra clave
+    const sheetName = selectedSheet; // nombre de la hoja seleccionada
+    sessionIdRef.current = sessionId;
+
+    try {
+      if (!uploadedFileBase64 || selectedTelefonos.length === 0 || selectedVariables.length === 0) {
+        throw new Error("Faltan campos requeridos");
+      }
+
+      const payload = {
+        Base64File: uploadedFileBase64,
+        SheetName: sheetName,
+        PhoneColumns: selectedTelefonos,
+        DatoColumns: selectedVariables,
+        SessionId: sessionIdRef.current,
+        CreatedBy: createdBy
+      };
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_ADD_TMPSAVEFILE}`,
+        payload,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
+      if (response.status === 200) {
+        setMessageChipBar("Registros añadidos con éxito");
+        setEstadisticasCarga(response.data); // Guardamos la respuesta
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      setIsErrorModalOpen(true);
+      setTitleErrorModal('Error al cargar archivo');
+      setMessageErrorModal('Ocurrió un error al intentar cargar el archivo. Inténtalo más tarde.');
+      return false;
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const totalRegistros = (estadisticasCarga?.registrosCargados || 0) + (estadisticasCarga?.registrosFallidos || 0);
+  const porcentajeRegistrosCargados = totalRegistros > 0
+    ? Math.round((estadisticasCarga?.registrosCargados || 0) * 100 / totalRegistros)
+    : 0;
+
+  const totalTelefonos = (estadisticasCarga?.telefonosCargados || 0) + (estadisticasCarga?.telefonosFallidos || 0);
+  const porcentajeTelefonosCargados = totalTelefonos > 0
+    ? Math.round((estadisticasCarga?.telefonosCargados || 0) * 100 / totalTelefonos)
+    : 0;
+
+  const handleCloseModalCampaña = () => {
+    setOpenCreateCampaignModal(false);
+    setCampaignName('');
+    setMensajeTexto('');
+    setTipoMensaje('escrito');
+    setMensajeAceptado(false);
+    setSelectedTemplate(undefined);
+    setFlashEnabled(false);
+    setAniEnabled(false);
+    setRecycleEnabled(false);
+    setRecycleType('todos');
+    setIncludeUncontacted(false);
+    setRecycleCount(1);
+    setBlacklistEnabled(false);
+    setSelectedBlackListIds([]);
+    setHorarios([{
+      titulo: "Horario 1",
+      start: null,
+      end: null,
+      operationMode: 1,
+      order: 1
+    }]);
+    setMostrarModoOperacion(false);
+    setPostCargaActiva(false);
+    setActiveStep(-1);
+    setUploadedFile(null);
+    setUploadedFileBase64('');
+    setSelectedTelefonos([]);
+    setSelectedVariables([]);
+    setCheckedTelefonos([]);
+    setEstadisticasCarga(null);
+    setMessageChipBar('');
+    sessionIdRef.current = null;
+  };
+
+
+  const handleSaveCampaign = async () => {
+    try {
+      const payload = {
+        campaigns: {
+          name: campaignName,
+          message: mensajeTexto,
+          useTemplate: tipoMensaje === "plantilla",
+          templateId: tipoMensaje === "plantilla" ? selectedTemplate?.id : null,
+          autoStart: true,
+          flashMessage: flashEnabled,
+          customANI: aniEnabled,
+          recycleRecords: recycleEnabled,
+          numberType: tipoNumero === 'corto' ? 1 : 2,
+          createdDate: new Date().toISOString()
+        },
+        campaignSchedules: horarios.map((h, index) => ({
+          startDateTime: h.start?.toISOString(),
+          endDateTime: h.end?.toISOString(),
+          operationMode: recycleEnabled ? 2 : 1,
+          order: index + 1
+        })),
+        campaignRecycleSetting: recycleEnabled ? {
+          typeOfRecords: recycleType, // 'todos' o 'rechazados'
+          includeNotContacted: includeUncontacted,
+          numberOfRecycles: recycleCount
+        } : null,
+        blacklistIds: blacklistEnabled ? selectedBlackListIds : [],
+        sessionId: sessionIdRef.current
+      };
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_ADD_CAMPAIGN}`,
+        payload,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
+      if (response.status === 200) {
+        handleCloseModalCampaña();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
 
   return (
 
-    <Box sx={{ padding: "20px", marginLeft: "56px", maxWidth: "81%" }}>
-      {/* Título principal */}
-      <Typography
-        variant="h4"
-        sx={{
-          textAlign: "left",
-          fontFamily: "Poppins",
-          letterSpacing: "0px",
-          color: "#330F1B",
-          opacity: 1,
-          fontSize: "26px",
-        }}
-      >
-        Campañas SMS
-      </Typography>
+    <Box sx={{ padding: "20px", marginLeft: "30px", maxWidth: "81%" }}>
 
-      {/* Línea divisoria */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+        <IconButton
+          onClick={() => navigate('/')}
+          sx={{
+            p: 0,
+            mr: 1,
+            ml: '-28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <img
+            src={ArrowBackIosNewIcon}
+            alt="Regresar"
+            style={{
+              width: 24,
+              height: 24,
+              transform: 'rotate(270deg)',
+              display: 'block',
+            }}
+          />
+        </IconButton>
+
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 'bold',
+            color: '#330F1B',
+            fontFamily: 'Poppins',
+            fontSize: '26px',
+          }}
+        >
+          {/* Título que ya tengas, como "Campañas" */}
+          Campañas
+        </Typography>
+      </Box>
+
       <Divider sx={{ marginBottom: "20px", marginTop: "17px" }} />
 
       <Grid container spacing={2}>
@@ -362,7 +705,7 @@ const Campains: React.FC = () => {
                       ]
                     }}
                   >
-                    <IconButton onClick={() => setOpenCreateCampaignModal(true)}>
+                    <IconButton onClick={handleOpenModal}>
                       <img src={iconplus} alt="Agregar" style={{ width: "20px", height: "20px" }} />
                     </IconButton>
                   </Tooltip>
@@ -561,7 +904,7 @@ const Campains: React.FC = () => {
                       ]
                     }}
                   >
-                    <IconButton onClick={() => setOpenModal(true)} sx={{ padding: 0 }}>
+                    <IconButton onClick={handleOpenModal} sx={{ padding: 0 }}>
                       <Box component="img" src={IconTrash} alt="Eliminar"
                         sx={{ width: "20px", height: "20px", cursor: "pointer" }}
                       />
@@ -1836,6 +2179,7 @@ const Campains: React.FC = () => {
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "24px", width: "100%" }}>
               {["Nombre y horarios", "Registros", "Mensaje", "Configuraciones"].map((label, index) => {
                 const isActive = index === activeStep;
+                const isCompleted = index < activeStep;
                 const isLast = index === 3;
 
                 return (
@@ -1846,8 +2190,8 @@ const Campains: React.FC = () => {
                           width: "24px",
                           height: "24px",
                           borderRadius: "50%",
-                          border: `2px solid ${isActive ? "#8F4D63" : "#D6D6D6"}`,
-                          backgroundColor: isActive ? "#8F4D63" : "#FFFFFF",
+                          border: `2px solid ${isActive || isCompleted ? "#8F4D63" : "#D6D6D6"}`,
+                          backgroundColor: isActive ? "#8F4D63" : isCompleted ? "#8F4D63" : "#FFFFFF",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1866,6 +2210,9 @@ const Campains: React.FC = () => {
                             ✓
                           </Box>
                         )}
+                        {!isActive && isCompleted && (
+                          <CheckIcon sx={{ fontSize: 16, color: "#FFFFFF" }} />
+                        )}
                       </Box>
 
                       <Typography
@@ -1876,23 +2223,23 @@ const Campains: React.FC = () => {
                           color: isActive ? "#8F4D63" : "#9B9295",
                           textAlign: "center",
                           fontWeight: 500,
-                          whiteSpace: "nowrap", // 🔥 Esto fuerza que no se haga salto de línea
-                          overflow: "hidden",    // 🔥 Opcional: para evitar desbordamiento feo
-                          textOverflow: "ellipsis", // 🔥 Opcional: agrega "..." si el texto fuera muy largo
-                          maxWidth: "80px", // 🔥 Opcional: un ancho controlado
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: "80px",
                         }}
                       >
                         {label}
                       </Typography>
-
                     </Box>
+
                     {!isLast && (
                       <Box
                         sx={{
-                          width: "80px", // 🔥 Ancho de la línea
+                          width: "80px",
                           height: "2px",
                           backgroundColor: "#D6D6D6",
-                          mx: "20px", // 🔥 Separación entre punto y línea
+                          mx: "20px",
                         }}
                       />
                     )}
@@ -1900,8 +2247,6 @@ const Campains: React.FC = () => {
                 );
               })}
             </Box>
-
-
 
           </DialogContent>
         </Box>
@@ -1920,7 +2265,7 @@ const Campains: React.FC = () => {
         />
         <Box
           sx={{
-            overflowY: 'auto', display: "flex", flexDirection: "column", marginTop: "0px"
+            overflowY: 'auto', display: "flex", flexDirection: "column", marginTop: "0px", paddingBottom: 10,
           }}
         >
           {activeStep === -1 && (
@@ -1949,6 +2294,8 @@ const Campains: React.FC = () => {
                 <TextField
                   variant="outlined"
                   placeholder="Nombre"
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
                   sx={{
                     width: "340px",
                     height: "54px",
@@ -2056,11 +2403,18 @@ const Campains: React.FC = () => {
                   {/*Horarios textfields */}
                   <Box sx={{ display: "flex", gap: 2 }}>
                     <TextField
+                      key={`start-${index}`}
                       variant="outlined"
                       placeholder="Inicia"
                       value={
-                        startDate
-                          ? startDate.toLocaleString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                        horario.start
+                          ? horario.start.toLocaleString('es-MX', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
                           : ''
                       }
                       sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
@@ -2071,7 +2425,8 @@ const Campains: React.FC = () => {
                               onClick={(e) => {
                                 setCalendarAnchor(e.currentTarget);
                                 setCalendarOpen(true);
-                                setCalendarTarget("start"); // <<< este dice que se está editando el inicio
+                                setCalendarTarget("start");
+                                setCurrentHorarioIndex(index);
                               }}
                               size="small"
                               sx={{ padding: 0 }}
@@ -2084,11 +2439,18 @@ const Campains: React.FC = () => {
                     />
 
                     <TextField
+                      key={`start-${index}`}
                       variant="outlined"
                       placeholder="Termina"
                       value={
-                        endDate
-                          ? endDate.toLocaleString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                        horario.end
+                          ? horario.end.toLocaleString('es-MX', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
                           : ''
                       }
                       sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
@@ -2099,7 +2461,8 @@ const Campains: React.FC = () => {
                               onClick={(e) => {
                                 setCalendarAnchor(e.currentTarget);
                                 setCalendarOpen(true);
-                                setCalendarTarget("end"); // <<< este dice que se está editando el final
+                                setCalendarTarget("end");
+                                setCurrentHorarioIndex(index);
                               }}
                               size="small"
                               sx={{ padding: 0 }}
@@ -2233,7 +2596,7 @@ const Campains: React.FC = () => {
 
           {activeStep === 0 && (
             // 🟰 CONTENIDO de "Registros" nuevo (el que quieres mostrar)
-            <Box sx={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: 2, overflowY: "auto" }}>
+            <Box sx={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: 2, maxHeight: "420px", overflowY: "auto" }}>
 
               <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', mt: -1 }}>
                 Cargue un archivo desde su biblioteca.
@@ -2255,7 +2618,7 @@ const Campains: React.FC = () => {
                     handleManageFile(file);
                   }} error={fileError} />
 
-                  {uploadedFile && (
+                  {uploadedFile && !postCargaActiva && (
                     <FormControl fullWidth sx={{ marginTop: "16px" }}>
                       <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '15px', mb: 1 }}>
                         Seleccionar hoja
@@ -2279,135 +2642,632 @@ const Campains: React.FC = () => {
                   )}
                 </Box>
 
-                {/* Parte derecha: Selección de columnas */}
-                {uploadedFile && (
-                  <Box sx={{ flex: 1, backgroundColor: "#FFFFFF", border: "1px solid #D6CED2", borderRadius: "12px", padding: "16px" }}>
-                    <Typography sx={{ fontFamily: "Poppins", fontSize: "18px", fontWeight: 500, color: "#574B4F", marginBottom: "12px" }}>
-                      Seleccionar datos y orden
+                {!postCargaActiva && uploadedFile && (
+                  <Box sx={{ width: 380, border: '1px solid #E0E0E0', borderRadius: '12px', padding: '20px', marginTop: '24px', fontFamily: 'Poppins' }}>
+                    <Typography sx={{ fontWeight: 600, fontSize: '18px', marginBottom: '12px', color: '#330F1B' }}>Seleccionar datos y orden</Typography>
+                    <Tabs
+                      value={selectedTab}
+                      onChange={(_, newValue) => setSelectedTab(newValue)}
+                      indicatorColor="secondary"
+                      textColor="inherit"
+                      sx={{ borderBottom: '1px solid #D9B4C3', marginBottom: '16px', '.MuiTab-root': { fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', textTransform: 'none', color: '#7B354D', paddingBottom: '6px', minWidth: '100px' } }}
+                    >
+                      <Tab label="Teléfonos" value="telefonos" />
+                      <Tab label="Variables" value="variables" />
+                    </Tabs>
+
+                    <DragDropContext onDragEnd={handleDragEnd}>
+                      <Droppable droppableId="columns-droppable">
+                        {(provided) => (
+                          <Box ref={provided.innerRef} {...provided.droppableProps} sx={{ maxHeight: '160px', overflowY: 'auto' }}>
+                            {currentSelected.map((col, index) => {
+                              const isDisabled = selectedTab === 'telefonos' ? selectedVariables.includes(col) : selectedTelefonos.includes(col);
+                              const toggleValue = () => {
+                                const updater = selectedTab === 'telefonos' ? setSelectedTelefonos : setSelectedVariables;
+                                updater(currentSelected.filter(c => c !== col));
+                              };
+                              return (
+                                <Draggable key={col} draggableId={col} index={index}>
+                                  {(provided) => (
+                                    <Box
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #D9B4C3', borderRadius: '8px', padding: '6px 12px', marginBottom: '10px', backgroundColor: '#F2EBED', width: '100%', cursor: 'grab' }}
+                                    >
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Checkbox checked onChange={toggleValue} sx={{ '&.Mui-checked': { color: '#7B354D' } }} />
+                                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>{col}</Typography>
+                                      </Box>
+                                      <DragIndicatorIcon sx={{ fontSize: '18px', color: '#9B9295', cursor: 'grab' }} />
+                                    </Box>
+                                  )}
+                                </Draggable>
+                              );
+                            })}
+                            {provided.placeholder}
+
+                            {columnsToRender
+                              .filter(col => !currentSelected.includes(col))
+                              .map((col) => {
+                                const isDisabled = selectedTab === 'telefonos'
+                                  ? selectedVariables.includes(col)
+                                  : selectedTelefonos.includes(col);
+
+                                const toggleValue = () => {
+                                  const updater = selectedTab === 'telefonos' ? setSelectedTelefonos : setSelectedVariables;
+                                  updater([...currentSelected, col]);
+                                };
+
+                                return (
+                                  <Box
+                                    key={col}
+                                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #D9B4C3', borderRadius: '8px', padding: '6px 12px', marginBottom: '10px', backgroundColor: '#FFF', width: '100%', opacity: isDisabled ? 0.5 : 1 }}
+                                  >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                      <Checkbox checked={false} onChange={toggleValue} disabled={isDisabled} sx={{ '&.Mui-checked': { color: '#7B354D' } }} />
+                                      <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>{col}</Typography>
+                                    </Box>
+                                    <DragIndicatorIcon sx={{ fontSize: '18px', color: '#D9D9D9' }} />
+                                  </Box>
+                                );
+                              })}
+                          </Box>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
+                  </Box>
+                )}
+
+                {postCargaActiva && estadisticasCarga && (
+                  <Box
+                    sx={{
+                      border: "1px solid #D9B4C3",
+                      borderRadius: "8px",
+                      padding: "16px 24px",
+                      marginLeft: "32px",
+                      width: "280px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center"
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 600, fontSize: "16px", mb: 2, fontFamily: "Poppins" }}>
+                      Resumen de carga
                     </Typography>
 
-                    <DragDropContext
-                      onDragEnd={(result: DropResult) => {
-                        const { source, destination } = result;
-                        if (!destination) return;
+                    {/* Registros */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins", mb: 1 }}>
+                      <Typography>Registros</Typography>
+                      <Typography>{porcentajeRegistrosCargados}%</Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={porcentajeRegistrosCargados}
+                      sx={{
+                        height: 8,
+                        borderRadius: 5,
+                        backgroundColor: "#E2E2E2",
+                        "& .MuiLinearProgress-bar": {
+                          backgroundColor: "#8F4D63",
+                        },
+                        mb: 1,
+                      }}
+                    />
+                    <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins", mb: 2 }}>
+                      <Typography>Cargados: {estadisticasCarga.registrosCargados}</Typography>
+                      <Typography>No cargados: {estadisticasCarga.registrosFallidos}</Typography>
+                    </Box>
 
-                        const reorder = (list: string[], start: number, end: number) => {
-                          const result = Array.from(list);
-                          const [removed] = result.splice(start, 1);
-                          result.splice(end, 0, removed);
-                          return result;
-                        };
+                    {/* Teléfonos */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins", mb: 1 }}>
+                      <Typography>Teléfonos</Typography>
+                      <Typography>{porcentajeTelefonosCargados}%</Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={porcentajeTelefonosCargados}
+                      sx={{
+                        height: 8,
+                        borderRadius: 5,
+                        backgroundColor: "#E2E2E2",
+                        "& .MuiLinearProgress-bar": {
+                          backgroundColor: "#8F4D63",
+                        },
+                        mb: 1,
+                      }}
+                    />
+                    <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins" }}>
+                      <Typography>Cargados: {estadisticasCarga.telefonosCargados}</Typography>
+                      <Typography>No cargados: {estadisticasCarga.telefonosFallidos}</Typography>
+                    </Box>
+                  </Box>
+                )}
 
-                        if (source.droppableId === "telefonos" && destination.droppableId === "telefonos") {
-                          const newOrder = reorder(telefonos, source.index, destination.index);
-                          setTelefonos(newOrder);
-                        }
+              </Box>
 
-                        if (source.droppableId === "variables" && destination.droppableId === "variables") {
-                          const newOrder = reorder(variables, source.index, destination.index);
-                          setVariables(newOrder);
-                        }
+            </Box>
+          )}
+
+          {activeStep === 1 && (
+            <>
+              {!mensajeAceptado ? (
+                // 🔴 SELECCIÓN DE TIPO DE MENSAJE
+                <Box sx={{ display: "flex", justifyContent: "center", gap: 4 }}>
+                  <FormControlLabel
+                    value="escrito"
+                    control={<Radio checked={tipoMensaje === "escrito"} onChange={() => setTipoMensaje("escrito")} />}
+                    label={
+                      <Box sx={{ textAlign: "center", p: 2, border: "1px solid", borderColor: tipoMensaje === "escrito" ? "#8F4D63" : "#ccc", borderRadius: "12px", width: 120 }}>
+                        <Typography variant="h6" sx={{ color: "#8F4D63", fontWeight: 600 }}>Abc|</Typography>
+                        <Typography sx={{ mt: 1, fontFamily: "Poppins", fontWeight: 500 }}>Escrito + variables</Typography>
+                      </Box>
+                    }
+                    labelPlacement="bottom"
+                  />
+                  <FormControlLabel
+                    value="plantilla"
+                    control={<Radio checked={tipoMensaje === "plantilla"} onChange={() => setTipoMensaje("plantilla")} />}
+                    label={
+                      <Box sx={{ textAlign: "center", p: 2, border: "1px solid", borderColor: tipoMensaje === "plantilla" ? "#8F4D63" : "#ccc", borderRadius: "12px", width: 120 }}>
+                        <ArrowDropDownIcon sx={{ fontSize: 32, color: "#8F4D63" }} />
+                        <Typography sx={{ mt: 1, fontFamily: "Poppins", fontWeight: 500 }}>Plantilla</Typography>
+                      </Box>
+                    }
+                    labelPlacement="bottom"
+                  />
+                </Box>
+              ) : tipoMensaje === "escrito" ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {/* Componente editor de mensaje */}
+                  <DynamicCampaignText
+                    variables={variables}
+                    value={mensajeTexto}
+                    onChange={setMensajeTexto}
+                  />
+
+                  {/* Opciones adicionales debajo */}
+                  <Box>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                      <FormControlLabel
+                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        label="Concatenar mensajes con más de 160 caracteres"
+                        sx={{
+                          fontFamily: "Poppins",
+                          color: "#574B4F",
+                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                        }}
+                      />
+                      <FormControlLabel
+                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        label="Acortar URLs en el mensaje"
+                        sx={{
+                          fontFamily: "Poppins",
+                          color: "#574B4F",
+                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                        }}
+                      />
+                      <FormControlLabel
+                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        label="Guardar como plantilla"
+                        sx={{
+                          fontFamily: "Poppins",
+                          color: "#574B4F",
+                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                        }}
+                      />
+                    </Box>
+
+                    <Typography sx={{ fontFamily: "Poppins", fontWeight: 500, fontSize: "14px", mt: 2, mb: 1 }}>
+                      Nombre
+                    </Typography>
+
+                    <TextField
+                      fullWidth
+                      placeholder="Nombre de la plantilla"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <img src={infoicon} alt="info" style={{ width: 20, height: 20 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        fontFamily: "Poppins",
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "8px",
+                        '& .MuiOutlinedInput-root': {
+                          fontSize: "14px",
+                          paddingRight: "8px",
+                        },
+                      }}
+                    />
+                  </Box>
+                </Box>
+              ) : (
+                // 🔵 CONTENIDO PLANTILLA
+                <TemplateViewer
+                  templates={templates}
+                  value={mensajeTexto}
+                  onChange={setMensajeTexto}
+                  onSelectTemplateId={(id) => {
+                    const tpl = templates.find(t => t.id === id);
+                    setSelectedTemplate(tpl);
+                  }}
+                />
+
+
+              )}
+            </>
+          )}
+
+          {activeStep === 2 && (
+            <Box sx={{ mt: 2 }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', mb: 2 }}>
+                Configuraciones avanzadas
+              </Typography>
+              <RadioGroup
+                row
+                value={tipoNumero}
+                onChange={(e) => setTipoNumero(e.target.value)}
+                sx={{ mb: 2 }}
+              >
+                <FormControlLabel
+                  value="corto"
+                  control={<Radio sx={{ color: '#330F1B', '&.Mui-checked': { color: '#330F1B' } }} />}
+                  label="Número corto"
+                  sx={{ mr: 4 }}
+                />
+                <FormControlLabel
+                  value="largo"
+                  control={<Radio sx={{ color: '#330F1B', '&.Mui-checked': { color: '#330F1B' } }} />}
+                  label="Número largo"
+                />
+              </RadioGroup>
+
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  border: '1px solid #D6CED2',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  opacity: tipoNumero === 'largo' ? 0.5 : 1,
+                  backgroundColor: flashEnabled ? '#FFFFFF' : '#F8F8F8',
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: 'Poppins',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#330F1B',
+                  }}
+                >
+                  Mensaje flash
+                </Typography>
+
+                <Switch
+                  checked={flashEnabled}
+                  disabled={tipoNumero === 'largo'}
+                  onChange={(e) => setFlashEnabled(e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#8F4D63',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#8F4D63',
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  border: '1px solid #D6CED2',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  backgroundColor: aniEnabled ? '#FFFFFF' : '#F8F8F8',
+                  opacity: tipoNumero === 'corto' ? 0.5 : 1,
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: 'Poppins',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#330F1B',
+                  }}
+                >
+                  Personalizar ANI
+                </Typography>
+
+                <Switch
+                  checked={aniEnabled}
+                  disabled={tipoNumero === 'corto'}
+                  onChange={(e) => setAniEnabled(e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#8F4D63',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#8F4D63',
+                    },
+                  }}
+                />
+                {aniEnabled && (
+                  <Select
+                    fullWidth
+                    value={selectedAni}
+                    onChange={(e) => setSelectedAni(e.target.value)}
+                    displayEmpty
+                    sx={{
+                      backgroundColor: '#FFFFFF',
+                      fontFamily: 'Poppins',
+                      fontSize: '14px',
+                      borderRadius: '6px',
+                      height: '40px',
+                      border: '1px solid #D6CED2',
+                    }}
+                  >
+                    <MenuItem disabled value="">
+                      Seleccionar
+                    </MenuItem>
+                    {aniOptions.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  border: '1px solid #D6CED2',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  backgroundColor: recycleEnabled ? '#FFFFFF' : '#F8F8F8',
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: 'Poppins',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#330F1B',
+                  }}
+                >
+                  Reciclar registros automaticamente
+                </Typography>
+
+                <Switch
+                  checked={recycleEnabled}
+                  onChange={(e) => setRecycleEnabled(e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#8F4D63',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#8F4D63',
+                    },
+                  }}
+                />
+
+                {recycleEnabled && (
+                  <Box sx={{ display: 'flex', gap: 4, mt: 2, alignItems: 'center' }}>
+                    {/* Tipo de registros */}
+                    <Box>
+                      <Typography sx={{ fontSize: '14px', fontFamily: 'Poppins', mb: 1 }}>
+                        Tipo de registros
+                      </Typography>
+                      <RadioGroup
+                        value={recycleType}
+                        onChange={(e) => setRecycleType(e.target.value)}
+                      >
+                        <FormControlLabel
+                          value="todos"
+                          control={<Radio />}
+                          label="Todos"
+                        />
+                        <FormControlLabel
+                          value="rechazados"
+                          control={<Radio />}
+                          label="Rechazados"
+                        />
+                      </RadioGroup>
+                    </Box>
+
+                    {/* Incluir no contactados */}
+                    <Box>
+                      <Typography sx={{ fontSize: '14px', fontFamily: 'Poppins', mb: 1 }}>
+                        Incluir registros no contactados
+                      </Typography>
+                      <Checkbox
+                        checked={includeUncontacted}
+                        onChange={(e) => setIncludeUncontacted(e.target.checked)}
+                      />
+                    </Box>
+
+                    {/* Número de reciclajes */}
+                    <Box>
+                      <Typography sx={{ fontSize: '14px', fontFamily: 'Poppins', mb: 1 }}>
+                        Número de reciclajes
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton
+                          onClick={() => setRecycleCount((prev) => Math.max(1, prev - 1))}
+                        >
+                          <RemoveIcon />
+                        </IconButton>
+                        <TextField
+                          value={recycleCount}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            if (!isNaN(val) && val > 0) setRecycleCount(val);
+                          }}
+                          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                          sx={{ width: 60, textAlign: 'center', mx: 1 }}
+                        />
+                        <IconButton
+                          onClick={() => setRecycleCount((prev) => prev + 1)}
+                        >
+                          <AddIcon />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  border: '1px solid #D6CED2',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  backgroundColor: blacklistEnabled ? '#FFFFFF' : '#F8F8F8',
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: 'Poppins',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#330F1B',
+                  }}
+                >
+                  Listas Negras
+                </Typography>
+
+                <Switch
+                  checked={blacklistEnabled}
+                  onChange={(e) => setBlacklistEnabled(e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#8F4D63',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#8F4D63',
+                    },
+                  }}
+                />
+
+                {blacklistEnabled && (
+                  <Box mt={2}>
+                    {/* Buscador visual */}
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      sx={{
+                        backgroundColor: "#FFFFFF",
+                        border: searchTermBlacklist ? "1px solid #7B354D" : "1px solid #9B9295",
+                        borderRadius: "4px",
+                        padding: "8px 12px",
+                        width: "100%",
+                        maxWidth: "360px",
+                        height: "40px",
+                        mb: 2,
                       }}
                     >
-                      <Box sx={{ display: "flex", gap: 2 }}>
-                        {/* TELÉFONOS */}
-                        <Droppable droppableId="telefonos">
-                          {(provided) => (
-                            <Box
-                              {...provided.droppableProps}
-                              ref={provided.innerRef}
-                              sx={{ flex: 1 }}
-                            >
-                              <Typography
-                                sx={{
-                                  fontFamily: "Poppins",
-                                  fontSize: "14px",
-                                  fontWeight: 500,
-                                  color: "#574B4F",
-                                  borderBottom: "2px solid #8F4D63",
-                                  paddingBottom: "4px",
-                                  marginBottom: "8px"
-                                }}
-                              >
-                                Teléfonos
-                              </Typography>
+                      <img
+                        src={seachicon}
+                        alt="Buscar"
+                        style={{
+                          marginRight: "8px",
+                          width: "18px",
+                          height: "18px",
+                          filter: searchTermBlacklist ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none",
+                        }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Buscar listas negras"
+                        value={searchTermBlacklist}
+                        onChange={(e) => setSearchTermBlacklist(e.target.value)}
+                        style={{
+                          border: "none",
+                          outline: "none",
+                          width: "100%",
+                          fontSize: "16px",
+                          fontFamily: "Poppins, sans-serif",
+                          color: searchTermBlacklist ? "#7B354D" : "#9B9295",
+                          backgroundColor: "transparent",
+                        }}
+                      />
+                      {searchTermBlacklist && (
+                        <img
+                          src={iconclose}
+                          alt="Limpiar búsqueda"
+                          style={{
+                            marginLeft: "8px",
+                            width: "16px",
+                            height: "16px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => setSearchTermBlacklist('')}
+                        />
+                      )}
+                    </Box>
 
-                              {telefonos.map((col, idx) => (
-                                <Box key={col} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                                  <Checkbox
-                                    checked={checkedTelefonos.includes(col)}
-                                    onChange={() => {
-                                      setCheckedTelefonos(prev =>
-                                        prev.includes(col)
-                                          ? prev.filter(item => item !== col)
-                                          : [...prev, col]
-                                      );
-                                    }}
-                                  />
-                                  <TextField value={col} fullWidth size="small" inputProps={{ readOnly: true }} />
-                                </Box>
-                              ))}
-
-
-                              {provided.placeholder}
-                            </Box>
-                          )}
-                        </Droppable>
-
-                        {/* VARIABLES */}
-                        <Droppable droppableId="variables">
-                          {(provided) => (
-                            <Box
-                              {...provided.droppableProps}
-                              ref={provided.innerRef}
-                              sx={{ flex: 1 }}
-                            >
-                              <Typography
-                                sx={{
-                                  fontFamily: "Poppins",
-                                  fontSize: "14px",
-                                  fontWeight: 500,
-                                  color: "#574B4F",
-                                  borderBottom: "2px solid transparent",
-                                  paddingBottom: "4px",
-                                  marginBottom: "8px"
-                                }}
-                              >
-                                Variables
-                              </Typography>
-
-                              {variables.map((col, index) => (
-
-                                <Box
-                                  ref={provided.innerRef}
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
-                                    marginBottom: "8px",
-                                    backgroundColor: "#fff",
-                                    padding: "6px",
-                                    borderRadius: "4px",
-                                    border: "1px solid #E0E0E0",
+                    {/* Lista filtrada */}
+                    <Box sx={{ maxHeight: "160px", overflowY: "auto", border: "1px solid #D6CED2", borderRadius: "8px" }}>
+                      <table style={{ width: "100%", fontFamily: 'Poppins', fontSize: "14px" }}>
+                        <thead>
+                          <tr>
+                            <th style={{ textAlign: 'left', padding: '8px' }}>Nombre</th>
+                            <th style={{ textAlign: 'left' }}>Creación</th>
+                            <th style={{ textAlign: 'left' }}>Expiración</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredBlackLists.map((list) => (
+                            <tr key={list.id}>
+                              <td style={{ padding: '8px' }}>
+                                <Checkbox
+                                  checked={selectedBlackListIds.includes(list.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedBlackListIds(prev => [...prev, list.id]);
+                                    } else {
+                                      setSelectedBlackListIds(prev => prev.filter(id => id !== list.id));
+                                    }
                                   }}
-                                >
-                                  <Checkbox />
-                                  <TextField value={col} fullWidth size="small" inputProps={{ readOnly: true }} />
-                                </Box>
+                                  sx={{
+                                    color: '#8F4D63',
+                                    '&.Mui-checked': { color: '#8F4D63' },
+                                  }}
+                                />
+                                {list.name}
+                              </td>
+                              <td>{list.creationDate || 'NA'}</td>
+                              <td>{list.expirationDate || 'NA'}</td>
+                            </tr>
+                          ))}
 
-
-                              ))}
-
-                              {provided.placeholder}
-                            </Box>
-                          )}
-                        </Droppable>
-                      </Box>
-                    </DragDropContext>
-
+                        </tbody>
+                      </table>
+                    </Box>
                   </Box>
-
                 )}
+
+
               </Box>
 
             </Box>
@@ -2481,7 +3341,7 @@ const Campains: React.FC = () => {
 
             <Button
               variant="contained"
-              onClick={() => setActiveStep((prev) => prev + 1)}
+              onClick={handleContinue}
               sx={{
                 width: "118px",
                 height: "36px",
@@ -2495,7 +3355,8 @@ const Campains: React.FC = () => {
                 letterSpacing: "1.12px",
               }}
             >
-              Siguiente
+              {activeStep === 2 || (activeStep === 0 && !postCargaActiva) ? "Cargar" : "Siguiente"}
+
             </Button>
           </Box>
         </DialogActions>
@@ -2509,25 +3370,50 @@ const Campains: React.FC = () => {
           open={calendarOpen}
           anchorEl={calendarAnchor}
           onApply={(date, hour, minute) => {
+            if (calendarTarget === null || currentHorarioIndex === null) return;
+
             const newDate = new Date(date);
             newDate.setHours(hour);
             newDate.setMinutes(minute);
 
-            if (calendarTarget === "start") {
-              setStartDate(newDate);
-            } else if (calendarTarget === "end") {
-              setEndDate(newDate);
-            }
+            setHorarios(prev =>
+              prev.map((h, i) =>
+                i === currentHorarioIndex
+                  ? { ...h, [calendarTarget]: newDate }
+                  : h
+              )
+            );
 
             setCalendarOpen(false);
             setCalendarTarget(null);
+            setCurrentHorarioIndex(null);
           }}
-          onClose={() => setCalendarOpen(false)}
+          onClose={() => {
+            setCalendarOpen(false);
+            setCalendarTarget(null);
+            setCurrentHorarioIndex(null);
+          }}
+          placement="top-start"
+          modifiers={[
+            {
+              name: 'offset',
+              options: {
+                offset: [-50, -60],
+              },
+            },
+          ]}
         />
+
       )}
 
 
-
+      <ModalError
+        isOpen={isErrorModalOpen}
+        title={TitleErrorModal}
+        message={MessageErrorModal}
+        buttonText="Cerrar"
+        onClose={() => setIsErrorModalOpen(false)}
+      />
 
 
     </Box>

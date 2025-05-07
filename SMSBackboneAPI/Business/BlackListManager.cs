@@ -368,12 +368,12 @@ namespace Business
 
                     list.Campains = (from bl in ctx.BlackList
                                      join blc in ctx.blacklistcampains on bl.Id equals blc.idblacklist
-                                     join c in ctx.Set<ccCamps>() on blc.idcampains equals c.Id
+                                     join c in ctx.Set<Campaigns>() on blc.idcampains equals c.Id
                                      where bl.Name == black.name && bl.idroom == black.id
                                      select new CampainsBlackListResponse
                                      {
                                          Chanel = "SMS", // puedes hacerlo dinámico si tienes más canales
-                                         CampainName = c.cam_descripcion
+                                         CampainName = c.Name
                                      }).ToList();
                 }
                 return list;
