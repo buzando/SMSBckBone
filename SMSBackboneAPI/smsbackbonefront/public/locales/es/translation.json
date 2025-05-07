@@ -16,7 +16,9 @@
       "charactersCounter": "{{count}}/160 caracteres para que el mensaje se realice en un sólo envío.",
       "preview": "Vista previa:",
       "cancel": "Cancelar",
-      "send": "Enviar"
+      "send": "Enviar",
+      "tooltipOnlyNumbers": "Solo caracteres numéricos",
+      "tooltipTenDigits": "El teléfono debe incluir el código del país"
     }
   }
 }

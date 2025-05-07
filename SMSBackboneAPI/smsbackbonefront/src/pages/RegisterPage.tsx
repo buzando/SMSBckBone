@@ -132,7 +132,7 @@ const Register: React.FC = () => {
                 localStorage.setItem('userData', JSON.stringify(user));
                 navigate('/chooseroom');
             }
-        } catch(error) {
+        } catch (error) {
             console.error("Error en la solicitud:", error.response?.data || error.message);
             setIsButtonEnabled(true);
             handleOpenErrorModal();
@@ -352,6 +352,7 @@ const Register: React.FC = () => {
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
+
                                                     <Tooltip
                                                         title={
                                                             <Box
@@ -381,8 +382,8 @@ const Register: React.FC = () => {
                                                         componentsProps={{
                                                             tooltip: {
                                                                 sx: {
-                                                                    backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                    padding: 0, // Removes padding around the Box
+                                                                    backgroundColor: "transparent",
+                                                                    padding: 0,
 
                                                                 },
                                                             },
@@ -402,6 +403,7 @@ const Register: React.FC = () => {
                                                             />
                                                         </IconButton>
                                                     </Tooltip>
+
                                                 </InputAdornment>
                                             ),
                                         }}
@@ -1266,7 +1268,7 @@ const Register: React.FC = () => {
                                     left: "50%",
                                     transform: "translate(-50%, -50%)",
                                     width: { xs: "90%", sm: "80%", md: "65%", lg: "55%", xl: "45%" }, // más responsivo
-                                    maxHeight: "90vh", 
+                                    maxHeight: "90vh",
                                     bgcolor: "background.paper",
                                     boxShadow: 24,
                                     p: 4,

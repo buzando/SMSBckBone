@@ -174,7 +174,7 @@ const DynamicMessageEditor: React.FC<Props> = ({
     <Box>
       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
         <FormControl fullWidth sx={{ maxWidth: 180 }}>
-          <InputLabel sx={{ fontFamily: 'Poppins' }}>Seleccionar ID</InputLabel>
+          <InputLabel sx={{ fontFamily: 'Poppins', fontSize: '12px', opacity: 0.8 }}>Seleccionar ID</InputLabel>
           <Select
             label="Seleccionar ID"
             value={selectedValues?.id || ''}
@@ -182,16 +182,25 @@ const DynamicMessageEditor: React.FC<Props> = ({
               onSelectID?.(e.target.value);
               handleInsertTag('ID');
             }}
-            sx={{ fontFamily: 'Poppins' }}
+            sx={{ fontFamily: 'Poppins', fontSize: '12px' }}
           >
-            <MenuItem value="1">1</MenuItem>
-            <MenuItem value="2">2</MenuItem>
-            <MenuItem value="3">3</MenuItem>
+            <MenuItem value="1" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>1</MenuItem>
+            <MenuItem value="2" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>2</MenuItem>
+            <MenuItem value="3" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>3</MenuItem>
           </Select>
         </FormControl>
 
         <FormControl fullWidth sx={{ maxWidth: 220 }}>
-          <InputLabel sx={{ fontFamily: 'Poppins' }}>Seleccionar teléfono</InputLabel>
+          <InputLabel sx={{ fontFamily: 'Poppins', fontSize: '12px' }}>Seleccionar teléfono</InputLabel>
           <Select
             label="Seleccionar teléfono"
             value={selectedValues?.telefono || ''}
@@ -199,16 +208,25 @@ const DynamicMessageEditor: React.FC<Props> = ({
               onSelectTelefono?.(e.target.value);
               handleInsertTag('Teléfono');
             }}
-            sx={{ fontFamily: 'Poppins' }}
+            sx={{ fontFamily: 'Poppins', fontSize: '12px' }}
           >
-            <MenuItem value="telefono1">telefono1</MenuItem>
-            <MenuItem value="telefono2">telefono2</MenuItem>
-            <MenuItem value="telefono3">telefono3</MenuItem>
+            <MenuItem value="telefono1" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>telefono1</MenuItem>
+            <MenuItem value="telefono2" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>telefono2</MenuItem>
+            <MenuItem value="telefono3" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>telefono3</MenuItem>
           </Select>
         </FormControl>
 
         <FormControl fullWidth sx={{ maxWidth: 200 }}>
-          <InputLabel sx={{ fontFamily: 'Poppins' }}>Seleccionar datos</InputLabel>
+          <InputLabel sx={{ fontFamily: 'Poppins', fontSize: '12px' }}>Seleccionar datos</InputLabel>
           <Select
             label="Seleccionar datos"
             value={selectedValues?.dato || ''}
@@ -216,11 +234,20 @@ const DynamicMessageEditor: React.FC<Props> = ({
               onSelectDato?.(e.target.value);
               handleInsertTag('Dato');
             }}
-            sx={{ fontFamily: 'Poppins' }}
+            sx={{ fontFamily: 'Poppins', fontSize: '12px' }}
           >
-            <MenuItem value="Dato1">Dato1</MenuItem>
-            <MenuItem value="Dato2">Dato2</MenuItem>
-            <MenuItem value="Dato3">Dato3</MenuItem>
+            <MenuItem value="Dato1" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>Dato1</MenuItem>
+            <MenuItem value="Dato1" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>Dato2</MenuItem>
+            <MenuItem value="Dato1" sx={{
+              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
+              '&:hover': { backgroundColor: '#F2EBED', },
+            }}>Dato3</MenuItem>
           </Select>
         </FormControl>
       </Box>

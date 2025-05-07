@@ -14,6 +14,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import infoicon from '../assets/Icon-info.svg'
+import UpCloudIcon from '../assets/UpCloudIcon.svg'
+import IconCloudError from '../assets/IconCloudError.svg'
+import CloudCheckedIcon from '../assets/CloudCheckedIcon.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 import { Divider, InputAdornment, Tooltip, TooltipProps, Typography, Paper, ToggleButton, ToggleButtonGroup, Switch, FormControl, FormControlLabel, List, ListItemText, ListItemButton, ListItem } from "@mui/material";
 import { styled } from '@mui/material/styles';
@@ -186,16 +189,26 @@ const BlackList: React.FC = () => {
     const [selectedRows, setSelectedRows] = useState<BlackList[]>([]);
 
     const [allRows, setAllRows] = useState<BlackList[]>([]);
+    useEffect(() => {
+        setAllRows(currentItems);
+    }, [currentItems]);
 
     const WhiteTooltip = styled(({ className, ...props }: TooltipProps) => (
         <Tooltip {...props} classes={{ popper: className }} />
     ))(() => ({
         [`& .MuiTooltip-tooltip`]: {
-            backgroundColor: '#ffffff',
-            color: '#000000',
-            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-            fontSize: '14px',
-            borderRadius: '4px',
+            backgroundColor: "#FFFFFF",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            padding: "8px 12px",
+            fontSize: "14px",
+            fontFamily: "Poppins",
+            color: "#000000",
+            whiteSpace: "pre-line",
+            transform: "translate(-5px, -5px)",
+            borderColor: "#00131F3D",
+            borderStyle: "solid",
+            borderWidth: "1px"
         },
     }));
 
@@ -542,8 +555,9 @@ const BlackList: React.FC = () => {
 
 
     const handlePhoneChange = (index: number, value: string) => {
+        const numericOnly = value.replace(/\D/g, ''); // elimina todo lo que no sea número
         const updated = [...formData.Phones];
-        updated[index] = value;
+        updated[index] = numericOnly;
         setFormData((prev) => ({ ...prev, Phones: updated }));
     };
 
@@ -748,6 +762,9 @@ const BlackList: React.FC = () => {
             handleCloseDeleteModal();
         }
     };
+
+
+
     return (
         <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1040px" }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -976,7 +993,7 @@ const BlackList: React.FC = () => {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
                             <thead>
                                 {selectedRows.length === 0 ? (
-                                    <tr style={{ backgroundColor: '#F5F5F5', textAlign: 'left' }}>
+                                    <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
                                         <th style={{ padding: '16px' }}>
                                             <Checkbox
                                                 sx={{
@@ -989,33 +1006,113 @@ const BlackList: React.FC = () => {
                                                 onChange={handleSelectAll}
                                             />
                                         </th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins' }}>Fecha de creación</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins' }}>Nombre de lista</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins' }}>Fecha de expiración</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins' }}>Cantidad de registros</th>
+                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de creación</th>
+                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Nombre de lista</th>
+                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de expiración</th>
+                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Cantidad de registros</th>
                                         <th style={{ padding: '16px' }}></th>
                                     </tr>
                                 ) : (
-                                    <tr style={{ backgroundColor: '#F5F5F5' }}>
-                                        <th colSpan={6}>
-                                            <Box display="flex" alignItems="center" gap={1} pl={1}>
+                                    <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
+                                        <th colSpan={6} style={{ minWidth: "967px" }}>
+
+                                            <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"18px"} marginLeft={"2px"} marginBottom={"18px"}>
+                                                {/*Checkbox para tablas*/}
                                                 <Checkbox
-                                                    sx={{
-                                                        color: '#8F4E63',
-                                                        '&.Mui-checked': { color: '#8F4E63' },
-                                                        '&.MuiCheckbox-indeterminate': { color: '#8F4E63' }
-                                                    }}
                                                     checked={isAllSelected}
-                                                    indeterminate={selectedRows.length > 0 && selectedRows.length < allRows.length}
+                                                    indeterminate={isIndeterminate}
                                                     onChange={handleSelectAll}
+                                                    icon={
+                                                        <Box
+                                                            sx={{
+                                                                width: 18,
+                                                                height: 18,
+                                                                border: '2px solid #8F4E63',
+                                                                borderRadius: '2px',
+                                                            }}
+                                                        />
+                                                    }
+                                                    checkedIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: 18,
+                                                                height: 18,
+                                                                backgroundColor: '#8F4E63',
+                                                                border: '2px solid #8F4E63',
+                                                                borderRadius: '2px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                fontSize: 14,
+                                                                color: 'white',
+                                                                fontWeight: 'bold',
+                                                                lineHeight: 1,
+                                                            }}
+                                                        >
+                                                            ✓
+                                                        </Box>
+                                                    }
+                                                    indeterminateIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: 18,
+                                                                height: 18,
+                                                                backgroundColor: '#8F4E63',
+                                                                border: '2px solid #8F4E63',
+                                                                borderRadius: '4px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                            }}
+                                                        >
+                                                            <Box
+                                                                sx={{
+                                                                    width: 10,
+                                                                    height: 2,
+                                                                    backgroundColor: 'white',
+                                                                    borderRadius: 1,
+                                                                }}
+                                                            />
+                                                        </Box>
+                                                    }
                                                 />
-                                                <Tooltip title="Eliminar">
+                                                <Tooltip title="Eliminar" arrow placement="top"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                                color: "#CCC3C3",
+                                                                fontFamily: "Poppins, sans-serif",
+                                                                fontSize: "12px",
+                                                                padding: "6px 8px",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                            }
+                                                        },
+                                                        arrow: {
+                                                            sx: {
+                                                                color: "rgba(0, 0, 0, 0.8)"
+                                                            }
+                                                        }
+                                                    }}
+                                                    PopperProps={{
+                                                        modifiers: [
+                                                            {
+                                                                name: 'offset',
+                                                                options: {
+                                                                    offset: [0, -12] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                                }
+                                                            }
+                                                        ]
+                                                    }}
+                                                >
                                                     <IconButton onClick={handleDeleteSelected}>
                                                         <img src={Thrashicon} alt="Eliminar" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
                                             </Box>
                                         </th>
+
                                     </tr>
                                 )}
                             </thead>
@@ -1030,12 +1127,12 @@ const BlackList: React.FC = () => {
                                                     color: '#8F4E63',
                                                     '&.Mui-checked': { color: '#8F4E63' },
                                                 }}
-                                                checked={selectedRows.includes(black)}
+                                                checked={selectedRows.some(r => r.id === black.id)}
                                                 onChange={(e) => {
                                                     if (e.target.checked) {
                                                         setSelectedRows(prev => [...prev, black]);
                                                     } else {
-                                                        setSelectedRows(prev => prev.filter(id => id !== black));
+                                                        setSelectedRows(prev => prev.filter(r => r.id !== black.id));
                                                     }
                                                 }}
                                             />
@@ -1152,7 +1249,7 @@ const BlackList: React.FC = () => {
                                 sx={{
                                     fontFamily: 'Poppins',
                                     fontSize: '20px',
-                                    fontWeight: 600,
+                                    fontWeight: 500,
                                     color: '#330F1B',
                                 }}
                             >
@@ -1175,9 +1272,47 @@ const BlackList: React.FC = () => {
                                     onChange={(e) => handleNameChange(e.target.value)}
                                     InputProps={{
                                         endAdornment: (
-                                            <InputAdornment position="end">
-                                                <img src={infoicon} alt="info" />
-                                            </InputAdornment>
+
+                                            <Tooltip
+                                                title={
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#FFFFFF",
+                                                            borderRadius: "8px",
+                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                            padding: "8px 12px",
+                                                            fontSize: "14px",
+                                                            fontFamily: "Poppins",
+                                                            color: "#000000",
+                                                            whiteSpace: "pre-line",
+                                                            transform: "translate(-1px, -15px)",
+                                                            borderColor: "#00131F3D",
+                                                            borderStyle: "solid",
+                                                            borderWidth: "1px"
+                                                        }}
+                                                    >
+                                                        <>
+                                                            • Solo caracteres alfabéticos<br />
+                                                            • Longitud máxima de 40<br />
+                                                            caracteres
+                                                        </>
+                                                    </Box>
+                                                }
+                                                placement="bottom-end"
+                                                componentsProps={{
+                                                    tooltip: {
+                                                        sx: {
+                                                            backgroundColor: "transparent",
+                                                            padding: 0,
+
+                                                        },
+                                                    },
+                                                }}
+                                            >
+                                                <InputAdornment position="end">
+                                                    <img src={infoicon} alt="info" />
+                                                </InputAdornment>
+                                            </Tooltip>
                                         ),
                                     }}
                                     sx={{
@@ -1199,7 +1334,7 @@ const BlackList: React.FC = () => {
                         </Box>
 
                         {/* Descripción */}
-                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mt: 1 }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: '#330F1B', mt: 1 }}>
                             Cargar un archivo desde la biblioteca o agregar registros manualmente.
                         </Typography>
 
@@ -1216,7 +1351,9 @@ const BlackList: React.FC = () => {
                                 }}
 
                                 sx={{
-                                    border: `2px dashed ${fileError ? '#EF5466' : '#D9B4C3'}`,
+                                    border: fileError
+                                        ? '2px solid #EF5466'
+                                        : '2px dashed #D9B4C3',
                                     backgroundColor: fileError ? '#FFF4F5' : 'transparent',
                                     borderRadius: '8px',
                                     width: '200px',
@@ -1236,11 +1373,20 @@ const BlackList: React.FC = () => {
                             >
                                 <WhiteTooltip
                                     title={
-                                        fileError
-                                            ? "Solo se permiten archivos .xlsx"
-                                            : fileSuccess
-                                                ? `Archivo cargado: ${selectedFile?.name}`
-                                                : "Puede subir archivos Excel (.xlsx)"
+
+                                        fileError ? (
+                                            <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466' }}>
+                                                Solo se permiten archivos .xlsx
+                                            </Box>
+                                        ) : fileSuccess ? (
+                                            <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#28A745' }}>
+                                                Archivo cargado: {selectedFile?.name}
+                                            </Box>
+                                        ) : (
+                                            <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000' }}>
+                                                El archivo debe ser Excel<br />(.xls/.xlsx)
+                                            </Box>
+                                        )
                                     }
                                 >
                                     <img
@@ -1249,26 +1395,34 @@ const BlackList: React.FC = () => {
                                         style={{ position: 'absolute', top: 8, right: 8, cursor: 'pointer' }}
                                     />
                                 </WhiteTooltip>
+
                                 <img
                                     src={
                                         fileError
-                                            ? '/ruta/a/icono-error.svg'
+                                            ? IconCloudError
                                             : fileSuccess
-                                                ? 'fileUploadedIcon'
-                                                : '/ruta/a/icono-nube.svg'
+                                                ? CloudCheckedIcon
+                                                : UpCloudIcon
                                     }
                                     alt="estado archivo"
-                                    style={{ marginBottom: '8px' }}
+                                    style={{ marginBottom: '8px', width: "" }}
                                 />
 
-                                <Typography sx={{ fontWeight: 600 }}>
+                                <Typography sx={{ fontWeight: 600, fontFamily: "Poppins", color: "#330F1B", fontSize: '14px', }}>
                                     {fileError
                                         ? 'Archivo inválido'
                                         : fileSuccess
                                             ? 'Archivo cargado'
                                             : 'Subir archivo'}
                                 </Typography>
-                                <Typography>
+                                <Typography
+                                    sx={{
+                                        fontFamily: 'Poppins',
+                                        fontSize: '10px',
+                                        color: '#574B4F',
+                                        opacity: 0.7
+                                    }}
+                                >
                                     Arrastre un archivo aquí, o selecciónelo.
                                 </Typography>
 
@@ -1316,7 +1470,42 @@ const BlackList: React.FC = () => {
                                                 InputProps={{
                                                     endAdornment: (
                                                         <InputAdornment position="end">
-                                                            <Tooltip title="Información del campo">
+                                                            <Tooltip
+                                                                title={
+                                                                    <Box
+                                                                        sx={{
+                                                                            backgroundColor: "#FFFFFF",
+                                                                            borderRadius: "8px",
+                                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                            padding: "8px 12px",
+                                                                            fontSize: "14px",
+                                                                            fontFamily: "Poppins",
+                                                                            color: "#000000",
+                                                                            whiteSpace: "pre-line",
+                                                                            transform: "translate(2px, -15px)",
+                                                                            borderColor: "#00131F3D",
+                                                                            borderStyle: "solid",
+                                                                            borderWidth: "1px"
+                                                                        }}
+                                                                    >
+                                                                        <>
+                                                                            • Solo caracteres numéricos<br />
+                                                                            • El teléfono debe incluir<br />
+                                                                            el código del país
+                                                                        </>
+                                                                    </Box>
+                                                                }
+                                                                placement="bottom-end"
+                                                                componentsProps={{
+                                                                    tooltip: {
+                                                                        sx: {
+                                                                            backgroundColor: "transparent",
+                                                                            padding: 0,
+
+                                                                        },
+                                                                    },
+                                                                }}
+                                                            >
                                                                 <img src={infoicon} alt="info" style={{ width: 18, height: 18 }} />
                                                             </Tooltip>
                                                         </InputAdornment>
@@ -1332,7 +1521,36 @@ const BlackList: React.FC = () => {
 
                                             {/* Botón de agregar solo para el último campo */}
                                             {index === formData.Phones.length - 1 && (
-                                                <Tooltip title="Agregar otro teléfono">
+                                                <Tooltip title="Agregar número" arrow placement="top"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                                color: "#CCC3C3",
+                                                                fontFamily: "Poppins, sans-serif",
+                                                                fontSize: "12px",
+                                                                padding: "6px 8px",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                            }
+                                                        },
+                                                        arrow: {
+                                                            sx: {
+                                                                color: "rgba(0, 0, 0, 0.8)"
+                                                            }
+                                                        }
+                                                    }}
+                                                    PopperProps={{
+                                                        modifiers: [
+                                                            {
+                                                                name: 'offset',
+                                                                options: {
+                                                                    offset: [-20, -7] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                                }
+                                                            }
+                                                        ]
+                                                    }}
+                                                >
                                                     <IconButton onClick={handleAddPhone}>
                                                         <img
                                                             src={AddIcon}
@@ -1344,7 +1562,36 @@ const BlackList: React.FC = () => {
                                             )}
 
                                             {index > 0 && (
-                                                <Tooltip title="Eliminar teléfono">
+                                                <Tooltip title="Eliminar teléfono" arrow placement="top"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                                color: "#CCC3C3",
+                                                                fontFamily: "Poppins, sans-serif",
+                                                                fontSize: "12px",
+                                                                padding: "6px 8px",
+                                                                borderRadius: "8px",
+                                                                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                            }
+                                                        },
+                                                        arrow: {
+                                                            sx: {
+                                                                color: "rgba(0, 0, 0, 0.8)"
+                                                            }
+                                                        }
+                                                    }}
+                                                    PopperProps={{
+                                                        modifiers: [
+                                                            {
+                                                                name: 'offset',
+                                                                options: {
+                                                                    offset: [-20, -7] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                                }
+                                                            }
+                                                        ]
+                                                    }}
+                                                >
                                                     <IconButton onClick={() => handleRemovePhone(index)}>
                                                         <img
                                                             src={Thrashicon}
@@ -1394,7 +1641,7 @@ const BlackList: React.FC = () => {
                                         hour: '2-digit',
                                         minute: '2-digit',
                                     })
-                                    : 'Selecciona fecha y hora'}
+                                    : '00/00/00 00:00'}
                             </Box>
 
                             {/* Popper personalizado */}
@@ -1419,7 +1666,11 @@ const BlackList: React.FC = () => {
                         {/* Botones */}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, gap: 2 }}>
                             <SecondaryButton text="Cancelar" onClick={handleCloseModal} />
-                            <MainButton text="Guardar" onClick={addBlackList} />
+                            <MainButton
+                                text="Guardar"
+                                onClick={addBlackList}
+                                disabled={!formData.Name || !formData.File}
+                            />
                         </Box>
                     </Box>
 
@@ -1433,8 +1684,8 @@ const BlackList: React.FC = () => {
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: '80px',
-                        left: '350px',
+                        top: '150px',
+                        left: '550px',
                         width: '580px',
                         height: '409px',
                         bgcolor: 'background.paper',
@@ -1448,18 +1699,28 @@ const BlackList: React.FC = () => {
                 >
                     {/* Encabezado */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '20px', fontWeight: 600, color: '#330F1B' }}>
+                        <Typography sx={{
+                            fontFamily: 'Poppins', fontSize: '20px', fontWeight: 500, color: '#330F1B',
+                            marginTop: "-10px", marginBottom: "10px"
+                        }}>
                             Editar lista negra
                         </Typography>
                         <IconButton onClick={() => setIsEditModalOpen(false)}>
-                            <CloseIcon sx={{ color: '#A6A6A6' }} />
+                            <CloseIcon sx={{ color: '#A6A6A6', marginTop: "-26px", marginLeft: "30px" }} />
                         </IconButton>
                     </Box>
 
                     <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px' }} />
 
                     {/* Nombre */}
-                    <Box>
+                    <Box
+                        sx={{
+                            marginLeft: "81px",
+                            width: '340px',
+                            height: '84px',
+                            marginBottom: "8px"
+                        }}
+                    >
                         <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
                             Nombre<span style={{ color: 'red' }}>*</span>
                         </Typography>
@@ -1469,9 +1730,46 @@ const BlackList: React.FC = () => {
                             onChange={(e) => handleNameChange(e.target.value)}
                             InputProps={{
                                 endAdornment: (
-                                    <InputAdornment position="end">
-                                        <img src={infoicon} alt="info" />
-                                    </InputAdornment>
+                                    <Tooltip
+                                        title={
+                                            <Box
+                                                sx={{
+                                                    backgroundColor: "#FFFFFF",
+                                                    borderRadius: "8px",
+                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                    padding: "8px 12px",
+                                                    fontSize: "14px",
+                                                    fontFamily: "Poppins",
+                                                    color: "#000000",
+                                                    whiteSpace: "pre-line",
+                                                    transform: "translate(-1px, -15px)",
+                                                    borderColor: "#00131F3D",
+                                                    borderStyle: "solid",
+                                                    borderWidth: "1px"
+                                                }}
+                                            >
+                                                <>
+                                                    • Solo caracteres alfabéticos<br />
+                                                    • Longitud máxima de 40<br />
+                                                    caracteres
+                                                </>
+                                            </Box>
+                                        }
+                                        placement="bottom-end"
+                                        componentsProps={{
+                                            tooltip: {
+                                                sx: {
+                                                    backgroundColor: "transparent",
+                                                    padding: 0,
+
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        <InputAdornment position="end">
+                                            <img src={infoicon} alt="info" />
+                                        </InputAdornment>
+                                    </Tooltip>
                                 )
                             }}
                             sx={{
@@ -1489,7 +1787,14 @@ const BlackList: React.FC = () => {
                     </Box>
 
                     {/* Fecha */}
-                    <Box>
+                    <Box
+                        sx={{
+                            marginLeft: "81px",
+                            width: '341px',
+                            height: '83px',
+
+                        }}
+                    >
                         <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
                             Fecha de expiración (opcional)
                         </Typography>
@@ -1550,6 +1855,7 @@ const BlackList: React.FC = () => {
                                             },
                                         },
                                     ]}
+
                                 />
 
                             )}
@@ -1558,12 +1864,16 @@ const BlackList: React.FC = () => {
 
                     </Box>
 
-                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 2 }} />
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 3 }} />
 
                     {/* Botones */}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 35, marginTop: "10px" }}>
                         <SecondaryButton text="Cancelar" onClick={() => setIsEditModalOpen(false)} />
-                        <MainButton text="Guardar cambios" onClick={handleUpdateBlackList} />
+                        <MainButton
+                            text="Guardar cambios"
+                            onClick={handleUpdateBlackList}
+                            disabled={formData.Name.trim() === ''}
+                        />
                     </Box>
                 </Box>
             </Modal>
@@ -1930,27 +2240,104 @@ const BlackList: React.FC = () => {
 
 
                     <Box sx={{ px: 4, pt: 4 }}>
-                        <Typography fontWeight="600" fontSize="18px">
-                            Gestionar registros: <span style={{ color: '#7B354D' }}>{selectedBlackList ? `${selectedBlackList.name}` : ''}</span>
+                        <Typography fontWeight="600" fontSize="18px" fontFamily='Poppins'>
+                            Gestionar registros: <span style={{ color: '#7B354D', fontFamily: 'Poppins' }}>{selectedBlackList ? `${selectedBlackList.name}` : ''}</span>
                         </Typography>
 
-                        <Typography mt={3} fontWeight="500" fontSize="14px">Seleccionar operación</Typography>
+                        <Typography mt={3} fontWeight="500" fontSize="18px" fontFamily='Poppins'>
+                            Seleccionar operación</Typography>
                         <ToggleButtonGroup
                             exclusive
                             value={manageOperation}
                             onChange={(e, value) => value && setManageOperation(value)}
                             sx={{ mt: 1 }}
                         >
-                            <ToggleButton value="agregar" sx={{ flex: 1 }}>
-                                <img src={AddIcon} style={{ marginRight: 8, width: 18, height: 18 }} /> Cargar
+                            <Box
+                                sx={{
+                                    width: "64px",
+                                    height: "64px",
+                                    borderRadius: "2px",
+                                    borderColor: "#6F3D50",
+                                    backgroundColor: "#8F4D63"
+                                }}
+                            >
+                                <ToggleButton
+                                    value="agregar"
+                                    sx={{
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: "64px",
+                                        height: "64px",
+                                        padding: 1
+                                    }}
+                                >
+                                    <img src={AddIcon} style={{ width: 18, height: 18, marginBottom: 4 }} />
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 500,
+                                            fontFamily: 'Poppins',
+                                            fontSize: '12px',
+                                            lineHeight: 1,
+                                            color: '#8F4D63',
+                                            textTransform: 'none'
+                                        }}
+                                    >
+                                        Cargar
+                                    </Typography>
+                                </ToggleButton>
+                            </Box>
+
+
+                            <ToggleButton value="eliminar"
+                                sx={{
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: "64px",
+                                    height: "64px",
+                                    padding: 1
+                                }}
+                            >
+                                <DeleteIcon sx={{ mr: 1, color: '#7B354D' }} />
+
+                                <Typography
+                                    sx={{
+                                        fontWeight: 500,
+                                        fontFamily: 'Poppins',
+                                        fontSize: '12px',
+                                        lineHeight: 1,
+                                        color: '#8F4D63',
+                                        textTransform: 'none'
+                                    }}
+                                >
+                                    Eliminar
+                                </Typography>
                             </ToggleButton>
 
-                            <ToggleButton value="eliminar" sx={{ flex: 1 }}>
-                                <DeleteIcon sx={{ mr: 1, color: '#7B354D' }} /> Eliminar
-                            </ToggleButton>
-
-                            <ToggleButton value="actualizar" sx={{ flex: 1 }}>
-                                <SyncIcon sx={{ mr: 1, color: '#7B354D' }} /> Actualizar
+                            <ToggleButton value="actualizar"
+                                sx={{
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: "64px",
+                                    height: "64px",
+                                    padding: 1
+                                }}
+                            >
+                                <SyncIcon sx={{ mr: 1, color: '#7B354D' }} />
+                                <Typography
+                                    sx={{
+                                        fontWeight: 500,
+                                        fontFamily: 'Poppins',
+                                        fontSize: '12px',
+                                        lineHeight: 1,
+                                        color: '#8F4D63',
+                                        textTransform: 'none'
+                                    }}
+                                >
+                                    Actualizar
+                                </Typography>
                             </ToggleButton>
 
                         </ToggleButtonGroup>
@@ -1975,9 +2362,9 @@ const BlackList: React.FC = () => {
                                 overflowX: 'hidden', // 🔥 Esto evita scroll lateral
                             }}
                         >
-                            <Typography fontWeight="500" fontSize="14px" mb={1}>Seleccionar fuente de registros</Typography>
+                            <Typography fontWeight="500" fontSize="14px" mb={1} fontFamily={"Poppins"}>Seleccionar fuente de registros</Typography>
                             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                                <Typography fontSize="14px">Por lista</Typography>
+                                <Typography fontSize="14px" fontFamily={"Poppins"}>Por lista</Typography>
                                 <Switch
                                     checked={manageByList}
                                     onChange={() => {
@@ -2006,7 +2393,7 @@ const BlackList: React.FC = () => {
                                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                                 {/* Seleccionar hoja */}
                                                 <Box>
-                                                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '15px', mb: 1 }}>
+                                                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '15px', mb: 1 }}>
                                                         Seleccionar hoja
                                                     </Typography>
                                                     <FormControl fullWidth size="small">
@@ -2408,7 +2795,7 @@ const BlackList: React.FC = () => {
                             )}
                             {manageOperation !== 'actualizar' && (
                                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                                    <Typography fontSize="14px">Por registro individual</Typography>
+                                    <Typography fontSize="14px" fontFamily={"Poppins"}>Por registro individual</Typography>
                                     <Switch checked={manageByIndividual} onChange={() => {
                                         setManageByIndividual(true);
                                         setManageByList(false);
@@ -2417,7 +2804,7 @@ const BlackList: React.FC = () => {
                             )}
                             {manageByIndividual && (
                                 <Box mt={3}>
-                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', fontWeight: 600, mb: 1 }}>
+                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', fontWeight: 500, mb: 1 }}>
                                         Teléfono(s)
                                     </Typography>
 
@@ -2435,7 +2822,10 @@ const BlackList: React.FC = () => {
                                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <TextField
                                                     value={phone}
-                                                    onChange={(e) => handleIndividualPhoneChange(index, e.target.value)}
+                                                    onChange={(e) => {
+                                                        const numericValue = e.target.value.replace(/\D/g, '');
+                                                        handleIndividualPhoneChange(index, numericValue);
+                                                    }}
                                                     placeholder="5255..."
                                                     sx={{
                                                         width: '50%',
@@ -2459,7 +2849,36 @@ const BlackList: React.FC = () => {
                                                 />
 
                                                 {index === individualPhones.length - 1 && individualPhones.length < 5 && (
-                                                    <Tooltip title="Agregar otro teléfono">
+                                                    <Tooltip title="Agregar número" arrow placement="top"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                                    color: "#CCC3C3",
+                                                                    fontFamily: "Poppins, sans-serif",
+                                                                    fontSize: "12px",
+                                                                    padding: "6px 8px",
+                                                                    borderRadius: "8px",
+                                                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                                }
+                                                            },
+                                                            arrow: {
+                                                                sx: {
+                                                                    color: "rgba(0, 0, 0, 0.8)"
+                                                                }
+                                                            }
+                                                        }}
+                                                        PopperProps={{
+                                                            modifiers: [
+                                                                {
+                                                                    name: 'offset',
+                                                                    options: {
+                                                                        offset: [-20, -7] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }}
+                                                    >
                                                         <IconButton onClick={handleAddIndividualPhone}>
                                                             <img src={AddIcon} alt="Agregar teléfono" style={{ width: 18, height: 18 }} />
                                                         </IconButton>

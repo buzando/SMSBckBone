@@ -5,6 +5,7 @@ import MainIcon from '../components/commons/MainButtonIcon';
 import seachicon from '../assets/icon-lupa.svg';
 import iconclose from "../assets/icon-close.svg";
 import BoxEmpty from '../assets/Nousers.svg';
+import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import SecondaryButton from '../components/commons/SecondaryButton'
 import MainButton from '../components/commons/MainButton'
@@ -403,6 +404,9 @@ const Templates = () => {
         t.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const isAcceptDisabled = !templateName.trim() || !mensaje.trim() || (!selectedID && !selectedPhone && !selectedDato);
+
+
     return (
         <div style={{ padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1040px' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -432,7 +436,7 @@ const Templates = () => {
                 <Typography
                     variant="h4"
                     sx={{
-                        fontWeight: 'bold',
+                        fontWeight: '500',
                         color: '#330F1B',
                         fontFamily: 'Poppins',
                         fontSize: '26px',
@@ -549,7 +553,7 @@ const Templates = () => {
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
                         <thead>
                             {selectedTemplates.length === 0 ? (
-                                <tr style={{ backgroundColor: '#F5F5F5', textAlign: 'left' }}>
+                                <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', borderBottom: '1px solid #E6E4E4', }}>
                                     <th style={{ padding: '12px 16px' }}>
                                         <Checkbox
                                             checked={selectedTemplates.length === templates.length && templates.length > 0}
@@ -565,15 +569,16 @@ const Templates = () => {
                                                 }
                                             }}
                                         />
-                                    </th><th style={{ padding: '12px 16px', fontWeight: 600 }}>Fecha de creación</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Nombre</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Contenido</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 600 }}></th>
+                                    </th><th style={{ padding: '12px 16px', fontWeight: 500 }}>Fecha de creación</th>
+                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}>Nombre</th>
+                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}>Contenido</th>
+                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}></th>
                                 </tr>
                             ) : (
-                                <tr style={{ backgroundColor: '#F5F5F5' }}>
+                                <tr style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E6E4E4', }}>
                                     <th colSpan={5}>
-                                        <Box display="flex" alignItems="center" gap={1}>
+                                        <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"12px"} marginLeft={"-2px"} marginBottom={"10px"}>
+                                            {/*Checkbox para tablas*/}
                                             <Checkbox
                                                 checked={selectedTemplates.length === templates.length}
                                                 indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
@@ -588,7 +593,36 @@ const Templates = () => {
                                                     }
                                                 }}
                                             />
-                                            <Tooltip title="Eliminar seleccionados">
+                                            <Tooltip title="Eliminar Seleccionados" arrow placement="top"
+                                                componentsProps={{
+                                                    tooltip: {
+                                                        sx: {
+                                                            backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                            color: "#CCC3C3",
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            fontSize: "12px",
+                                                            padding: "6px 8px",
+                                                            borderRadius: "8px",
+                                                            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                        }
+                                                    },
+                                                    arrow: {
+                                                        sx: {
+                                                            color: "rgba(0, 0, 0, 0.8)"
+                                                        }
+                                                    }
+                                                }}
+                                                PopperProps={{
+                                                    modifiers: [
+                                                        {
+                                                            name: 'offset',
+                                                            options: {
+                                                                offset: [0, -10] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                            }
+                                                        }
+                                                    ]
+                                                }}
+                                            >
                                                 <IconButton onClick={handleOpenDeleteSelectedTemplates}>
                                                     <img src={DeleteIcon} alt="Eliminar" style={{ width: 20, height: 20 }} />
                                                 </IconButton>
@@ -618,13 +652,21 @@ const Templates = () => {
                                         mt: 3,
                                     }}
                                 >
-                                    <img src={Emptybox} alt="Caja vacía" style={{ width: '120px', marginBottom: '16px' }} />
+                                    <img src={Emptybox} alt="Caja vacía" style={{
+                                        width: '240px',
+                                        marginTop: '-56px',
+                                        marginLeft: '620px',
+                                        position: 'absolute',
+                                    }} />
                                     <Typography
                                         sx={{
                                             fontFamily: 'Poppins',
+                                            position: 'absolute',
                                             fontSize: '14px',
                                             color: '#7B354D',
                                             fontWeight: 500,
+                                            marginTop: '158px',
+                                            marginLeft: '629px',
                                         }}
                                     >
                                         No se encontraron resultados.
@@ -706,29 +748,83 @@ const Templates = () => {
                         outline: 'none',
                     }}
                 >
-                    <Typography variant="h6" fontWeight={600} fontFamily="Poppins">
+                    <Typography variant="h6" fontWeight={500} fontFamily="Poppins">
                         Añadir plantilla
                     </Typography>
 
-                    <Typography mt={2} fontWeight={600} fontSize={14} fontFamily="Poppins">
-                        Nombre*
+                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', top: 100, right: 676 }}>
+                        <CloseIcon />
+                    </IconButton>
+
+                    <Typography mt={2} fontWeight={500} fontSize={14} fontFamily="Poppins">
+                        Nombre
+                        <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
                     </Typography>
                     <Box sx={{ position: 'relative' }}>
                         <TextField
                             fullWidth
                             size="medium"
                             value={templateName}
-                            onChange={(e) => setTemplateName(e.target.value)}
+                            onChange={(e) => {
+                                const onlyValid = e.target.value.replace(/[^a-zA-Z0-9ÁÉÍÓÚÑáéíóúñ\s]/g, '');
+                                setTemplateName(onlyValid);
+                            }}
                             placeholder="Plantilla 1"
-                            sx={{ background: '#fff' }}
+                            sx={{
+                                background: '#fff',
+                                '& .MuiInputBase-input': {
+                                    fontFamily: 'Poppins',
+                                },
+                                '& input::placeholder': {
+                                    fontFamily: 'Poppins',
+                                },
+                            }}
                         />
-                        <IconButton size="small" sx={{ position: 'absolute', right: 8, top: 8 }}>
-                            <img src={infoicon} alt="info" />
-                        </IconButton>
+                        <Tooltip
+                            title={
+                                <Box
+                                    sx={{
+                                        backgroundColor: "#FFFFFF",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                        padding: "8px 12px",
+                                        fontFamily: "Poppins",
+                                        fontSize: "12px",
+                                        color: "#000000",
+                                        whiteSpace: "pre-line",
+                                        transform: "translate(-10px, -22px)",
+                                        borderColor: "#00131F3D",
+                                        borderStyle: "solid",
+                                        borderWidth: "1px"
+                                    }}
+                                >
+                                    <>
+                                        • Solo caracteres alfabéticos<br />
+                                        • Longitud máxima de 40<br />
+                                        caracteres
+                                    </>
+                                </Box>
+                            }
+                            placement="bottom-end"
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        backgroundColor: "transparent",
+                                        padding: 0,
+
+                                    },
+                                },
+                            }}
+                        >
+                            <IconButton size="small" sx={{ position: 'absolute', right: 8, top: 8 }}>
+                                <img src={infoicon} alt="info" />
+                            </IconButton>
+                        </Tooltip>
                     </Box>
 
-                    <Typography mt={3} fontWeight={600} fontSize={14} fontFamily="Poppins">
-                        Mensaje*
+                    <Typography mt={3} fontWeight={500} fontSize={14} fontFamily="Poppins">
+                        Mensaje
+                        <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
                     </Typography>
 
 
@@ -747,17 +843,39 @@ const Templates = () => {
                     />
 
 
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                        <SecondaryButton onClick={handlePreviewClick} text='Vista Previa'
-                        />
-
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            mt: 2,
+                            whiteSpace: 'nowrap',
+                            fontFamily: 'Poppins',
+                            fontWeight: 500
+                        }}
+                    >
+                        <Box sx={{ width: '142px' /* ajusta según lo necesites */ }}>
+                            <SecondaryButton
+                                onClick={handlePreviewClick}
+                                text="Vista Previa"
+                                sx={{
+                                    width: '142px',
+                                    fontFamily: 'Poppins',
+                                    fontWeight: 500
+                                }}
+                            />
+                        </Box>
                     </Box>
+
                     <Divider sx={{ mt: 3, mb: 2 }} />
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <SecondaryButton text='Cancelar' onClick={handleCloseModal} />
 
-                        <MainButton text='Aceptar' onClick={handleSaveTemplate} />
+                        <MainButton
+                            text='Aceptar'
+                            onClick={handleSaveTemplate}
+                            disabled={isAcceptDisabled}
+                        />
                     </Box>
                 </Box>
             </Modal>
@@ -765,7 +883,7 @@ const Templates = () => {
             <Modal open={openPreviewModal} onClose={() => setOpenPreviewModal(false)}>
                 <Box
                     sx={{
-                        width: 500,
+                        width: '556px', height: '417px',
                         backgroundColor: 'white',
                         borderRadius: 2,
                         p: 3,
@@ -775,12 +893,16 @@ const Templates = () => {
                         outline: 'none',
                     }}
                 >
-                    <Typography fontWeight="600" fontSize="18px" color="#330F1B" mb={2}>
-                        Vista previa: <span style={{ color: '#7B354D' }}>{templateName || 'Sin título'}</span>
+                    <Typography fontWeight="500" fontSize="18px" fontFamily="Poppins" color="#330F1B" mb={2}>
+                        Vista previa: <span style={{ color: '#7B354D', fontFamily: "Poppins", fontWeight: "500" }}>{templateName || 'Mensaje Prueba 1'}</span>
                     </Typography>
 
-                    <Box sx={{ backgroundColor: '#F8E7EC', borderRadius: 2, padding: 2 }}>
-                        <Typography fontSize="15px" color="#3A3A3A">
+                    <IconButton onClick={() => setOpenPreviewModal(false)} sx={{ position: 'absolute', top: 196, right: 686 }}>
+                        <CloseIcon />
+                    </IconButton>
+
+                    <Box sx={{ backgroundColor: '#F8E7EC', borderRadius: 2, padding: 2, width: '508px', height: '300px', }}>
+                        <Typography fontSize="15px" color="#3A3A3A" fontFamily="Poppins" fontWeight="500">
                             {getProcessedMessage()}
                         </Typography>
                     </Box>
@@ -865,7 +987,7 @@ const Templates = () => {
                     maxHeight: '80vh',
                     overflowY: 'auto'
                 }}>
-                    <Typography variant="h6" sx={{ fontFamily: 'Poppins', fontWeight: 600, mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontFamily: 'Poppins', fontWeight: 500, mb: 2 }}>
                         Inspeccionar plantilla
                     </Typography>
 
@@ -894,7 +1016,7 @@ const Templates = () => {
                         ))
                     ) : (
                         <Box sx={{ height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                            <img src={Emptybox} alt="No campaigns" style={{ width: '120px', marginBottom: '16px' }} />
+                            <img src={Emptybox} alt="No campaigns" style={{ width: '220px', marginBottom: '16px' }} />
                             <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', mt: 1, color: '#999' }}>
                                 No hay campañas asignadas.
                             </Typography>
@@ -922,14 +1044,16 @@ const Templates = () => {
                 onSecondaryClick={() => setOpenMassiveDeleteModal(false)}
             />
 
-            {showChipBar && (
-                <ChipBar
-                    message={messageChipBar}
-                    buttonText="Cerrar"
-                    onClose={() => setShowChipBar(false)}
-                />
-            )}
-        </div>
+            {
+                showChipBar && (
+                    <ChipBar
+                        message={messageChipBar}
+                        buttonText="Cerrar"
+                        onClose={() => setShowChipBar(false)}
+                    />
+                )
+            }
+        </div >
     );
 };
 

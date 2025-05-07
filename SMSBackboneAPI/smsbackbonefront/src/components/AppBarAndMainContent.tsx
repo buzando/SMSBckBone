@@ -225,13 +225,13 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const { user } = contextState
     const [openSubMenu, setOpenSubMenu] = useState(false); // Submenú de administración
     const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
-    
+
     const [selectedLink, setSelectedLink] = useState<string | null>(null);
- 
+
     const handleSelection = (link: string) => {
         setSelectedLink(link); // Cambia el enlace seleccionado
     };
-    
+
 
 
     const closeHelpModal = () => setHelpModalIsOpen(false);
@@ -878,7 +878,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
 
 
-            <Drawer variant="permanent" open={true} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white',} }}>
+            <Drawer variant="permanent" open={true} PaperProps={{ sx: { background: 'transparent linear-gradient(311deg, #0B0029 0%, #B9A0A8 100%) 0% 0% no-repeat padding-box;', color: 'white', } }}>
                 <DrawerHeader />
 
                 <Box
@@ -936,7 +936,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     color: '#330F1B',
                                     opacity: 1,
                                     fontSize: '18px', // Estilo para los valores numéricos debajo
-                                    marginBottom:'-8px'
+                                    marginBottom: '-8px'
                                 }}
                             >
                                 {selectedRoom?.credits || 0}
@@ -960,20 +960,20 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             color: '#574B4F',
                                             opacity: 1,
                                             fontSize: '14px', // Ajuste preciso del tamaño de fuente
-                                            marginBottom:'8px'
+                                            marginBottom: '8px'
                                         }}
                                     >
                                         # Cortos
                                     </Typography>
                                     <Typography
-                                    //450
+                                        //450
                                         sx={{
                                             textAlign: 'left',
                                             fontFamily: 'Poppins',
                                             letterSpacing: '0px',
                                             color: '#330F1B',
                                             opacity: 1,
-                                            marginBottom:'-4px',
+                                            marginBottom: '-4px',
                                             fontSize: '16px', // Estilo para los valores numéricos debajo
                                         }}
                                     >
@@ -994,7 +994,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         # Largos
                                     </Typography>
                                     <Typography
-                                    //320
+                                        //320
                                         sx={{
                                             textAlign: 'left',
                                             fontFamily: 'Poppins',
@@ -1003,7 +1003,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             opacity: 1,
                                             marginTop: '7px',
                                             fontSize: '16px',
-                                            marginBottom:'-4px',
+                                            marginBottom: '-4px',
                                         }}
                                     >
                                         {selectedRoom?.long_sms || 0}
@@ -1056,45 +1056,45 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 }}
                             >
                                 <Tooltip title="Comprar números"
-                                placement="top"
-                                arrow
+                                    placement="top"
+                                    arrow
 
-                                PopperProps={{
-                                    modifiers: [
-                                        {
-                                            name: 'arrow',
-                                            options: {
-                                                padding: 8, // Ajusta si es necesario
+                                    PopperProps={{
+                                        modifiers: [
+                                            {
+                                                name: 'arrow',
+                                                options: {
+                                                    padding: 8, // Ajusta si es necesario
+                                                },
+                                            },
+                                        ],
+                                    }}
+                                    componentsProps={{
+                                        tooltip: {
+                                            sx: {
+                                                fontFamily: 'Poppins',
+                                                backgroundColor: '#322D2E', // Fondo negro
+                                                color: '#FFFFFF', // Texto blanco para contraste
+                                                fontSize: '12px',
+                                                borderRadius: '4px',
+                                                padding: '6px 10px',
                                             },
                                         },
-                                    ],
-                                }}
-                                componentsProps={{
-                                    tooltip: {
-                                        sx: {
-                                            fontFamily: 'Poppins',
-                                            backgroundColor: '#322D2E', // Fondo negro
-                                            color: '#FFFFFF', // Texto blanco para contraste
-                                            fontSize: '12px',
-                                            borderRadius: '4px',
-                                            padding: '6px 10px',
+                                        arrow: {
+                                            sx: {
+                                                color: '#322D2E', // Flecha con color negro también
+                                            },
                                         },
-                                    },
-                                    arrow: {
-                                        sx: {
-                                            color: '#322D2E', // Flecha con color negro también
-                                        },
-                                    },
-                                }}
+                                    }}
 
                                 >
-                                    
+
                                     <img
                                         src={rentaNumerosUrl}
                                         alt="Renta Números"
                                         style={{ width: '30px', height: 'auto' }}
                                         onClick={() => navigate('/MyNumbers')}
-                                        
+
                                     />
                                 </Tooltip>
                             </IconButton>
@@ -1205,203 +1205,157 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </Box>
                 </Box>
 
-{/*Comienzo del fondo para opciones*/}
-<Box
-sx={{
-position: "relative",
-left: "17px",
-height: "auto",
-maxHeight: 'calc(100vh - 100px)',
-overflowY: "auto",
-marginTop: "25px",
-width: "245px",
-borderRadius: "6px",
-borderColor: "#5F5064",
-backgroundColor: "#5A4A63CC",
-}}>
-                <List component="nav">
-                    {/* Menú de Administración */}
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
-                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                            <img alt="Iconpeople" src={Iconpeople} style={{ width: 35, height: 20, filter: "brightness(0) invert(1)" }}/>
-                            </ListItemIcon>
-                            <ListItemText
-                                primary="Administración"
-                                primaryTypographyProps={{
-                                    fontFamily: "Poppins",
-                                    marginBottom: "-2px",
-                                    color: '#FFFFFF',
-                                    marginLeft: "-15px"
-                                }}
-                            />
-                            {openSubMenu ? <ExpandLess /> : <ExpandMore />}
-                        </ListItemButton>
-                    </ListItem>
-                    <Collapse in={openSubMenu} timeout="auto" unmountOnExit>
-                        <List component="div" disablePadding>
-                            {/* Usuarios */}
-                            <Link to="/UserAdministration" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <ListItemButton
-                                    sx={{
-                                        pl: 4,
-                                        position: 'relative',
-                                        '&.Mui-selected': {
-                                            backgroundColor: '#290013',
-                                            color: '#FFFFFF',
-                                            '&::before': {
-                                                content: '""',
-                                                position: 'absolute',
-                                                left: 0,
-                                                top: 0,
-                                                bottom: 0,
-                                                width: '4px',
-                                                backgroundColor: '#FFFFFF',
-                                            },
-                                        },
-                                    }}
-                                    selected={location.pathname === '/UserAdministration'}
-                                    onClick={() => handleSelection('Usuarios')}
-                                >
-
-                            {/*Linea Gris*/}
-                            <Box
-                                sx={{
-                                    position: "absolute",
-                                    left: "35px",
-                                    width: "4px",
-                                    height: "35px",
-                                    backgroundColor: selectedLink === 'Usuarios' ? '#FFFFFF' : '#9F94A5',
-                            }}/>
-
-                                    <ListItemText
-                                    primary="Usuarios"
-                                    primaryTypographyProps={{
-                                        fontFamily: "Poppins",
-                                        marginLeft: '30px',
-                                        fontSize: '14px',
-                                        color: selectedLink === 'Usuarios' ? '#FFFFFF' : '#9F94A5',
-                                        marginBottom: "-5px",
-                                        marginTop: "-5px"
-                                    }}
-                                />
-                                </ListItemButton>
-                            </Link>
-                            {/* Salas */}
-                            <Link to="/rooms" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <ListItemButton
-                                    sx={{
-                                        pl: 4,
-                                        position: 'relative',
-                                        '&.Mui-selected': {
-                                            backgroundColor: '#290013',
-                                            color: '#FFFFFF',
-                                            '&::before': {
-                                                content: '""',
-                                                position: 'absolute',
-                                                left: 0,
-                                                top: 0,
-                                                bottom: 0,
-                                                width: '4px',
-                                                backgroundColor: '#FFFFFF',
-                                            },
-                                        },
-                                    }}
-                                    selected={location.pathname === '/rooms'}
-                                    onClick={() => handleSelection('Salas')}
-                                >
-
-                            {/*Linea Gris*/}
-                                <Box
-                                sx={{
-                                    position: "absolute",
-                                    left: "35px",
-                                    width: "4px",
-                                    height: "35px",
-                                    backgroundColor: selectedLink === 'Salas' ? '#FFFFFF' : '#9F94A5',
-                            }}/>
-
-                                    <ListItemText
-                                    primary="Salas"
-                                    primaryTypographyProps={{
-                                        fontFamily: "Poppins",
-                                        marginLeft: '30px',
-                                        fontSize: '14px',
-                                        color: selectedLink === 'Salas' ? '#FFFFFF' : '#9F94A5',
-                                        marginBottom: "-5px",
-                                        marginTop: "-5px"
-                                    }}
-                                />
-                                </ListItemButton>
-                            </Link>
-                        </List>
-                    </Collapse>
-
-                    
-                    {/* Menú de SMS */}
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={() => setOpenSubMenuNumbers(!openSubMenuNumbers)} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconmesage" src={Iconmesage} style={{ width: 35, height: 20 }}/>
-                            <ListItemText
-                                primary="SMS"
-                                primaryTypographyProps={{
-                                    fontFamily: "Poppins",
-                                    marginLeft: "4px",
-                                    marginBottom: "-2px",
-                                    color: '#FFFFFF',
-                                }}
-                            />
-                            {openSubMenuNumbers ? <ExpandLess /> : <ExpandMore />}
-                        </ListItemButton>
-                    </ListItem>
-                    <Collapse in={openSubMenuNumbers} timeout="auto">
-                        <List component="div" disablePadding>
-                            <ListItemButton 
-                            sx={{
-                                pl: 4,
-                                position: 'relative',
-                                '&.Mui-selected': {
-                                    backgroundColor: '#290013',
-                                    color: '#FFFFFF',
-                                    '&::before': {
-                                        content: '""',
-                                        position: 'absolute',
-                                        left: 0,
-                                        top: 0,
-                                        bottom: 0,
-                                        width: '4px',
-                                        backgroundColor: '#FFFFFF',
-                                    },
-                                },
-                            }}
-                            selected={location.pathname === '/sms'}
-                            onClick={() => handleSelection('Configuración SMS')}
-                        > 
-
-                                {/*Linea Gris*/}
-                            <Box
-                                sx={{
-                                    position: "absolute",
-                                    left: "35px",
-                                    width: "4px",
-                                    height: "35px",
-                                    backgroundColor: selectedLink === 'Configuración SMS' ? '#FFFFFF' : '#9F94A5',
-                            }}/>
-
+                {/*Comienzo del fondo para opciones*/}
+                <Box
+                    sx={{
+                        position: "relative",
+                        left: "17px",
+                        height: "auto",
+                        maxHeight: 'calc(100vh - 100px)',
+                        overflowY: "auto",
+                        marginTop: "25px",
+                        width: "245px",
+                        borderRadius: "6px",
+                        borderColor: "#5F5064",
+                        backgroundColor: "#5A4A63CC",
+                    }}>
+                    <List component="nav">
+                        {/* Menú de Administración */}
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
+                                <ListItemIcon sx={{ color: '#FFFFFF' }}>
+                                    <img alt="Iconpeople" src={Iconpeople} style={{ width: 35, height: 20, filter: "brightness(0) invert(1)" }} />
+                                </ListItemIcon>
                                 <ListItemText
-                                    primary="Configuración SMS"
+                                    primary="Administración"
                                     primaryTypographyProps={{
                                         fontFamily: "Poppins",
-                                        marginLeft: '32px',
-                                        fontSize: '14px',
-                                        color: selectedLink === 'Configuración SMS' ? '#FFFFFF' : '#9F94A5',
-                                        marginBottom: "-5px",
-                                        marginTop: "-5px"
+                                        marginBottom: "-2px",
+                                        color: '#FFFFFF',
+                                        marginLeft: "-15px"
                                     }}
                                 />
+                                {openSubMenu ? <ExpandLess /> : <ExpandMore />}
                             </ListItemButton>
-                        </List>
-                                {/* Campañas */}
+                        </ListItem>
+                        <Collapse in={openSubMenu} timeout="auto" unmountOnExit>
+                            <List component="div" disablePadding>
+                                {/* Usuarios */}
+                                <Link to="/UserAdministration" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <ListItemButton
+                                        sx={{
+                                            pl: 4,
+                                            position: 'relative',
+                                            '&.Mui-selected': {
+                                                backgroundColor: '#290013',
+                                                color: '#FFFFFF',
+                                                '&::before': {
+                                                    content: '""',
+                                                    position: 'absolute',
+                                                    left: 0,
+                                                    top: 0,
+                                                    bottom: 0,
+                                                    width: '4px',
+                                                    backgroundColor: '#FFFFFF',
+                                                },
+                                            },
+                                        }}
+                                        selected={location.pathname === '/UserAdministration'}
+                                        onClick={() => handleSelection('Usuarios')}
+                                    >
+
+                                        {/*Linea Gris*/}
+                                        <Box
+                                            sx={{
+                                                position: "absolute",
+                                                left: "35px",
+                                                width: "4px",
+                                                height: "35px",
+                                                backgroundColor: selectedLink === 'Usuarios' ? '#FFFFFF' : '#9F94A5',
+                                            }} />
+
+                                        <ListItemText
+                                            primary="Usuarios"
+                                            primaryTypographyProps={{
+                                                fontFamily: "Poppins",
+                                                marginLeft: '30px',
+                                                fontSize: '14px',
+                                                color: selectedLink === 'Usuarios' ? '#FFFFFF' : '#9F94A5',
+                                                marginBottom: "-5px",
+                                                marginTop: "-5px"
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </Link>
+                                {/* Salas */}
+                                <Link to="/rooms" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <ListItemButton
+                                        sx={{
+                                            pl: 4,
+                                            position: 'relative',
+                                            '&.Mui-selected': {
+                                                backgroundColor: '#290013',
+                                                color: '#FFFFFF',
+                                                '&::before': {
+                                                    content: '""',
+                                                    position: 'absolute',
+                                                    left: 0,
+                                                    top: 0,
+                                                    bottom: 0,
+                                                    width: '4px',
+                                                    backgroundColor: '#FFFFFF',
+                                                },
+                                            },
+                                        }}
+                                        selected={location.pathname === '/rooms'}
+                                        onClick={() => handleSelection('Salas')}
+                                    >
+
+                                        {/*Linea Gris*/}
+                                        <Box
+                                            sx={{
+                                                position: "absolute",
+                                                left: "35px",
+                                                width: "4px",
+                                                height: "35px",
+                                                backgroundColor: selectedLink === 'Salas' ? '#FFFFFF' : '#9F94A5',
+                                            }} />
+
+                                        <ListItemText
+                                            primary="Salas"
+                                            primaryTypographyProps={{
+                                                fontFamily: "Poppins",
+                                                marginLeft: '30px',
+                                                fontSize: '14px',
+                                                color: selectedLink === 'Salas' ? '#FFFFFF' : '#9F94A5',
+                                                marginBottom: "-5px",
+                                                marginTop: "-5px"
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </Link>
+                            </List>
+                        </Collapse>
+
+
+                        {/* Menú de SMS */}
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => setOpenSubMenuNumbers(!openSubMenuNumbers)} sx={{ borderRadius: '8px' }}>
+                                <img alt="Iconmesage" src={Iconmesage} style={{ width: 35, height: 20 }} />
+                                <ListItemText
+                                    primary="SMS"
+                                    primaryTypographyProps={{
+                                        fontFamily: "Poppins",
+                                        marginLeft: "4px",
+                                        marginBottom: "-2px",
+                                        color: '#FFFFFF',
+                                    }}
+                                />
+                                {openSubMenuNumbers ? <ExpandLess /> : <ExpandMore />}
+                            </ListItemButton>
+                        </ListItem>
+                        <Collapse in={openSubMenuNumbers} timeout="auto">
+                            {/* Campañas */}
                             <Link to="/Campains" style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <ListItemButton
                                     sx={{
@@ -1425,296 +1379,438 @@ backgroundColor: "#5A4A63CC",
                                     onClick={() => handleSelection('Campañas')}
                                 >
 
-                            {/*Linea Gris*/}
-                                <Box
-                                sx={{
-                                    position: "absolute",
-                                    left: "35px",
-                                    width: "4px",
-                                    height: "35px",
-                                    backgroundColor: selectedLink === 'Campañas' ? '#FFFFFF' : '#9F94A5',
-                            }}/>
+                                    {/*Linea Gris*/}
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            left: "35px",
+                                            width: "4px",
+                                            height: "35px",
+                                            backgroundColor: selectedLink === 'Campañas' ? '#FFFFFF' : '#9F94A5',
+                                        }} />
 
                                     <ListItemText
-                                    primary="Campañas"
-                                    primaryTypographyProps={{
-                                        fontFamily: "Poppins",
-                                        marginLeft: '30px',
-                                        fontSize: '14px',
-                                        color: selectedLink === 'Campañas' ? '#FFFFFF' : '#9F94A5',
-                                        marginBottom: "-5px",
-                                        marginTop: "-5px"
+                                        primary="Campañas"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '30px',
+                                            fontSize: '14px',
+                                            color: selectedLink === 'Campañas' ? '#FFFFFF' : '#9F94A5',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </Link>
+                            {/* Plantillas */}
+                            <Link to="/Templates" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
                                     }}
-                                />
+                                    selected={location.pathname === '/Templates'}
+                                    onClick={() => handleSelection('Plantillas')}
+                                >
+
+                                    {/*Linea Gris*/}
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            left: "35px",
+                                            width: "4px",
+                                            height: "35px",
+                                            backgroundColor: selectedLink === 'Plantillas' ? '#FFFFFF' : '#9F94A5',
+                                        }} />
+
+                                    <ListItemText
+                                        primary="Plantillas"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '30px',
+                                            fontSize: '14px',
+                                            color: selectedLink === 'Plantillas' ? '#FFFFFF' : '#9F94A5',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </Link>
+                            {/* Pruebas SMS */}
+                            <Link to="/TestSMS" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/TestSMS'}
+                                    onClick={() => handleSelection('Prueba SMS')}
+                                >
+
+                                    {/*Linea Gris*/}
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            left: "35px",
+                                            width: "4px",
+                                            height: "35px",
+                                            backgroundColor: selectedLink === 'Prueba SMS' ? '#FFFFFF' : '#9F94A5',
+                                        }} />
+
+                                    <ListItemText
+                                        primary="Prueba SMS"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '30px',
+                                            fontSize: '14px',
+                                            color: selectedLink === 'Prueba SMS' ? '#FFFFFF' : '#9F94A5',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </Link>
+                            {/* Listas Negras */}
+                            <Link to="/BlackList" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/BlackList'}
+                                    onClick={() => handleSelection('Listas Negras')}
+                                >
+
+                                    {/*Linea Gris*/}
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            left: "35px",
+                                            width: "4px",
+                                            height: "35px",
+                                            backgroundColor: selectedLink === 'Listas Negras' ? '#FFFFFF' : '#9F94A5',
+                                        }} />
+
+                                    <ListItemText
+                                        primary="Listas Negras"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '30px',
+                                            fontSize: '14px',
+                                            color: selectedLink === 'Listas Negras' ? '#FFFFFF' : '#9F94A5',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }}
+                                    />
                                 </ListItemButton>
                             </Link>
 
 
-                    </Collapse>
 
-                    {/* Menú de Reportes */}
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={() => navigate('/reports')} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconreports" src={Iconreports} style={{ width: 35, height: 20, transform: "rotate(-90deg)" }}/>
-                            <ListItemText
-                                primary="Reportes"
-                                primaryTypographyProps={{
-                                    fontFamily: "Poppins",
-                                    marginLeft: "5px",
-                                    color: '#FFFFFF',
-                                }}
-                            />
-                        </ListItemButton>
-                    </ListItem>
+                        </Collapse>
 
-                    {/* Menú de Facturación */}
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={() => setOpenSubMenuBilling(!openSubMenuBilling)} sx={{ borderRadius: '8px' }}>
-                        <img alt="facturicone" src={facturicone} style={{ width: 35, height: 20 }}/>
-                            <ListItemText
-                                primary="Facturación"
-                                primaryTypographyProps={{
-                                    fontFamily: "Poppins",
-                                    marginLeft: "6px",
-                                    marginBottom: "-2px",
-                                    color: '#FFFFFF',
-                                }}
-                            />
-                            {openSubMenuBilling ? <ExpandLess /> : <ExpandMore />}
-                        </ListItemButton>
-                    </ListItem>
-                    <Collapse in={openSubMenuBilling} timeout="auto">
-                        {/* Historial de pagos */}
+                        {/* Menú de Reportes */}
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => navigate('/reports')} sx={{ borderRadius: '8px' }}>
+                                <img alt="Iconreports" src={Iconreports} style={{ width: 35, height: 20, transform: "rotate(-90deg)" }} />
+                                <ListItemText
+                                    primary="Reportes"
+                                    primaryTypographyProps={{
+                                        fontFamily: "Poppins",
+                                        marginLeft: "5px",
+                                        color: '#FFFFFF',
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+
+                        {/* Menú de Facturación */}
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => setOpenSubMenuBilling(!openSubMenuBilling)} sx={{ borderRadius: '8px' }}>
+                                <img alt="facturicone" src={facturicone} style={{ width: 35, height: 20 }} />
+                                <ListItemText
+                                    primary="Facturación"
+                                    primaryTypographyProps={{
+                                        fontFamily: "Poppins",
+                                        marginLeft: "6px",
+                                        marginBottom: "-2px",
+                                        color: '#FFFFFF',
+                                    }}
+                                />
+                                {openSubMenuBilling ? <ExpandLess /> : <ExpandMore />}
+                            </ListItemButton>
+                        </ListItem>
+                        <Collapse in={openSubMenuBilling} timeout="auto">
+                            {/* Historial de pagos */}
                             <Link to="/Paymenthistoric" style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <ListItemButton
-                            sx={{
-                                pl: 4,
-	                            position: 'relative',
-	                            '&.Mui-selected': {
-	                            backgroundColor: '#290013',
-	                            color: '#FFFFFF',
-	                            '&::before': {
-	                            content: '""',
-	                            position: 'absolute',
-	                            left: 0,
-	                            top: 0,
-	                            bottom: 0,
-	                            width: '4px',
-	                            backgroundColor: '#FFFFFF',
-                            },
-                            },
-                            }}
-                            selected={location.pathname === '/Paymenthistoric'}
-                            onClick={() => handleSelection('Historial de pagos')}
-                            >
-                            {/*Linea Gris*/}
-                            
-                            <Box 
-	                            sx={{                                    
-                            		position: "absolute",                                    
-                            		left: "35px",                                    
-                            		width: "4px",                                    
-                            		height: "35px",                                    
-                            		backgroundColor: selectedLink === 'Historial de pagos' ? '#FFFFFF' : '#9F94A5',                        
-                            }}/>                                    
-                            <ListItemText
-                            	primary="Historial de pagos"
-                            	primaryTypographyProps={{                                        
-                            	fontFamily: "Poppins",                                        
-                            	marginLeft: '30px',
-                            	fontSize: '14px',
-                            	color: selectedLink === 'Historial de pagos' ? '#FFFFFF' : '#9F94A5',
-                            	marginBottom: "-5px",                                        
-                            	marginTop: "-5px"
-                            }}/>
-                            </ListItemButton>
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/Paymenthistoric'}
+                                    onClick={() => handleSelection('Historial de pagos')}
+                                >
+                                    {/*Linea Gris*/}
+
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            left: "35px",
+                                            width: "4px",
+                                            height: "35px",
+                                            backgroundColor: selectedLink === 'Historial de pagos' ? '#FFFFFF' : '#9F94A5',
+                                        }} />
+                                    <ListItemText
+                                        primary="Historial de pagos"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '30px',
+                                            fontSize: '14px',
+                                            color: selectedLink === 'Historial de pagos' ? '#FFFFFF' : '#9F94A5',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }} />
+                                </ListItemButton>
                             </Link>
-                        {/* Métodos de pago */}
-                        <Link to="/Paymentmethods" style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <ListItemButton
-                            sx={{
-                                pl: 4,
-	                            position: 'relative',
-	                            '&.Mui-selected': {
-	                            backgroundColor: '#290013',
-	                            color: '#FFFFFF',
-	                            '&::before': {
-	                            content: '""',
-	                            position: 'absolute',
-	                            left: 0,
-	                            top: 0,
-	                            bottom: 0,
-	                            width: '4px',
-	                            backgroundColor: '#FFFFFF',
-                            },
-                            },
-                            }}
-                            selected={location.pathname === '/Paymentmethods'}
-                            onClick={() => handleSelection('Métodos de pago')}
-                            >
-                            {/*Linea Gris*/}
-                            
-                            <Box 
-	                            sx={{                                    
-                            		position: "absolute",                                    
-                            		left: "35px",                                    
-                            		width: "4px",                                    
-                            		height: "35px",                                    
-                                    backgroundColor: selectedLink === 'Métodos de pago' ? '#FFFFFF' : '#9F94A5',                        
-                            }}/>                                    
-                            <ListItemText
-                            	primary="Métodos de pago"
-                            	primaryTypographyProps={{                                        
-                            	fontFamily: "Poppins",                                        
-                            	marginLeft: '30px',
-                            	fontSize: '14px',
-                            	color: selectedLink === 'Métodos de pago' ? '#FFFFFF' : '#9F94A5',
-                            	marginBottom: "-5px",                                        
-                            	marginTop: "-5px"
-                            }}/>
-                            </ListItemButton>
+                            {/* Métodos de pago */}
+                            <Link to="/Paymentmethods" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/Paymentmethods'}
+                                    onClick={() => handleSelection('Métodos de pago')}
+                                >
+                                    {/*Linea Gris*/}
+
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            left: "35px",
+                                            width: "4px",
+                                            height: "35px",
+                                            backgroundColor: selectedLink === 'Métodos de pago' ? '#FFFFFF' : '#9F94A5',
+                                        }} />
+                                    <ListItemText
+                                        primary="Métodos de pago"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '30px',
+                                            fontSize: '14px',
+                                            color: selectedLink === 'Métodos de pago' ? '#FFFFFF' : '#9F94A5',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }} />
+                                </ListItemButton>
                             </Link>
 
-                        {/* Ajustes de Pago */}
-                        <Link to="/Paymentsettings" style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <ListItemButton
-                            sx={{
-                                pl: 4,
-	                            position: 'relative',
-	                            '&.Mui-selected': {
-	                            backgroundColor: '#290013',
-	                            color: '#FFFFFF',
-	                            '&::before': {
-	                            content: '""',
-	                            position: 'absolute',
-	                            left: 0,
-	                            top: 0,
-	                            bottom: 0,
-	                            width: '4px',
-	                            backgroundColor: '#FFFFFF',
-                            },
-                            },
-                            }}
-                            selected={location.pathname === '/Paymentsettings'}
-                            onClick={() => handleSelection('Ajustes de pago')}
-                            >
-                            {/*Linea Gris*/}
-                            
-                            <Box 
-	                            sx={{                                    
-                            		position: "absolute",                                    
-                            		left: "35px",                                    
-                            		width: "4px",                                    
-                            		height: "35px",                                    
-                                    backgroundColor: selectedLink === 'Ajustes de pago' ? '#FFFFFF' : '#9F94A5',                         
-                            }}/>                                    
-                            <ListItemText
-                            	primary="Ajustes de pago"
-                            	primaryTypographyProps={{                                        
-                            	fontFamily: "Poppins",                                        
-                            	marginLeft: '30px',
-                            	fontSize: '14px',
-                            	color: '#9F94A5',
-                            	marginBottom: "-5px",                                        
-                            	marginTop: "-5px"
-                            }}/>
-                            </ListItemButton>
-                            </Link>
-                            
+                            {/* Ajustes de Pago */}
+                            <Link to="/Paymentsettings" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/Paymentsettings'}
+                                    onClick={() => handleSelection('Ajustes de pago')}
+                                >
+                                    {/*Linea Gris*/}
 
-
-                           {/* Costos */}
-                        <Link to="/Costs" style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <ListItemButton
-                            sx={{
-                                pl: 4,
-	                            position: 'relative',
-	                            '&.Mui-selected': {
-	                            backgroundColor: '#290013',
-	                            color: '#FFFFFF',
-	                            '&::before': {
-	                            content: '""',
-	                            position: 'absolute',
-	                            left: 0,
-	                            top: 0,
-	                            bottom: 0,
-	                            width: '4px',
-	                            backgroundColor: '#FFFFFF',
-                            },
-                            },
-                            }}
-                            selected={location.pathname === '/Costs'}
-                            onClick={() => handleSelection('Costos')}
-                            >
-                            {/*Linea Gris*/}
-                            
-                            <Box 
-	                            sx={{                                    
-                            		position: "absolute",                                    
-                            		left: "35px",                                    
-                            		width: "4px",                                    
-                            		height: "35px",                                    
-                                    backgroundColor: selectedLink === 'Costos' ? '#FFFFFF' : '#9F94A5',                        
-                            }}/>                                    
-                            <ListItemText
-                            	primary="Costos"
-                            	primaryTypographyProps={{                                        
-                            	fontFamily: "Poppins",                                        
-                            	marginLeft: '30px',
-                            	fontSize: '14px',
-                            	color: selectedLink === 'Costos' ? '#FFFFFF' : '#9F94A5',
-                            	marginBottom: "-5px",                                        
-                            	marginTop: "-5px"
-                            }}/>
-                            </ListItemButton>
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            left: "35px",
+                                            width: "4px",
+                                            height: "35px",
+                                            backgroundColor: selectedLink === 'Ajustes de pago' ? '#FFFFFF' : '#9F94A5',
+                                        }} />
+                                    <ListItemText
+                                        primary="Ajustes de pago"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '30px',
+                                            fontSize: '14px',
+                                            color: '#9F94A5',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }} />
+                                </ListItemButton>
                             </Link>
 
 
 
+                            {/* Costos */}
+                            <Link to="/Costs" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ListItemButton
+                                    sx={{
+                                        pl: 4,
+                                        position: 'relative',
+                                        '&.Mui-selected': {
+                                            backgroundColor: '#290013',
+                                            color: '#FFFFFF',
+                                            '&::before': {
+                                                content: '""',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                width: '4px',
+                                                backgroundColor: '#FFFFFF',
+                                            },
+                                        },
+                                    }}
+                                    selected={location.pathname === '/Costs'}
+                                    onClick={() => handleSelection('Costos')}
+                                >
+                                    {/*Linea Gris*/}
+
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            left: "35px",
+                                            width: "4px",
+                                            height: "35px",
+                                            backgroundColor: selectedLink === 'Costos' ? '#FFFFFF' : '#9F94A5',
+                                        }} />
+                                    <ListItemText
+                                        primary="Costos"
+                                        primaryTypographyProps={{
+                                            fontFamily: "Poppins",
+                                            marginLeft: '30px',
+                                            fontSize: '14px',
+                                            color: selectedLink === 'Costos' ? '#FFFFFF' : '#9F94A5',
+                                            marginBottom: "-5px",
+                                            marginTop: "-5px"
+                                        }} />
+                                </ListItemButton>
+                            </Link>
 
 
-                                                        
-                            
-                    </Collapse>
 
 
 
-                    {/* Menú de Ayuda */}
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={() => navigate('/help')} sx={{ borderRadius: '8px' }}>
-                        <img alt="Iconhelpu" src={Iconhelpu} style={{ width: 35, height: 20, filter: "brightness(0) invert(1)"  }}/>
-                            <ListItemText
-                                primary="Ayuda"
-                                primaryTypographyProps={{
-                                    fontFamily: "Poppins",
-                                    marginLeft: "6px",
-                                    color: '#FFFFFF',
-                                }}
-                            />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
 
 
-{/* Final del fondo para opciones */}
-</Box>
+                        </Collapse>
+
+
+
+                        {/* Menú de Ayuda */}
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => navigate('/help')} sx={{ borderRadius: '8px' }}>
+                                <img alt="Iconhelpu" src={Iconhelpu} style={{ width: 35, height: 20, filter: "brightness(0) invert(1)" }} />
+                                <ListItemText
+                                    primary="Ayuda"
+                                    primaryTypographyProps={{
+                                        fontFamily: "Poppins",
+                                        marginLeft: "6px",
+                                        color: '#FFFFFF',
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+
+
+                    {/* Final del fondo para opciones */}
+                </Box>
             </Drawer >
             <Container
-                
+
                 maxWidth={false} // 🔥 Permite que se expanda a todo el ancho
-            disableGutters // 🔥 Elimina el padding interno del contenedor
-            sx={{
-                width: '100%',
-                height: '100vh',
-                overflowX: 'hidden',
-                margin: 0,
-                marginLeft: "277px",
-                marginTop: "70px",
-                padding: 0,
-                backgroundColor: '#F2F2F2', // 🔥 Asegura que todo el fondo sea gris
-                display: 'flex',
-                flexDirection: 'column',
-            }}
+                disableGutters // 🔥 Elimina el padding interno del contenedor
+                sx={{
+                    width: '100%',
+                    height: '100vh',
+                    overflowX: 'hidden',
+                    margin: 0,
+                    marginLeft: "277px",
+                    marginTop: "70px",
+                    padding: 0,
+                    backgroundColor: '#F2F2F2', // 🔥 Asegura que todo el fondo sea gris
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}
             >
                 <Box sx={{ height: '4.5rem' }} />
                 {props.children}

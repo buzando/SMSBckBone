@@ -1,4 +1,4 @@
-import { Box, Divider, Typography, Select, MenuItem, TextField, InputLabel, FormControl, IconButton } from "@mui/material";
+import { Box, Divider, Typography, Select, MenuItem, TextField, InputLabel, FormControl, IconButton, Tooltip } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import axios from "axios";
@@ -72,8 +72,8 @@ export default function TestSMS() {
 
   return (
     <div style={{ padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1040px' }}>
-         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <FormControl size="small" sx={{ width: '150px' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <FormControl size="small" sx={{ width: '150px', backgroundColor: "#ffffff" }}>
           <Select value={language} onChange={handleLanguageChange}>
             <MenuItem value="es">Español</MenuItem>
             <MenuItem value="en">English</MenuItem>
@@ -109,39 +109,39 @@ export default function TestSMS() {
         <Typography
           variant="h4"
           sx={{
-            fontWeight: 'bold',
+            fontWeight: '500',
             color: '#330F1B',
             fontFamily: 'Poppins',
             fontSize: '26px',
           }}
         >
-        {t('pages.testSMS.title')}
+          {t('pages.testSMS.title')}
         </Typography>
       </Box>
 
       <Divider sx={{ mb: 2 }} />
 
       <Typography sx={{ fontFamily: "Poppins", fontWeight: 500, fontSize: "16px", mb: 1 }}>
-      {t('pages.testSMS.smsTestDescription')}
+        {t('pages.testSMS.smsTestDescription')}
       </Typography>
 
       <Typography sx={{ fontFamily: "Poppins", fontSize: "14px", mb: 2 }}>
-      {t('pages.testSMS.smsSelectDescription')}
+        {t('pages.testSMS.smsSelectDescription')}
       </Typography>
 
       <Box display="flex" gap={2} mb={3}>
         <Box flex={1}>
           <Typography sx={{ fontFamily: "Poppins", fontSize: "16px", fontWeight: 500, mb: 1 }}>
-          {t('pages.testSMS.from')}
+            {t('pages.testSMS.from')}
           </Typography>
-          <FormControl fullWidth>
+          <FormControl sx={{ backgroundColor: "#ffffff", fontFamily: "Poppins", borderRadius: "6px", width: "220px" }}>
             <Select defaultValue="" value={fromNumber}
-              onChange={(e) => setFromNumber(e.target.value)} displayEmpty>
+              onChange={(e) => setFromNumber(e.target.value)} displayEmpty sx={{ fontFamily: "Poppins" }}>
               <MenuItem value="">
                 <em>{t('pages.testSMS.numberPlaceholder')}</em>
               </MenuItem>
               {numbersData.map((number) => (
-                <MenuItem key={number.id} value={number.id}>
+                <MenuItem key={number.id} value={number.id} sx={{ fontFamily: "Poppins" }}>
                   {number.number}
                 </MenuItem>
               ))}
@@ -160,11 +160,10 @@ export default function TestSMS() {
               color: toNumberError ? "#D32F2F" : "#330F1B", // 🔥 cambia a rojo si hay error
             }}
           >
-           {t('pages.testSMS.to')}
+            {t('pages.testSMS.to')}
           </Typography>
 
-          <TextField
-            fullWidth
+          <TextField fullWidth
             value={toNumber}
             onChange={(e) => {
               const value = e.target.value.replace(/\D/g, ''); // 🔥 Solo deja números
@@ -173,14 +172,52 @@ export default function TestSMS() {
             }}
             error={toNumberError}
             helperText={toNumberError ? t('pages.testSMS.invalidNumber') : " "}
+
             InputProps={{
               sx: { backgroundColor: "#f7f7f7" },
               endAdornment: (
-                <img
-                  src={toNumberError ? infoiconerror : infoicon}
-                  alt="info"
-                  style={{ width: 20, height: 20, marginRight: 8 }}
-                />
+
+                <Tooltip
+                  placement="bottom-end"
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: "transparent",
+                        padding: 0,
+                      },
+                    },
+                  }}
+                  title={
+                    <Box
+                      sx={{
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "8px",
+                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                        padding: "8px 12px",
+                        fontSize: "13px",
+                        fontFamily: "Poppins",
+                        color: "#000000",
+                        whiteSpace: "pre-line",
+                        transform: "translate(-10px, -22px)",
+                        borderColor: "#00131F3D",
+                        borderStyle: "solid",
+                        borderWidth: "1px"
+                      }}
+                    >
+                      <>
+                        • Solo caracteres numéricos<br />
+                        • El teléfono debe incluir el<br />
+                        código del país
+                      </>
+                    </Box>
+                  }
+                >
+                  <img
+                    src={toNumberError ? infoiconerror : infoicon}
+                    alt="info"
+                    style={{ width: 20, height: 20, marginRight: 8 }}
+                  />
+                </Tooltip>
               )
             }}
           />
@@ -189,7 +226,7 @@ export default function TestSMS() {
       </Box>
 
       <Typography sx={{ fontFamily: "Poppins", fontSize: "14px", mb: 2 }}>
-      {t('pages.testSMS.writeMessageOrSelect')}
+        {t('pages.testSMS.writeMessageOrSelect')}
       </Typography>
 
       <Box display="flex" gap={2}>
@@ -203,7 +240,7 @@ export default function TestSMS() {
               color: messageError ? "#D32F2F" : "#330F1B", // 🔥 Se pone rojo si hay error
             }}
           >
-             {t('pages.testSMS.message')}
+            {t('pages.testSMS.message')}
           </Typography>
           <TextField
             fullWidth
@@ -217,15 +254,51 @@ export default function TestSMS() {
               setMessageError(value.length === 0 || value.length > 160); // 🔥 Error si está vacío o pasa 160 caracteres
             }}
             error={messageError}
-            helperText={messageError ? t('pages.testSMS.invalidFormat')  : " "}
+            helperText={messageError ? t('pages.testSMS.invalidFormat') : " "}
             InputProps={{
-              sx: { backgroundColor: "#f7f7f7" },
+              sx: { backgroundColor: "#f7f7f7", fontFamily: "Poppins" },
               endAdornment: (
-                <img
-                  src={messageError ? infoiconerror : infoicon}
-                  alt="info"
-                  style={{ width: 20, height: 20, marginRight: 8 }}
-                />
+                <Tooltip
+                  placement="bottom-end"
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: "transparent",
+                        padding: 0,
+                      },
+                    },
+                  }}
+                  title={
+                    <Box
+                      sx={{
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "8px",
+                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                        padding: "8px 12px",
+                        fontSize: "13px",
+                        fontFamily: "Poppins",
+                        color: "#000000",
+                        whiteSpace: "pre-line",
+                        transform: "translate(-10px, -22px)",
+                        borderColor: "#00131F3D",
+                        borderStyle: "solid",
+                        borderWidth: "1px"
+                      }}
+                    >
+                      <>
+                        • Solo caracteres alfanuméricos<br />
+                        • Longitud máxima de 160<br />
+                        caracteres
+                      </>
+                    </Box>
+                  }
+                >
+                  <img
+                    src={messageError ? infoiconerror : infoicon}
+                    alt="info"
+                    style={{ width: 20, height: 20, marginRight: 8 }}
+                  />
+                </Tooltip>
               )
             }}
           />
@@ -243,11 +316,11 @@ export default function TestSMS() {
 
         <Box flex={1}>
           <Typography sx={{ fontFamily: "Poppins", fontSize: "16px", fontWeight: 500, mb: 1 }}>
-          {t('pages.testSMS.template')}
+            {t('pages.testSMS.template')}
           </Typography>
 
           <Box display="flex" alignItems="center" gap={1}>
-            <FormControl sx={{ flex: 1 }}>
+            <FormControl sx={{ flex: 1, }}>
               <Select defaultValue="" value={selectedTemplateId}
                 onChange={(e) => setSelectedTemplateId(e.target.value)} displayEmpty>
                 <MenuItem value="">
@@ -294,7 +367,7 @@ export default function TestSMS() {
           }}
         >
           <Typography fontWeight="600" fontSize="18px" color="#330F1B" mb={2}>
-          {t('pages.testSMS.preview')} <span style={{ color: '#7B354D' }}>{selectedTemplate?.name || ''}</span>
+            {t('pages.testSMS.preview')} <span style={{ color: '#7B354D' }}>{selectedTemplate?.name || ''}</span>
           </Typography>
 
           <Box sx={{ backgroundColor: '#F8E7EC', borderRadius: 2, padding: 2, mb: 3 }}>
