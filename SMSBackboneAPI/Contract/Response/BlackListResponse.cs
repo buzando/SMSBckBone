@@ -14,5 +14,7 @@ namespace Contract.Response
         public DateTime? ExpirationDate { get; set; }
         public string Name { get; set; }
         public int Quantity { get; set; }
+        public bool HasActiveCampaign { get; set; } 
+
     }
 }

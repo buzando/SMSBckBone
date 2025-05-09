@@ -11,7 +11,7 @@ namespace Contract.Request
     {
         public Campaigns Campaigns { get; set; } = new();
         public List<CampaignSchedules> CampaignSchedules { get; set; } = new();
-        public CampaignRecycleSetting? CampaignRecycleSetting { get; set; }
+        public CampaignRecycleSettings? CampaignRecycleSetting { get; set; }
         public List<int> BlacklistIds { get; set; } = new();
         public string SessionId { get; set; } = string.Empty;
     }

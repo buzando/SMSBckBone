@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Modal.Model.Model
 {
-    public class CampaignRecycleSetting
+    public class CampaignRecycleSettings
     {
         public int Id { get; set; }
         public int CampaignId { get; set; }

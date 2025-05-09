@@ -86,6 +86,21 @@ namespace SMSBackboneAPI.Controllers
 
         }
 
+
+        [HttpGet("GetCampaignsByRoom")]
+        public async Task<IActionResult> GetCampaignsByRoom(int IdRoom)
+        {
+            var manager = new CampaignManager();
+
+            var respuesta = manager.FullResponseCampaignByRoom(IdRoom);
+
+            if (respuesta == null)
+                return BadRequest(new { code = "ErrorGettingCampaigns", description = "Error al traer registros de campañas." });
+
+            return Ok(respuesta);
+
+        }
+
     }
 
 

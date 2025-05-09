@@ -21,18 +21,23 @@ namespace Business
             {
                 using (var ctx = new Entities())
                 {
-                    lista = ctx.BlackList
-     .Where(x => x.idroom == id)
-     .GroupBy(x => x.Name)
-     .Select(g => new BlackListResponse
-     {
-         id = g.First().Id,
-         CreationDate = g.First().CreationDate,
-         ExpirationDate = g.First().ExpirationDate,
-         Name = g.Key,
-         Quantity = g.Count()
-     })
-     .ToList();
+                    lista = lista = ctx.BlackList
+    .Where(x => x.idroom == id)
+    .GroupBy(x => x.Name)
+    .Select(g => new BlackListResponse
+    {
+        id = g.First().Id,
+        CreationDate = g.First().CreationDate,
+        ExpirationDate = g.First().ExpirationDate,
+        Name = g.Key,
+        Quantity = g.Count(),
+        HasActiveCampaign = (from blc in ctx.blacklistcampains
+                             join c in ctx.Campaigns on blc.idcampains equals c.Id
+                             where blc.idblacklist == g.First().Id && c.AutoStart
+                             select blc.id).Any()
+    })
+    .ToList();
+
 
                 }
             }

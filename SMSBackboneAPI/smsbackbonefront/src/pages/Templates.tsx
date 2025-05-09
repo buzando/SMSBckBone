@@ -260,7 +260,7 @@ const Templates = () => {
                 idRoom: salaId
             }
 
-            const response = await axios.post(`${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_DELETE_TEMPLATE}`, payload, {
+            const response = await axios.post(`${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_GETCAMPAINSBYTEMPLATE}`, payload, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -277,27 +277,29 @@ const Templates = () => {
     };
 
 
+    const fetchTemplates = async () => {
+
+        try {
+            const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
+            setLoadingTemplates(true);
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GET_GETTEMPLATESBYROOM + salaId}`;
+            const response = await axios.get(requestUrl);
+            setTemplates(response.data);
+        }
+        catch (error) {
+            console.error(error);
+            setIsErrorModalOpen(true);
+            setTitleErrorModal('Error al traer las plantillas');
+            setMessageErrorModal('Ocurrió un error al intentar guardar la plantilla. Inténtalo más tarde.');
+        } finally {
+            setLoadingTemplates(false);
+        }
+    };
+
+
     useEffect(() => {
-        const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
 
-        const fetchTemplates = async () => {
-
-            try {
-
-                setLoadingTemplates(true);
-                const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GET_GETTEMPLATESBYROOM + salaId}`;
-                const response = await axios.get(requestUrl);
-                setTemplates(response.data);
-            }
-            catch (error) {
-                console.error(error);
-                setIsErrorModalOpen(true);
-                setTitleErrorModal('Error al traer las plantillas');
-                setMessageErrorModal('Ocurrió un error al intentar guardar la plantilla. Inténtalo más tarde.');
-            } finally {
-                setLoadingTemplates(false);
-            }
-        };
 
         fetchTemplates();
     }, []);
@@ -331,6 +333,7 @@ const Templates = () => {
                                 : t
                         )
                     );
+                    fetchTemplates();
                     setMessageChipBar('Plantilla actualizada correctamente');
                 }
             } else {
@@ -349,6 +352,7 @@ const Templates = () => {
 
                 if (response.status === 200) {
                     setMessageChipBar('Plantilla agregada correctamente');
+                    fetchTemplates();
                 }
             }
 

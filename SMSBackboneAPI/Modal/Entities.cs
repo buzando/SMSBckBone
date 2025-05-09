@@ -35,13 +35,14 @@ namespace Modal
         public DbSet<blacklistcampains> blacklistcampains { get; set; }
         public DbSet<Campaigns> Campaigns { get; set; }
         public DbSet<CampaignContacts> CampaignContacts { get; set; }
-        public DbSet<CampaignRecycleSetting> CampaignRecycleSetting { get; set; }
+        public DbSet<CampaignRecycleSettings> CampaignRecycleSettings { get; set; }
 
         public DbSet<Template> Template { get; set; }
 
         public DbSet<CampaignSchedules> CampaignSchedules { get; set; }
 
         public DbSet<ClientAccess> ClientAccess { get; set; }
-        public DbSet<tpm_CampaignContacts> tpm_CampaignContacts { get; set; }
+        public DbSet<tpm_CampaignContacts> tpm_CampaignContacts { get; set; }  
+        public DbSet<CampaignContactScheduleSend> CampaignContactScheduleSend { get; set; }
     }
 }

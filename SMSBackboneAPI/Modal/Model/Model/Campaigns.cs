@@ -10,6 +10,7 @@ namespace Modal.Model.Model
     public class Campaigns
     {
         public int Id { get; set; }
+        public int RoomId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Message { get; set; }
         public bool UseTemplate { get; set; }

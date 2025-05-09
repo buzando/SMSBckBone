@@ -52,6 +52,7 @@ interface BlackList {
     name: string;
     expirationDate: string;
     quantity: number;
+    hasActiveCampaign: boolean;
 }
 
 interface FormData {
@@ -460,6 +461,12 @@ const BlackList: React.FC = () => {
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
+        if (!date) return 'Sin expiración';
+
+
+        const parsedDate = new Date(date);
+        if (isNaN(parsedDate.getTime()) || parsedDate.getFullYear() <= 1969) return 'Sin expiración';
+
         return date.toLocaleString('es-MX', {
             day: '2-digit',
             month: '2-digit',
@@ -703,7 +710,14 @@ const BlackList: React.FC = () => {
 
     const handleDeleteSelected = async (blackList: BlackList) => {
         const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+        const tieneProtegidas = selectedRows.some((row) => row.hasActiveCampaign);
 
+        if (tieneProtegidas) {
+          setTitleErrorModal("Error al eliminar listas negras");
+          setMessageErrorModal("Alguna o todas las listas negras seleccionadas se encuentran asignadas a una campaña que está en curso. No es posible eliminarla(s).");
+          setIsErrorModalOpen(true);
+          return;
+        }
         const payload = {
             names: blackList ? [blackList.name] : selectedRows.map(row => row.name),
             idroom: salaId
@@ -762,7 +776,7 @@ const BlackList: React.FC = () => {
             handleCloseDeleteModal();
         }
     };
-
+    const hasLockedBlackLists = selectedRows.some((row) => row.hasActiveCampaign);
 
 
     return (
@@ -1106,7 +1120,7 @@ const BlackList: React.FC = () => {
                                                         ]
                                                     }}
                                                 >
-                                                    <IconButton onClick={handleDeleteSelected}>
+                                                    <IconButton onClick={handleDeleteSelected} >
                                                         <img src={Thrashicon} alt="Eliminar" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
@@ -2976,8 +2990,9 @@ const BlackList: React.FC = () => {
 
                         handleMenuClose();
                     }}
+                    disabled={selectedBlackList?.hasActiveCampaign}
                 >
-                    <img src={Thrashicon} alt="Eliminar" />
+                    <img src={Thrashicon} alt="Eliminar"  />
                     <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
                         Eliminar
                     </Typography>

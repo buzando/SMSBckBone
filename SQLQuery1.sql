@@ -180,6 +180,7 @@ idroom int foreign key references rooms(id)
 -- Tabla Campaigns
 CREATE TABLE Campaigns (
     Id INT IDENTITY(1,1) PRIMARY KEY,
+	RoomId int not null,
     Name NVARCHAR(255) NOT NULL,
     Message NVARCHAR(MAX) NULL,
     UseTemplate BIT DEFAULT 0,
@@ -191,7 +192,8 @@ CREATE TABLE Campaigns (
     NumberType tinyint not NULL, -- 'Corto 1' o 'Largo 2'
     CreatedDate DATETIME DEFAULT GETDATE(),
     ModifiedDate DATETIME NULL,
-    FOREIGN KEY (TemplateId) REFERENCES Template(Id)
+    FOREIGN KEY (TemplateId) REFERENCES Template(Id),
+	foreign key (RoomId) references rooms(Id)
 );
 
 -- Tabla CampaignSchedules
@@ -267,4 +269,16 @@ CREATE TABLE dbo.tpm_CampaignContacts (
     Misc02 NVARCHAR(100) NULL,
     CreatedAt DATETIME DEFAULT GETDATE(),
     CreatedBy NVARCHAR(100) NULL
+);
+CREATE TABLE CampaignContactScheduleSend (
+    Id INT PRIMARY KEY IDENTITY,
+    CampaignId INT NOT NULL,
+    ContactId INT NOT NULL,
+    ScheduleId INT NOT NULL,
+    SentAt DATETIME NULL,
+    Status VARCHAR(50) NOT NULL, -- 'Pendiente', 'Enviado', 'Error', etc.
+    ResponseMessage NVARCHAR(255) NULL,
+    FOREIGN KEY (CampaignId) REFERENCES Campaigns(Id),
+    FOREIGN KEY (ContactId) REFERENCES CampaignContacts(Id),
+    FOREIGN KEY (ScheduleId) REFERENCES CampaignSchedules(Id)
 );

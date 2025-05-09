@@ -105,6 +105,49 @@ export interface BlackList {
   expirationDate: string;
   quantity: number;
 }
+export interface CampaignFullResponse {
+  id: number;
+  name: string;
+  message?: string;
+  useTemplate: boolean;
+  templateId?: number;
+  autoStart: boolean;
+  flashMessage: boolean;
+  customANI: boolean;
+  recycleRecords: boolean;
+  numberType: number;
+  createdDate: string;
+  numeroActual: number;
+  numeroInicial: number;
+
+  schedules: CampaignScheduleDto[];
+  recycleSetting?: CampaignRecycleSettingDto;
+  contacts: CampaignContactDto[];
+}
+
+export interface CampaignScheduleDto {
+  startDateTime: string;
+  endDateTime: string;
+  operationMode?: number;
+  order: number;
+}
+
+export interface CampaignRecycleSettingDto {
+  typeOfRecords?: string;
+  includeNotContacted: boolean;
+  numberOfRecycles: number;
+}
+
+export interface CampaignContactDto {
+  phoneNumber: string;
+  dato?: string;
+  datoId?: string;
+  misc01?: string;
+  misc02?: string;
+}
+
+
+
 const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/mexico/mexico-states.json";
 
 const Campains: React.FC = () => {
@@ -134,6 +177,7 @@ const Campains: React.FC = () => {
   const [TitleErrorModal, setTitleErrorModal] = useState('');
   const [MessageErrorModal, setMessageErrorModal] = useState('');
   const [currentHorarioIndex, setCurrentHorarioIndex] = useState<number | null>(null);
+const [selectedCampaign, setSelectedCampaign] = useState<CampaignFullResponse | null>(null);
 
 
 
@@ -312,6 +356,7 @@ const Campains: React.FC = () => {
   const [uploadedFileBase64, setUploadedFileBase64] = useState('');
   const [dragColumns, setDragColumns] = useState<string[]>([]);
   const [selectedBlackListIds, setSelectedBlackListIds] = useState<number[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignFullResponse[]>([]);
 
   const handleAgregarHorario = () => {
     setHorarios((prev) => [
@@ -393,14 +438,26 @@ const Campains: React.FC = () => {
     setVariables(varCols);
   };
 
-  const campaigns = [
-    { name: "Nombre de campaña 1", numeroInicial: 8, numeroActual: 8 },
-    { name: "Nombre de campaña 2", numeroInicial: 10, numeroActual: 1 },
-    { name: "Nombre de campaña 3", numeroInicial: 10, numeroActual: 1 },
-    { name: "Nombre de campaña 4", numeroInicial: 10, numeroActual: 5 },
-    { name: "Nombre de campaña 5", numeroInicial: 20, numeroActual: 10 },
-    { name: "Nombre de campaña 6", numeroInicial: 15, numeroActual: 7 },
-  ];
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  const fetchCampaigns = async () => {
+    const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+    if (!salaId) return;
+
+    try {
+      const url = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GET_CAMPAIGN + salaId}`;
+      const response = await axios.get(url);
+      if (response.status === 200) {
+        setCampaigns(response.data);
+        setSelectedCampaign(response.data);
+      }
+    } catch (error) {
+      console.error("Error al traer campañas:", error);
+    }
+  };
 
   const [selectedCampaigns, setSelectedCampaigns] = useState<number[]>([]);
 
@@ -548,9 +605,12 @@ const Campains: React.FC = () => {
 
   const handleSaveCampaign = async () => {
     try {
+      const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
+
       const payload = {
         campaigns: {
           name: campaignName,
+          RoomId: salaId,
           message: mensajeTexto,
           useTemplate: tipoMensaje === "plantilla",
           templateId: tipoMensaje === "plantilla" ? selectedTemplate?.id : null,
@@ -1033,6 +1093,7 @@ const Campains: React.FC = () => {
                                     ? prev.filter(i => i !== index)
                                     : [...prev, index]
                                 );
+                                setSelectedCampaign(campaign);
                               }}
                               sx={{ padding: 0 }}
                             >
@@ -1167,7 +1228,7 @@ const Campains: React.FC = () => {
                     fontSize: "18px",
                   }}
                 >
-                  Nombre de campaña 1
+                  {selectedCampaign?.name}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -1227,7 +1288,7 @@ const Campains: React.FC = () => {
                 <Typography sx={{ fontSize: "12px", fontFamily: "Poppins", opacity: 0.7, textAlign: "center" }}>
                   Total de <br />registros:<br />
                   <Box component="span" sx={{ fontSize: "24px", fontWeight: "bold", color: "#574B4F" }}>
-                    30
+                  {selectedCampaign?.numeroInicial ?? "0"}
                   </Box>
                 </Typography>
               </Box>
