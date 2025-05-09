@@ -15,6 +15,10 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import infoicon from '../assets/Icon-info.svg'
 import UpCloudIcon from '../assets/UpCloudIcon.svg'
+import IconPlusCircle from '../assets/IconPlusCircle.svg'
+import IconNegativeCircle from '../assets/IconNegativeCircle.svg'
+import IconReUpdate1 from '../assets/IconReUpdate1.svg'
+
 import IconCloudError from '../assets/IconCloudError.svg'
 import CloudCheckedIcon from '../assets/CloudCheckedIcon.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
@@ -1341,7 +1345,7 @@ const BlackList: React.FC = () => {
                         {/* Upload y Teléfonos */}
                         <Box sx={{ display: 'flex', gap: 3 }}>
                             {/* Subir archivo */}
-                            <Box
+                            <Box marginBottom={'25px'}
                                 onClick={() => fileInputRef.current?.click()}
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={(e) => {
@@ -1436,6 +1440,23 @@ const BlackList: React.FC = () => {
                                     }}
 
                                 />
+                                {fileSuccess && (
+                                    <Box
+                                        sx={{ width: "200px" }}
+                                    >
+                                        <Typography sx={{
+                                            position: "absolute",
+                                            marginLeft: "20px",
+                                            marginTop: "30px",
+                                            textDecoration: "underline",
+                                            fontFamily: 'Poppins',
+                                            fontSize: '11px',
+                                            color: "#8F4D63"
+                                        }}>
+                                            Descargar archivo de muestra
+                                        </Typography>
+                                    </Box>
+                                )}
                             </Box>
                             <Box
                                 sx={{
@@ -2244,19 +2265,35 @@ const BlackList: React.FC = () => {
                             Gestionar registros: <span style={{ color: '#7B354D', fontFamily: 'Poppins' }}>{selectedBlackList ? `${selectedBlackList.name}` : ''}</span>
                         </Typography>
 
-                        <Typography mt={3} fontWeight="500" fontSize="18px" fontFamily='Poppins'>
-                            Seleccionar operación</Typography>
+                        <Typography
+                            mt={3}
+                            fontWeight="500"
+                            fontSize="18px"
+                            fontFamily="Poppins"
+                            textAlign="center"
+                            sx={{ width: '100%' }}
+                        >
+                            Seleccionar operación
+                        </Typography>
+
+
                         <ToggleButtonGroup
                             exclusive
                             value={manageOperation}
                             onChange={(e, value) => value && setManageOperation(value)}
-                            sx={{ mt: 1 }}
+                            sx={{
+                                mt: 2,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                gap: "25px",
+
+                            }}
                         >
                             <Box
                                 sx={{
                                     width: "64px",
                                     height: "64px",
-                                    borderRadius: "2px",
+                                    borderRadius: "6px",
                                     borderColor: "#6F3D50",
                                     backgroundColor: "#8F4D63"
                                 }}
@@ -2272,35 +2309,9 @@ const BlackList: React.FC = () => {
                                         padding: 1
                                     }}
                                 >
-                                    <img src={AddIcon} style={{ width: 18, height: 18, marginBottom: 4 }} />
-                                    <Typography
-                                        sx={{
-                                            fontWeight: 500,
-                                            fontFamily: 'Poppins',
-                                            fontSize: '12px',
-                                            lineHeight: 1,
-                                            color: '#8F4D63',
-                                            textTransform: 'none'
-                                        }}
-                                    >
-                                        Cargar
-                                    </Typography>
+                                    <img src={IconPlusCircle} style={{ width: 32, height: 32, marginBottom: 4 }} />
+
                                 </ToggleButton>
-                            </Box>
-
-
-                            <ToggleButton value="eliminar"
-                                sx={{
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: "64px",
-                                    height: "64px",
-                                    padding: 1
-                                }}
-                            >
-                                <DeleteIcon sx={{ mr: 1, color: '#7B354D' }} />
-
                                 <Typography
                                     sx={{
                                         fontWeight: 500,
@@ -2308,24 +2319,73 @@ const BlackList: React.FC = () => {
                                         fontSize: '12px',
                                         lineHeight: 1,
                                         color: '#8F4D63',
-                                        textTransform: 'none'
+                                        textTransform: 'none',
+                                        marginLeft: "10px",
+                                        marginTop: "4px"
+                                    }}
+                                >
+                                    Cargar
+                                </Typography>
+                            </Box>
+
+                            <Box
+                                sx={{
+                                    width: "64px",
+                                    height: "64px",
+                                    borderRadius: "6px",
+                                    border: '2px solid #8F4E63'
+                                }}
+                            >
+                                <ToggleButton value="eliminar"
+                                    sx={{
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: "64px",
+                                        height: "64px",
+                                        padding: 1,
+                                    }}
+                                >
+                                    <img src={IconNegativeCircle} style={{ width: 32, height: 32, marginBottom: 4 }} />
+
+                                </ToggleButton>
+                                <Typography
+                                    sx={{
+                                        fontWeight: 500,
+                                        fontFamily: 'Poppins',
+                                        fontSize: '12px',
+                                        lineHeight: 1,
+                                        color: '#8F4D63',
+                                        textTransform: 'none',
+                                        marginLeft: "7px",
+                                        marginTop: "4px"
                                     }}
                                 >
                                     Eliminar
                                 </Typography>
-                            </ToggleButton>
+                            </Box>
 
-                            <ToggleButton value="actualizar"
+                            <Box
                                 sx={{
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
                                     width: "64px",
                                     height: "64px",
-                                    padding: 1
+                                    borderRadius: "6px",
+                                    border: '2px solid #8F4E63'
                                 }}
                             >
-                                <SyncIcon sx={{ mr: 1, color: '#7B354D' }} />
+                                <ToggleButton value="actualizar"
+                                    sx={{
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: "64px",
+                                        height: "64px",
+                                        padding: 1
+                                    }}
+                                >
+                                    <img src={IconReUpdate1} style={{ width: 27, height: 27, marginBottom: 4 }} />
+
+                                </ToggleButton>
                                 <Typography
                                     sx={{
                                         fontWeight: 500,
@@ -2333,23 +2393,28 @@ const BlackList: React.FC = () => {
                                         fontSize: '12px',
                                         lineHeight: 1,
                                         color: '#8F4D63',
-                                        textTransform: 'none'
+                                        textTransform: 'none',
+                                        marginLeft: "0px",
+                                        marginTop: "4px"
                                     }}
                                 >
                                     Actualizar
                                 </Typography>
-                            </ToggleButton>
+                            </Box>
 
                         </ToggleButtonGroup>
 
-                        <Divider sx={{ my: 3 }} />
+                        <Divider sx={{ my: 3, mt: 5 }} />
                     </Box>
+
+
                     <Box
                         sx={{
                             flex: 1,
                             overflowY: 'auto',
-                            px: 4,
-                            py: 3,
+                            px: 3,
+                            py: 0,
+                            mt: -3,
                             maxHeight: 'calc(85vh - 200px)', // 🔥 ajusta el espacio restante después del header y los botones
                         }}
                     >
@@ -2362,9 +2427,12 @@ const BlackList: React.FC = () => {
                                 overflowX: 'hidden', // 🔥 Esto evita scroll lateral
                             }}
                         >
-                            <Typography fontWeight="500" fontSize="14px" mb={1} fontFamily={"Poppins"}>Seleccionar fuente de registros</Typography>
-                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                                <Typography fontSize="14px" fontFamily={"Poppins"}>Por lista</Typography>
+                            <Typography fontWeight="500" fontSize="16px" mb={1} fontFamily={"Poppins"}
+                                marginLeft={'-30px'}>Seleccionar fuente de registros</Typography>
+
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}
+                                border={'1px solid #E6E4E4'} borderRdius={'6px'}>
+                                <Typography fontSize="16px" fontFamily={"Poppins"} marginLeft={'16px'}>Por lista</Typography>
                                 <Switch
                                     checked={manageByList}
                                     onChange={() => {
@@ -2794,12 +2862,25 @@ const BlackList: React.FC = () => {
                                 </>
                             )}
                             {manageOperation !== 'actualizar' && (
-                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                                    <Typography fontSize="14px" fontFamily={"Poppins"}>Por registro individual</Typography>
-                                    <Switch checked={manageByIndividual} onChange={() => {
-                                        setManageByIndividual(true);
-                                        setManageByList(false);
-                                    }} />
+
+                                <Box
+                                    sx={{
+                                        flex: 1,
+                                        px: 4,
+                                        mt: 2,
+                                        mb: 1,
+                                        maxHeight: 'calc(90vh - 180px)', // o lo que uses
+                                        overflowX: 'hidden', // 🔥 Esto evita scroll lateral
+                                    }}
+                                >
+                                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}
+                                        border={'1px solid #E6E4E4'} borderRdius={'6px'}>
+                                        <Typography fontSize="16px" fontFamily={"Poppins"} marginLeft={'16px'}>Por registro individual</Typography>
+                                        <Switch checked={manageByIndividual} onChange={() => {
+                                            setManageByIndividual(true);
+                                            setManageByList(false);
+                                        }} />
+                                    </Box>
                                 </Box>
                             )}
                             {manageByIndividual && (
@@ -2902,6 +2983,7 @@ const BlackList: React.FC = () => {
 
                         </Box>
                     </Box>
+
                     <Box sx={{
                         px: 4,
                         py: 3,
