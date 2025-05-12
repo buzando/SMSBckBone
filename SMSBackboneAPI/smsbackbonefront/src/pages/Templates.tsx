@@ -22,7 +22,8 @@ import Emptybox from '../assets/NoResultados.svg';
 import MainModal from "../components/commons/MainModal"
 import ChipBar from "../components/commons/ChipBar";
 
-
+import backarrow from '../assets/MoveTable.svg';
+import backarrowD from '../assets/MoveTabledesactivated.svg';
 
 export interface Template {
     id: number;
@@ -61,6 +62,24 @@ const Templates = () => {
     const [openMassiveDeleteModal, setOpenMassiveDeleteModal] = useState(false);
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
     const [templateToEdit, setTemplateToEdit] = useState<Template | null>(null);
+
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
+
+    const filteredTemplates = templates.filter(t =>
+        t.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalItems = filteredTemplates.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+    const currentItems = filteredTemplates.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
 
     const handleOpenEditTemplate = (template: Template) => {
         setIsEditingTemplate(true);
@@ -404,15 +423,12 @@ const Templates = () => {
         setMensaje(text);
     };
 
-    const filteredTemplates = templates.filter(t =>
-        t.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     const isAcceptDisabled = !templateName.trim() || !mensaje.trim() || (!selectedID && !selectedPhone && !selectedDato);
 
 
     return (
-        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1040px' }}>
+        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1540px' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')}
@@ -515,6 +531,79 @@ const Templates = () => {
                 </div>
             </div>
 
+            {templates.length > 0 && (
+                <Box sx={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', marginTop: '-46px',
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
+                            {startItem}–{endItem} de {totalItems}
+                        </Typography>
+
+                        {/* Ir al inicio */}
+                        <IconButton
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                            sx={{ p: 0 }}
+                        >
+                            <img
+                                src={currentPage === 1 ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(0deg)', width: 22 }}
+                                alt="Primera página"
+                            />
+                            <img
+                                src={currentPage === 1 ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
+                                alt=""
+                            />
+                        </IconButton>
+
+                        {/* Anterior */}
+                        <IconButton
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            sx={{ p: 0 }}
+                        >
+                            <img
+                                src={currentPage === 1 ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(0deg)', width: 22 }}
+                                alt="Anterior"
+                            />
+                        </IconButton>
+
+                        {/* Siguiente */}
+                        <IconButton
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            sx={{ p: 0 }}
+                        >
+                            <img
+                                src={currentPage === totalPages ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(180deg)', width: 22 }}
+                                alt="Siguiente"
+                            />
+                        </IconButton>
+
+                        {/* Ir al final */}
+                        <IconButton
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            sx={{ p: 0 }}
+                        >
+                            <img
+                                src={currentPage === totalPages ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(180deg)', width: 22 }}
+                                alt="Última página"
+                            />
+                            <img
+                                src={currentPage === totalPages ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
+                                alt=""
+                            />
+                        </IconButton>
+                    </Box>
+                </Box>
+            )}
 
             {templates.length === 0 ? (
                 <Box
@@ -532,7 +621,7 @@ const Templates = () => {
                         mt: 3,
                     }}
                 >
-                    <img src={BoxEmpty} alt="Caja vacía" style={{ width: '120px', marginBottom: '16px' }} />
+                    <img src={BoxEmpty} alt="Caja vacía" style={{ width: '220px', marginBottom: '16px' }} />
                     <Typography
                         sx={{
                             fontFamily: 'Poppins',
@@ -677,7 +766,7 @@ const Templates = () => {
                                     </Typography>
                                 </Box>
                             ) : (
-                                filteredTemplates.map((template) => (
+                                currentItems.map((template) => (
                                     <tr key={template.id} style={{ borderBottom: '1px solid #eee' }}>
                                         <td style={{ padding: '12px 16px', fontSize: '14px' }}>
                                             <Checkbox
@@ -750,23 +839,26 @@ const Templates = () => {
                         mx: 'auto',
                         my: '5%',
                         outline: 'none',
+
                     }}
                 >
-                    <Typography variant="h6" fontWeight={500} fontFamily="Poppins">
+                    <Typography variant="h6" fontWeight={600} fontFamily="Poppins">
                         Añadir plantilla
                     </Typography>
 
-                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', top: 100, right: 676 }}>
+                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', top: 106, right: 678 }}>
                         <CloseIcon />
                     </IconButton>
 
-                    <Typography mt={2} fontWeight={500} fontSize={14} fontFamily="Poppins">
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2, mt: 2 }} />
+
+                    <Typography mt={2} fontWeight={500} fontSize={16} fontFamily="Poppins">
                         Nombre
                         <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
                     </Typography>
                     <Box sx={{ position: 'relative' }}>
                         <TextField
-                            fullWidth
+
                             size="medium"
                             value={templateName}
                             onChange={(e) => {
@@ -775,6 +867,7 @@ const Templates = () => {
                             }}
                             placeholder="Plantilla 1"
                             sx={{
+                                width: "340px",
                                 background: '#fff',
                                 '& .MuiInputBase-input': {
                                     fontFamily: 'Poppins',
@@ -820,13 +913,13 @@ const Templates = () => {
                                 },
                             }}
                         >
-                            <IconButton size="small" sx={{ position: 'absolute', right: 8, top: 8 }}>
+                            <IconButton size="small" sx={{ position: 'absolute', right: 200, top: 11 }}>
                                 <img src={infoicon} alt="info" />
                             </IconButton>
                         </Tooltip>
                     </Box>
 
-                    <Typography mt={3} fontWeight={500} fontSize={14} fontFamily="Poppins">
+                    <Typography mt={3} fontWeight={500} fontSize={16} fontFamily="Poppins" mb={3}>
                         Mensaje
                         <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
                     </Typography>
@@ -857,20 +950,35 @@ const Templates = () => {
                             fontWeight: 500
                         }}
                     >
-                        <Box sx={{ width: '142px' /* ajusta según lo necesites */ }}>
-                            <SecondaryButton
-                                onClick={handlePreviewClick}
-                                text="Vista Previa"
-                                sx={{
-                                    width: '142px',
-                                    fontFamily: 'Poppins',
-                                    fontWeight: 500
-                                }}
-                            />
+                        <Box
+                            onClick={handlePreviewClick}
+                            sx={{
+                                width: '142px',
+                                height: '40px',
+                                backgroundColor: '#FFFFFF',
+                                color: '#833A53',
+                                border: '1px solid #CCCFD2',
+                                borderRadius: '4px',
+                                fontFamily: 'Poppins',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                display: 'flex',
+                                letterSpacing: "1.12px",
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s',
+                                '&:hover': {
+                                    backgroundColor: '#F2EBED'
+                                }
+                            }}
+                        >
+                            VISTA PREVIA
                         </Box>
+
                     </Box>
 
-                    <Divider sx={{ mt: 3, mb: 2 }} />
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2, mt: 3 }} />
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <SecondaryButton text='Cancelar' onClick={handleCloseModal} />
@@ -905,7 +1013,13 @@ const Templates = () => {
                         <CloseIcon />
                     </IconButton>
 
-                    <Box sx={{ backgroundColor: '#F8E7EC', borderRadius: 2, padding: 2, width: '508px', height: '300px', }}>
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2 }} />
+
+                    <Box sx={{
+                        backgroundColor: '#F8E7EC', borderRadius: 2, padding: 2, width: '508px', height: '300px',
+
+                        border: " 2px solid #C6BFC299",
+                    }}>
                         <Typography fontSize="15px" color="#3A3A3A" fontFamily="Poppins" fontWeight="500">
                             {getProcessedMessage()}
                         </Typography>
@@ -927,7 +1041,8 @@ const Templates = () => {
                     elevation: 3,
                     sx: {
                         borderRadius: 2,
-                        mt: 1,
+                        mt: -1,
+                        ml: -16,
                         minWidth: 160,
                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                         '& .MuiMenuItem-root': {
@@ -954,7 +1069,9 @@ const Templates = () => {
 
 
 
-                <MenuItem onClick={() => { handleMenuClose(); handleInspectTemplate(selectedTemplate!); }}>
+                <MenuItem onClick={() => { handleMenuClose(); handleInspectTemplate(selectedTemplate!); }}
+                    sx={{}}
+                >
                     <ListItemIcon>
                         <VisibilityIcon fontSize="small" sx={{ color: '#7B354D' }} />
                     </ListItemIcon>
@@ -995,7 +1112,7 @@ const Templates = () => {
                         Inspeccionar plantilla
                     </Typography>
 
-                    <Typography variant="subtitle1" sx={{ fontFamily: 'Poppins', fontWeight: 500, mb: 1, color: '#7B354D' }}>
+                    <Typography variant="subtitle1" sx={{ fontFamily: 'Poppins', fontWeight: 500, mb: 1, }}>
                         Campañas asignadas
                     </Typography>
 

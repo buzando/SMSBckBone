@@ -71,7 +71,7 @@ export default function TestSMS() {
   };
 
   return (
-    <div style={{ padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1040px' }}>
+    <div style={{ padding: '20px', marginTop: '-80px', marginLeft: '40px', maxWidth: '1540px' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <FormControl size="small" sx={{ width: '150px', backgroundColor: "#ffffff" }}>
           <Select value={language} onChange={handleLanguageChange}>
