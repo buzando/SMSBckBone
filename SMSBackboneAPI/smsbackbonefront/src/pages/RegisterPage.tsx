@@ -133,7 +133,6 @@ const Register: React.FC = () => {
                 navigate('/chooseroom');
             }
         } catch (error) {
-            console.error("Error en la solicitud:", error.response?.data || error.message);
             setIsButtonEnabled(true);
             handleOpenErrorModal();
         }
@@ -316,7 +315,7 @@ const Register: React.FC = () => {
                                             letterSpacing: "0px",
                                             opacity: 1,
                                             marginBottom: "4px",
-                                            color: !formData.client || (formData.client.length <= 40 && /^[a-zA-Z]+$/.test(formData.client))
+                                            color: !formData.client || (formData.client.length <= 40 && /^[a-zA-Z0-9 ]+$/.test(formData.client))
                                                 ? "black"
                                                 : "red",
                                         }}
@@ -332,12 +331,12 @@ const Register: React.FC = () => {
                                         fullWidth
                                         required
                                         error={
-                                            !!(formData.client && (formData.client.length > 40 || !/^[a-zA-Z]+$/.test(formData.client)))
+                                            !!(formData.client && (formData.client.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(formData.client)))
                                         } // Aseguramos que el resultado sea booleano
                                         helperText={
                                             formData.client && formData.client.length > 40
                                                 ? "Máximo 40 caracteres"
-                                                : formData.client && !/^[a-zA-Z]+$/.test(formData.client)
+                                                : formData.client && !/^[a-zA-Z0-9 ]+$/.test(formData.client)
                                                     ? "Solo se permiten caracteres alfabéticos"
                                                     : ""
 
@@ -394,7 +393,7 @@ const Register: React.FC = () => {
                                                             <img
                                                                 src={
                                                                     formData.client &&
-                                                                        (formData.client.length > 40 || !/^[a-zA-Z]+$/.test(formData.client))
+                                                                        (formData.client.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(formData.client))
                                                                         ? infoiconerror
                                                                         : infoicon
                                                                 }
@@ -420,7 +419,7 @@ const Register: React.FC = () => {
                                             font: "normal normal medium 16px/54px Poppins",
                                             fontFamily: "Poppins",
                                             letterSpacing: "0px",
-                                            color: formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName) ? "#D01247" : "#red",
+                                            color: formData.firstName && !/^[a-zA-Z0-9 ]+$/.test(formData.firstName) ? "#D01247" : "#red",
                                             opacity: 1,
                                             marginBottom: "4px"
                                         }}
@@ -435,9 +434,9 @@ const Register: React.FC = () => {
                                         variant="outlined"
                                         fullWidth
                                         required
-                                        error={!!(formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName))}
+                                        error={!!(formData.firstName && !/^[a-zA-Z0-9 ]+$/.test(formData.firstName))}
                                         helperText={
-                                            formData.firstName && !/^[a-zA-Z]+$/.test(formData.firstName)
+                                            formData.firstName && !/^[a-zA-Z0-9 ]+$/.test(formData.firstName)
                                                 ? "Solo se permiten caracteres alfabéticos"
                                                 : ""
                                         }
@@ -490,7 +489,7 @@ const Register: React.FC = () => {
                                                             <img
                                                                 src={
                                                                     formData.firstName &&
-                                                                        !/^[a-zA-Z]+$/.test(formData.firstName)
+                                                                        !/^[a-zA-Z0-9 ]+$/.test(formData.firstName)
                                                                         ? infoiconerror
                                                                         : infoicon
                                                                 }
@@ -512,7 +511,7 @@ const Register: React.FC = () => {
                                             font: "normal normal medium 16px/54px Poppins",
                                             fontFamily: "Poppins",
                                             letterSpacing: "0px",
-                                            color: formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName) ? "red" : "black",
+                                            color: formData.lastName && !/^[a-zA-Z0-9 ]+$/.test(formData.lastName) ? "red" : "black",
                                             opacity: 1,
                                             marginBottom: "4px",
                                         }}
@@ -527,9 +526,9 @@ const Register: React.FC = () => {
                                         variant="outlined"
                                         fullWidth
                                         required
-                                        error={!!(formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName))}
+                                        error={!!(formData.lastName && !/^[a-zA-Z0-9 ]+$/.test(formData.lastName))}
                                         helperText={
-                                            formData.lastName && !/^[a-zA-Z]+$/.test(formData.lastName)
+                                            formData.lastName && !/^[a-zA-Z0-9 ]+$/.test(formData.lastName)
                                                 ? "Solo se permiten caracteres alfabéticos"
                                                 : ""
                                         }
@@ -581,7 +580,7 @@ const Register: React.FC = () => {
                                                             <img
                                                                 src={
                                                                     formData.lastName &&
-                                                                        !/^[a-zA-Z]+$/.test(formData.lastName)
+                                                                        !/^[a-zA-Z0-9 ]+$/.test(formData.lastName)
                                                                         ? infoiconerror
                                                                         : infoicon
                                                                 }
@@ -1108,7 +1107,7 @@ const Register: React.FC = () => {
                                 </Grid>
 
                                 {/* Services */}
-                                <Grid item xs={12}>
+                                {/* <Grid item xs={12}>
                                     <Typography sx={{
                                         fontStyle: "normal",
                                         fontVariant: "normal",
@@ -1186,7 +1185,7 @@ const Register: React.FC = () => {
 
                                         />
                                     </Box>
-                                </Grid>
+                                </Grid> */}
 
                             </Grid>
                             {/* Buttons */}

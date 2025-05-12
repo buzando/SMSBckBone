@@ -338,8 +338,53 @@ namespace Business
                 {
                     var duplicado = c.Schedules.Any(s => s.OperationMode == 2);
                     c.numeroInicial = duplicado ? c.Contacts.Count * 2 : c.Contacts.Count;
-                    c.numeroActual = c.CampaignContactScheduleSendDTO
-                        .Count;
+                    c.numeroActual = c.CampaignContactScheduleSendDTO.Count;
+
+                    c.RespondedRecords = c.CampaignContactScheduleSendDTO
+                        .Count(x => !string.IsNullOrEmpty(x.ResponseMessage));
+
+                    c.OutOfScheduleRecords = c.CampaignContactScheduleSendDTO
+                        .Count(x => x.Status.ToLower() == "fuera");
+
+                    c.BlockedRecords = c.CampaignContactScheduleSendDTO
+                        .Count(x => x.Status.ToLower() == "block");
+                    c.RecycleCount = c.Schedules.Count(s => s.OperationMode == 2);
+
+                    int total = c.numeroInicial;
+
+                    int recibidos = c.CampaignContactScheduleSendDTO
+                        .Count(x => !string.IsNullOrEmpty(x.ResponseMessage) && x.Status.ToLower() != ("error"));
+
+                    int espera = c.CampaignContactScheduleSendDTO
+                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("espera"));
+
+                    int fallaEntrega = c.CampaignContactScheduleSendDTO
+                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("falla"));
+
+                    int rechazo = c.CampaignContactScheduleSendDTO
+                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("rechazo"));
+
+                    int errorCarrier = c.CampaignContactScheduleSendDTO
+                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("carrier"));
+
+                    int excepcion = c.CampaignContactScheduleSendDTO
+                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("excepcion"));
+
+                    int fuera = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "Fuera");
+                    int bloqueado = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "Block");
+
+                    int totalClasificados = recibidos + espera + fallaEntrega + rechazo + errorCarrier + excepcion + fuera + bloqueado;
+                    int noRecibidos = Math.Max(0, total - totalClasificados);
+
+
+                    c.ReceptionRate = recibidos;
+                    c.WaitRate = espera;
+                    c.DeliveryFailRate = fallaEntrega;
+                    c.RejectionRate = rechazo;
+                    c.NoSendRate = errorCarrier;
+                    c.ExceptionRate = excepcion;
+                    c.NoReceptionRate = noRecibidos;
+
                 }
 
                 return response;

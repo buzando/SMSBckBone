@@ -124,7 +124,7 @@ const Chooseroom: React.FC = () => {
 
         GetRooms();
         const obj = JSON.parse(usuario!);
-       if (!obj.twoFactorAuthentication) {
+        if (!obj.twoFactorAuthentication) {
             openModal();
         }
 
@@ -248,7 +248,7 @@ const Chooseroom: React.FC = () => {
                                     <HomeIcon /> {/* Usa tu ícono preferido */}
                                 </Box>
                                 <div className="room-details" style={{ marginLeft: "10px" }}>
-                                    <h6 style={{ margin: "0", fontSize: "16px", color: "#330F1B"}}>{room.name}</h6>
+                                    <h6 style={{ margin: "0", fontSize: "16px", color: "#330F1B" }}>{room.name}</h6>
                                     <p style={{ margin: "0", fontSize: "14px", color: "#8F4D63" }}>{room.cliente}</p>
                                 </div>
 
@@ -366,7 +366,7 @@ const Chooseroom: React.FC = () => {
                                 sx={{
                                     color: '#6C3A52',
                                     '&.Mui-checked': { color: '#6C3A52' },
-                                
+
                                 }}
                                 onChange={handleCheckboxChange}
                                 color="primary"
@@ -400,19 +400,21 @@ const Chooseroom: React.FC = () => {
                             onClick={SaveAutenticator}
                             variant="contained"
                             color="primary"
+                            disabled={!dontAskAgain}
                             sx={{
-                                background: "#833A53 0% 0% no-repeat padding-box",
+                                background: "#833A53",
                                 border: "1px solid #60293C",
                                 borderRadius: "4px",
-                                opacity: 0.9,
                                 color: "#FFFFFF",
+                                opacity: !dontAskAgain ? 0.4 : 1,
                                 "&:hover": {
-                                    backgroundColor: "#a54261",
+                                    backgroundColor: dontAskAgain ? "#a54261" : "#833A53",
                                 },
                             }}
                         >
                             Guardar
                         </Button>
+
                     </div>
                 </Modal>
 

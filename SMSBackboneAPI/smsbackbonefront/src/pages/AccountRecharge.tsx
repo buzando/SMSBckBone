@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ChipBar from "../components/commons/ChipBar";
-import { Box, Divider, Typography, Checkbox, Radio, Modal, Select, MenuItem, SelectChangeEvent, TextField } from '@mui/material';
+import { Box, Divider, Typography, Checkbox, Radio, Modal, Select, MenuItem, SelectChangeEvent, TextField, FormControlLabel } from '@mui/material';
 import { InputAdornment, Tooltip, TooltipProps } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import MainButtonIcon from '../components/commons/MainButtonIcon'
@@ -12,7 +12,10 @@ import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
-
+import visa from '../assets/visa.png';
+import mastercard from '../assets/masterCard.png';
+import amex from '../assets/americanExpress.png';
+import openpay from '../assets/Openpay_logo.png';
 interface CreditCard {
     id: number;
     user_id: number;
@@ -807,8 +810,42 @@ const AccountRecharge: React.FC = () => {
                         color: '#330F1B',
                     }}>Seleccione el método de pago</Typography>
                 </div>
+                <Typography style={{
+                    fontSize: '14px',
+                    fontFamily: "Poppins",
+                    marginBottom: '10px',
+                    color: '#786E71',
+                }}>
+                    Métodos disponibles
+                </Typography>
 
-                <MainButtonIcon type="button" onClick={handleOpenModal} text='Agregar Tarjeta' width='210px' />
+
+                <Box sx={{ display: 'flex', gap: 2, marginBottom: 3 }}>
+                    {[visa, mastercard, amex].map((imgSrc, index) => (
+                        <Box
+                            key={index}
+                            sx={{
+                                border: '1px solid #E1E1E1',
+                                borderRadius: '8px',
+                                padding: '10px',
+                                backgroundColor: '#FFFFFF',
+                                width: '60px',
+                                height: '40px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <img
+                                src={imgSrc}
+                                alt={`Método ${index}`}
+                                style={{ maxHeight: '24px', objectFit: 'contain' }}
+                            />
+                        </Box>
+                    ))}
+                </Box>
+
+                <MainButtonIcon onClick={handleOpenModal} text='Agregar Tarjeta' width='210px' />
 
 
                 <div style={{
@@ -936,28 +973,72 @@ const AccountRecharge: React.FC = () => {
                     ))}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', width: '100%' }}> {/* Facturar automáticamente y botones */}
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1rem', color: '#6a6a6a' }}>
-                        <Checkbox
-                            checked={generateInvoice}
-                            onChange={handleGenerateInvoiceCheck}
-                            sx={{
-                                color: '##6F1E3A',
-                                '&.Mui-checked': { color: '#6C3A52' },
-                                marginLeft: '-5px',
-
-                            }}
+                <Box sx={{ width: '100%', marginTop: '24px' }}>
+                    {/* Checkbox */}
+                    <Box sx={{ marginBottom: '4px' }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={generateInvoice}
+                                    onChange={(e) => setGenerateInvoice(e.target.checked)}
+                                    sx={{ color: '#8F4D63' }}
+                                />
+                            }
+                            label={
+                                <Typography
+                                    sx={{
+                                        fontFamily: 'Poppins',
+                                        fontSize: '14px',
+                                        color: '#786E71',
+                                    }}
+                                >
+                                    Generar factura automáticamente
+                                </Typography>
+                            }
                         />
-                        Generar factura automáticamente
-                    </label>
+                    </Box>
 
-                    <div style={{ display: 'flex', gap: '10px' }}> {/* Botones a la derecha */}
-                        <SecondaryButton text='Cancelar' onClick={() => {
-                            resetForm();
-                        }} />
-                        <MainButton text='Recargar' onClick={() => handleRecharge()} disabled={isRechargeButtonDisabled()} isLoading={Loading} />
-                    </div>
-                </div>
+                    {/* Openpay + Botones */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                            padding: '8px 0',
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography
+                                sx={{
+                                    fontFamily: 'Poppins',
+                                    fontSize: '14px',
+                                    color: '#574B4F',
+                                    fontWeight: 500,
+                                }}
+                            >
+                                Pagos procesados de forma segura con
+                            </Typography>
+                            <Box
+                                component="img"
+                                src={openpay}
+                                alt="Openpay"
+                                sx={{ height: '20px', objectFit: 'contain' }}
+                            />
+                        </Box>
+
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <SecondaryButton text="Cancelar" onClick={resetForm} />
+                            <MainButton
+                                text="Recargar"
+                                onClick={handleRecharge}
+                                disabled={isRechargeButtonDisabled()}
+                                isLoading={Loading}
+                            />
+                        </Box>
+                    </Box>
+                </Box>
+
             </form>
 
             <Modal

@@ -57,6 +57,7 @@ import IconUserArrow from '../assets/CHEVRON_USER.svg';
 import CloseSession from '../assets/Icon-CerrarSesion.svg';
 import facturicone from '../assets/facturicone.svg';
 import Iconhelpu from '../assets/Iconhelpu.svg';
+import logorq from '../assets/Logo-RQ_2.svg';
 
 const drawerWidth = 278;
 
@@ -368,12 +369,14 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                 <Toolbar>
                     {/* Sección Izquierda */}
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-                        <IconButton color="inherit" onClick={() => console.log('Drawer opened')}>
-                            <MenuIcon />
+                          <IconButton
+                            edge="start"
+                            color="inherit"
+                            aria-label="menu"
+                            onClick={() => navigate("/")}
+                        >
+                            <img src={logorq} alt="App Icon" width="170" />
                         </IconButton>
-                        <Typography variant="h6" color="inherit" sx={{ ml: 2 }}>
-                            connectSMS
-                        </Typography>
                     </Box>
                     <Box
                         sx={{

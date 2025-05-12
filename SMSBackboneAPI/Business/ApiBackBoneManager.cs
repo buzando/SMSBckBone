@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Contract.Other;
 using Contract;
+using Openpay.Entities;
 
 namespace Business
 {
@@ -38,6 +39,38 @@ namespace Business
 
                 var responseBody = await response.Content.ReadAsStringAsync();
                 var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseBody);
+
+                return loginResponse;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+        public async Task<SendResponse> SendCode(string phoneNumber, string token, LoginResponse tokenLogin)
+        {
+            try
+            {
+                var client = new HttpClient();
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}message");
+
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenLogin.token);
+
+                var body = new
+                {
+                    text = "Su Codigo para ingresar al portal RED QUANTUM es el siguiente: " + token,
+                    PhoneNumber = phoneNumber
+                };
+
+                var json = JsonSerializer.Serialize(body);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                request.Content = content;
+
+                var response = await client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var loginResponse = JsonSerializer.Deserialize<SendResponse>(responseBody);
 
                 return loginResponse;
             }

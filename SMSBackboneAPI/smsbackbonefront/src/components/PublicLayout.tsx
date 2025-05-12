@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import nuxiba_svg from '../assets/nuxiba.svg'
 import appIcon_svg from '../assets/AppIcon.svg'
 import { useNavigate } from 'react-router-dom';
-
+import logorq from '../assets/Logo-RQ_2.svg';
 type Props = {
     children: React.ReactNode;
 }
@@ -20,7 +20,7 @@ const Layout: React.FC<Props> = props => {
             <AppBar position="sticky" sx={{ top: 0 }}>
                 <Toolbar>
                     <IconButton edge="start" color="inherit" aria-label="menu" onClick={() => navigate('/')}>
-                        <img src={appIcon_svg} alt="Description" width="170" />
+                        <img src={logorq} alt="Description" width="170" />
                     </IconButton>
                 </Toolbar>
             </AppBar>
@@ -30,9 +30,9 @@ const Layout: React.FC<Props> = props => {
             <footer>
                 <Box display="flex" justifyContent="space-between" sx={{ position: 'fixed', bottom: 0, width: '100%', padding: 1, borderTop: 'solid 1px #E6E4E4', background: '#FFFFFF' }}>
                     <Typography variant="caption" color="textSecondary" align="left">
-                        {'Copyright © '}
+                        {'Copyright ï¿½ '}
                         {new Date().getFullYear()}
-                        {' Nuxiba. Todos los derechos reservados. Se prohíbe el uso no autorizado.'}
+                        {' Nuxiba. Todos los derechos reservados. Se prohï¿½be el uso no autorizado.'}
                     </Typography>
 
                     <img src={nuxiba_svg} alt="Description" width="70" />

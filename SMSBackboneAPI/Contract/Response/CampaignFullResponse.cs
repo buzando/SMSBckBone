@@ -20,9 +20,19 @@ namespace Contract.Response
         public bool RecycleRecords { get; set; }
         public byte NumberType { get; set; }
         public DateTime CreatedDate { get; set; }
-        public Int64 numeroActual { get; set; }
-        public Int64 numeroInicial { get; set; }
-
+        public int numeroActual { get; set; }
+        public int numeroInicial { get; set; }
+        public int RespondedRecords { get; set; }
+        public int OutOfScheduleRecords { get; set; }
+        public int BlockedRecords { get; set; }
+        public int RecycleCount { get; set; }
+        public int ReceptionRate { get; set; } 
+        public int NoReceptionRate { get; set; } 
+        public int WaitRate { get; set; } 
+        public int DeliveryFailRate { get; set; } 
+        public int RejectionRate { get; set; } 
+        public int NoSendRate { get; set; } 
+        public int ExceptionRate { get; set; }
         public List<CampaignScheduleDto> Schedules { get; set; } = new();
         public CampaignRecycleSettingDto? RecycleSetting { get; set; }
         public List<CampaignContactDto> Contacts { get; set; } = new();

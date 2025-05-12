@@ -19,6 +19,8 @@ import Container from "@mui/material/Container";
 import Fab from "@mui/material/Fab";
 import Modal from "@mui/material/Modal";
 import helpicon from "../assets/Iconoayuda.svg";
+import logorq from '../assets/Logo-RQ_2.svg';
+
 interface AppBarProps extends MuiAppBarProps {
     open?: boolean;
 }
@@ -88,7 +90,7 @@ const AutentificationLayout: React.FC<Props> = (props) => {
                             aria-label="menu"
                             onClick={() => navigate("/")}
                         >
-                            <img src={appIcon_svg} alt="App Icon" width="170" />
+                            <img src={logorq} alt="App Icon" width="170" />
                         </IconButton>
                     </Box>
 

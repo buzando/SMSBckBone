@@ -20,6 +20,7 @@ using Openpay.Entities;
 using Openpay.Entities.Request;
 using Contract;
 using Contract.Other;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Business
 {
@@ -37,7 +38,7 @@ namespace Business
 
                 var config = new MapperConfiguration(cfg =>
 
-    cfg.CreateMap<Users, UserDto>()
+    cfg.CreateMap<Modal.Model.Model.Users, UserDto>()
 
 ); var mapper = new Mapper(config);
 
@@ -72,7 +73,7 @@ namespace Business
 
                     var config = new MapperConfiguration(cfg =>
 
-        cfg.CreateMap<Users, UserDto>()
+        cfg.CreateMap<Modal.Model.Model.Users, UserDto>()
 
     ); var mapper = new Mapper(config);
 
@@ -226,7 +227,7 @@ namespace Business
             return token;
         }
 
-        public string EnvioCodigo(string dato, string tipo, string type)
+        public async Task<string> EnvioCodigo(string dato, string tipo, string type)
         {
 
             var token = string.Empty;
@@ -246,7 +247,16 @@ namespace Business
                 }
                 if (tipo == "SMS")
                 {
-                    token = "123456";
+
+                    Random random = new Random();
+                    int randomNumber = random.Next(100000, 1000000);
+
+                    token = randomNumber.ToString();
+                    var usuario = Common.ConfigurationManagerJson("USRAUTENTIFICATION");
+                    var PSS = Common.ConfigurationManagerJson("PSSAUTENTIFICATION");
+                    var tokensesion = await new ApiBackBoneManager().LoginResponse(usuario, PSS);
+
+                    var envio = await new ApiBackBoneManager().SendCode(dato, token, tokensesion);
                 }
             }
             catch (Exception e)
@@ -395,7 +405,7 @@ namespace Business
             try
             {
 
-                var user = new Users
+                var user = new Modal.Model.Model.Users
                 {
                     accessFailedCount = 0,
                     Call = register.llamada,
@@ -431,7 +441,7 @@ namespace Business
                     }
                     var config = new MapperConfiguration(cfg =>
 
-    cfg.CreateMap<Users, UserDto>()
+    cfg.CreateMap<Modal.Model.Model.Users, UserDto>()
 
 ); var mapper = new Mapper(config);
 
@@ -454,7 +464,7 @@ namespace Business
         {
             try
             {
-                var user = new Users
+                var user = new Modal.Model.Model.Users
                 {
                     accessFailedCount = 0,
                     Call = false,
@@ -698,7 +708,7 @@ namespace Business
         public bool RechargeUser(CreditRechargeRequest credit)
         {
             var tarjeta = new creditcards();
-            var usuario = new Users();
+            var usuario = new Modal.Model.Model.Users();
             try
             {
                 using (var ctx = new Entities())

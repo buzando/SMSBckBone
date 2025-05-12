@@ -8,8 +8,8 @@ namespace Contract.Other
 {
     public class LoginResponse
     {
-        public UserInfo User { get; set; }
-        public string Token { get; set; }
-        public string Expiration { get; set; }
+        public UserInfo user { get; set; }
+        public string token { get; set; }
+        public string expiration { get; set; }
     }
 }

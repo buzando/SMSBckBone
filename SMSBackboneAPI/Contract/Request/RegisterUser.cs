@@ -12,7 +12,7 @@ namespace Contract.Request
         public string firstName { get; set; }
         public string lastName { get; set; }
         public string phone { get; set; }
-        public Int64 extension { get; set; }
+        public string extension { get; set; }
         public string email { get; set; }
         public string emailConfirmation { get; set; }
         public bool sms { get; set; }
