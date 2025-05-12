@@ -258,6 +258,7 @@ const DynamicMessageEditor: React.FC<Props> = ({
         suppressContentEditableWarning
         onInput={updateRawMessage}
         sx={{
+          position: 'relative',
           border: '1px solid #ccc',
           borderRadius: 2,
           minHeight: '120px',
@@ -268,8 +269,20 @@ const DynamicMessageEditor: React.FC<Props> = ({
           backgroundColor: '#fff',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
+          outline: 'none', // 🔥 elimina el borde azul al hacer focus
+
+          '&:empty::before': {
+            content: '"Escriba aquí su mensaje"',
+            color: '#999',
+            opacity: 0.7,
+            position: 'absolute',
+            pointerEvents: 'none',
+            fontFamily: 'Poppins',
+            fontSize: '14px',
+          },
         }}
       />
+
 
       <Typography variant="caption" mt={1} sx={{ fontFamily: 'Poppins', color: '#9E9E9E' }}>
         {rawMessage.length}/{MAX_CHARACTERS} caracteres para que el mensaje se realice en un sólo envío.

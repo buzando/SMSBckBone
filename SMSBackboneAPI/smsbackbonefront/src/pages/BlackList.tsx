@@ -44,6 +44,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ListIcon from '@mui/icons-material/List';
 import Emptybox from '../assets/NoResultados.svg';
+import IconPlus2 from '../assets/IconPlus2.svg';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SyncIcon from '@mui/icons-material/Sync';
 import * as XLSX from 'xlsx';
@@ -717,10 +718,10 @@ const BlackList: React.FC = () => {
         const tieneProtegidas = selectedRows.some((row) => row.hasActiveCampaign);
 
         if (tieneProtegidas) {
-          setTitleErrorModal("Error al eliminar listas negras");
-          setMessageErrorModal("Alguna o todas las listas negras seleccionadas se encuentran asignadas a una campaña que está en curso. No es posible eliminarla(s).");
-          setIsErrorModalOpen(true);
-          return;
+            setTitleErrorModal("Error al eliminar listas negras");
+            setMessageErrorModal("Alguna o todas las listas negras seleccionadas se encuentran asignadas a una campaña que está en curso. No es posible eliminarla(s).");
+            setIsErrorModalOpen(true);
+            return;
         }
         const payload = {
             names: blackList ? [blackList.name] : selectedRows.map(row => row.name),
@@ -784,7 +785,7 @@ const BlackList: React.FC = () => {
 
 
     return (
-        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1040px" }}>
+        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1540px" }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')}
@@ -891,78 +892,79 @@ const BlackList: React.FC = () => {
                     </Box>
                 </div>
             </div>
-            <Box sx={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', marginTop: '-46px',
-            }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
-                        {startItem}–{endItem} de {totalItems}
-                    </Typography>
+            {BlackList.length > 0 && (
+                <Box sx={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', marginTop: '-46px',
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
+                            {startItem}–{endItem} de {totalItems}
+                        </Typography>
 
-                    {/* Ir al inicio */}
-                    <IconButton
-                        onClick={() => setCurrentPage(1)}
-                        disabled={currentPage === 1}
-                        sx={{ p: 0 }}
-                    >
-                        <img
-                            src={currentPage === 1 ? backarrowD : backarrow}
-                            style={{ transform: 'rotate(0deg)', width: 22 }}
-                            alt="Primera página"
-                        />
-                        <img
-                            src={currentPage === 1 ? backarrowD : backarrow}
-                            style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
-                            alt=""
-                        />
-                    </IconButton>
+                        {/* Ir al inicio */}
+                        <IconButton
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                            sx={{ p: 0 }}
+                        >
+                            <img
+                                src={currentPage === 1 ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(0deg)', width: 22 }}
+                                alt="Primera página"
+                            />
+                            <img
+                                src={currentPage === 1 ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
+                                alt=""
+                            />
+                        </IconButton>
 
-                    {/* Anterior */}
-                    <IconButton
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        sx={{ p: 0 }}
-                    >
-                        <img
-                            src={currentPage === 1 ? backarrowD : backarrow}
-                            style={{ transform: 'rotate(0deg)', width: 22 }}
-                            alt="Anterior"
-                        />
-                    </IconButton>
+                        {/* Anterior */}
+                        <IconButton
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            sx={{ p: 0 }}
+                        >
+                            <img
+                                src={currentPage === 1 ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(0deg)', width: 22 }}
+                                alt="Anterior"
+                            />
+                        </IconButton>
 
-                    {/* Siguiente */}
-                    <IconButton
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        sx={{ p: 0 }}
-                    >
-                        <img
-                            src={currentPage === totalPages ? backarrowD : backarrow}
-                            style={{ transform: 'rotate(180deg)', width: 22 }}
-                            alt="Siguiente"
-                        />
-                    </IconButton>
+                        {/* Siguiente */}
+                        <IconButton
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            sx={{ p: 0 }}
+                        >
+                            <img
+                                src={currentPage === totalPages ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(180deg)', width: 22 }}
+                                alt="Siguiente"
+                            />
+                        </IconButton>
 
-                    {/* Ir al final */}
-                    <IconButton
-                        onClick={() => setCurrentPage(totalPages)}
-                        disabled={currentPage === totalPages}
-                        sx={{ p: 0 }}
-                    >
-                        <img
-                            src={currentPage === totalPages ? backarrowD : backarrow}
-                            style={{ transform: 'rotate(180deg)', width: 22 }}
-                            alt="Última página"
-                        />
-                        <img
-                            src={currentPage === totalPages ? backarrowD : backarrow}
-                            style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
-                            alt=""
-                        />
-                    </IconButton>
+                        {/* Ir al final */}
+                        <IconButton
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            sx={{ p: 0 }}
+                        >
+                            <img
+                                src={currentPage === totalPages ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(180deg)', width: 22 }}
+                                alt="Última página"
+                            />
+                            <img
+                                src={currentPage === totalPages ? backarrowD : backarrow}
+                                style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
+                                alt=""
+                            />
+                        </IconButton>
+                    </Box>
                 </Box>
-            </Box>
-
+            )}
 
             <div style={{ display: 'flex', gap: '20px', margin: '20px 0', flexWrap: 'wrap' }}>
                 {BlackList.length === 0 && (
@@ -1008,7 +1010,7 @@ const BlackList: React.FC = () => {
                             mt: 3
                         }}
                     >
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
+                        <table style={{ width: '1500px', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
                             <thead>
                                 {selectedRows.length === 0 ? (
                                     <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
@@ -1238,8 +1240,8 @@ const BlackList: React.FC = () => {
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: '80px',
-                        left: '350px',
+                        top: '15%',
+                        left: '35%',
                         transform: 'none',
                         width: '580px',
                         maxWidth: '100%',
@@ -1267,20 +1269,29 @@ const BlackList: React.FC = () => {
                                 sx={{
                                     fontFamily: 'Poppins',
                                     fontSize: '20px',
-                                    fontWeight: 500,
+                                    fontWeight: 600,
                                     color: '#330F1B',
+                                    marginTop: "10px"
                                 }}
                             >
                                 Añadir lista negra
                             </Typography>
-                            <IconButton onClick={handleCloseModal}>
+                            <IconButton
+                                onClick={handleCloseModal}
+                                sx={{
+                                    position: 'absolute',
+                                    top: 16,
+                                    right: 16,
+                                    zIndex: 10
+                                }}
+                            >
                                 <CloseIcon sx={{ color: '#A6A6A6' }} />
                             </IconButton>
                         </Box>
                         <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2 }} />
                         {/* Nombre */}
                         <Box>
-                            <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
+                            <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: '#330F1B', mb: 1 }}>
                                 Nombre<span style={{ color: 'red' }}>*</span>
                             </Typography>
                             <Box sx={{ position: 'relative' }}>
@@ -1358,120 +1369,186 @@ const BlackList: React.FC = () => {
 
                         {/* Upload y Teléfonos */}
                         <Box sx={{ display: 'flex', gap: 3 }}>
-                            {/* Subir archivo */}
-                            <Box marginBottom={'25px'}
-                                onClick={() => fileInputRef.current?.click()}
-                                onDragOver={(e) => e.preventDefault()}
-                                onDrop={(e) => {
-                                    e.preventDefault();
-                                    const file = e.dataTransfer.files?.[0];
-                                    if (file) handleFile(file);
-                                }}
 
+                            <Box
                                 sx={{
-                                    border: fileError
-                                        ? '2px solid #EF5466'
-                                        : '2px dashed #D9B4C3',
-                                    backgroundColor: fileError ? '#FFF4F5' : 'transparent',
-                                    borderRadius: '8px',
-                                    width: '200px',
-                                    height: '140px',
                                     display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    textAlign: 'center',
-                                    fontFamily: 'Poppins',
-                                    fontSize: '13px',
-                                    color: '#330F1B',
-                                    position: 'relative',
-                                    cursor: 'pointer',
-                                    px: 1
+                                    flexDirection: 'column', // 🔥 esta línea es clave
+                                    alignItems: 'center',     // Opcional: centra horizontalmente
+                                    gap: 0
                                 }}
                             >
-                                <WhiteTooltip
-                                    title={
-
-                                        fileError ? (
-                                            <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466' }}>
-                                                Solo se permiten archivos .xlsx
-                                            </Box>
-                                        ) : fileSuccess ? (
-                                            <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#28A745' }}>
-                                                Archivo cargado: {selectedFile?.name}
-                                            </Box>
-                                        ) : (
-                                            <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000' }}>
-                                                El archivo debe ser Excel<br />(.xls/.xlsx)
-                                            </Box>
-                                        )
-                                    }
-                                >
-                                    <img
-                                        src={fileError ? infoiconerror : infoicon}
-                                        alt="info"
-                                        style={{ position: 'absolute', top: 8, right: 8, cursor: 'pointer' }}
-                                    />
-                                </WhiteTooltip>
-
-                                <img
-                                    src={
-                                        fileError
-                                            ? IconCloudError
-                                            : fileSuccess
-                                                ? CloudCheckedIcon
-                                                : UpCloudIcon
-                                    }
-                                    alt="estado archivo"
-                                    style={{ marginBottom: '8px', width: "" }}
-                                />
-
-                                <Typography sx={{ fontWeight: 600, fontFamily: "Poppins", color: "#330F1B", fontSize: '14px', }}>
-                                    {fileError
-                                        ? 'Archivo inválido'
-                                        : fileSuccess
-                                            ? 'Archivo cargado'
-                                            : 'Subir archivo'}
-                                </Typography>
-                                <Typography
-                                    sx={{
-                                        fontFamily: 'Poppins',
-                                        fontSize: '10px',
-                                        color: '#574B4F',
-                                        opacity: 0.7
-                                    }}
-                                >
-                                    Arrastre un archivo aquí, o selecciónelo.
-                                </Typography>
-
-                                <input
-                                    type="file"
-                                    hidden
-                                    ref={fileInputRef}
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
+                                {/* Subir archivo */}
+                                <Box marginBottom={'25px'}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        const file = e.dataTransfer.files?.[0];
                                         if (file) handleFile(file);
                                     }}
 
-                                />
-                                {fileSuccess && (
+                                    sx={{
+                                        border: fileError
+                                            ? '2px solid #EF5466'
+                                            : '2px dashed #D9B4C3',
+                                        backgroundColor: fileError ? '#FFF4F5' : 'transparent',
+                                        borderRadius: '8px',
+                                        width: '160px',
+                                        height: '160px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        textAlign: 'center',
+                                        fontFamily: 'Poppins',
+                                        fontSize: '13px',
+                                        color: '#330F1B',
+                                        position: 'relative',
+                                        cursor: 'pointer',
+                                        px: 1
+                                    }}
+                                >
                                     <Box
-                                        sx={{ width: "200px" }}
+                                        onClick={() => {
+                                            if (fileSuccess) {
+                                                setSelectedFile(null);
+                                                setUploadedFile(null);
+                                                setFileSuccess(false);
+                                                setFileError(false);
+                                                setBase64File('');
+                                                setUploadedFileBase64('');
+                                                setFormData(prev => ({ ...prev, File: '' })); // ✅ actualiza el formData también
+                                                if (fileInputRef.current) {
+                                                    fileInputRef.current.value = ''; // ✅ limpia el input real
+                                                }
+                                            }
+                                        }}
+                                        sx={{
+                                            position: 'absolute',
+                                            top: 8,
+                                            right: 8,
+                                            width: 24,
+                                            height: 24,
+                                            cursor: 'pointer',
+                                            zIndex: 10
+                                        }}
                                     >
-                                        <Typography sx={{
-                                            position: "absolute",
-                                            marginLeft: "20px",
-                                            marginTop: "30px",
-                                            textDecoration: "underline",
-                                            fontFamily: 'Poppins',
-                                            fontSize: '11px',
-                                            color: "#8F4D63"
-                                        }}>
-                                            Descargar archivo de muestra
+                                        <WhiteTooltip
+                                            title={
+                                                fileError ? (
+                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466' }}>
+                                                        Solo se permiten archivos .xlsx
+                                                    </Box>
+                                                ) : fileSuccess ? (
+                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#28A745' }}>
+                                                        Archivo cargado: {selectedFile?.name}
+                                                    </Box>
+                                                ) : (
+                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000' }}>
+                                                        El archivo debe ser Excel<br />(.xls/.xlsx)
+                                                    </Box>
+                                                )
+                                            }
+                                            placement="right"
+                                        >
+                                            <img
+                                                src={
+                                                    fileError
+                                                        ? infoiconerror
+                                                        : fileSuccess
+                                                            ? Thrashicon
+                                                            : infoicon
+                                                }
+                                                alt="estado"
+                                                style={{ width: '24px', height: '24px' }}
+                                            />
+                                        </WhiteTooltip>
+                                    </Box>
+
+
+                                    <Box
+                                        sx={{
+                                            width: "142px", height: "100px"
+                                        }}
+                                    >
+                                        <img
+                                            src={
+                                                fileError
+                                                    ? IconCloudError
+                                                    : fileSuccess
+                                                        ? CloudCheckedIcon
+                                                        : UpCloudIcon
+                                            }
+                                            alt="estado archivo"
+                                            style={{ marginBottom: '8px', width: "" }}
+                                        />
+
+
+                                        <Typography
+                                            sx={{
+                                                fontWeight: 600,
+                                                fontFamily: "Poppins",
+                                                color: "#330F1B",
+                                                fontSize: '14px',
+                                                opacity: !fileError && !fileSuccess ? 0.6 : 1 // 🔥 esta línea es la clave
+                                            }}
+                                        >
+                                            {fileError
+                                                ? 'Archivo inválido'
+                                                : fileSuccess
+                                                    ? 'Archivo cargado'
+                                                    : 'Subir archivo'}
+                                        </Typography>
+
+                                        <Typography
+                                            sx={{
+                                                fontFamily: 'Poppins',
+                                                fontSize: '10px',
+                                                color: '#574B4F',
+                                                opacity: 0.7
+                                            }}
+                                        >
+                                            Arrastre un archivo aquí, o selecciónelo.
                                         </Typography>
                                     </Box>
-                                )}
+
+                                    <input
+                                        type="file"
+                                        hidden
+                                        ref={fileInputRef}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) handleFile(file);
+                                        }}
+
+                                    />
+
+
+
+                                </Box>
+
+                                <Box
+                                    sx={{
+                                        width: "100%",
+                                        display: "flex",
+                                        justifyContent: "center", // 🔥 centra horizontalmente
+                                        mt: -1 // o el margen superior que necesites para ajustarlo
+                                    }}
+                                >
+                                    <Typography sx={{
+                                        textDecoration: "underline",
+                                        fontFamily: 'Poppins',
+                                        fontSize: '11px',
+                                        color: "#8F4D63"
+                                    }}>
+                                        Descargar archivo de muestra
+                                    </Typography>
+                                </Box>
                             </Box>
+
+
+
                             <Box
                                 sx={{
                                     width: '1px',
@@ -1480,7 +1557,13 @@ const BlackList: React.FC = () => {
                                 }}
                             />
                             {/* Teléfonos */}
-                            <Box sx={{ flex: 1 }}>
+                            <Box
+                                sx={{
+                                    flex: 1,
+                                    opacity: fileSuccess ? 0.5 : 1,           // 🔥 se ve más tenue si hay archivo
+                                    pointerEvents: fileSuccess ? 'none' : 'auto' // 🔥 bloquea interacción
+                                }}
+                            >
                                 <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
                                     Teléfono(s)
                                 </Typography>
@@ -1586,13 +1669,25 @@ const BlackList: React.FC = () => {
                                                         ]
                                                     }}
                                                 >
-                                                    <IconButton onClick={handleAddPhone}>
-                                                        <img
-                                                            src={AddIcon}
-                                                            alt="Agregar teléfono"
-                                                            style={{ width: 18, height: 18 }}
-                                                        />
-                                                    </IconButton>
+                                                    <Box
+                                                        sx={{
+                                                            width: 21,
+                                                            height: 21,
+                                                            backgroundColor: "#6F565E",
+                                                            borderRadius: "50%", // 🔥 clave para hacerlo circular
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center"
+                                                        }}
+                                                    >
+                                                        <IconButton onClick={handleAddPhone}>
+                                                            <img
+                                                                src={IconPlus2}
+                                                                alt="Agregar teléfono"
+                                                                style={{ width: 19, height: 19, }}
+                                                            />
+                                                        </IconButton>
+                                                    </Box>
                                                 </Tooltip>
                                             )}
 
@@ -1719,8 +1814,8 @@ const BlackList: React.FC = () => {
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: '150px',
-                        left: '550px',
+                        top: '180px',
+                        left: '750px',
                         width: '580px',
                         height: '409px',
                         bgcolor: 'background.paper',
@@ -1733,9 +1828,13 @@ const BlackList: React.FC = () => {
                     }}
                 >
                     {/* Encabezado */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+
+
+                    }}>
                         <Typography sx={{
-                            fontFamily: 'Poppins', fontSize: '20px', fontWeight: 500, color: '#330F1B',
+                            fontFamily: 'Poppins', fontSize: '20px', fontWeight: 600, color: '#330F1B',
                             marginTop: "-10px", marginBottom: "10px"
                         }}>
                             Editar lista negra
@@ -1756,7 +1855,7 @@ const BlackList: React.FC = () => {
                             marginBottom: "8px"
                         }}
                     >
-                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: '#330F1B', mb: 1 }}>
                             Nombre<span style={{ color: 'red' }}>*</span>
                         </Typography>
                         <TextField
@@ -1830,7 +1929,7 @@ const BlackList: React.FC = () => {
 
                         }}
                     >
-                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: '#330F1B', mb: 1 }}>
                             Fecha de expiración (opcional)
                         </Typography>
                         <Box>
@@ -1929,7 +2028,7 @@ const BlackList: React.FC = () => {
                     flexDirection: 'column',
                 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '20px', color: '#330F1B' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '20px', fontWeight: 600, color: '#330F1B' }}>
                             Inspeccionar lista negra
                         </Typography>
                         <IconButton onClick={() => setIsInspectModalOpen(false)}>
@@ -2278,6 +2377,12 @@ const BlackList: React.FC = () => {
                         <Typography fontWeight="600" fontSize="18px" fontFamily='Poppins'>
                             Gestionar registros: <span style={{ color: '#7B354D', fontFamily: 'Poppins' }}>{selectedBlackList ? `${selectedBlackList.name}` : ''}</span>
                         </Typography>
+
+                        <Divider sx={{
+                            width: 'calc(100% + 64px)', marginLeft: '-32px',
+                            marginTop: "20px",
+                            marginBottom: "-15px"
+                        }} />
 
                         <Typography
                             mt={3}
@@ -2923,14 +3028,17 @@ const BlackList: React.FC = () => {
                                                     }}
                                                     placeholder="5255..."
                                                     sx={{
-                                                        width: '50%',
-                                                        backgroundColor: '#FFFFFF',
+                                                        width: '232px',
+                                                        height: '54px',
+                                                        '& .MuiInputBase-root': {
+                                                            height: '54px',
+                                                        },
                                                         '& input': {
+                                                            height: '54px',
+                                                            boxSizing: 'border-box',
                                                             fontFamily: 'Poppins',
                                                             fontSize: '14px',
-                                                            height: '18px',
-                                                            padding: '14px',
-                                                        },
+                                                        }
                                                     }}
                                                     InputProps={{
                                                         endAdornment: (
@@ -2983,7 +3091,7 @@ const BlackList: React.FC = () => {
                                                 {index > 0 && (
                                                     <Tooltip title="Eliminar teléfono">
                                                         <IconButton onClick={() => handleRemoveIndividualPhone(index)}>
-                                                            <img src={Thrashicon} alt="Eliminar" style={{ width: 18, height: 18 }} />
+                                                            <img src={Thrashicon} alt="Eliminar" style={{ width: 24, height: 24 }} />
                                                         </IconButton>
                                                     </Tooltip>
                                                 )}
@@ -3004,8 +3112,11 @@ const BlackList: React.FC = () => {
                         borderTop: '1px solid #EEE',
                         display: 'flex',
                         justifyContent: 'space-between',
+
                     }}>
-                        <SecondaryButton onClick={() => setIsManageModalOpen(false)} text='Cancelar' />
+                        <SecondaryButton onClick={() => setIsManageModalOpen(false)} text='Cancelar'
+
+                        />
                         <MainButton
                             onClick={handleSendToServer}
                             text='Guardar Cambios'
@@ -3074,7 +3185,7 @@ const BlackList: React.FC = () => {
                     }}
                     disabled={selectedBlackList?.hasActiveCampaign}
                 >
-                    <img src={Thrashicon} alt="Eliminar"  />
+                    <img src={Thrashicon} alt="Eliminar" />
                     <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
                         Eliminar
                     </Typography>
