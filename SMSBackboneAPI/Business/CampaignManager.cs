@@ -336,8 +336,8 @@ namespace Business
 
                 foreach (var c in response)
                 {
-                    var duplicado = c.Schedules.Any(s => s.OperationMode == 2);
-                    c.numeroInicial = duplicado ? c.Contacts.Count * 2 : c.Contacts.Count;
+                    var duplicado = c.Schedules.Where(s => s.OperationMode == 2 && s.StartDateTime <= DateTime.Now).ToList();
+                    c.numeroInicial = duplicado.Count() > 1 ? c.Contacts.Count * duplicado.Count() : c.Contacts.Count;
                     c.numeroActual = c.CampaignContactScheduleSendDTO.Count;
 
                     c.RespondedRecords = c.CampaignContactScheduleSendDTO

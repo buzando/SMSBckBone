@@ -17,6 +17,9 @@ interface DatePickerProps {
     onClose: () => void;
     placement?: 'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
     modifiers?: PopperProps['modifiers']; 
+
+     currentHorarioIndex?: number | null;
+  calendarTarget?: 'start' | 'end' | null;
 }
 
 const DatePickerOneDate: React.FC<DatePickerProps> = ({

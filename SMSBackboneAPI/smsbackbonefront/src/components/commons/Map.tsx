@@ -65,7 +65,7 @@ const MapChart = () => {
 
   const activeData = tab === 0 ? enviadosData : respondidosData;
   const label = tab === 0 ? "mensajes enviados" : "mensajes respondidos";
-
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   return (
     <Box sx={{ width: "100%", height: "auto" }}>
       <Tabs value={tab} onChange={handleTabChange} centered sx={{ marginBottom: "12px" }}>
@@ -77,6 +77,8 @@ const MapChart = () => {
         messageData={activeData}
         tooltipContent={tooltipContent}
         setTooltipContent={setTooltipContent}
+        tooltipPosition={tooltipPosition}
+        setTooltipPosition={setTooltipPosition}
         colorScale={colorScale}
         label={label}
       />
@@ -88,6 +90,8 @@ type MapaProps = {
   messageData: { stateName: string; messages: number }[];
   tooltipContent: string;
   setTooltipContent: (val: string) => void;
+  tooltipPosition: { x: number; y: number }; // ✅ nuevo
+  setTooltipPosition: (val: { x: number; y: number }) => void; // ✅ si aún no lo tienes
   colorScale: (val: number) => string;
   label: string;
 };
@@ -95,34 +99,40 @@ type MapaProps = {
 const MapaPorDataset = ({
   messageData,
   tooltipContent,
+  tooltipPosition, // ✅ nuevo
   setTooltipContent,
+  setTooltipPosition,
   colorScale,
   label,
 }: MapaProps) => {
   return (
     <Box sx={{ position: "relative", height: "380px", width: "100%" }}>
       {tooltipContent && (
-        <Box sx={{
-          position: "absolute",
-          top: 10,
-          left: 10,
-          background: "white",
-          padding: "6px 12px",
-          borderRadius: "8px",
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
-          fontSize: "14px",
-          fontFamily: "Poppins",
-          color: "#5E4B56",
-          pointerEvents: "none",
-          zIndex: 10,
-        }}>
+        <Box
+          sx={{
+            position: "fixed",
+            top: tooltipPosition.y - 50,
+            left: tooltipPosition.x - 50,
+            background: "#2E2E2E",
+            padding: "6px 12px",
+            borderRadius: "12px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.25)",
+            fontSize: "14px",
+            fontFamily: "Poppins, sans-serif",
+            color: "#FFFFFF",
+            pointerEvents: "none",
+            zIndex: 1500,
+            whiteSpace: "nowrap",
+          }}
+        >
           {tooltipContent}
         </Box>
       )}
 
+
       <ComposableMap
         projection="geoMercator"
-        projectionConfig={{ scale: 1200, center: [-102, 23] }}
+        projectionConfig={{ scale: 900, center: [-102, 23] }}
         width={800}
         height={440}
       >
@@ -140,11 +150,14 @@ const MapaPorDataset = ({
                   fill={fillColor}
                   stroke="#FFF"
                   strokeWidth={0.5}
-                  onMouseEnter={() => {
+                  onMouseEnter={(event) => {
+                    const { clientX, clientY } = event;
                     const mensajes = stateData?.messages ?? 0;
                     setTooltipContent(`${stateName}: ${mensajes} ${label}`);
+                    setTooltipPosition({ x: clientX, y: clientY });
                   }}
                   onMouseLeave={() => setTooltipContent("")}
+
                 />
               );
             })
@@ -152,27 +165,6 @@ const MapaPorDataset = ({
         </Geographies>
       </ComposableMap>
 
-      {/* Barra de intensidad */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "10px",
-          marginTop: "12px"
-        }}
-      >
-        <Typography sx={{ fontSize: "14px", color: "#7C7C7C" }}>–</Typography>
-        <Box
-          sx={{
-            width: "200px",
-            height: "12px",
-            borderRadius: "6px",
-            background: "linear-gradient(to right, #E0E0E0, #8F4E63)",
-          }}
-        />
-        <Typography sx={{ fontSize: "14px", color: "#7C7C7C" }}>+</Typography>
-      </Box>
     </Box>
   );
 };
