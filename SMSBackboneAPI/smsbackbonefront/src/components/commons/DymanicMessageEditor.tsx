@@ -261,7 +261,7 @@ const DynamicMessageEditor: React.FC<Props> = ({
           position: 'relative',
           border: '1px solid #ccc',
           borderRadius: 2,
-          minHeight: '120px',
+          minHeight: '180px',
           px: 2,
           py: 1.5,
           fontFamily: 'Poppins',

@@ -206,7 +206,7 @@
     padding: 8px 16px;
     cursor: pointer;
     transition: all 0.3s ease;
-    width: 124px; /* Mismo ancho que el MainButton */
+    min-width: 124px; /* Mismo ancho que el MainButton */
     height: 36px; /* Mismo alto que el MainButton */
 }
 

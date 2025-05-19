@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import fileUploadedIcon from '@mui/icons-material/InsertDriveFile';
-import uploadIcon from '@mui/icons-material/CloudUpload';
-import errorIcon from '@mui/icons-material/ErrorOutline';
-import InfoIcon from '../../assets/Icon-info.svg';
+import IconCloudError from '../../assets/IconCloudError.svg';
+import CloudCheckedIcon from '../../assets/CloudCheckedIcon.svg';
+import UpCloudIcon from '../../assets/UpCloudIcon.svg';
 
 interface DropZoneProps {
   onDrop: (file: File) => void;
@@ -52,9 +52,9 @@ const DropZone: React.FC<DropZoneProps> = ({
       onDragOver={(e) => e.preventDefault()}
       onClick={handleClick}
       sx={{
-        width: 180,
-        height: 140,
-        border: `2px dashed ${borderColor}`,
+        width: 160,
+        height: 160,
+        border: `2px ${fileError ? 'solid' : 'dashed'} ${borderColor}`,
         borderRadius: '8px',
         backgroundColor: bgColor,
         display: 'flex',
@@ -68,6 +68,7 @@ const DropZone: React.FC<DropZoneProps> = ({
         position: 'relative',
       }}
     >
+
       <input
         type="file"
         accept={acceptedFiles}
@@ -77,33 +78,44 @@ const DropZone: React.FC<DropZoneProps> = ({
       />
 
       <img
-        src={fileError ? errorIcon : fileSuccess ? fileUploadedIcon : uploadIcon}
+        src={
+          fileError
+            ? IconCloudError
+            : fileSuccess
+              ? CloudCheckedIcon
+              : UpCloudIcon
+        }
         alt="estado archivo"
-        style={{ marginBottom: '8px', width: 32, height: 32 }}
+        style={{ marginBottom: '8px', width: 'auto' }}
       />
 
-      <Typography sx={{ fontWeight: 600 }}>
-        {fileError ? 'Archivo inválido' : fileSuccess ? file?.name : 'Subir archivo'}
+      <Typography
+        sx={{
+          fontWeight: 600,
+          fontFamily: 'Poppins',
+          color: '#330F1B',
+          fontSize: '14px',
+          opacity: !fileError && !fileSuccess ? 0.6 : 1
+        }}
+      >
+        {fileError ? 'Archivo inválido' : fileSuccess ? 'Archivo cargado' : 'Subir archivo'}
       </Typography>
 
       {!fileSuccess && (
-        <Typography fontSize="12px" color="#330F1B">
+        <Typography
+          sx={{
+            fontFamily: 'Poppins',
+            fontSize: '10px',
+            color: '#574B4F',
+            opacity: 0.7,
+          }}
+        >
           {helperText}
         </Typography>
       )}
 
-      <Box
-        component="img"
-        src={InfoIcon}
-        alt="info"
-        sx={{
-          position: 'absolute',
-          top: 8,
-          right: 8,
-          width: 16,
-          height: 16,
-        }}
-      />
+
+
     </Box>
   );
 };

@@ -25,6 +25,8 @@ import ChipBar from "../components/commons/ChipBar";
 import backarrow from '../assets/MoveTable.svg';
 import backarrowD from '../assets/MoveTabledesactivated.svg';
 
+import infoiconerror from '../assets/Icon-infoerror.svg';
+
 export interface Template {
     id: number;
     name: string;
@@ -67,6 +69,13 @@ const Templates = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 50;
 
+    const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+
+    const isTemplateNameInvalid = !!(
+        templateName &&
+        (templateName.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(templateName))
+    );
+
     const filteredTemplates = templates.filter(t =>
         t.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -96,6 +105,7 @@ const Templates = () => {
         setTemplateName('');
         setMensaje('');
     };
+
 
 
     const handleOpenDeleteModal = (template: Template) => {
@@ -324,17 +334,17 @@ const Templates = () => {
     }, []);
 
     const handleSaveTemplate = async () => {
-        setLoadingTemplates(true);
+        setIsSavingTemplate(true); // 🔥 Activa spinner
+
         const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
 
         try {
             if (isEditingTemplate && templateToEdit) {
-                // 🔥 Estamos editando un template existente
                 const payload = {
                     oldName: templateToEdit.name,
                     idRoom: salaId,
                     newName: templateName,
-                    newMessage: mensaje
+                    newMessage: mensaje,
                 };
 
                 const response = await axios.post(
@@ -344,9 +354,8 @@ const Templates = () => {
                 );
 
                 if (response.status === 200) {
-                    // 🔥 Actualizar localmente la lista
-                    setTemplates(prevTemplates =>
-                        prevTemplates.map(t =>
+                    setTemplates(prev =>
+                        prev.map(t =>
                             t.id === templateToEdit.id
                                 ? { ...t, name: templateName, message: mensaje }
                                 : t
@@ -356,11 +365,10 @@ const Templates = () => {
                     setMessageChipBar('Plantilla actualizada correctamente');
                 }
             } else {
-                // 🔥 Estamos creando un nuevo template
                 const payload = {
                     name: templateName,
                     message: mensaje,
-                    idRoom: salaId
+                    idRoom: salaId,
                 };
 
                 const response = await axios.post(
@@ -378,16 +386,16 @@ const Templates = () => {
             setShowChipBar(true);
             setTimeout(() => setShowChipBar(false), 3000);
             setOpenModal(false);
-            resetTemplateForm(); // 🔥 Limpieza segura
+            resetTemplateForm();
         } catch (error) {
-            console.error(error);
             setIsErrorModalOpen(true);
-            setTitleErrorModal(isEditingTemplate ? 'Error al actualizar la plantilla' : 'Error al guardar la plantilla');
+            setTitleErrorModal('Error al guardar la plantilla');
             setMessageErrorModal('Ocurrió un error al intentar guardar la plantilla. Inténtalo más tarde.');
         } finally {
-            setLoadingTemplates(false);
+            setIsSavingTemplate(false); // 🔥 Detiene spinner
         }
     };
+
 
 
 
@@ -424,7 +432,8 @@ const Templates = () => {
     };
 
 
-    const isAcceptDisabled = !templateName.trim() || !mensaje.trim() || (!selectedID && !selectedPhone && !selectedDato);
+    const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensaje.trim() || (!selectedID && !selectedPhone && !selectedDato);
+
 
 
     return (
@@ -470,7 +479,7 @@ const Templates = () => {
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '25px', marginBottom: '20px' }}>
                 <MainIcon
-                    text="New Template"
+                    text="Nueva plantilla"
                     isLoading={false}
                     onClick={handleOpenModal}
                     width="218px"
@@ -612,7 +621,7 @@ const Templates = () => {
                         backgroundColor: '#FFFFFF',
                         borderRadius: '8px',
                         padding: '60px 0',
-                        height: '332px',
+                        height: '634px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -806,8 +815,9 @@ const Templates = () => {
                                         {/* Menú de acciones */}
                                         <td
                                             style={{
+                                                width: "75px",
                                                 padding: '12px 16px',
-                                                textAlign: 'center',
+                                                textAlign: 'right',
                                                 borderLeft: '1px solid #D9D9D9',
                                             }}
                                         >
@@ -830,8 +840,8 @@ const Templates = () => {
             <Modal open={openModal} onClose={handleCloseModal}>
                 <Box
                     sx={{
-                        width: 580,
-                        height: "auto",
+                        width: '580px',
+                        height: "664px",
                         fontFamily: 'Poppins',
                         backgroundColor: 'white',
                         borderRadius: 2,
@@ -842,39 +852,53 @@ const Templates = () => {
 
                     }}
                 >
-                    <Typography variant="h6" fontWeight={600} fontFamily="Poppins">
+                    <Typography variant="h6" fontWeight={600} fontFamily="Poppins" color='#574B4F' marginTop="-5px">
                         Añadir plantilla
                     </Typography>
 
-                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', top: 106, right: 678 }}>
+                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-44px", marginLeft: '506px' }}>
                         <CloseIcon />
                     </IconButton>
 
-                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2, mt: 2 }} />
+                    <Divider sx={{ width: 'calc(100% + 58px)', marginLeft: '-28px', mb: 2, mt: 2 }} />
 
-                    <Typography mt={2} fontWeight={500} fontSize={16} fontFamily="Poppins">
+                    <Typography
+                        mt={2}
+                        fontWeight={500}
+                        fontSize={16}
+                        fontFamily="Poppins"
+                        sx={{ color: isTemplateNameInvalid ? '#D01247' : '#574B4F' }}
+                    >
                         Nombre
                         <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
                     </Typography>
                     <Box sx={{ position: 'relative' }}>
                         <TextField
-
-                            size="medium"
                             value={templateName}
-                            onChange={(e) => {
-                                const onlyValid = e.target.value.replace(/[^a-zA-Z0-9ÁÉÍÓÚÑáéíóúñ\s]/g, '');
-                                setTemplateName(onlyValid);
+                            onChange={(e) => setTemplateName(e.target.value)}
+                            error={isTemplateNameInvalid}
+                            helperText={
+                                templateName.length > 40
+                                    ? 'Máximo 40 caracteres'
+                                    : !/^[a-zA-Z0-9 ]+$/.test(templateName) && templateName
+                                        ? 'Nombre inválido'
+                                        : ''
+                            }
+                            FormHelperTextProps={{
+                                sx: {
+                                    position: "absolute",
+                                    fontFamily: 'Poppins',
+                                    fontSize: '12px',
+                                    color: '#D01247',
+                                    marginLeft: '10px',
+                                    marginTop: '60px'
+                                }
                             }}
-                            placeholder="Plantilla 1"
                             sx={{
-                                width: "340px",
-                                background: '#fff',
-                                '& .MuiInputBase-input': {
+                                fontFamily: 'Poppins',
+                                '& input': {
                                     fontFamily: 'Poppins',
-                                },
-                                '& input::placeholder': {
-                                    fontFamily: 'Poppins',
-                                },
+                                }
                             }}
                         />
                         <Tooltip
@@ -913,8 +937,15 @@ const Templates = () => {
                                 },
                             }}
                         >
-                            <IconButton size="small" sx={{ position: 'absolute', right: 200, top: 11 }}>
-                                <img src={infoicon} alt="info" />
+                            <IconButton
+                                size="small"
+                                sx={{ position: 'absolute', marginLeft: "-45px", marginTop: "11px" }}
+                            >
+                                <img
+                                    src={isTemplateNameInvalid ? infoiconerror : infoicon}
+                                    alt={isTemplateNameInvalid ? "error" : "info"}
+                                    style={{ width: 24, height: 24 }}
+                                />
                             </IconButton>
                         </Tooltip>
                     </Box>
@@ -978,13 +1009,13 @@ const Templates = () => {
 
                     </Box>
 
-                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2, mt: 3 }} />
+                    <Divider sx={{ width: 'calc(100% + 54px)', marginLeft: '-26px', mb: 2, mt: 3 }} />
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <SecondaryButton text='Cancelar' onClick={handleCloseModal} />
 
                         <MainButton
-                            text='Aceptar'
+                            text="Aceptar"
                             onClick={handleSaveTemplate}
                             disabled={isAcceptDisabled}
                         />
@@ -1009,14 +1040,14 @@ const Templates = () => {
                         Vista previa: <span style={{ color: '#7B354D', fontFamily: "Poppins", fontWeight: "500" }}>{templateName || 'Mensaje Prueba 1'}</span>
                     </Typography>
 
-                    <IconButton onClick={() => setOpenPreviewModal(false)} sx={{ position: 'absolute', top: 196, right: 686 }}>
+                    <IconButton onClick={() => setOpenPreviewModal(false)} sx={{ position: 'absolute', marginTop: '-58px', marginLeft: '484px' }}>
                         <CloseIcon />
                     </IconButton>
 
                     <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2 }} />
 
                     <Box sx={{
-                        backgroundColor: '#F8E7EC', borderRadius: 2, padding: 2, width: '508px', height: '300px',
+                        backgroundColor: '#F2EBEDCC', borderRadius: 2, padding: 2, width: '508px', height: '300px',
 
                         border: " 2px solid #C6BFC299",
                     }}>
@@ -1042,7 +1073,7 @@ const Templates = () => {
                     sx: {
                         borderRadius: 2,
                         mt: -1,
-                        ml: -16,
+                        ml: -12,
                         minWidth: 160,
                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                         '& .MuiMenuItem-root': {
@@ -1098,15 +1129,14 @@ const Templates = () => {
 
             <Modal open={isInspectModalOpen} onClose={() => setIsInspectModalOpen(false)}>
                 <Box sx={{
-                    width: '440px',
+                    width: '448px',
                     backgroundColor: 'white',
                     borderRadius: '12px',
                     p: 3,
                     m: 'auto',
                     mt: '10%',
                     outline: 'none',
-                    maxHeight: '80vh',
-                    overflowY: 'auto'
+                    height: "409px",
                 }}>
                     <Typography variant="h6" sx={{ fontFamily: 'Poppins', fontWeight: 500, mb: 2 }}>
                         Inspeccionar plantilla

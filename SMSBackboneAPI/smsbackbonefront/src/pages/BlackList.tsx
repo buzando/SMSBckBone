@@ -22,7 +22,7 @@ import IconReUpdate1 from '../assets/IconReUpdate1.svg'
 import IconCloudError from '../assets/IconCloudError.svg'
 import CloudCheckedIcon from '../assets/CloudCheckedIcon.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
-import { Divider, InputAdornment, Tooltip, TooltipProps, Typography, Paper, ToggleButton, ToggleButtonGroup, Switch, FormControl, FormControlLabel, List, ListItemText, ListItemButton, ListItem } from "@mui/material";
+import { Divider, InputAdornment, Tooltip, TooltipProps, Typography, Paper, ToggleButton, ToggleButtonGroup, Switch, FormControl, FormControlLabel, List, ListItemText, ListItemButton, ListItem, Button } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import Checkbox from '@mui/material/Checkbox';
 import trash from '../assets/Icon-trash-Card.svg'
@@ -335,6 +335,33 @@ const BlackList: React.FC = () => {
         setIsblacklistModalOpen(false);
     };
 
+    //Const para limpiar formulario
+    const handleResetAndCloseModal = () => {
+        // Limpiar formulario
+        setFormData({
+            Name: '',
+            Phones: [''],
+            ExpirationDate: null,
+            File: '',
+        });
+
+        // Limpiar archivo
+        setFileSuccess(false);
+        setFileError(false);
+        setUploadedFile(null);
+        setBase64File('');
+        setUploadedFileBase64('');
+
+        // Limpiar file input
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+
+        // Cerrar modal
+        setIsblacklistModalOpen(false);
+    };
+
+
     const handleSendToServer = async () => {
         const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
 
@@ -410,26 +437,22 @@ const BlackList: React.FC = () => {
             });
 
             if (response.status === 200) {
-                setMessageChipBar('La lista negra');
+                setMessageChipBar('La lista negra ha sido creada correctamente');
                 setshowChipBarCard(true);
                 setTimeout(() => setshowChipBarCard(false), 3000);
                 await fetchBlackListsByUser();
-                handleCloseModal();
+                handleResetAndCloseModal();
             }
         } catch {
             setTitleErrorModal('Error al añadir la lista negra');
             setMessageErrorModal('Algo salió mal. Inténtelo de nuevo o regreso más tarde.');
             setIsErrorModalOpen(true);
         } finally {
-            handleCloseModal();
-            setLoading(false);
-            setBase64File('');
-            setFileSuccess(false);
-            setFileError(false);
-            setUploadedFile(null);
             setLoading(false);
         }
     };
+
+
 
 
     const handleCloseAddCardModal = () => {
@@ -586,8 +609,7 @@ const BlackList: React.FC = () => {
     };
 
     const handleNameChange = (value: string) => {
-        const onlyValid = value.replace(/[^a-zA-Z0-9ÁÉÍÓÚÑáéíóúñ\s]/g, '');
-        setFormData(prev => ({ ...prev, Name: onlyValid }));
+        setFormData(prev => ({ ...prev, Name: value }));
     };
 
     const handlePhonesChange = (updatedPhones: string[]) => {
@@ -783,6 +805,35 @@ const BlackList: React.FC = () => {
     };
     const hasLockedBlackLists = selectedRows.some((row) => row.hasActiveCampaign);
 
+    const hasPhoneInput = formData.Phones.some(p => p.trim() !== '');
+
+    const isNameInvalid = !!(
+        formData.Name &&
+        (formData.Name.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(formData.Name))
+    );
+
+    const handleCloseManageModal = () => {
+        setIsManageModalOpen(false);
+
+        // Opcionalmente puedes limpiar campos si quieres
+        setSelectedBlackList(null);
+        setSelectedBlackListName('');
+        setIndividualPhones(['']);
+        setUploadedFile(null);
+        setBase64File('');
+        setUploadedFileBase64('');
+        setFileError(false);
+        setFileSuccess(false);
+        setSelectedSheet('');
+        setSelectedTelefonoCol('');
+        setSelectedDatoCol('');
+        setSheetNames([]);
+        setColumns([]);
+        setExcelData([]);
+        setManageOperation('agregar');
+        setManageByList(false);
+        setManageByIndividual(false);
+    };
 
     return (
         <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1540px" }}>
@@ -880,8 +931,8 @@ const BlackList: React.FC = () => {
                                 alt="Limpiar búsqueda"
                                 style={{
                                     marginLeft: "8px",
-                                    width: "16px",
-                                    height: "16px",
+                                    width: "24px",
+                                    height: "24px",
                                     cursor: "pointer",
                                 }}
                                 onClick={() => {
@@ -974,7 +1025,7 @@ const BlackList: React.FC = () => {
                             backgroundColor: '#FFFFFF',
                             borderRadius: '8px',
                             padding: '60px 0',
-                            height: '332px',
+                            height: '625px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -986,7 +1037,7 @@ const BlackList: React.FC = () => {
                         <img
                             src={BoxEmpty}
                             alt="Caja vacía"
-                            style={{ width: '120px', marginBottom: '16px' }}
+                            style={{ width: '263px', marginBottom: '16px' }}
                         />
                         <Typography
                             sx={{
@@ -1277,28 +1328,75 @@ const BlackList: React.FC = () => {
                                 Añadir lista negra
                             </Typography>
                             <IconButton
-                                onClick={handleCloseModal}
+                                onClick={handleResetAndCloseModal}
                                 sx={{
                                     position: 'absolute',
-                                    top: 16,
-                                    right: 16,
+                                    marginTop: '-16px',
+                                    marginLeft: '504px',
                                     zIndex: 10
                                 }}
                             >
                                 <CloseIcon sx={{ color: '#A6A6A6' }} />
                             </IconButton>
                         </Box>
-                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2 }} />
+                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 1.5 }} />
                         {/* Nombre */}
                         <Box>
-                            <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: '#330F1B', mb: 1 }}>
-                                Nombre<span style={{ color: 'red' }}>*</span>
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
+                                    letterSpacing: "0px",
+                                    color:
+                                        formData.Name &&
+                                            (formData.Name.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(formData.Name))
+                                            ? "#D01247"
+                                            : "#330F1B",
+                                    opacity: 1,
+                                    marginBottom: "4px",
+                                }}
+                            >
+                                Nombre
+                                <span style={{ color: "red" }}>*</span>
                             </Typography>
                             <Box sx={{ position: 'relative' }}>
                                 <TextField
                                     fullWidth
                                     value={formData.Name}
                                     onChange={(e) => handleNameChange(e.target.value)}
+                                    variant="outlined"
+                                    required
+                                    error={
+                                        !!(
+                                            formData.Name &&
+                                            (formData.Name.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(formData.Name))
+                                        )
+                                    }
+                                    helperText
+
+                                    ={
+                                        formData.Name && formData.Name.length > 40
+                                            ? "Máximo 40 caracteres"
+                                            : formData.Name && !/^[a-zA-Z0-9 ]+$/.test(formData.Name)
+                                                ? "Formato inválido"
+                                                : ""
+                                    }
+                                    FormHelperTextProps={{
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            fontSize: '12px',
+                                            color: '#D01247',
+                                            marginLeft: '0px',
+                                            marginTop: '4px'
+                                        }
+                                    }}
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        "& .MuiInputBase-input": {
+                                            fontFamily: "Poppins",
+                                        },
+                                    }}
                                     InputProps={{
                                         endAdornment: (
 
@@ -1339,7 +1437,16 @@ const BlackList: React.FC = () => {
                                                 }}
                                             >
                                                 <InputAdornment position="end">
-                                                    <img src={infoicon} alt="info" />
+                                                    <img
+                                                        src={
+                                                            formData.Name &&
+                                                                (formData.Name.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(formData.Name))
+                                                                ? infoiconerror
+                                                                : infoicon
+                                                        }
+                                                        alt="info-icon"
+                                                        style={{ width: 24, height: 24 }}
+                                                    />
                                                 </InputAdornment>
                                             </Tooltip>
                                         ),
@@ -1368,31 +1475,42 @@ const BlackList: React.FC = () => {
                         </Typography>
 
                         {/* Upload y Teléfonos */}
-                        <Box sx={{ display: 'flex', gap: 3 }}>
+                        <Box sx={{ display: 'flex', gap: 3, }}>
 
                             <Box
                                 sx={{
                                     display: 'flex',
                                     flexDirection: 'column', // 🔥 esta línea es clave
                                     alignItems: 'center',     // Opcional: centra horizontalmente
-                                    gap: 0
+                                    gap: 0,
+
                                 }}
                             >
+
+
+
                                 {/* Subir archivo */}
-                                <Box marginBottom={'25px'}
-                                    onClick={() => fileInputRef.current?.click()}
+                                <Box
+                                    marginBottom={'25px'}
+                                    onClick={() => !hasPhoneInput && fileInputRef.current?.click()}
                                     onDragOver={(e) => e.preventDefault()}
                                     onDrop={(e) => {
                                         e.preventDefault();
+                                        if (hasPhoneInput) return; // 🔒 prevenir carga
                                         const file = e.dataTransfer.files?.[0];
                                         if (file) handleFile(file);
                                     }}
-
                                     sx={{
                                         border: fileError
                                             ? '2px solid #EF5466'
-                                            : '2px dashed #D9B4C3',
-                                        backgroundColor: fileError ? '#FFF4F5' : 'transparent',
+                                            : fileSuccess
+                                                ? '2px solid #8F4E63CC' // ✅ borde éxito
+                                                : '2px dashed #D9B4C3',
+                                        backgroundColor: fileError
+                                            ? '#FFF4F5'
+                                            : fileSuccess
+                                                ? '#E5CBD333'           // ✅ fondo éxito
+                                                : 'transparent',
                                         borderRadius: '8px',
                                         width: '160px',
                                         height: '160px',
@@ -1405,68 +1523,142 @@ const BlackList: React.FC = () => {
                                         fontSize: '13px',
                                         color: '#330F1B',
                                         position: 'relative',
-                                        cursor: 'pointer',
-                                        px: 1
+                                        cursor: hasPhoneInput ? 'not-allowed' : 'pointer',
+                                        px: 1,
+                                        opacity: hasPhoneInput ? 0.5 : 1,
+                                        pointerEvents: hasPhoneInput ? 'none' : 'auto',
                                     }}
+
                                 >
+
+                                    {/*Tooltip */}
                                     <Box
-                                        onClick={() => {
-                                            if (fileSuccess) {
-                                                setSelectedFile(null);
-                                                setUploadedFile(null);
-                                                setFileSuccess(false);
-                                                setFileError(false);
-                                                setBase64File('');
-                                                setUploadedFileBase64('');
-                                                setFormData(prev => ({ ...prev, File: '' })); // ✅ actualiza el formData también
-                                                if (fileInputRef.current) {
-                                                    fileInputRef.current.value = ''; // ✅ limpia el input real
-                                                }
-                                            }
-                                        }}
                                         sx={{
                                             position: 'absolute',
-                                            top: 8,
-                                            right: 8,
+                                            marginTop: "-115px",
+                                            marginRight: '-115px',
                                             width: 24,
                                             height: 24,
-                                            cursor: 'pointer',
-                                            zIndex: 10
+
                                         }}
                                     >
-                                        <WhiteTooltip
+                                        <Tooltip
+                                            placement="right"
                                             title={
                                                 fileError ? (
-                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466' }}>
+                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
                                                         Solo se permiten archivos .xlsx
                                                     </Box>
                                                 ) : fileSuccess ? (
-                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#28A745' }}>
-                                                        Archivo cargado: {selectedFile?.name}
+                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#28A745', opacity: 0.7 }}>
+                                                        Archivo cargado {selectedFile?.name}
                                                     </Box>
                                                 ) : (
-                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000' }}>
+                                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
                                                         El archivo debe ser Excel<br />(.xls/.xlsx)
                                                     </Box>
                                                 )
                                             }
-                                            placement="right"
-                                        >
-                                            <img
-                                                src={
-                                                    fileError
-                                                        ? infoiconerror
-                                                        : fileSuccess
-                                                            ? Thrashicon
-                                                            : infoicon
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        backgroundColor: "#FFFFFF",
+                                                        borderRadius: "8px",
+                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                        padding: "8px 12px",
+                                                        fontSize: "14px",
+                                                        fontFamily: "Poppins",
+                                                        color: "#000000",
+                                                        whiteSpace: "pre-line",
+                                                        transform: "translate(-5px, -5px)",
+                                                        borderColor: "#00131F3D",
+                                                        borderStyle: "solid",
+                                                        borderWidth: "1px"
+                                                    }
                                                 }
-                                                alt="estado"
-                                                style={{ width: '24px', height: '24px' }}
-                                            />
-                                        </WhiteTooltip>
+                                            }}
+                                            PopperProps={{
+                                                modifiers: [
+                                                    {
+                                                        name: 'offset',
+                                                        options: {
+                                                            offset: [35, -180] // 👉 [horizontal, vertical]
+                                                        }
+                                                    }
+                                                ]
+                                            }}
+                                        >
+                                            {!fileSuccess && (
+                                                <img
+                                                    src={fileError ? infoiconerror : infoicon}
+                                                    alt="estado"
+                                                    style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                                                />
+                                            )}
+                                        </Tooltip>
+                                        {fileSuccess && (
+                                            <Tooltip title="Eliminar" arrow placement="top"
+                                                componentsProps={{
+                                                    tooltip: {
+                                                        sx: {
+                                                            backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                            color: "#CCC3C3",
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            fontSize: "12px",
+                                                            padding: "6px 8px",
+                                                            borderRadius: "8px",
+                                                            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                        }
+                                                    },
+                                                    arrow: {
+                                                        sx: {
+                                                            color: "rgba(0, 0, 0, 0.8)"
+                                                        }
+                                                    }
+                                                }}
+                                                PopperProps={{
+                                                    modifiers: [
+                                                        {
+                                                            name: 'offset',
+                                                            options: {
+                                                                offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                            }
+                                                        }
+                                                    ]
+                                                }}
+                                            >
+                                                <IconButton
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
+                                                        setSelectedFile(null);
+                                                        setUploadedFile(null);
+                                                        setFileSuccess(false);
+                                                        setFileError(false);
+                                                        setBase64File('');
+                                                        setUploadedFileBase64('');
+                                                        setFormData(prev => ({ ...prev, File: '' }));
+                                                        if (fileInputRef.current) {
+                                                            fileInputRef.current.value = '';
+                                                        }
+                                                    }}
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        right: 0,
+                                                        width: 24,
+                                                        height: 24,
+                                                        padding: 0,
+                                                    }}
+                                                >
+                                                    <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+
                                     </Box>
 
 
+                                    {/*Imagen central del archivo a subir*/}
                                     <Box
                                         sx={{
                                             width: "142px", height: "100px"
@@ -1506,10 +1698,15 @@ const BlackList: React.FC = () => {
                                                 fontFamily: 'Poppins',
                                                 fontSize: '10px',
                                                 color: '#574B4F',
-                                                opacity: 0.7
+                                                opacity: 0.7,
+                                                textAlign: 'center',
+                                                wordBreak: 'break-word', // para dividir texto largo
+                                                maxWidth: '142px' // asegúrate de limitar ancho si el nombre del archivo es largo
                                             }}
                                         >
-                                            Arrastre un archivo aquí, o selecciónelo.
+                                            {fileSuccess && uploadedFile
+                                                ? uploadedFile.name
+                                                : 'Arrastre un archivo aquí, o selecciónelo.'}
                                         </Typography>
                                     </Box>
 
@@ -1528,6 +1725,8 @@ const BlackList: React.FC = () => {
 
                                 </Box>
 
+
+                                {/*Descargar archivo de muestra*/}
                                 <Box
                                     sx={{
                                         width: "100%",
@@ -1536,14 +1735,35 @@ const BlackList: React.FC = () => {
                                         mt: -1 // o el margen superior que necesites para ajustarlo
                                     }}
                                 >
-                                    <Typography sx={{
-                                        textDecoration: "underline",
-                                        fontFamily: 'Poppins',
-                                        fontSize: '11px',
-                                        color: "#8F4D63"
-                                    }}>
-                                        Descargar archivo de muestra
-                                    </Typography>
+
+
+                                    <Button
+                                        disableRipple
+                                        sx={{
+                                            backgroundColor: 'transparent',
+                                            textTransform: 'none',
+                                            padding: 0,
+                                            minWidth: 'auto',
+                                            '&:hover': {
+                                                backgroundColor: 'transparent' // ❌ sin cambio de fondo
+                                            }
+                                        }}
+                                        onClick={() => {
+                                            // tu lógica si la necesitas
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                textDecoration: "underline",
+                                                fontFamily: 'Poppins',
+                                                fontSize: '11px',
+                                                color: "#8F4D63",
+                                            }}
+                                        >
+                                            Descargar archivo de muestra
+                                        </Typography>
+                                    </Button>
+
                                 </Box>
                             </Box>
 
@@ -1564,7 +1784,7 @@ const BlackList: React.FC = () => {
                                     pointerEvents: fileSuccess ? 'none' : 'auto' // 🔥 bloquea interacción
                                 }}
                             >
-                                <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#330F1B', mb: 1 }}>
+                                <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', mb: 1 }}>
                                     Teléfono(s)
                                 </Typography>
 
@@ -1624,15 +1844,22 @@ const BlackList: React.FC = () => {
                                                                     },
                                                                 }}
                                                             >
-                                                                <img src={infoicon} alt="info" style={{ width: 18, height: 18 }} />
+                                                                <img src={infoicon} alt="info" style={{ width: 24, height: 24 }} />
                                                             </Tooltip>
                                                         </InputAdornment>
                                                     )
                                                 }}
                                                 sx={{
+                                                    width: '200px',
+                                                    height: '54px',
+                                                    '& .MuiInputBase-root': {
+                                                        height: '100%',
+                                                    },
                                                     '& input': {
                                                         fontFamily: 'Poppins',
                                                         fontSize: '14px',
+                                                        height: '100%',
+                                                        boxSizing: 'border-box',
                                                     }
                                                 }}
                                             />
@@ -1684,7 +1911,7 @@ const BlackList: React.FC = () => {
                                                             <img
                                                                 src={IconPlus2}
                                                                 alt="Agregar teléfono"
-                                                                style={{ width: 19, height: 19, }}
+                                                                style={{ width: 21, height: 21, }}
                                                             />
                                                         </IconButton>
                                                     </Box>
@@ -1716,7 +1943,7 @@ const BlackList: React.FC = () => {
                                                             {
                                                                 name: 'offset',
                                                                 options: {
-                                                                    offset: [-20, -7] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                                    offset: [-24, -9] // [horizontal, vertical] — aquí movemos 3px hacia abajo
                                                                 }
                                                             }
                                                         ]
@@ -1726,7 +1953,7 @@ const BlackList: React.FC = () => {
                                                         <img
                                                             src={Thrashicon}
                                                             alt="Eliminar"
-                                                            style={{ width: 18, height: 18 }}
+                                                            style={{ width: 24, height: 24, marginLeft: "-8px", marginRight: "-17px", }}
                                                         />
                                                     </IconButton>
                                                 </Tooltip>
@@ -1791,16 +2018,25 @@ const BlackList: React.FC = () => {
 
                         </Box>
 
-
+                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: -4, mt: 1 }} />
 
                         {/* Botones */}
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, gap: 2 }}>
-                            <SecondaryButton text="Cancelar" onClick={handleCloseModal} />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+
+                            <SecondaryButton text="Cancelar" onClick={handleResetAndCloseModal} />
+
+
+
                             <MainButton
                                 text="Guardar"
                                 onClick={addBlackList}
-                                disabled={!formData.Name || !formData.File}
+                                disabled={
+                                    !formData.Name.trim() || // nombre vacío
+                                    isNameInvalid ||         // nombre inválido
+                                    (!formData.File && !formData.Phones.some(p => p.trim() !== '')) // ni archivo ni teléfonos
+                                }
                             />
+
                         </Box>
                     </Box>
 
@@ -1998,10 +2234,16 @@ const BlackList: React.FC = () => {
 
                     </Box>
 
-                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 3 }} />
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 3, mb: -2 }} />
 
                     {/* Botones */}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 35, marginTop: "10px" }}>
+                    <Box sx={{
+                        px: -2,
+                        py: 4,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+
+                    }}>
                         <SecondaryButton text="Cancelar" onClick={() => setIsEditModalOpen(false)} />
                         <MainButton
                             text="Guardar cambios"
@@ -2015,8 +2257,8 @@ const BlackList: React.FC = () => {
             <Modal open={isInspectModalOpen} onClose={() => setIsInspectModalOpen(false)}>
                 <Box sx={{
                     position: 'absolute',
-                    top: '60px',
-                    left: '50%',
+                    marginTop: '150px',
+                    marginLeft: '50%',
                     transform: 'translateX(-50%)',
                     width: '546px',
                     height: '667px',
@@ -2032,18 +2274,30 @@ const BlackList: React.FC = () => {
                             Inspeccionar lista negra
                         </Typography>
                         <IconButton onClick={() => setIsInspectModalOpen(false)}>
-                            <CloseIcon />
+                            <CloseIcon sx={{ color: '#A6A6A6', marginTop: "-34px", marginRight: "-24px" }} />
                         </IconButton>
                     </Box>
 
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 1, mt: 1 }} />
+
                     {/* Tabs */}
-                    <Box sx={{ display: 'flex', gap: 4, borderBottom: '1px solid #E0E0E0', mb: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between', // Asegura que se distribuyan
+                            width: '100%',
+                            borderBottom: '1px solid #E0E0E0',
+                            mb: 2,
+                        }}
+                    >
                         <Typography
                             onClick={() => setInspectTab('registros')}
                             sx={{
                                 fontFamily: 'Poppins',
                                 fontWeight: 500,
                                 fontSize: '14px',
+                                width: '100%',
+                                textAlign: 'center',
                                 borderBottom: inspectTab === 'registros' ? '2px solid #7B354D' : 'none',
                                 color: inspectTab === 'registros' ? '#7B354D' : '#9B9295',
                                 cursor: 'pointer',
@@ -2058,6 +2312,8 @@ const BlackList: React.FC = () => {
                                 fontFamily: 'Poppins',
                                 fontWeight: 500,
                                 fontSize: '14px',
+                                width: '100%',
+                                textAlign: 'center',
                                 borderBottom: inspectTab === 'campañas' ? '2px solid #7B354D' : 'none',
                                 color: inspectTab === 'campañas' ? '#7B354D' : '#9B9295',
                                 cursor: 'pointer',
@@ -2067,6 +2323,8 @@ const BlackList: React.FC = () => {
                             CAMPAÑAS ASIGNADAS
                         </Typography>
                     </Box>
+
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 3, mt: -2.3 }} />
                     {inspectTab === 'campañas' && (
                         <>
                             {/* Header: paginación + buscador */}
@@ -2144,7 +2402,7 @@ const BlackList: React.FC = () => {
                                 {campaignData.filter(c => c.campainName.toLowerCase().includes(campaignSearch.toLowerCase()))
                                     .slice((campaignPage - 1) * 50, campaignPage * 50).length === 0 ? (
                                     <Box sx={{ height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img src={Emptybox} alt="No campaigns" style={{ width: '120px', marginBottom: '16px' }} />
+                                        <img src={Emptybox} alt="No campaigns" style={{ width: '242px', marginBottom: '16px', marginTop: '100px' }} />
                                         <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#7B354D', fontWeight: 500 }}>
                                             No se encontraron resultados.
                                         </Typography>
@@ -2303,9 +2561,9 @@ const BlackList: React.FC = () => {
                                     overflowY: 'auto',
                                     border: '1px solid transparent' // opcional para testeo visual
                                 }}
-                            >                                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
+                            >                                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins', }}>
                                     <thead>
-                                        <tr style={{ backgroundColor: '#F5F5F5' }}>
+                                        <tr style={{ backgroundColor: '#ffff' }}>
                                             <th style={{ padding: '12px', textAlign: 'left' }}>Teléfono</th>
                                             <th style={{ padding: '12px', textAlign: 'left' }}>Dato</th>
                                         </tr>
@@ -2323,13 +2581,22 @@ const BlackList: React.FC = () => {
                                                 justifyContent: 'center',
                                             }}
                                         >
-                                            <img src={Emptybox} alt="No results" style={{ width: '120px', marginBottom: '16px' }} />
+                                            <img src={Emptybox} alt="No results" style={{
+                                                width: '242px',
+                                                marginBottom: '16px',
+                                                position: 'absolute',
+                                                marginLeft: '200px'
+                                            }}
+                                            />
                                             <Typography
                                                 sx={{
                                                     fontFamily: 'Poppins',
                                                     fontSize: '14px',
                                                     color: '#7B354D',
                                                     fontWeight: 500,
+                                                    mt: "220px",
+                                                    position: "absolute",
+                                                    marginLeft: '200px'
                                                 }}
                                             >
                                                 No se encontraron resultados.
@@ -2377,6 +2644,18 @@ const BlackList: React.FC = () => {
                         <Typography fontWeight="600" fontSize="18px" fontFamily='Poppins'>
                             Gestionar registros: <span style={{ color: '#7B354D', fontFamily: 'Poppins' }}>{selectedBlackList ? `${selectedBlackList.name}` : ''}</span>
                         </Typography>
+
+                        <IconButton
+                            onClick={handleCloseManageModal}
+                            sx={{
+                                position: 'absolute',
+                                marginTop: '-52px',
+                                marginLeft: '514px',
+                                zIndex: 10
+                            }}
+                        >
+                            <CloseIcon sx={{ color: '#A6A6A6' }} />
+                        </IconButton>
 
                         <Divider sx={{
                             width: 'calc(100% + 64px)', marginLeft: '-32px',
@@ -2574,7 +2853,7 @@ const BlackList: React.FC = () => {
                                                     fileError={fileError}
                                                     fileSuccess={fileSuccess}
                                                     helperText="Arrastre un archivo aquí, o selecciónelo."
-                                                    acceptedFiles=".xlsx"
+                                                    acceptedFiles="" // 🔥 permite cualquier tipo
                                                 />
                                             </Box>
                                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -3083,7 +3362,7 @@ const BlackList: React.FC = () => {
                                                         }}
                                                     >
                                                         <IconButton onClick={handleAddIndividualPhone}>
-                                                            <img src={AddIcon} alt="Agregar teléfono" style={{ width: 18, height: 18 }} />
+                                                            <img src={AddIcon} alt="Agregar teléfono" style={{ width: 21, height: 21 }} />
                                                         </IconButton>
                                                     </Tooltip>
                                                 )}
@@ -3106,10 +3385,11 @@ const BlackList: React.FC = () => {
                         </Box>
                     </Box>
 
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 2, mb: 1 }} />
+
                     <Box sx={{
-                        px: 4,
-                        py: 3,
-                        borderTop: '1px solid #EEE',
+                        px: 3,
+                        py: 1,
                         display: 'flex',
                         justifyContent: 'space-between',
 
@@ -3120,6 +3400,7 @@ const BlackList: React.FC = () => {
                         <MainButton
                             onClick={handleSendToServer}
                             text='Guardar Cambios'
+
                         />
 
                     </Box>
@@ -3138,15 +3419,24 @@ const BlackList: React.FC = () => {
                         borderRadius: 2,
                         boxShadow: '0px 2px 12px rgba(0, 0, 0, 0.1)',
                         minWidth: 200,
-                        fontFamily: 'Poppins'
+                        fontFamily: 'Poppins',
+
                     }
                 }}
             >
                 <MenuItem onClick={() => {
                     handleMenuClose();
                     openEditModal(selectedBlackList);
-                }}>
-                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#7B354D' }} />
+                }}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                        }
+                    }}
+                >
+                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
                     <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
 
                         Editar
@@ -3161,10 +3451,18 @@ const BlackList: React.FC = () => {
                         console.warn("⚠ No se encontró lista seleccionada.");
                     }
 
-                }}>
-                    <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '#7B354D' }} />
+                }}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                        }
+                    }}
+                >
+                    <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
                     <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
-                        Consultar
+                        Inspeccionar
                     </Typography>
                 </MenuItem>
                 <MenuItem onClick={() => {
@@ -3172,8 +3470,16 @@ const BlackList: React.FC = () => {
                     setSelectedBlackList(selectedBlackList); // pasa el objeto de la lista
                     setIsManageModalOpen(true);
 
-                }}>
-                    <ListIcon fontSize="small" sx={{ mr: 1, color: '#7B354D' }} />
+                }}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                        }
+                    }}
+                >
+                    <ListIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
                     <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>Gestionar registros</Typography>
                 </MenuItem>
                 <MenuItem
@@ -3184,11 +3490,24 @@ const BlackList: React.FC = () => {
                         handleMenuClose();
                     }}
                     disabled={selectedBlackList?.hasActiveCampaign}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                        }
+                    }}
                 >
-                    <img src={Thrashicon} alt="Eliminar" />
-                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
-                        Eliminar
-                    </Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <img
+                            src={Thrashicon}
+                            alt="Eliminar"
+                            style={{ width: 24, height: 24 }}
+                        />
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                            Eliminar
+                        </Typography>
+                    </Box>
                 </MenuItem>
             </Menu>
 

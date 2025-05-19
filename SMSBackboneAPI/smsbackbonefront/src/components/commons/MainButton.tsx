@@ -7,16 +7,26 @@ interface MainButtonProps {
     onClick: () => void;
     isLoading?: boolean;
     disabled?: boolean;
+    width?: string;
 }
 
-const MainButton: React.FC<MainButtonProps> = ({ text, onClick, isLoading = false, disabled = false,  }) => {
+const MainButton: React.FC<MainButtonProps> = ({ text, onClick, isLoading = false, disabled = false, width, }) => {
     return (
         <button
             className={`main-button ${disabled ? 'disabled' : ''}`}
             onClick={onClick}
             disabled={disabled}
+            style={{
+                width: width ?? 'auto',      // ✅ usa el ancho si se proporciona
+                minWidth: width ? undefined : '124px',  // ✅ si se pasa width, no impongas minWidth
+                minHeight: '36px',           // ✅ mantiene altura uniforme
+            }}
         >
-            {isLoading ? <CircularProgress size={20} thickness={8} style={{ color: '#FFFFFF' }} /> : text.toUpperCase()}
+            {isLoading ? (
+                <CircularProgress size={20} thickness={8} style={{ color: '#FFFFFF' }} />
+            ) : (
+                text.toUpperCase()
+            )}
         </button>
     );
 };
