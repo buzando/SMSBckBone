@@ -16,6 +16,12 @@ import Select from '@mui/material/Select';
 import infoicon from '../assets/Icon-info.svg'
 import UpCloudIcon from '../assets/UpCloudIcon.svg'
 import IconPlusCircle from '../assets/IconPlusCircle.svg'
+import IconPlusUnselected from '../assets/IconPlusUnselected.svg'
+import IconMinusSelected from '../assets/IconMinusSelected.svg'
+import IconUpdateSelected from '../assets/IconUpdateSelected.svg'
+import IconEyeOpen from '../assets/IconEyeOpen.svg'
+
+
 import IconNegativeCircle from '../assets/IconNegativeCircle.svg'
 import IconReUpdate1 from '../assets/IconReUpdate1.svg'
 
@@ -530,12 +536,14 @@ const BlackList: React.FC = () => {
             setColumns([]);
             setExcelData([]);
             setBase64File('');
+
             return;
         }
 
         setUploadedFile(file);
         setFileError(false);
         setFileSuccess(true);
+        setShowColumnOptions(true);
 
         const reader = new FileReader();
 
@@ -546,7 +554,7 @@ const BlackList: React.FC = () => {
 
             const sheetNames = workbook.SheetNames;
             setSheetNames(sheetNames);
-            setSelectedSheet(sheetNames[0]);
+            setSelectedSheet('');
 
             const sheet = workbook.Sheets[sheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
@@ -835,6 +843,10 @@ const BlackList: React.FC = () => {
         setManageByIndividual(false);
     };
 
+
+
+    const [showColumnOptions, setShowColumnOptions] = useState(true);
+
     return (
         <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1540px" }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -878,7 +890,20 @@ const BlackList: React.FC = () => {
                 <MainIcon
                     text="Nueva Lista Negra"
                     isLoading={Loading}
-                    onClick={() => setIsblacklistModalOpen(true)}
+                    onClick={() => {
+                        setFormData({
+                            Name: '',
+                            Phones: [''],
+                            ExpirationDate: null,
+                            File: '',
+                        });
+                        setFileSuccess(false);
+                        setFileError(false);
+                        setUploadedFile(null);
+                        setBase64File('');
+                        setUploadedFileBase64('');
+                        setIsblacklistModalOpen(true);
+                    }}
                     width="218px"
                 >
                     <span className="flex items-center">
@@ -1708,6 +1733,21 @@ const BlackList: React.FC = () => {
                                                 ? uploadedFile.name
                                                 : 'Arrastre un archivo aquí, o selecciónelo.'}
                                         </Typography>
+                                        {fileSuccess && (
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: '10px',
+                                                    color: '#574B4F',
+                                                    opacity: 0.7,
+                                                    textAlign: 'center',
+                                                    mt: '4px'
+                                                }}
+                                            >
+                                                Total de registros:
+                                            </Typography>
+                                        )}
+
                                     </Box>
 
                                     <input
@@ -2626,8 +2666,8 @@ const BlackList: React.FC = () => {
 
             <Modal open={isManageModalOpen} onClose={() => setIsManageModalOpen(false)}>
                 <Box sx={{
-                    width: 600,
-                    maxHeight: '85vh',
+                    width: '580px',
+                    height: '592px',
                     bgcolor: 'white',
                     borderRadius: '10px',
                     mx: 'auto',
@@ -2641,7 +2681,7 @@ const BlackList: React.FC = () => {
 
 
                     <Box sx={{ px: 4, pt: 4 }}>
-                        <Typography fontWeight="600" fontSize="18px" fontFamily='Poppins'>
+                        <Typography fontWeight="600" fontSize="20px" fontFamily='Poppins' marginTop={'-10px'} marginLeft={'-5px'}>
                             Gestionar registros: <span style={{ color: '#7B354D', fontFamily: 'Poppins' }}>{selectedBlackList ? `${selectedBlackList.name}` : ''}</span>
                         </Typography>
 
@@ -2649,8 +2689,8 @@ const BlackList: React.FC = () => {
                             onClick={handleCloseManageModal}
                             sx={{
                                 position: 'absolute',
-                                marginTop: '-52px',
-                                marginLeft: '514px',
+                                marginTop: '-46px',
+                                marginLeft: '500px',
                                 zIndex: 10
                             }}
                         >
@@ -2692,10 +2732,12 @@ const BlackList: React.FC = () => {
                                     width: "64px",
                                     height: "64px",
                                     borderRadius: "6px",
-                                    borderColor: "#6F3D50",
-                                    backgroundColor: "#8F4D63"
+                                    border: '2px solid #8F4E63',
+                                    backgroundColor: manageOperation === 'agregar' ? '#8F4D63' : '#FFFFFF',
+
                                 }}
                             >
+
                                 <ToggleButton
                                     value="agregar"
                                     sx={{
@@ -2707,7 +2749,15 @@ const BlackList: React.FC = () => {
                                         padding: 1
                                     }}
                                 >
-                                    <img src={IconPlusCircle} style={{ width: 32, height: 32, marginBottom: 4 }} />
+                                    <img
+                                        src={
+                                            manageOperation === 'agregar'
+                                                ? IconPlusCircle
+                                                : IconPlusUnselected
+                                        }
+                                        alt="Icono de acción"
+                                        style={{ width: 32, height: 32, marginBottom: 4 }}
+                                    />
 
                                 </ToggleButton>
                                 <Typography
@@ -2718,12 +2768,56 @@ const BlackList: React.FC = () => {
                                         lineHeight: 1,
                                         color: '#8F4D63',
                                         textTransform: 'none',
-                                        marginLeft: "10px",
-                                        marginTop: "4px"
+                                        marginLeft: "0px",
+                                        marginTop: "7px"
                                     }}
                                 >
                                     Cargar
                                 </Typography>
+                                <InputAdornment position="end"
+                                    sx={{ marginTop: "-15px", marginLeft: "46px" }}
+                                >
+                                    <Tooltip
+                                        title={
+                                            <Box
+                                                sx={{
+
+                                                    backgroundColor: "#FFFFFF",
+                                                    borderRadius: "8px",
+                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                    padding: "8px 12px",
+                                                    fontSize: "14px",
+                                                    fontFamily: "Poppins",
+                                                    color: "#000000",
+                                                    whiteSpace: "pre-line",
+                                                    transform: "translate(2px, -15px)",
+                                                    borderColor: "#00131F3D",
+                                                    borderStyle: "solid",
+                                                    borderWidth: "1px"
+                                                }}
+                                            >
+                                                <>
+                                                    Añadir teléfonos a la<br />
+                                                    lista actual
+                                                </>
+                                            </Box>
+                                        }
+                                        placement="bottom-end"
+                                        componentsProps={{
+                                            tooltip: {
+                                                sx: {
+                                                    backgroundColor: "transparent",
+                                                    padding: 0,
+
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        <img src={infoicon} alt="info" style={{ width: 20, height: 20 }} />
+                                    </Tooltip>
+                                </InputAdornment>
+
+
                             </Box>
 
                             <Box
@@ -2731,7 +2825,9 @@ const BlackList: React.FC = () => {
                                     width: "64px",
                                     height: "64px",
                                     borderRadius: "6px",
-                                    border: '2px solid #8F4E63'
+                                    border: '2px solid #8F4E63',
+                                    backgroundColor: manageOperation === 'eliminar' ? '#8F4D63' : '#FFFFFF',
+
                                 }}
                             >
                                 <ToggleButton value="eliminar"
@@ -2744,7 +2840,11 @@ const BlackList: React.FC = () => {
                                         padding: 1,
                                     }}
                                 >
-                                    <img src={IconNegativeCircle} style={{ width: 32, height: 32, marginBottom: 4 }} />
+                                    <img
+                                        src={manageOperation === 'eliminar' ? IconMinusSelected : IconNegativeCircle}
+                                        alt="Eliminar"
+                                        style={{ width: 32, height: 32, marginBottom: 4 }}
+                                    />
 
                                 </ToggleButton>
                                 <Typography
@@ -2756,7 +2856,7 @@ const BlackList: React.FC = () => {
                                         color: '#8F4D63',
                                         textTransform: 'none',
                                         marginLeft: "7px",
-                                        marginTop: "4px"
+                                        marginTop: "6px"
                                     }}
                                 >
                                     Eliminar
@@ -2768,7 +2868,9 @@ const BlackList: React.FC = () => {
                                     width: "64px",
                                     height: "64px",
                                     borderRadius: "6px",
-                                    border: '2px solid #8F4E63'
+                                    border: '2px solid #8F4E63',
+                                    backgroundColor: manageOperation === 'actualizar' ? '#8F4D63' : '#FFFFFF',
+
                                 }}
                             >
                                 <ToggleButton value="actualizar"
@@ -2781,7 +2883,11 @@ const BlackList: React.FC = () => {
                                         padding: 1
                                     }}
                                 >
-                                    <img src={IconReUpdate1} style={{ width: 27, height: 27, marginBottom: 4 }} />
+                                    <img
+                                        src={manageOperation === 'actualizar' ? IconUpdateSelected : IconReUpdate1}
+                                        alt="Actualizar"
+                                        style={{ width: 27, height: 27, marginBottom: 4 }}
+                                    />
 
                                 </ToggleButton>
                                 <Typography
@@ -2793,7 +2899,7 @@ const BlackList: React.FC = () => {
                                         color: '#8F4D63',
                                         textTransform: 'none',
                                         marginLeft: "0px",
-                                        marginTop: "4px"
+                                        marginTop: "6px"
                                     }}
                                 >
                                     Actualizar
@@ -2825,61 +2931,357 @@ const BlackList: React.FC = () => {
                                 overflowX: 'hidden', // 🔥 Esto evita scroll lateral
                             }}
                         >
-                            <Typography fontWeight="500" fontSize="16px" mb={1} fontFamily={"Poppins"}
-                                marginLeft={'-30px'}>Seleccionar fuente de registros</Typography>
+                            <Typography fontWeight="500" fontSize="18px" mb={1} fontFamily={"Poppins"}
+                                marginLeft={'-30px'} marginTop={'-10px'}>Seleccionar fuente de registros</Typography>
 
-                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}
-                                border={'1px solid #E6E4E4'} borderRdius={'6px'}>
-                                <Typography fontSize="16px" fontFamily={"Poppins"} marginLeft={'16px'}>Por lista</Typography>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} marginLeft={'-30px'} marginBottom={'-8px'}
+                                border={'1px solid #E6E4E4'} borderRdius={'6px'} width={'530px'} height={'57px'} borderRadius={'6px'}
+                                opacity={manageByIndividual ? 0.4 : 1} pointerEvents={manageByIndividual ? 'none' : 'auto'}
+                            >
+                                <Typography fontSize="18px" fontFamily={"Poppins"} marginLeft={'16px'}>Por archivo</Typography>
                                 <Switch
                                     checked={manageByList}
                                     onChange={() => {
-                                        setManageByList(true);
-                                        setManageByIndividual(false);
+                                        const newValue = !manageByList;
+                                        setManageByList(newValue);
+                                        if (newValue) {
+                                            setManageByIndividual(false);
+                                        }
                                     }}
                                 />
                             </Box>
                         </Box>
 
-                        <Box mt={3}>
+                        <Box mt={-2}>
                             {manageByList && (
                                 <>
                                     {manageOperation === 'agregar' && (
                                         <Box display="flex" alignItems="flex-start" gap={3} mt={2} flexWrap="wrap">
-                                            <Box>
-                                                <DropZone
-                                                    onDrop={handleManageFile}
-                                                    file={uploadedFile}
-                                                    fileError={fileError}
-                                                    fileSuccess={fileSuccess}
-                                                    helperText="Arrastre un archivo aquí, o selecciónelo."
-                                                    acceptedFiles="" // 🔥 permite cualquier tipo
-                                                />
-                                            </Box>
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                                {/* Seleccionar hoja */}
-                                                <Box>
-                                                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '15px', mb: 1 }}>
-                                                        Seleccionar hoja
-                                                    </Typography>
-                                                    <FormControl fullWidth size="small">
-                                                        <Select
-                                                            displayEmpty
-                                                            value={selectedSheet}
-                                                            onChange={handleSheetChange}
-                                                            sx={{ borderRadius: '8px' }}
+                                            {/* Subir archivo en gestión de registros - Cargar*/}
+                                            <Box
+                                                marginBottom={'0px'}
+                                                onClick={() => !hasPhoneInput && fileInputRef.current?.click()}
+                                                onDragOver={(e) => e.preventDefault()}
+                                                onDrop={(e) => {
+                                                    e.preventDefault();
+                                                    if (hasPhoneInput) return; // 🔒 prevenir carga
+                                                    const file = e.dataTransfer.files?.[0];
+                                                    if (file) handleFile(file);
+                                                }}
+                                                sx={{
+                                                    border: fileError
+                                                        ? '2px solid #EF5466'
+                                                        : fileSuccess
+                                                            ? '2px solid #8F4E63CC' // ✅ borde éxito
+                                                            : '2px dashed #D9B4C3',
+                                                    backgroundColor: fileError
+                                                        ? '#FFF4F5'
+                                                        : fileSuccess
+                                                            ? '#E5CBD333'           // ✅ fondo éxito
+                                                            : 'transparent',
+                                                    borderRadius: '8px',
+                                                    width: '160px',
+                                                    height: '160px',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'center',
+                                                    alignItems: fileSuccess ? 'flex-start' : 'center',
+                                                    transition: 'all 0.3s ease', // animación suave
+                                                    marginLeft: fileSuccess ? '20px' : 'auto',
+                                                    marginRight: fileSuccess ? '10px' : 'auto',
+                                                    textAlign: 'center',
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: '13px',
+                                                    color: '#330F1B',
+                                                    position: 'relative',
+                                                    cursor: hasPhoneInput ? 'not-allowed' : 'pointer',
+                                                    px: 1,
+                                                    opacity: hasPhoneInput ? 0.5 : 1,
+                                                    pointerEvents: hasPhoneInput ? 'none' : 'auto',
+                                                }}
+
+                                            >
+
+                                                {/*Tooltip */}
+                                                <Box
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        marginTop: "-115px",
+                                                        marginRight: '-115px',
+                                                        width: 24,
+                                                        height: 24,
+
+                                                    }}
+                                                >
+                                                    <Tooltip
+                                                        placement="right"
+                                                        title={
+                                                            fileError ? (
+                                                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
+                                                                    Solo se permiten archivos .xlsx
+                                                                </Box>
+                                                            ) : fileSuccess ? (
+                                                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#28A745', opacity: 0.7 }}>
+                                                                    Archivo cargado {selectedFile?.name}
+                                                                </Box>
+                                                            ) : (
+                                                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
+                                                                    El archivo debe ser Excel<br />(.xls/.xlsx)
+                                                                </Box>
+                                                            )
+                                                        }
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "#FFFFFF",
+                                                                    borderRadius: "8px",
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                    padding: "8px 12px",
+                                                                    fontSize: "14px",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#000000",
+                                                                    whiteSpace: "pre-line",
+                                                                    transform: "translate(-5px, -5px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }
+                                                            }
+                                                        }}
+                                                        PopperProps={{
+                                                            modifiers: [
+                                                                {
+                                                                    name: 'offset',
+                                                                    options: {
+                                                                        offset: [35, -180] // 👉 [horizontal, vertical]
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }}
+                                                    >
+                                                        {!fileSuccess && (
+                                                            <img
+                                                                src={fileError ? infoiconerror : infoicon}
+                                                                alt="estado"
+                                                                style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                                                            />
+                                                        )}
+                                                    </Tooltip>
+                                                    {fileSuccess && (
+                                                        <Tooltip title="Eliminar" arrow placement="top"
+                                                            componentsProps={{
+                                                                tooltip: {
+                                                                    sx: {
+                                                                        backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                                        color: "#CCC3C3",
+                                                                        fontFamily: "Poppins, sans-serif",
+                                                                        fontSize: "12px",
+                                                                        padding: "6px 8px",
+                                                                        borderRadius: "8px",
+                                                                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                                    }
+                                                                },
+                                                                arrow: {
+                                                                    sx: {
+                                                                        color: "rgba(0, 0, 0, 0.8)"
+                                                                    }
+                                                                }
+                                                            }}
+                                                            PopperProps={{
+                                                                modifiers: [
+                                                                    {
+                                                                        name: 'offset',
+                                                                        options: {
+                                                                            offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }}
                                                         >
-                                                            {sheetNames.map((name, index) => (
-                                                                <MenuItem key={index} value={name}>{name}</MenuItem>
-                                                            ))}
-                                                        </Select>
-                                                    </FormControl>
+                                                            {/*Trashicon 2*/}
+                                                            <IconButton
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setSelectedFile(null);
+                                                                    setUploadedFile(null);
+                                                                    setFileSuccess(false);
+                                                                    setFileError(false);
+                                                                    setBase64File('');
+                                                                    setUploadedFileBase64('');
+                                                                    setFormData(prev => ({ ...prev, File: '' }));
+                                                                    setShowColumnOptions(false); // 🔥 ocultar secciones de columnas
+                                                                    if (fileInputRef.current) {
+                                                                        fileInputRef.current.value = '';
+                                                                    }
+                                                                }}
+                                                                sx={{
+                                                                    position: 'absolute',
+                                                                    marginTop: "0px",
+                                                                    marginLeft: "100px",
+                                                                    width: 24,
+                                                                    height: 24,
+                                                                    padding: 0,
+                                                                }}
+                                                            >
+                                                                <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
+                                                            </IconButton>
+
+                                                        </Tooltip>
+                                                    )}
+
                                                 </Box>
 
-                                                {/* Seleccionar columnas */}
-                                                {columns.length > 0 && (
+
+                                                {/*Imagen central del archivo a subir*/}
+                                                <Box
+                                                    sx={{
+                                                        width: "142px", height: "100px"
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={
+                                                            fileError
+                                                                ? IconCloudError
+                                                                : fileSuccess
+                                                                    ? CloudCheckedIcon
+                                                                    : UpCloudIcon
+                                                        }
+                                                        alt="estado archivo"
+                                                        style={{ marginBottom: '8px', width: "" }}
+                                                    />
+
+
+                                                    <Typography
+                                                        sx={{
+                                                            fontWeight: 600,
+                                                            fontFamily: "Poppins",
+                                                            color: "#330F1B",
+                                                            fontSize: '14px',
+                                                            opacity: !fileError && !fileSuccess ? 0.6 : 1 // 🔥 esta línea es la clave
+                                                        }}
+                                                    >
+                                                        {fileError
+                                                            ? 'Archivo inválido'
+                                                            : fileSuccess
+                                                                ? 'Archivo cargado'
+                                                                : 'Subir archivo'}
+                                                    </Typography>
+
+                                                    <Typography
+                                                        sx={{
+                                                            fontFamily: 'Poppins',
+                                                            fontSize: '10px',
+                                                            color: '#574B4F',
+                                                            opacity: 0.7,
+                                                            textAlign: 'center',
+                                                            wordBreak: 'break-word', // para dividir texto largo
+                                                            maxWidth: '142px' // asegúrate de limitar ancho si el nombre del archivo es largo
+                                                        }}
+                                                    >
+                                                        {fileSuccess && uploadedFile
+                                                            ? uploadedFile.name
+                                                            : 'Arrastre un archivo aquí, o selecciónelo.'}
+                                                    </Typography>
+                                                    {fileSuccess && (
+                                                        <Typography
+                                                            sx={{
+                                                                fontFamily: 'Poppins',
+                                                                fontSize: '10px',
+                                                                color: '#574B4F',
+                                                                opacity: 0.7,
+                                                                textAlign: 'center',
+                                                                mt: '4px'
+                                                            }}
+                                                        >
+                                                            Total de registros:
+                                                        </Typography>
+                                                    )}
+
+                                                </Box>
+
+                                                <input
+                                                    type="file"
+                                                    hidden
+                                                    ref={fileInputRef}
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) handleFile(file);
+                                                    }}
+
+                                                />
+
+
+
+                                            </Box>
+
+                                            {columns.length > 0 && showColumnOptions && (
+
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                    {/* Seleccionar hoja */}
                                                     <Box>
-                                                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '15px', mb: 1 }}>
+                                                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', mb: 1 }}>
+                                                            Seleccionar hoja
+                                                        </Typography>
+                                                        <FormControl fullWidth size="small">
+                                                            <Select
+                                                                displayEmpty
+                                                                value={selectedSheet}
+                                                                onChange={handleSheetChange}
+                                                                sx={{ borderRadius: '8px' }}
+                                                                renderValue={(selected) =>
+                                                                    selected ? (
+                                                                        <span style={{
+                                                                            fontSize: "12px",
+                                                                            fontFamily: "Poppins",
+                                                                            color: "#645E60"
+                                                                        }}>
+                                                                            {selected}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span style={{
+                                                                            fontSize: "12px",
+                                                                            fontFamily: "Poppins",
+                                                                            color: "#645E60",
+                                                                            opacity: 0.8
+                                                                        }}>
+                                                                            Seleccionar hoja
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            >
+                                                                {sheetNames.map((name, index) => (
+                                                                    <MenuItem
+                                                                        key={index}
+                                                                        value={name}
+                                                                        sx={{
+                                                                            fontSize: '12px',
+                                                                            fontFamily: 'Poppins',
+                                                                            color: '#645E60',
+                                                                            opacity: 0.8,
+                                                                            '&:hover': {
+                                                                                backgroundColor: '#F2EBED', // 💥 color al pasar el mouse
+                                                                            },
+                                                                            '&.Mui-selected': {
+                                                                                backgroundColor: '#F2EBED',
+                                                                            },
+                                                                            '&.Mui-selected:hover': {
+                                                                                backgroundColor: '#F2EBED',
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {name}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </FormControl>
+
+
+                                                    </Box>
+
+                                                    {/* Seleccionar columnas */}
+
+                                                    <Box>
+                                                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', mb: 1, color: '#330F1B' }}>
                                                             Seleccionar columnas
                                                         </Typography>
                                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -2889,15 +3291,55 @@ const BlackList: React.FC = () => {
                                                                     value={selectedDatoCol}
                                                                     onChange={(e) => setSelectedTelefonoCol(e.target.value)}
                                                                     sx={{ borderRadius: '8px' }}
+                                                                    renderValue={(selected) =>
+                                                                        selected ? (
+                                                                            <span style={{
+                                                                                fontSize: "12px",
+                                                                                fontFamily: "Poppins",
+                                                                                color: "#645E60"
+                                                                            }}>
+                                                                                {selected}
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span style={{
+                                                                                fontSize: "12px",
+                                                                                fontFamily: "Poppins",
+                                                                                color: "#645E60",
+                                                                                opacity: 0.8
+                                                                            }}>
+                                                                                Seleccionar columna 1
+                                                                            </span>
+                                                                        )
+                                                                    }
                                                                 >
-                                                                    <MenuItem disabled value=""></MenuItem>
                                                                     {columns
                                                                         .filter((col) => col !== selectedTelefonoCol)
                                                                         .map((col, idx) => (
-                                                                            <MenuItem key={idx} value={col}>{col}</MenuItem>
+                                                                            <MenuItem
+                                                                                key={idx}
+                                                                                value={col}
+                                                                                sx={{
+                                                                                    fontSize: '12px',
+                                                                                    fontFamily: 'Poppins',
+                                                                                    color: '#645E60',
+                                                                                    opacity: 0.8,
+                                                                                    '&:hover': {
+                                                                                        backgroundColor: '#F2EBED',
+                                                                                    },
+                                                                                    '&.Mui-selected': {
+                                                                                        backgroundColor: '#F2EBED',
+                                                                                    },
+                                                                                    '&.Mui-selected:hover': {
+                                                                                        backgroundColor: '#F2EBED',
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                {col}
+                                                                            </MenuItem>
                                                                         ))}
                                                                 </Select>
                                                             </FormControl>
+
 
                                                             {/* Columna de teléfono */}
                                                             <FormControl fullWidth size="small">
@@ -2906,16 +3348,57 @@ const BlackList: React.FC = () => {
                                                                     value={selectedTelefonoCol}
                                                                     onChange={(e) => setSelectedDatoCol(e.target.value)}
                                                                     sx={{ borderRadius: '8px' }}
+                                                                    renderValue={(selected) =>
+                                                                        selected ? (
+                                                                            <span style={{
+                                                                                fontSize: "12px",
+                                                                                fontFamily: "Poppins",
+                                                                                color: "#645E60"
+                                                                            }}>
+                                                                                {selected}
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span style={{
+                                                                                fontSize: "12px",
+                                                                                fontFamily: "Poppins",
+                                                                                color: "#645E60",
+                                                                                opacity: 0.8
+                                                                            }}>
+                                                                                Seleccionar columna 2
+                                                                            </span>
+                                                                        )
+                                                                    }
                                                                 >
                                                                     <MenuItem disabled value=""></MenuItem>
                                                                     {columns
                                                                         .filter((col) => col !== selectedDatoCol)
                                                                         .map((col, idx) => (
-                                                                            <MenuItem key={idx} value={col}>{col}</MenuItem>
+                                                                            <MenuItem
+                                                                                key={idx}
+                                                                                value={col}
+                                                                                sx={{
+                                                                                    fontSize: '12px',
+                                                                                    fontFamily: 'Poppins',
+                                                                                    color: '#645E60',
+                                                                                    opacity: 0.8,
+                                                                                    '&:hover': {
+                                                                                        backgroundColor: '#F2EBED',
+                                                                                    },
+                                                                                    '&.Mui-selected': {
+                                                                                        backgroundColor: '#F2EBED',
+                                                                                    },
+                                                                                    '&.Mui-selected:hover': {
+                                                                                        backgroundColor: '#F2EBED',
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                {col}
+                                                                            </MenuItem>
                                                                         ))}
+
                                                                 </Select>
                                                             </FormControl>
-                                                            <Box mt={3}>
+                                                            <Box mt={-1} mb={0}>
                                                                 {/* Checkbox Omitir encabezados */}
                                                                 <FormControlLabel
                                                                     control={
@@ -2931,7 +3414,7 @@ const BlackList: React.FC = () => {
                                                                         />
                                                                     }
                                                                     label={
-                                                                        <Typography sx={{ color: '#330F1B', fontSize: '14px' }}>
+                                                                        <Typography sx={{ color: '#574B4FCC', fontSize: '16px', fontFamily: 'Poppins' }}>
                                                                             Omitir encabezados de columna
                                                                         </Typography>
                                                                     }
@@ -2940,10 +3423,11 @@ const BlackList: React.FC = () => {
                                                                 {/* Select filtrado de teléfonos */}
                                                                 <Typography
                                                                     sx={{
-                                                                        fontWeight: 600,
-                                                                        fontSize: '14px',
+                                                                        fontWeight: 500,
+                                                                        fontSize: '16px',
                                                                         color: '#330F1B',
-                                                                        mt: 2,
+                                                                        fontFamily: 'Poppins',
+                                                                        mt: 1,
                                                                         mb: 1,
                                                                     }}
                                                                 >
@@ -2956,19 +3440,68 @@ const BlackList: React.FC = () => {
                                                                         onChange={(e) => setTelefonoFilter(e.target.value)}
                                                                         displayEmpty
                                                                         sx={{ borderRadius: '8px' }}
+                                                                        renderValue={(selected) =>
+                                                                            selected ? (
+                                                                                <span style={{ fontSize: "12px", fontFamily: "Poppins", color: "#645E60" }}>
+                                                                                    {selected === "verificar" ? "Verificar" : "Limpiar"}
+                                                                                </span>
+                                                                            ) : (
+                                                                                <span style={{ fontSize: "12px", fontFamily: "Poppins", color: "#645E60", opacity: 0.8 }}>
+                                                                                    Seleccionar filtro
+                                                                                </span>
+                                                                            )
+                                                                        }
                                                                     >
-                                                                        <MenuItem value="">Limpiar</MenuItem>
-                                                                        <MenuItem value="10">Verificar</MenuItem>
-                                                                        {/* Agrega más reglas si las tienes definidas */}
+                                                                        <MenuItem
+                                                                            value="limpiar"
+                                                                            sx={{
+                                                                                fontSize: '12px',
+                                                                                fontFamily: 'Poppins',
+                                                                                color: '#645E60',
+                                                                                opacity: 0.8,
+                                                                                '&:hover': {
+                                                                                    backgroundColor: '#F2EBED',
+                                                                                },
+                                                                                '&.Mui-selected': {
+                                                                                    backgroundColor: '#F2EBED',
+                                                                                },
+                                                                                '&.Mui-selected:hover': {
+                                                                                    backgroundColor: '#F2EBED',
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            Limpiar
+                                                                        </MenuItem>
+                                                                        <MenuItem
+                                                                            value="verificar"
+                                                                            sx={{
+                                                                                fontSize: '12px',
+                                                                                fontFamily: 'Poppins',
+                                                                                color: '#645E60',
+                                                                                opacity: 0.8,
+                                                                                '&:hover': {
+                                                                                    backgroundColor: '#F2EBED',
+                                                                                },
+                                                                                '&.Mui-selected': {
+                                                                                    backgroundColor: '#F2EBED',
+                                                                                },
+                                                                                '&.Mui-selected:hover': {
+                                                                                    backgroundColor: '#F2EBED',
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            Verificar
+                                                                        </MenuItem>
                                                                     </Select>
                                                                 </FormControl>
+
                                                             </Box>
 
                                                         </Box>
                                                     </Box>
-                                                )}
-                                            </Box>
 
+                                                </Box>
+                                            )}
 
                                         </Box>
 
@@ -2990,7 +3523,7 @@ const BlackList: React.FC = () => {
                                             {!uploadedFileBase64 && (
                                                 <>
                                                     <Box sx={{ flex: 1 }}>
-                                                        <Typography fontWeight={600} fontSize="14px" mb={1}>
+                                                        <Typography fontWeight={600} fontSize="16px" mb={1} fontFamily={'Poppins'}>
                                                             O seleccionar archivos actuales
                                                         </Typography>
                                                         <Paper
@@ -3027,7 +3560,21 @@ const BlackList: React.FC = () => {
                                                                                     }
                                                                                 }}
                                                                             />
-                                                                            <ListItemText primary={bl.name} />
+                                                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                                                                <ListItemText
+                                                                                    primary={bl.name}
+                                                                                    primaryTypographyProps={{
+                                                                                        fontFamily: 'Poppins',
+                                                                                        fontSize: '16px',
+                                                                                        color: '#786E71',
+                                                                                    }}
+                                                                                />
+                                                                                <img
+                                                                                    src={IconEyeOpen}
+                                                                                    alt="Ver"
+                                                                                    style={{ width: 24, height: 24 }}
+                                                                                />
+                                                                            </Box>
                                                                         </ListItemButton>
                                                                     </ListItem>
                                                                 ))}
@@ -3038,14 +3585,16 @@ const BlackList: React.FC = () => {
                                             )}
 
                                             {uploadedFileBase64 && (
-                                                <Box mt={3} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                                    <Typography fontSize="14px" fontWeight={600}>Seleccionar hoja</Typography>
+                                                <Box mt={0} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', mb: 1 }}>
+                                                        Seleccionar hoja
+                                                    </Typography>
                                                     <Select
                                                         fullWidth
                                                         value={selectedSheet}
                                                         onChange={handleSheetChange}
                                                         displayEmpty
-                                                        sx={{ fontFamily: 'Poppins', fontSize: '14px' }}
+                                                        sx={{ fontFamily: 'Poppins', fontSize: '12px', color: "#645E60", opacity: 0.8 }}
                                                     >
                                                         <MenuItem disabled value="">Seleccione una hoja</MenuItem>
                                                         {sheetNames.map((name, index) => (
@@ -3222,11 +3771,11 @@ const BlackList: React.FC = () => {
                                                                     }
                                                                 />
 
-                                                                {/* Select filtrado de teléfonos */}
+                                                                {/* Select filtrado de teléfonos en actualizar*/}
                                                                 <Typography
                                                                     sx={{
-                                                                        fontWeight: 600,
-                                                                        fontSize: '14px',
+                                                                        fontWeight: 500,
+                                                                        fontSize: '16px',
                                                                         color: '#330F1B',
                                                                         mt: 2,
                                                                         mb: 1,
@@ -3271,19 +3820,30 @@ const BlackList: React.FC = () => {
                                         overflowX: 'hidden', // 🔥 Esto evita scroll lateral
                                     }}
                                 >
-                                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}
-                                        border={'1px solid #E6E4E4'} borderRdius={'6px'}>
-                                        <Typography fontSize="16px" fontFamily={"Poppins"} marginLeft={'16px'}>Por registro individual</Typography>
-                                        <Switch checked={manageByIndividual} onChange={() => {
-                                            setManageByIndividual(true);
-                                            setManageByList(false);
-                                        }} />
+                                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} marginLeft={'-30px'} opacity={manageByList ? 0.4 : 1}
+                                        border={'1px solid #E6E4E4'} borderRdius={'6px'} width={'530px'} height={'57px'} borderRadius={'6px'} pointerEvents={manageByList ? 'none' : 'auto'}
+
+                                    >
+                                        <Typography fontSize="18px" fontFamily={"Poppins"} marginLeft={'16px'}>Por registro individual</Typography>
+                                        <Switch
+                                            checked={manageByIndividual}
+                                            onChange={() => {
+                                                const newValue = !manageByIndividual;
+                                                setManageByIndividual(newValue);
+                                                if (newValue) {
+                                                    setManageByList(false);
+                                                }
+                                            }}
+                                        />
                                     </Box>
                                 </Box>
                             )}
                             {manageByIndividual && (
-                                <Box mt={3}>
-                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', fontWeight: 500, mb: 1 }}>
+                                <Box mt={-2} ml={2.5}>
+                                    <Typography sx={{
+                                        fontFamily: 'Poppins', fontSize: '16px',
+                                        fontWeight: 500, mb: 1, color: '#574B4F'
+                                    }}>
                                         Teléfono(s)
                                     </Typography>
 
@@ -3294,6 +3854,7 @@ const BlackList: React.FC = () => {
                                             pr: 1,
                                             display: 'flex',
                                             flexDirection: 'column',
+
                                             gap: 1
                                         }}
                                     >
@@ -3322,8 +3883,42 @@ const BlackList: React.FC = () => {
                                                     InputProps={{
                                                         endAdornment: (
                                                             <InputAdornment position="end">
-                                                                <Tooltip title="Teléfono válido de 10 dígitos">
-                                                                    <img src={infoicon} alt="info" style={{ width: 18, height: 18 }} />
+                                                                <Tooltip
+                                                                    title={
+                                                                        <Box
+                                                                            sx={{
+                                                                                backgroundColor: "#FFFFFF",
+                                                                                borderRadius: "8px",
+                                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                                padding: "8px 12px",
+                                                                                fontSize: "14px",
+                                                                                fontFamily: "Poppins",
+                                                                                color: "#000000",
+                                                                                whiteSpace: "pre-line",
+                                                                                transform: "translate(2px, -15px)",
+                                                                                borderColor: "#00131F3D",
+                                                                                borderStyle: "solid",
+
+
+                                                                            }}
+                                                                        >
+                                                                            <>
+                                                                                Teléfono válido de 10 dígitos
+                                                                            </>
+                                                                        </Box>
+                                                                    }
+                                                                    placement="bottom-end"
+                                                                    componentsProps={{
+                                                                        tooltip: {
+                                                                            sx: {
+                                                                                backgroundColor: "transparent",
+                                                                                padding: 0,
+
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <img src={infoicon} alt="info" style={{ width: 24, height: 24 }} />
                                                                 </Tooltip>
                                                             </InputAdornment>
                                                         )
@@ -3361,10 +3956,27 @@ const BlackList: React.FC = () => {
                                                             ]
                                                         }}
                                                     >
-                                                        <IconButton onClick={handleAddIndividualPhone}>
-                                                            <img src={AddIcon} alt="Agregar teléfono" style={{ width: 21, height: 21 }} />
-                                                        </IconButton>
+                                                        <Box
+                                                            sx={{
+                                                                width: 21,
+                                                                height: 21,
+                                                                backgroundColor: "#6F565E",
+                                                                borderRadius: "50%", // 🔥 clave para hacerlo circular
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                justifyContent: "center"
+                                                            }}
+                                                        >
+                                                            <IconButton onClick={handleAddIndividualPhone}>
+                                                                <img
+                                                                    src={IconPlus2}
+                                                                    alt="Agregar teléfono"
+                                                                    style={{ width: 21, height: 21, }}
+                                                                />
+                                                            </IconButton>
+                                                        </Box>
                                                     </Tooltip>
+
                                                 )}
 
                                                 {index > 0 && (
@@ -3399,9 +4011,15 @@ const BlackList: React.FC = () => {
                         />
                         <MainButton
                             onClick={handleSendToServer}
-                            text='Guardar Cambios'
-
+                            text='Guardar cambios'
+                            disabled={
+                                !(
+                                    (fileSuccess && selectedSheet !== '') ||
+                                    formData.Phones.some(p => p.trim().length === 10)
+                                )
+                            }
                         />
+
 
                     </Box>
                 </Box>
