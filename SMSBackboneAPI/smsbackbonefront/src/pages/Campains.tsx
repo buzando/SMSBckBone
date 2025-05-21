@@ -121,6 +121,7 @@ export interface CampaignFullResponse {
   recycleRecords: boolean;
   numberType: number;
   createdDate: string;
+  startDate: string;
   numeroActual: number;
   numeroInicial: number;
   respondedRecords: number;
@@ -209,6 +210,22 @@ const Campains: React.FC = () => {
   const [editFlash, setEditFlash] = useState(false);
   const [editUsarListaNegra, setEditUsarListaNegra] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [campaignFilter, setCampaignFilter] = useState<'todas' | 'encendidas' | 'detenidas'>();
+  const [elapsedTime, setElapsedTime] = useState('');
+  const [openDuplicateModal, setOpenDuplicateModal] = useState(false);
+  const [duplicateName, setDuplicateName] = useState('');
+  const [duplicateAutoStart, setDuplicateAutoStart] = useState(false);
+  const [duplicateHorarios, setDuplicateHorarios] = useState<{ start: Date; end: Date }[]>([]);
+
+  const [openPicker, setOpenPicker] = useState<{
+    open: boolean;
+    index: number;
+    field: 'start' | 'end' | '';
+  }>({
+    open: false,
+    index: 0,
+    field: '',
+  });
 
   const handleChangeHorario = (
     index: number,
@@ -561,6 +578,26 @@ const Campains: React.FC = () => {
     fetchCampaigns();
   }, []);
 
+  useEffect(() => {
+    if (!selectedCampaign?.startDate) return;
+
+    const interval = setInterval(() => {
+      const start = new Date(selectedCampaign.startDate).getTime();
+      const now = Date.now();
+      const diff = now - start;
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      setElapsedTime(formattedTime);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [selectedCampaign?.startDate]);
+
+
   const fetchCampaigns = async () => {
     const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
     if (!salaId) return;
@@ -579,9 +616,14 @@ const Campains: React.FC = () => {
 
   const [selectedCampaigns, setSelectedCampaigns] = useState<number[]>([]);
 
-  const filteredCampaigns = campaigns.filter((c) =>
+  const filteredCampaigns = campaigns.filter(c => {
+    if (campaignFilter === 'encendidas') return c.autoStart;
+    if (campaignFilter === 'detenidas') return !c.autoStart;
+    return true; // 'todas'
+  }).filter((c) =>
     c.name.toLowerCase().includes(Serchterm.toLowerCase())
   );
+
 
   const [pinnedCampaigns, setPinnedCampaigns] = useState<number[]>([]);
 
@@ -923,7 +965,7 @@ const Campains: React.FC = () => {
 
       // Enviar al backend (ajusta según tu endpoint)
       await axios.post(
-        `${import.meta.env.VITE_SMS_API_URL}/api/Campaigns/DeleteMultiple`,
+        `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_DELETE_CAMPAIGN}`,
         idArray,
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -938,6 +980,74 @@ const Campains: React.FC = () => {
       setMessageErrorModal("No ha sido posible eliminar la campaña. Intente más tarde.");
       setIsErrorModalOpen(true);
       setOpenDeleteModal(false);
+    }
+  };
+
+  const handleStartCampaign = async (campaign: any) => {
+    const updated = {
+      ...campaign,
+      autoStart: !campaign.autoStart,
+      startDate: !campaign.autoStart ? new Date().toISOString() : null
+    };
+    setCampaigns(prev =>
+      prev.map(c => (c.id === campaign.id ? updated : c))
+    );
+    const requestUrl = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_STAR_CAMPAIGN}${campaign.id}`
+    await axios.get(requestUrl);
+
+    setSelectedCampaign(updated);
+
+  };
+
+  const handleOpenDuplicateModal = (campaign: CampaignFullResponse) => {
+    setSelectedCampaign(campaign);
+    setDuplicateName(`${campaign.name} copia`);
+    setDuplicateAutoStart(campaign.autoStart);
+    setDuplicateHorarios([{ start: new Date(), end: new Date() }]);
+    setOpenDuplicateModal(true);
+  };
+
+  const handleAddDuplicateHorario = () => {
+    if (duplicateHorarios.length < 5) {
+      setDuplicateHorarios([...duplicateHorarios, { start: new Date(), end: new Date() }]);
+    }
+  };
+
+  const handleRemoveDuplicateHorario = (index: number) => {
+    const updated = [...duplicateHorarios];
+    updated.splice(index, 1);
+    setDuplicateHorarios(updated);
+  };
+
+  const handleDuplicateHorarioChange = (index: number,
+    field: 'start' | 'end',
+    value: Date) => {
+    const updated = [...duplicateHorarios];
+    updated[index][field] = value;
+    setDuplicateHorarios(updated);
+  };
+
+  const handleConfirmDuplicateCampaign = async () => {
+    try {
+      const payload = {
+        originalCampaignId: selectedCampaign?.id,
+        newName: duplicateName,
+        autoStart: duplicateAutoStart,
+        schedules: duplicateHorarios.map((h, index) => ({
+          startDateTime: h.start.toISOString(),
+          endDateTime: h.end.toISOString(),
+          operationMode: 1,
+          order: index + 1
+        }))
+      };
+
+      const response = await axios.post(`${import.meta.env.VITE_SMS_API_URL}/api/Campaigns/DuplicateCampaign`, payload);
+      if (response.status === 200) {
+        fetchCampaigns();
+        setOpenDuplicateModal(false);
+      }
+    } catch (error) {
+      console.error('Error duplicando campaña:', error);
     }
   };
 
@@ -1133,6 +1243,8 @@ const Campains: React.FC = () => {
                 />
 
                 <Select
+                  value={campaignFilter}
+                  onChange={(e) => setCampaignFilter(e.target.value)}
                   fullWidth
                   size="small"
                   displayEmpty
@@ -1163,7 +1275,7 @@ const Campains: React.FC = () => {
                     "&:hover": {
                       backgroundColor: "#F2EBED"
                     }
-                  }} value="Todos">Todos</MenuItem>
+                  }} value="todas">Todos</MenuItem>
 
                   <MenuItem sx={{
                     marginTop: "10px",
@@ -1177,7 +1289,7 @@ const Campains: React.FC = () => {
                     "&:hover": {
                       backgroundColor: "#F2EBED"
                     }
-                  }} value="Encendidas">Campañas encendidas</MenuItem>
+                  }} value="encendidas">Campañas encendidas</MenuItem>
 
                   <MenuItem sx={{
                     marginTop: "10px",
@@ -1191,7 +1303,7 @@ const Campains: React.FC = () => {
                     "&:hover": {
                       backgroundColor: "#F2EBED"
                     }
-                  }} value="Detenidas">Campañas detenidas</MenuItem>
+                  }} value="detenidas">Campañas detenidas</MenuItem>
                 </Select>
 
                 {filteredCampaigns.length > 0 && (
@@ -1564,7 +1676,7 @@ const Campains: React.FC = () => {
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.border = '1px solid #CCCFD2';
                   }}
-                  onClick={() => setOpenInfoModal(true)} // 👈 Aquí
+                  onClick={() => setOpenInfoModal(true)}
                 >
                   <img src={welcome} alt="Welcome" style={{ width: '24px', height: '24px' }} />
                 </IconButton>
@@ -1572,7 +1684,7 @@ const Campains: React.FC = () => {
             </Box>
             <Box
               sx={{
-                height: "540px", // 🔧 menos alto para compensar el header
+                height: "540px",
                 overflowY: "auto",
                 pr: 1,
                 display: "flex",
@@ -1584,7 +1696,7 @@ const Campains: React.FC = () => {
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <img alt="IconSMS" src={IconSMS}
-                      style={{ width: 35, height: 20, marginRight: "10px" }} // 👈 Ajusta el espacio aquí
+                      style={{ width: 35, height: 20, marginRight: "10px" }}
                     />
                     <Typography
                       variant="subtitle1"
@@ -1601,7 +1713,12 @@ const Campains: React.FC = () => {
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <MoreVertIcon sx={{ color: "#574B4F", fontSize: "20px", cursor: "pointer" }} />
+                    <IconButton onClick={(e) => {
+                      setAnchorEl(e.currentTarget);
+                      setMenuIndex(-1);
+                    }}>
+                      <MoreVertIcon sx={{ color: "#574B4F", fontSize: "20px" }} />
+                    </IconButton>
                     <PushPinIcon sx={{ color: "#6C3A52", fontSize: "20px", cursor: "pointer" }} />
                   </Box>
                 </Box>
@@ -1620,11 +1737,12 @@ const Campains: React.FC = () => {
                     <Typography sx={{ fontFamily: "Poppins" }}>
                       Progreso: <span style={{ color: "#8F4D63" }}>Completada al {progresoCampaña}%</span>
                     </Typography>
-
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                      <AccessTimeIcon sx={{ fontSize: "16px" }} />
-                      <Typography sx={{ fontFamily: "Poppins", opacity: 0.7, fontSize: "14px" }}>02:10 min</Typography>
-                    </Box>
+                    {selectedCampaign?.startDate && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <AccessTimeIcon sx={{ fontSize: "16px" }} />
+                        <Typography sx={{ fontFamily: "Poppins", opacity: 0.7, fontSize: "14px" }}>{elapsedTime}</Typography>
+                      </Box>
+                    )}
                     <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <AutorenewIcon sx={{ fontSize: "16px" }} />
                       <Typography>{selectedCampaign?.recycleCount ?? 0}</Typography>
@@ -1678,8 +1796,8 @@ const Campains: React.FC = () => {
                 </Box>
                 <Box sx={{ display: "flex", justifyContent: "right", marginTop: "8px" }}>
                   <MainButton
-                    text={isRunning ? 'Detener' : 'Iniciar'}
-                    onClick={() => setIsRunning(prev => !prev)}
+                    text={selectedCampaign?.autoStart ? 'Detener' : 'Iniciar'}
+                    onClick={() => handleStartCampaign(selectedCampaign)}
                   />
                 </Box>
 
@@ -3790,7 +3908,7 @@ const Campains: React.FC = () => {
         open={calendarOpen}
         anchorEl={calendarAnchor}
         onClose={() => setCalendarOpen(false)}
-        placement="top-start"
+        placement="bottom"
         onApply={(selectedDate, hour, minute) => {
           const fullDate = new Date(selectedDate);
           fullDate.setHours(hour);
@@ -3873,7 +3991,14 @@ const Campains: React.FC = () => {
           </Tooltip>
 
         </MenuItem>
-        <MenuItem onClick={() => { setOpenDeleteModal(true); handleMenuClose(); }}>
+        <MenuItem onClick={() => {
+          if (menuIndex !== null && menuIndex >= 0) {
+            handleOpenDuplicateModal(campaigns[menuIndex]);
+          } else if (selectedCampaign) {
+            handleOpenDuplicateModal(selectedCampaign);
+          }
+          handleMenuClose();
+        }}>
           <ContentCopyIcon sx={{ fontSize: 18, marginRight: 1 }} /> Duplicar
         </MenuItem>
         <MenuItem
@@ -4797,6 +4922,173 @@ const Campains: React.FC = () => {
         </DialogActions>
 
 
+      </Dialog>
+
+      <Dialog open={openDuplicateModal} onClose={() => setOpenDuplicateModal(false)} maxWidth="sm" fullWidth>
+        <Box sx={{ fontFamily: 'Poppins' }}>
+          <DialogTitle sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            Duplicar campaña SMS
+            <IconButton onClick={() => setOpenDuplicateModal(false)}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+
+          <Divider />
+
+          <DialogContent sx={{ maxHeight: '60vh', overflowY: 'auto', paddingTop: 2 }}>
+            <Typography sx={{ fontSize: '14px', fontWeight: 500, marginBottom: 1 }}>Nombre</Typography>
+            <TextField
+              placeholder="Nombre de la nueva campaña"
+              fullWidth
+              value={duplicateName}
+              onChange={(e) => setDuplicateName(e.target.value)}
+              sx={{ marginBottom: 2 }}
+            />
+
+            <Typography sx={{ fontSize: '14px', fontWeight: 500, marginBottom: 1 }}>Seleccionar de 1 a 5 horarios</Typography>
+            <Box
+              sx={{
+                backgroundColor: '#F9F4F6',
+                padding: '16px',
+                borderRadius: '8px',
+                mb: 2
+              }}
+            >
+              {duplicateHorarios.map((horario, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    mb: 2
+                  }}
+                >
+                  <TextField
+                    key={`start-duplicate-${index}`}
+                    variant="outlined"
+                    placeholder="Inicia"
+                    value={
+                      horario.start
+                        ? horario.start.toLocaleString('es-MX', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                        : ''
+                    }
+                    onClick={(e) => {
+                      setCalendarAnchor(e.currentTarget);
+                      setCalendarOpen(true);
+                      setCalendarTarget('start');
+                      setCurrentHorarioIndex(index);
+                    }}
+                    sx={{ width: '262px', height: '56px', backgroundColor: '#FFFFFF' }}
+                    InputProps={{
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            size="small"
+                            sx={{ padding: 0 }}
+                            onClick={(e) => {
+                              setCalendarAnchor(e.currentTarget);
+                              setCalendarOpen(true);
+                              setCalendarTarget('start');
+                              setCurrentHorarioIndex(index);
+                            }}
+                          >
+                            <CalendarTodayIcon sx={{ width: 15, height: 15, color: '#8F4D63' }} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+
+                  <TextField
+                    key={`end-duplicate-${index}`}
+                    variant="outlined"
+                    placeholder="Termina"
+                    value={
+                      horario.end
+                        ? horario.end.toLocaleString('es-MX', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                        : ''
+                    }
+                    onClick={(e) => {
+                      setCalendarAnchor(e.currentTarget);
+                      setCalendarOpen(true);
+                      setCalendarTarget('end');
+                      setCurrentHorarioIndex(index);
+                    }}
+                    sx={{ width: '262px', height: '56px', backgroundColor: '#FFFFFF' }}
+                    InputProps={{
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            size="small"
+                            sx={{ padding: 0 }}
+                            onClick={(e) => {
+                              setCalendarAnchor(e.currentTarget);
+                              setCalendarOpen(true);
+                              setCalendarTarget('end');
+                              setCurrentHorarioIndex(index);
+                            }}
+                          >
+                            <CalendarTodayIcon sx={{ width: 15, height: 15, color: '#8F4D63' }} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+
+                  {/* Botón eliminar horario */}
+                  {duplicateHorarios.length > 1 && (
+                    <IconButton onClick={() => handleRemoveDuplicateHorario(index)}>
+                      <RemoveIcon sx={{ color: '#6C3A52' }} />
+                    </IconButton>
+                  )}
+
+                  {/* Botón añadir horario (solo en el último si hay menos de 5) */}
+                  {index === duplicateHorarios.length - 1 && duplicateHorarios.length < 5 && (
+                    <IconButton onClick={handleAddDuplicateHorario}>
+                      <AddIcon sx={{ color: '#6C3A52' }} />
+                    </IconButton>
+                  )}
+                </Box>
+              ))}
+            </Box>
+
+
+
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={duplicateAutoStart}
+                  onChange={(e) => setDuplicateAutoStart(e.target.checked)}
+                />
+              }
+              label={<Typography sx={{ fontFamily: 'Poppins', fontSize: '13px' }}>Iniciar campaña automáticamente</Typography>}
+              sx={{ marginTop: 2 }}
+            />
+          </DialogContent>
+
+          <Divider />
+
+          <DialogActions sx={{ padding: '16px' }}>
+            <SecondaryButton onClick={() => setOpenDuplicateModal(false)} text='Cancelar' />
+            <MainButton onClick={handleConfirmDuplicateCampaign} text='Duplicar' />
+          </DialogActions>
+        </Box>
       </Dialog>
 
     </Box>

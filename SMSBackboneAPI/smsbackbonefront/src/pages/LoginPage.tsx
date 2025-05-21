@@ -25,7 +25,7 @@ import infoiconerror from '../assets/Icon-infoerror.svg';
 import Iconeyeslash from '../assets/Iconeyeslash.svg';
 import Iconeyesopen from '../assets/Iconeyesopen.svg';
 import logored from '../assets/Logo_Red-Quantum.svg';
-import logorq from '../assets/Logo-RQ_2.svg';
+
 type errorObj = {
     code: string;
     description: string;

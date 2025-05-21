@@ -1,266 +1,174 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Box, Typography, FormControl, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import React, { useRef, useEffect, useState } from 'react';
+import { Box, Typography } from '@mui/material';
+import Buttonicon from './MainButtonIcon';
 
 interface Props {
   onChange?: (text: string) => void;
-  selectedValues?: {
-    id?: string;
-    telefono?: string;
-    dato?: string;
-  };
-  onSelectID?: (value: string) => void;
-  onSelectTelefono?: (value: string) => void;
-  onSelectDato?: (value: string) => void;
   initialMessage?: string;
 }
 
 const MAX_CHARACTERS = 160;
 
-const DynamicMessageEditor: React.FC<Props> = ({
-  onChange,
-  selectedValues,
-  onSelectID,
-  onSelectTelefono,
-  onSelectDato,
-  initialMessage,
-}) => {
-  const [rawMessage, setRawMessage] = useState(initialMessage || '');
+const DynamicMessageEditor: React.FC<Props> = ({ onChange, initialMessage }) => {
   const editorRef = useRef<HTMLDivElement>(null);
+  const savedSelection = useRef<Range | null>(null);
+  const [charCount, setCharCount] = useState(0);
 
   useEffect(() => {
-    if (editorRef.current && initialMessage !== undefined) {
-      editorRef.current.innerHTML = '';
-
-      // 🔥 Insertar texto normal + chips
-      const variableRegex = /\{(ID|Teléfono|Dato)\}/g;
-      let lastIndex = 0;
-      let match;
-
-      while ((match = variableRegex.exec(initialMessage)) !== null) {
-        const textBefore = initialMessage.slice(lastIndex, match.index);
-        if (textBefore) {
-          const textNode = document.createTextNode(textBefore);
-          editorRef.current.appendChild(textNode);
-        }
-
-        const chip = document.createElement('span');
-        chip.contentEditable = 'false';
-        chip.style.padding = '2px 8px 2px 6px';
-        chip.style.borderRadius = '8px';
-        chip.style.backgroundColor = '#7B354D';
-        chip.style.color = '#FFFFFF';
-        chip.style.margin = '0 4px';
-        chip.style.fontSize = '13px';
-        chip.style.fontFamily = 'Poppins';
-        chip.style.display = 'inline-flex';
-        chip.style.alignItems = 'center';
-        chip.style.gap = '4px';
-
-        const chipText = document.createElement('span');
-        chipText.innerText = match[1]; // SIN corchetes
-        chipText.style.pointerEvents = 'none';
-
-        const closeIcon = document.createElement('span');
-        closeIcon.innerText = '×';
-        closeIcon.style.cursor = 'pointer';
-        closeIcon.style.fontSize = '12px';
-        closeIcon.style.marginLeft = '4px';
-        closeIcon.style.userSelect = 'none';
-
-        closeIcon.addEventListener('click', (e) => {
-          e.stopPropagation();
-          chip.remove();
-          if (editorRef.current) {
-            updateRawMessage();
-          }
-        });
-
-        chip.appendChild(chipText);
-        chip.appendChild(closeIcon);
-
-        editorRef.current.appendChild(chip);
-
-        lastIndex = match.index + match[0].length;
+    const handleMouseDown = (e: MouseEvent) => {
+      const sel = window.getSelection();
+      if (
+        sel &&
+        sel.rangeCount > 0 &&
+        editorRef.current?.contains(sel.anchorNode)
+      ) {
+        savedSelection.current = sel.getRangeAt(0).cloneRange();
       }
+    };
+    window.addEventListener('mousedown', handleMouseDown, true);
+    return () => window.removeEventListener('mousedown', handleMouseDown, true);
+  }, []);
 
-      // 🔥 Insertar el texto que sobra al final
-      if (lastIndex < initialMessage.length) {
-        const remainingText = initialMessage.slice(lastIndex);
-        const textNode = document.createTextNode(remainingText);
-        editorRef.current.appendChild(textNode);
-      }
+  const handleInsertTag = () => {
+    if (!editorRef.current) return;
 
-      setRawMessage(initialMessage); // 🔥 Guarda el mensaje
+    const editor = editorRef.current;
+    const sel = window.getSelection();
+    let range: Range;
 
-      // 🔥 🔥 🔥 Mueve el cursor AL FINAL para no escribir al revés
-      if (editorRef.current) {
-        const range = document.createRange();
-        range.selectNodeContents(editorRef.current);
-        range.collapse(false); // false = final
-        const selection = window.getSelection();
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-      }
+    if (
+      savedSelection.current &&
+      editor.contains(savedSelection.current.startContainer)
+    ) {
+      range = savedSelection.current;
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    } else {
+      range = document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
     }
-  }, [initialMessage]);
 
+    const chip = document.createElement('span');
+    chip.setAttribute('data-chip', 'true');
+    chip.contentEditable = 'false';
+    chip.style.display = 'inline-flex';
+    chip.style.alignItems = 'center';
+    chip.style.backgroundColor = '#7B354D';
+    chip.style.color = '#fff';
+    chip.style.padding = '4px 8px';
+    chip.style.borderRadius = '12px';
+    chip.style.margin = '0 4px 4px 0';
+    chip.style.fontFamily = 'Poppins';
+    chip.style.fontSize = '13px';
 
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = 'Variable';
+    input.style.background = 'transparent';
+    input.style.border = 'none';
+    input.style.color = '#fff';
+    input.style.fontFamily = 'Poppins';
+    input.style.fontSize = '13px';
+    input.style.minWidth = '30px';
+    input.style.maxWidth = '150px';
+    input.style.outline = 'none';
+    input.style.direction = 'ltr';
+    input.style.flexGrow = '1';
+    input.addEventListener('input', updateRawMessage);
 
-  const handleInsertTag = (tag: string) => {
-    const span = document.createElement('span');
-    span.contentEditable = 'false';
-    span.style.display = 'inline-flex';
-    span.style.alignItems = 'center';
-    span.style.backgroundColor = '#8F4E63';
-    span.style.color = '#fff';
-    span.style.padding = '2px 8px';
-    span.style.borderRadius = '16px';
-    span.style.margin = '0 4px';
-    span.style.fontFamily = 'Poppins';
-    span.style.fontSize = '14px';
-
-    const textNode = document.createElement('span');
-    textNode.textContent = tag;
-    span.appendChild(textNode);
-
-    const closeButton = document.createElement('span');
-    closeButton.innerHTML = '&times;';
-    closeButton.style.marginLeft = '8px';
-    closeButton.style.cursor = 'pointer';
-    closeButton.onclick = () => {
-      span.remove();
+    const closeIcon = document.createElement('span');
+    closeIcon.innerText = '×';
+    closeIcon.style.marginLeft = '6px';
+    closeIcon.style.cursor = 'pointer';
+    closeIcon.onclick = (e) => {
+      e.stopPropagation();
+      chip.remove();
       updateRawMessage();
     };
-    span.appendChild(closeButton);
 
-    const selection = window.getSelection();
-    if (!selection || !selection.rangeCount) return;
-
-    const range = selection.getRangeAt(0);
-    range.deleteContents();
-    range.insertNode(span);
-    range.collapse(false);
+    chip.appendChild(input);
+    chip.appendChild(closeIcon);
 
     const space = document.createTextNode(' ');
+    range.deleteContents();
     range.insertNode(space);
+    range.insertNode(chip);
     range.setStartAfter(space);
-    range.setEndAfter(space);
-    selection.removeAllRanges();
-    selection.addRange(range);
+    range.collapse(false);
+    sel?.removeAllRanges();
+    sel?.addRange(range);
 
     updateRawMessage();
+    input.focus();
   };
 
   const updateRawMessage = () => {
-    if (!editorRef.current) return;
-    const spans = editorRef.current.querySelectorAll('span[contenteditable="false"]');
-    let htmlText = editorRef.current.innerHTML;
+  if (!editorRef.current) return;
 
-    spans.forEach(span => {
-      const label = span.childNodes[0]?.textContent || '';
-      htmlText = htmlText.replace(span.outerHTML, `{${label}}`);
-    });
+  let finalText = '';
+  let count = 0;
 
-    const div = document.createElement('div');
-    div.innerHTML = htmlText;
-    const cleanText = div.innerText;
+  editorRef.current.childNodes.forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent || '';
+      finalText += text;
+      count += text.length;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      if (el.getAttribute('data-chip') === 'true') {
+        const input = el.querySelector('input');
+        const val = input?.value || 'Variable';
+        finalText += `{${val}}`;
+        count += val.length + 2; // sumamos 2 por las llaves {}
+      } else {
+        const text = el.textContent || '';
+        finalText += text;
+        count += text.length;
+      }
+    }
+  });
 
-    setRawMessage(cleanText);
-    onChange?.(cleanText);
-  };
+  setCharCount(count);
+  onChange?.(finalText);
+};
+
 
   return (
     <Box>
       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-        <FormControl fullWidth sx={{ maxWidth: 180 }}>
-          <InputLabel sx={{ fontFamily: 'Poppins', fontSize: '12px', opacity: 0.8 }}>Seleccionar ID</InputLabel>
-          <Select
-            label="Seleccionar ID"
-            value={selectedValues?.id || ''}
-            onChange={(e) => {
-              onSelectID?.(e.target.value);
-              handleInsertTag('ID');
-            }}
-            sx={{ fontFamily: 'Poppins', fontSize: '12px' }}
-          >
-            <MenuItem value="1" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>1</MenuItem>
-            <MenuItem value="2" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>2</MenuItem>
-            <MenuItem value="3" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>3</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl fullWidth sx={{ maxWidth: 220 }}>
-          <InputLabel sx={{ fontFamily: 'Poppins', fontSize: '12px' }}>Seleccionar teléfono</InputLabel>
-          <Select
-            label="Seleccionar teléfono"
-            value={selectedValues?.telefono || ''}
-            onChange={(e) => {
-              onSelectTelefono?.(e.target.value);
-              handleInsertTag('Teléfono');
-            }}
-            sx={{ fontFamily: 'Poppins', fontSize: '12px' }}
-          >
-            <MenuItem value="telefono1" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>telefono1</MenuItem>
-            <MenuItem value="telefono2" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>telefono2</MenuItem>
-            <MenuItem value="telefono3" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>telefono3</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl fullWidth sx={{ maxWidth: 200 }}>
-          <InputLabel sx={{ fontFamily: 'Poppins', fontSize: '12px' }}>Seleccionar datos</InputLabel>
-          <Select
-            label="Seleccionar datos"
-            value={selectedValues?.dato || ''}
-            onChange={(e) => {
-              onSelectDato?.(e.target.value);
-              handleInsertTag('Dato');
-            }}
-            sx={{ fontFamily: 'Poppins', fontSize: '12px' }}
-          >
-            <MenuItem value="Dato1" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>Dato1</MenuItem>
-            <MenuItem value="Dato1" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>Dato2</MenuItem>
-            <MenuItem value="Dato1" sx={{
-              fontFamily: 'Poppins', fontSize: '12px', opacity: 0.5,
-              '&:hover': { backgroundColor: '#F2EBED', },
-            }}>Dato3</MenuItem>
-          </Select>
-        </FormControl>
+        <Buttonicon
+          text="Añadir variable"
+          width="200px"
+          onClick={handleInsertTag}
+        />
       </Box>
 
       <Box
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
+        onBlur={updateRawMessage}
         onInput={updateRawMessage}
+        onKeyUp={() => {
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount > 0) {
+            savedSelection.current = sel.getRangeAt(0).cloneRange();
+          }
+        }}
+        onMouseUp={() => {
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount > 0) {
+            savedSelection.current = sel.getRangeAt(0).cloneRange();
+          }
+        }}
         sx={{
+          direction: 'ltr',
+          unicodeBidi: 'plaintext',
           position: 'relative',
           border: '1px solid #ccc',
           borderRadius: 2,
+          display: 'block',
           minHeight: '180px',
           px: 2,
           py: 1.5,
@@ -269,8 +177,7 @@ const DynamicMessageEditor: React.FC<Props> = ({
           backgroundColor: '#fff',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
-          outline: 'none', // 🔥 elimina el borde azul al hacer focus
-
+          outline: 'none',
           '&:empty::before': {
             content: '"Escriba aquí su mensaje"',
             color: '#999',
@@ -283,9 +190,12 @@ const DynamicMessageEditor: React.FC<Props> = ({
         }}
       />
 
-
-      <Typography variant="caption" mt={1} sx={{ fontFamily: 'Poppins', color: '#9E9E9E' }}>
-        {rawMessage.length}/{MAX_CHARACTERS} caracteres para que el mensaje se realice en un sólo envío.
+      <Typography
+        variant="caption"
+        mt={1}
+        sx={{ fontFamily: 'Poppins', color: '#9E9E9E' }}
+      >
+        {charCount}/{MAX_CHARACTERS} caracteres para que el mensaje se realice en un sólo envío.
       </Typography>
     </Box>
   );

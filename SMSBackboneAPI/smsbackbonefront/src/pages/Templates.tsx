@@ -402,19 +402,8 @@ const Templates = () => {
     const getProcessedMessage = () => {
         if (!mensaje) return '';
 
-        let processed = mensaje;
-
-        if (processed.includes('{ID}')) {
-            processed = processed.replace(/\{ID\}/gi, selectedID || '[ID]');
-        }
-        if (processed.includes('{Teléfono}')) {
-            processed = processed.replace(/\{Tel[eé]fono\}/gi, selectedPhone || '[Teléfono]');
-        }
-        if (processed.includes('{Dato}')) {
-            processed = processed.replace(/\{Dato\}/gi, selectedDato || '[Dato]');
-        }
-
-        return processed;
+        const variableRegex = /\[\{(.*?)\}\]/g;
+        return mensaje.replace(variableRegex, (_, variableName) => `[${variableName}]`);
     };
 
 
@@ -432,12 +421,12 @@ const Templates = () => {
     };
 
 
-    const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensaje.trim() || (!selectedID && !selectedPhone && !selectedDato);
+const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensaje.trim();
 
 
 
     return (
-        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1540px' }}>
+        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1140px' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')}
@@ -959,15 +948,7 @@ const Templates = () => {
 
                     <DynamicMessageEditor
                         initialMessage={mensaje}
-                        selectedValues={{
-                            id: selectedID,
-                            telefono: selectedPhone,
-                            dato: selectedDato
-                        }}
                         onChange={handleMessageChange}
-                        onSelectID={(val) => setSelectedID(val)}
-                        onSelectTelefono={(val) => setSelectedPhone(val)}
-                        onSelectDato={(val) => setSelectedDato(val)}
                     />
 
 

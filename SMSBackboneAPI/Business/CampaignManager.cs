@@ -9,7 +9,6 @@ namespace Business
 {
     public class CampaignManager
     {
-        // CRUD para Campaigns
         public bool CreateCampaign(Campaigns campaign)
         {
             try
@@ -77,7 +76,6 @@ namespace Business
             }
         }
 
-        // CRUD para CampaignContact
         public bool AddCampaignContact(CampaignContacts contact)
         {
             try
@@ -115,7 +113,6 @@ namespace Business
             }
         }
 
-        // CRUD para CampaignRecycleSetting
         public bool AddRecycleSetting(CampaignRecycleSettings setting)
         {
             try
@@ -153,7 +150,6 @@ namespace Business
             }
         }
 
-        // CRUD para CampaignSchedule
         public bool AddCampaignSchedule(CampaignSchedules schedule)
         {
             try
@@ -191,7 +187,6 @@ namespace Business
             }
         }
 
-        // CRUD para blacklistcampains
         public bool AddBlacklistCampaign(blacklistcampains blacklist)
         {
             try
@@ -289,6 +284,7 @@ namespace Business
                             RecycleRecords = c.RecycleRecords,
                             NumberType = c.NumberType,
                             CreatedDate = c.CreatedDate,
+                            StartDate = c.StartDate,
 
                             Schedules = ctx.CampaignSchedules
                                 .Where(s => s.CampaignId == c.Id)
@@ -394,5 +390,68 @@ namespace Business
                 return null;
             }
         }
+
+        public bool StartCampaign(int IdCampaign)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var campaign = ctx.Campaigns.Where(x => x.Id == IdCampaign).FirstOrDefault();
+                    campaign.AutoStart = campaign.AutoStart ? false : true;
+                    if (campaign.AutoStart)
+                    {
+                        campaign.StartDate = DateTime.Now;
+                    }
+                    ctx.SaveChanges();
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteCampaignsCascade(List<int> campaignIds)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    foreach (var campaignId in campaignIds)
+                    {
+                        var campaign = ctx.Campaigns.FirstOrDefault(c => c.Id == campaignId);
+                        if (campaign == null) continue;
+
+                        var contacts = ctx.CampaignContacts.Where(c => c.CampaignId == campaignId).ToList();
+                        ctx.CampaignContacts.RemoveRange(contacts);
+
+                        var schedules = ctx.CampaignSchedules.Where(s => s.CampaignId == campaignId).ToList();
+                        ctx.CampaignSchedules.RemoveRange(schedules);
+
+                        var recycle = ctx.CampaignRecycleSettings.Where(r => r.CampaignId == campaignId).ToList();
+                        ctx.CampaignRecycleSettings.RemoveRange(recycle);
+
+                        var blacklist = ctx.blacklistcampains.Where(b => b.idcampains == campaignId).ToList();
+                        ctx.blacklistcampains.RemoveRange(blacklist);
+
+                        var sentRecords = ctx.CampaignContactScheduleSend.Where(s => s.CampaignId == campaignId).ToList();
+                        ctx.CampaignContactScheduleSend.RemoveRange(sentRecords);
+
+                        ctx.Campaigns.Remove(campaign);
+                    }
+
+                    ctx.SaveChanges();
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
     }
 }

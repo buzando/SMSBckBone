@@ -101,6 +101,35 @@ namespace SMSBackboneAPI.Controllers
 
         }
 
+        [HttpGet("StartCampaign")]
+        public async Task<IActionResult> StartCampaign(int IdCampaign)
+        {
+            var manager = new CampaignManager();
+            var start = manager.StartCampaign(IdCampaign);
+            if (start)
+            {
+                return Ok(true);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("DeleteCampaign")]
+        public async Task<IActionResult> DeleteCampaign(List<int> ids)
+        {
+            var manager = new CampaignManager();
+            var start = manager.DeleteCampaignsCascade(ids);
+            if (start)
+            {
+                return Ok(true);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
     }
 
 
