@@ -22,6 +22,7 @@ namespace Modal.Model.Model
         public byte NumberType { get; set; } // 1 = Corto, 2 = Largo
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public DateTime? StartDate { get; set; }
     }
 
 }

@@ -848,7 +848,7 @@ const BlackList: React.FC = () => {
     const [showColumnOptions, setShowColumnOptions] = useState(true);
 
     return (
-        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1540px" }}>
+        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1140px" }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')}

@@ -43,7 +43,7 @@ const DatePickerOneDate: React.FC<DatePickerProps> = ({
             sx={{ zIndex: 1500 }}
             modifiers={modifiers ?? [
                 { name: 'preventOverflow', options: { boundary: 'window', padding: 10 } },
-                { name: 'offset', options: { offset: [0, 10] } }, // fallback por defecto
+                { name: 'offset', options: { offset: [0, 10] } }, 
               ]}
         >
             <Paper elevation={3} className="date-picker-container">

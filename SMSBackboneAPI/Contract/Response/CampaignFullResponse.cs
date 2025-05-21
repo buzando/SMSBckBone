@@ -20,6 +20,7 @@ namespace Contract.Response
         public bool RecycleRecords { get; set; }
         public byte NumberType { get; set; }
         public DateTime CreatedDate { get; set; }
+        public DateTime? StartDate { get; set; }
         public int numeroActual { get; set; }
         public int numeroInicial { get; set; }
         public int RespondedRecords { get; set; }

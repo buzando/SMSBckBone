@@ -282,3 +282,6 @@ CREATE TABLE CampaignContactScheduleSend (
     FOREIGN KEY (ContactId) REFERENCES CampaignContacts(Id),
     FOREIGN KEY (ScheduleId) REFERENCES CampaignSchedules(Id)
 );
+
+
+alter table campaigns add StartDate DATETIME null
