@@ -39,7 +39,7 @@ namespace Business
 
                 return true;
             }
-            catch (Exception e)
+            catch
             {
                 return false;
             }

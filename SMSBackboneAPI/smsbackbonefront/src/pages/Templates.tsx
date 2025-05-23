@@ -638,10 +638,11 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                         borderRadius: '8px',
                         boxShadow: '0px 2px 6px rgba(0,0,0,0.05)',
                         overflow: 'hidden',
+                        height: "246%",
                         mt: 3
                     }}
                 >
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins', }}>
                         <thead>
                             {selectedTemplates.length === 0 ? (
                                 <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', borderBottom: '1px solid #E6E4E4', }}>

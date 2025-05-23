@@ -59,11 +59,11 @@ import MainButton from '../components/commons/MainButton'
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 import ModalError from "../components/commons/ModalError"
-
+import Thrashicon from '../assets/Icon-trash-Card.svg'
 import boxopen from '../assets/NoResultados.svg';
 import * as XLSX from 'xlsx';
 import RemoveIcon from "@mui/icons-material/Remove";
-
+import IconPlus2 from '../assets/IconPlus2.svg';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import {
@@ -1092,6 +1092,14 @@ const Campains: React.FC = () => {
   };
 
 
+ 
+
+
+  const isDuplicateNameInvalid = !!(
+    duplicateName &&
+    (duplicateName.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(duplicateName))
+  );
+
   return (
 
     <Box sx={{ padding: "20px", marginLeft: "30px", maxWidth: "81%", mt: -7 }}>
@@ -1759,6 +1767,7 @@ const Campains: React.FC = () => {
                     }}>
                       <MoreVertIcon sx={{ color: "#574B4F", fontSize: "20px" }} />
                     </IconButton>
+
                     <PushPinIcon sx={{ color: "#6C3A52", fontSize: "20px", cursor: "pointer" }} />
                   </Box>
                 </Box>
@@ -4079,40 +4088,112 @@ const Campains: React.FC = () => {
         PaperProps={{
           sx: {
             borderRadius: "10px",
-            width: "180px",
+            width: "184px",
+            height: "134px",
             mt: 1,
-            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)", overflowY: 'hidden'
           },
         }}
       >
-        <MenuItem onClick={() => { console.log("Editar", menuIndex); handleMenuClose(); }}>
-          <Tooltip
-            title={
-              menuIndex !== null && campaigns[menuIndex]?.autoStart
-                ? "No es posible editar mientras la campaña se encuentre en curso."
-                : ""
-            }
-            arrow
-            placement="right"
-            disableHoverListener={menuIndex === null || !campaigns[menuIndex]?.autoStart}
-          >
-            <span>
-              <MenuItem
-                onClick={() => {
-                  if (!campaigns[menuIndex!]?.autoStart) {
-                    handleOpenEditCampaignModal(campaigns[menuIndex!]);
-                  }
-                  handleMenuClose();
-                }}
-                disabled={menuIndex !== null && campaigns[menuIndex]?.autoStart}
-                sx={{ opacity: menuIndex !== null && campaigns[menuIndex]?.autoStart ? 0.5 : 1 }}
-              >
-                <EditIcon sx={{ fontSize: 18, marginRight: 1 }} /> Editar
-              </MenuItem>
-            </span>
-          </Tooltip>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            minWidth: '184px'
+          }}
+        >
+          <Box sx={{ flexGrow: 1 }}>
+            <MenuItem
+              onClick={() => {
+                if (!campaigns[menuIndex!]?.autoStart) {
+                  handleOpenEditCampaignModal(campaigns[menuIndex!]);
+                }
+                handleMenuClose();
+              }}
+              disabled={menuIndex !== null && campaigns[menuIndex]?.autoStart}
+              sx={{
+                opacity: menuIndex !== null && campaigns[menuIndex]?.autoStart ? 0.5 : 1,
+                fontFamily: "Poppins",
+                color: "#574B4F",
+                fontSize: "14px",
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                paddingRight: '8px',
+                height: "40px", '&:hover': {
+                  backgroundColor: '#F2EBED'
+                }
+              }}
+            >
+              <EditIcon sx={{ marginRight: 1, width: 24, height: 24, ml: 0.5 }} />
+              Editar
+            </MenuItem>
+          </Box>
 
-        </MenuItem>
+          {menuIndex !== null && campaigns[menuIndex]?.autoStart && (
+            <Tooltip
+              title={
+                <Box
+                  sx={{
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: "8px",
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    padding: "8px 12px",
+                    fontSize: "14px",
+                    fontFamily: "Poppins",
+                    color: "#574B4F",
+                    whiteSpace: "pre-line",
+                    transform: "translate(-1px, -15px)",
+                    borderColor: "#00131F3D",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    width: "190px",
+                    height: "88px", textAlign: "center"
+                  }}
+                >
+                  <>
+                    No es posible editar<br />
+                    mientras la campaña<br />
+                    se encuentre en curso.
+                  </>
+                </Box>
+              }
+              placement="bottom-end"
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: "transparent",
+                    padding: 0,
+
+                  },
+                },
+              }}
+              PopperProps={{
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: [10, 1] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                    }
+                  }
+                ]
+              }}
+            >
+              <Box
+                component="img"
+                src={infoicon}
+                alt="info"
+                sx={{
+                  width: 24,
+                  height: 24,
+                  mr: '25px', // mueve ligeramente hacia la izquierda
+                  cursor: 'pointer'
+                }}
+              />
+            </Tooltip>
+          )}
+        </Box>
+
         <MenuItem onClick={() => {
           if (menuIndex !== null && menuIndex >= 0) {
             handleOpenDuplicateModal(campaigns[menuIndex]);
@@ -4120,8 +4201,17 @@ const Campains: React.FC = () => {
             handleOpenDuplicateModal(selectedCampaign);
           }
           handleMenuClose();
-        }}>
-          <ContentCopyIcon sx={{ fontSize: 18, marginRight: 1 }} /> Duplicar
+        }}
+          sx={{
+            fontFamily: "Poppins", color: "#574B4F",
+            fontSize: "14px",
+            fontWeight: 500,
+            height: "40px", '&:hover': {
+              backgroundColor: '#F2EBED'
+            }
+          }}
+        >
+          <ContentCopyIcon sx={{ width: 24, height: 24, marginRight: 1, ml: 0.5 }} /> Duplicar
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -4129,11 +4219,25 @@ const Campains: React.FC = () => {
             setOpenDeleteModal(true);
             handleMenuClose();
           }}
+          sx={{
+            fontFamily: "Poppins", color: "#574B4F", fontSize: "14px", fontWeight: 500, height: "40px",
+            ml: "1px", '&:hover': {
+              backgroundColor: '#F2EBED'
+            }
+          }}
         >
           <ListItemIcon>
-            <DeleteIcon fontSize="small" />
+            <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24, marginLeft: "3px" }} />
           </ListItemIcon>
-          <ListItemText>Eliminar</ListItemText>
+          <ListItemText
+            primary="Eliminar"
+            primaryTypographyProps={{
+              fontFamily: "Poppins",
+              fontSize: "14px",
+              fontWeight: 500,
+              color: "#574B4F", marginTop: "0px"
+            }}
+          />
         </MenuItem>
       </Menu>
 
@@ -4295,8 +4399,9 @@ const Campains: React.FC = () => {
             overflowY: 'auto', display: "flex", flexDirection: "column", marginTop: "0px", paddingBottom: 10,
           }}
         >
+          {/*Editar campañas - Paso 1*/}
           {editActiveStep === -1 && (
-            <Box sx={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: 4, maxHeight: "399px" }}>
+            <Box sx={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: 4, maxHeight: "318px", ml: "25px" }}>
 
               {/* Box 1: Ingrese un nombre */}
 
@@ -4306,14 +4411,15 @@ const Campains: React.FC = () => {
                   height: "88px",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
+                  justifyContent: "space-between", mt: 0.5
                 }}
               >
                 <Typography
                   sx={{
                     fontFamily: "Poppins",
                     fontSize: "18px",
-                    color: "#574B4F",
+                    color: "#330F1B",
+                    mb: 1.5, mt: -2
                   }}
                 >
                   Ingrese un nombre
@@ -4323,6 +4429,56 @@ const Campains: React.FC = () => {
                   placeholder="Nombre"
                   value={editCampaignName}
                   onChange={(e) => setEditCampaignName(e.target.value)}
+                  error={isEditNameInvalid}
+                  helperText={isEditNameInvalid ? 'Formato inválido' : ''}
+                  InputProps={{
+                    endAdornment: isEditNameInvalid ? (
+                      <Tooltip
+                        title={
+                          <Box
+                            sx={{
+                              backgroundColor: "#FFFFFF",
+                              borderRadius: "8px",
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                              padding: "8px 12px",
+                              fontSize: "14px",
+                              fontFamily: "Poppins",
+                              color: "#574B4F",
+                              whiteSpace: "pre-line",
+                              transform: "translate(-1px, -15px)",
+                              borderColor: "#00131F3D",
+                              borderStyle: "solid",
+                              borderWidth: "1px"
+                            }}
+                          >
+                            <>
+                              • Solo caracteres alfabéticos<br />
+                              • Longitud máxima de 40<br />
+                              caracteres
+                            </>
+                          </Box>
+                        }
+                        placement="bottom-end"
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "transparent",
+                              padding: 0
+                            }
+                          }
+                        }}
+                      >
+                        <InputAdornment position="end">
+                          <img
+                            src={isEditNameInvalid ? infoiconerror : infoicon}
+                            alt="info-icon"
+                            style={{ width: 24, height: 24 }}
+                          />
+                        </InputAdornment>
+                      </Tooltip>
+
+                    ) : null
+                  }}
                   sx={{
                     width: "340px",
                     height: "54px",
@@ -4331,7 +4487,6 @@ const Campains: React.FC = () => {
                       fontFamily: "Poppins",
                       height: "54px",
                       boxSizing: "border-box",
-                      padding: "0 14px"
                     }
                   }}
                 />
@@ -4339,11 +4494,41 @@ const Campains: React.FC = () => {
 
               {/* Box 2: Horarios */}
               {/* Renderiza todos los horarios */}
-
-              {editHorarios.map((horario, index) => {
-                const isPast = horario.start && horario.start < new Date();
-
-                return (
+              {editHorarios.map((horario, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    width: "672px",
+                    backgroundColor: "#F2EBEDCC",
+                    borderRadius: "8px",
+                    padding: "16px",
+                    marginTop: "-5px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px"
+                  }}
+                >
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          }} value="reanudar" sx={{
+                            color: "#8F4D63",
+                            '&.Mui-checked': { color: "#8F4D63" }
+                          }} />}
+                          label={<Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#8F4D63" }}>Reanudar</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Radio checked={horario.operationMode === 2} onChange={() => {
+                            const nuevos = [...editHorarios];
+                            nuevos[index].operationMode = 2;
+                            setEditHorarios(nuevos);
+                          }} value="reciclar" sx={{
+                            color: "#9B9295",
+                            '&.Mui-checked': { color: "#9B9295" }
+                          }} />}
+                          label={<Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#9B9295" }}>Reciclar</Typography>}
+                        />
+                      </Box>
+                    </Box>
+                  )}
                   <Box
                     key={index}
                     sx={{
@@ -4368,59 +4553,7 @@ const Campains: React.FC = () => {
                       >
                         {horario.titulo}
                       </Typography>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        {index > 0 && !isPast && (
-                          <Tooltip title="Eliminar" arrow placement="top">
-                            <IconButton onClick={() => handleEliminarHorarioEditar(index)}>
-                              <Box
-                                component="img"
-                                src={IconTrash}
-                                alt="Eliminar"
-                                sx={{ width: "24px", height: "24px", cursor: "pointer", opacity: 0.6, position: "absolute", marginTop: "100px", marginRight: "80px" }}
-                              />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        {index === editHorarios.length - 1 && editHorarios.length < 5 && (
-                          <Tooltip title="Añadir horario" arrow placement="top"
-                            componentsProps={{
-                              tooltip: {
-                                sx: {
-                                  backgroundColor: "#000000",
-                                  color: "#CCC3C3",
-                                  fontFamily: "Poppins, sans-serif",
-                                  fontSize: "12px",
-                                  padding: "6px 8px",
-                                  borderRadius: "8px",
-                                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.7)"
-                                }
-                              },
-                              arrow: {
-                                sx: {
-                                  color: "#000000", marginLeft: "-6px"
-                                }
-                              }
-                            }}
-                            PopperProps={{
-                              modifiers: [
-                                {
-                                  name: 'offset',
-                                  options: { offset: [-6, -6] }
-                                }
-                              ]
-                            }}
-                          >
-                            <IconButton onClick={handleAgregarHorarioEditar}>
-                              <Box
-                                component="img"
-                                src={IconCirclePlus}
-                                alt="Agregar Horario"
-                                sx={{ width: "24px", height: "24px", cursor: "pointer", position: "absolute", marginTop: "100px", marginRight: "40px" }}
-                              />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </Box>
+
                     </Box>
                     <Box sx={{ display: "flex", gap: 2 }}>
                       <TextField
@@ -4438,20 +4571,24 @@ const Campains: React.FC = () => {
                             })
                             : ''
                         }
-                        sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
+                        disabled={isEditNameInvalid}
+                        sx={{
+                          width: "262px", height: "56px", backgroundColor: "#FFFFFF", '& .MuiInputBase-input': {
+                            fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F"
+                          },
+                        }}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
                               <IconButton
                                 onClick={(e) => {
-                                  if (!isPast) {
-                                    setCalendarAnchor(e.currentTarget);
-                                    setCalendarOpen(true);
-                                    setCalendarTarget("start");
-                                    setCurrentHorarioIndex(index);
-                                  }
+                                  setCalendarAnchor(e.currentTarget);
+                                  setCalendarOpen(true);
+                                  setCalendarTarget("start");
+                                  setCurrentHorarioIndex(index);
                                 }}
                                 size="small"
+                                disabled={isEditNameInvalid}
                                 sx={{ padding: 0 }}
                               >
                                 <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
@@ -4459,7 +4596,6 @@ const Campains: React.FC = () => {
                             </InputAdornment>
                           )
                         }}
-                        disabled={isPast}
                       />
                       <TextField
                         key={`end-edit-${index}`}
@@ -4476,20 +4612,24 @@ const Campains: React.FC = () => {
                             })
                             : ''
                         }
-                        sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
+                        disabled={isEditNameInvalid}
+                        sx={{
+                          width: "262px", height: "56px", backgroundColor: "#FFFFFF", '& .MuiInputBase-input': {
+                            fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F"
+                          },
+                        }}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
                               <IconButton
                                 onClick={(e) => {
-                                  if (!isPast) {
-                                    setCalendarAnchor(e.currentTarget);
-                                    setCalendarOpen(true);
-                                    setCalendarTarget("end");
-                                    setCurrentHorarioIndex(index);
-                                  }
+                                  setCalendarAnchor(e.currentTarget);
+                                  setCalendarOpen(true);
+                                  setCalendarTarget("end");
+                                  setCurrentHorarioIndex(index);
                                 }}
                                 size="small"
+                                disabled={isEditNameInvalid}
                                 sx={{ padding: 0 }}
                               >
                                 <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
@@ -4497,151 +4637,179 @@ const Campains: React.FC = () => {
                             </InputAdornment>
                           )
                         }}
-                        disabled={isPast}
                       />
-                    </Box>
-                    {index > 0 && (
-                      <Box sx={{ width: "100%", height: "62px", backgroundColor: "#FFFFFF", mt: 1 }}>
-                        <Typography sx={{ fontFamily: "Poppins", fontSize: "18px", color: "#574B4F", mb: "4px" }}>
-                          Modo de operación
-                        </Typography>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <FormControlLabel
-                            control={
-                              <Radio
-                                checked={horario.operationMode === 1}
-                                onChange={() => {
-                                  const nuevos = [...editHorarios];
-                                  nuevos[index].operationMode = 1;
-                                  setEditHorarios(nuevos);
-                                }}
-                                value="reanudar"
-                                disabled={isPast}
-                                sx={{
-                                  color: "#8F4D63",
-                                  '&.Mui-checked': { color: "#8F4D63" }
-                                }}
-                              />
-                            }
-                            label={
-                              <Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#8F4D63" }}>
-                                Reanudar
-                              </Typography>
-                            }
-                          />
-                          <FormControlLabel
-                            control={
-                              <Radio
-                                checked={horario.operationMode === 2}
-                                onChange={() => {
-                                  const nuevos = [...editHorarios];
-                                  nuevos[index].operationMode = 2;
-                                  setEditHorarios(nuevos);
-                                }}
-                                value="reciclar"
-                                disabled={isPast}
-                                sx={{
-                                  color: "#9B9295",
-                                  '&.Mui-checked': { color: "#9B9295" }
-                                }}
-                              />
-                            }
-                            label={
-                              <Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#9B9295" }}>
-                                Reciclar
-                              </Typography>
-                            }
-                          />
-                        </Box>
+
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        {index > 0 && (
+                          <Box sx={{ marginTop: '0px', marginLeft: '0px', }}>
+                            <Tooltip title="Eliminar" arrow placement="top"
+                              componentsProps={{
+                                tooltip: {
+                                  sx: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                    color: "#CCC3C3",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "12px",
+                                    padding: "6px 8px",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                  }
+                                },
+                                arrow: {
+                                  sx: {
+                                    color: "rgba(0, 0, 0, 0.8)"
+                                  }
+                                }
+                              }}
+                              PopperProps={{
+                                modifiers: [
+                                  {
+                                    name: 'offset',
+                                    options: {
+                                      offset: [-0, -10] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                    }
+                                  }
+                                ]
+                              }}
+                            >
+                              <IconButton onClick={() => handleEliminarHorarioEditar(index)} >
+                                <Box
+                                  component="img"
+                                  src={IconTrash}
+                                  alt="Eliminar"
+                                  sx={{ width: 24, height: 24, cursor: "pointer", opacity: 0.6 }}
+                                />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        )}
+                        {index === editHorarios.length - 1 && editHorarios.length < 5 && (
+                          <Box sx={{ marginTop: '0px', marginLeft: '0px' }}>
+                            <Tooltip title="Agregar horario" arrow placement="top"
+                              componentsProps={{
+                                tooltip: {
+                                  sx: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                    color: "#CCC3C3",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "12px",
+                                    padding: "6px 8px",
+                                    borderRadius: "8px",
+                                  }
+                                },
+                                arrow: {
+                                  sx: {
+                                    color: "rgba(0, 0, 0, 0.8)"
+                                  }
+                                }
+                              }}
+                            >
+
+                              <IconButton onClick={handleAgregarHorarioEditar}>
+                                <Box
+                                  component="img"
+                                  src={IconCirclePlus}
+                                  alt="Agregar Horario"
+                                  sx={{ width: "24px", height: "24px", cursor: "pointer", position: "absolute" }}
+                                />
+                              </IconButton>
+
+                            </Tooltip>
+                          </Box>
+                        )}
                       </Box>
-                    )}
+                    </Box>
 
                   </Box>
-                );
-              })}
-
-
-              {/* Checkbox Iniciar campaña automáticamente */}
-              <Box
-                sx={{
-                  width: "250px",
-                  height: "80px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  mt: -2, // espacio superior
-                  marginBotttom: "10px"
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                  }}
-                >
-                  <Checkbox
-                    icon={
+                  {/* Checkbox Iniciar campaña automáticamente */}
+                  {index === 0 && (
+                    <Box
+                      sx={{
+                        width: "250px",
+                        height: "80px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        mt: editHorarios.length <= 1 ? -3.5 : -1,
+                        mb: -1,
+                        marginBotttom: "10px",
+                        marginLeft: "2px",
+                      }}
+                    >
                       <Box
                         sx={{
-                          width: "20px",
-                          height: "20px",
-                          borderRadius: "4px",
-                          border: "2px solid #8F4D63",
-                        }}
-                      />
-                    }
-                    checkedIcon={
-                      <Box
-                        sx={{
-                          width: "20px",
-                          height: "20px",
-                          borderRadius: "4px",
-                          backgroundColor: "#8F4D63",
-                          border: "2px solid #8F4D63",
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
+                          gap: "8px"
                         }}
                       >
-                        <Box
-                          component="span"
+                        <Checkbox
+                          disabled={editHorarios.length <= 1} // 🔒 Desactivado hasta que haya más de 1 horario
+                          checked={editAutoStart}
+                          onChange={(e) => setEditAutoStart(e.target.checked)}
+                          icon={
+                            <Box
+                              sx={{
+                                width: "20px",
+                                height: "20px",
+                                borderRadius: "4px",
+                                border: `2px solid ${editHorarios.length <= 1 ? '#C0C0C0' : '#8F4D63'}`,
+                              }}
+                            />
+                          }
+                          checkedIcon={
+                            <Box
+                              sx={{
+                                width: "20px",
+                                height: "20px",
+                                borderRadius: "4px",
+                                backgroundColor: "#8F4D63",
+                                border: "2px solid #8F4D63",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Box
+                                component="span"
+                                sx={{
+                                  color: "#FFFFFF",
+                                  fontSize: "13px",
+                                  fontWeight: "bold",
+                                  lineHeight: "1",
+                                  fontFamily: "Poppins, sans-serif",
+                                }}
+                              >
+                                ✓
+                              </Box>
+                            </Box>
+                          }
                           sx={{
-                            color: "#FFFFFF",
-                            fontSize: "13px",
-                            fontWeight: "bold",
-                            lineHeight: "1",
-                            fontFamily: "Poppins, sans-serif",
+                            color: "#8F4D63",
+                            "&.Mui-checked": { color: "#8F4D63" },
+                            alignSelf: "flex-start",
+                            padding: 0,
+                          }}
+                        />
+                        <Typography
+                          sx={{
+                            fontFamily: "Poppins",
+                            fontSize: "16px",
+                            color: editHorarios.length <= 1 ? "#C0C0C0" : "#8F4D63",
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          ✓
-                        </Box>
+                          Iniciar campaña automáticamente
+                        </Typography>
                       </Box>
-                    }
-                    sx={{
-                      color: "#8F4D63",
-                      "&.Mui-checked": { color: "#8F4D63" },
-                      alignSelf: "flex-start",
-                      padding: 0,
-                    }}
-                  />
-                  <Typography
-                    sx={{
-                      fontFamily: "Poppins",
-                      fontSize: "14px",
-                      color: "#574B4F",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Iniciar campaña
-                  </Typography>
-                </Box>
-              </Box>
-
+                    </Box>
+                  )}
+                </React.Fragment>
+              ))}
 
             </Box>
           )}
-
+          {/*Editar campañas - Paso 2*/}
           {editActiveStep === 0 && (
             // 🟰 CONTENIDO de "Registros" nuevo (el que quieres mostrar)
             <Box sx={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: 2, maxHeight: "420px", overflowY: "auto" }}>
@@ -4838,7 +5006,9 @@ const Campains: React.FC = () => {
           )}
 
           {editActiveStep === 1 && (
-            <Box>
+            <Box
+              sx={{ maxHeight: "342px", ml: "0px" }}
+            >
               <DynamicCampaignText
                 value={selectedCampaign?.message ?? ''}
                 onChange={setEditMensaje}
@@ -4850,21 +5020,76 @@ const Campains: React.FC = () => {
 
               <FormControlLabel
                 control={
-                  <Checkbox
-                    checked={editGuardarComoPlantilla}
-                    onChange={(e) => setEditGuardarComoPlantilla(e.target.checked)}
-                    sx={{ color: '#8F4D63' }}
-                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px", ml: 2
+                    }}
+                  >
+                    <Checkbox
+                      checked={editGuardarComoPlantilla}
+                      onChange={(e) => setEditGuardarComoPlantilla(e.target.checked)}
+                      icon={
+                        <Box
+                          sx={{
+                            width: "20px",
+                            height: "20px",
+                            borderRadius: "4px",
+                            border: "2px solid #8F4D63",
+                          }}
+                        />
+                      }
+                      checkedIcon={
+                        <Box
+                          sx={{
+                            width: "20px",
+                            height: "20px",
+                            borderRadius: "4px",
+                            backgroundColor: "#8F4D63",
+                            border: "2px solid #8F4D63",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Box
+                            component="span"
+                            sx={{
+                              color: "#FFFFFF",
+                              fontSize: "13px",
+                              fontWeight: "bold",
+                              lineHeight: "1",
+                              fontFamily: "Poppins, sans-serif",
+                            }}
+                          >
+                            ✓
+                          </Box>
+                        </Box>
+                      }
+                      sx={{
+                        color: "#8F4D63",
+                        "&.Mui-checked": { color: "#8F4D63" },
+                        alignSelf: "flex-start",
+                        padding: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontFamily: "Poppins",
+                        fontSize: "16px",
+                        color: "#8F4D63",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Guardar como plantilla
+                    </Typography>
+                  </Box>
                 }
-                label={
-                  <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#8F4D63' }}>
-                    Guardar como plantilla
-                  </Typography>
-                }
-                sx={{ mt: 2 }}
+                sx={{ mt: 1.5, mb: 1 }}
               />
 
-              <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', fontWeight: 500, mb: 1 }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: "#330F1B", fontWeight: 500, mb: 1 }}>
                 Nombre
               </Typography>
               <TextField
@@ -4872,6 +5097,7 @@ const Campains: React.FC = () => {
                 onChange={(e) => setEditTemplateName(e.target.value)}
                 fullWidth
                 sx={{
+                  width: "340px", height: "54",
                   backgroundColor: '#FFFFFF',
                   borderRadius: '8px',
                   mb: 3,
@@ -4882,14 +5108,49 @@ const Campains: React.FC = () => {
                 }}
                 InputProps={{
                   endAdornment: (
-                    <InputAdornment position="end">
-                      <Tooltip
-                        title="Este es el nombre que tendrá la plantilla si decides guardarla."
-                        placement="top"
-                      >
-                        <img src={infoicon} sx={{ color: '#8F4D63', opacity: 0.7 }} />
-                      </Tooltip>
-                    </InputAdornment>
+                    <Tooltip
+                      title={
+                        <Box
+                          sx={{
+                            backgroundColor: "#FFFFFF",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                            padding: "8px 12px",
+                            fontSize: "14px",
+                            fontFamily: "Poppins",
+                            color: "#574B4F",
+                            whiteSpace: "pre-line",
+                            transform: "translate(-1px, -15px)",
+                            borderColor: "#00131F3D",
+                            borderStyle: "solid",
+                            borderWidth: "1px"
+                          }}
+                        >
+                          <>
+                            • Solo caracteres alfabéticos<br />
+                            • Longitud máxima de 40<br />
+                            caracteres
+                          </>
+                        </Box>
+                      }
+                      placement="bottom-end"
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "transparent",
+                            padding: 0
+                          }
+                        }
+                      }}
+                    >
+                      <InputAdornment position="end">
+                        <img
+                          src={isEditNameInvalid ? infoiconerror : infoicon}
+                          alt="info-icon"
+                          style={{ width: 24, height: 24 }}
+                        />
+                      </InputAdornment>
+                    </Tooltip>
                   )
                 }}
               />
@@ -5083,26 +5344,104 @@ const Campains: React.FC = () => {
 
       <Dialog open={openDuplicateModal} onClose={() => setOpenDuplicateModal(false)} maxWidth="sm" fullWidth>
         <Box sx={{ fontFamily: 'Poppins' }}>
-          <DialogTitle sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <DialogTitle sx={{
+            fontFamily: 'Poppins', fontWeight: 600, fontSize: '20px', display: 'flex', mt: "4px",
+            justifyContent: 'space-between', alignItems: 'center', textTransform: 'none',
+          }}>
             Duplicar campaña SMS
             <IconButton onClick={() => setOpenDuplicateModal(false)}>
-              <CloseIcon />
+              <CloseIcon sx={{ position: "absolute", color: '#A6A6A6', marginTop: "-19px", marginLeft: "15px" }} />
             </IconButton>
           </DialogTitle>
 
           <Divider />
 
-          <DialogContent sx={{ maxHeight: '60vh', overflowY: 'auto', paddingTop: 2 }}>
-            <Typography sx={{ fontSize: '14px', fontWeight: 500, marginBottom: 1 }}>Nombre</Typography>
+          <DialogContent sx={{ maxHeight: '60vh', overflowY: 'auto', paddingTop: 2, ml: 1 }}>
+            <Typography sx={{
+              fontSize: '16px', fontFamily: 'Poppins',
+              fontWeight: 500, marginBottom: 1
+            }}>Nombre</Typography>
             <TextField
               placeholder="Nombre de la nueva campaña"
               fullWidth
               value={duplicateName}
               onChange={(e) => setDuplicateName(e.target.value)}
-              sx={{ marginBottom: 2 }}
+              error={isDuplicateNameInvalid}
+              helperText={
+                duplicateName.length > 40
+                  ? "Máximo 40 caracteres"
+                  : !/^[a-zA-Z0-9 ]+$/.test(duplicateName)
+                    ? "Formato inválido"
+                    : ""
+              }
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
+                  fontFamily: 'Poppins', width: "340px"
+                }
+              }}
+              FormHelperTextProps={{
+                sx: {
+                  position: "absolute",
+                  fontFamily: 'Poppins',
+                  fontSize: '12px',
+                  color: '#D01247', mt: 7.5, ml: 1.5
+
+                }
+              }}
+              InputProps={{
+                endAdornment: (
+                  <Tooltip
+                    title={
+                      <Box
+                        sx={{
+                          backgroundColor: "#FFFFFF",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                          padding: "8px 12px",
+                          fontSize: "14px",
+                          fontFamily: "Poppins",
+                          color: "#574B4F",
+                          whiteSpace: "pre-line",
+                          transform: "translate(-1px, -15px)",
+                          borderColor: "#00131F3D",
+                          borderStyle: "solid",
+                          borderWidth: "1px"
+                        }}
+                      >
+                        <>
+                          • Solo caracteres alfabéticos<br />
+                          • Longitud máxima de 40<br />
+                          caracteres
+                        </>
+                      </Box>
+                    }
+                    placement="bottom-end"
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "transparent",
+                          padding: 0
+                        }
+                      }
+                    }}
+                  >
+                    <InputAdornment position="end">
+                      <img
+                        src={isDuplicateNameInvalid ? infoiconerror : infoicon}
+                        alt="info-icon"
+                        style={{ width: 24, height: 24 }}
+                      />
+                    </InputAdornment>
+                  </Tooltip>
+                )
+              }}
             />
 
-            <Typography sx={{ fontSize: '14px', fontWeight: 500, marginBottom: 1 }}>Seleccionar de 1 a 5 horarios</Typography>
+            <Typography sx={{
+              fontSize: '16px', fontWeight: 500, fontFamily: 'Poppins',
+              marginBottom: 1, mt: 3.5
+            }}>Seleccionar de 1 a 5 horarios</Typography>
             <Box
               sx={{
                 backgroundColor: '#F9F4F6',
@@ -5142,7 +5481,14 @@ const Campains: React.FC = () => {
                       setCalendarTarget('start');
                       setCurrentHorarioIndex(index);
                     }}
-                    sx={{ width: '262px', height: '56px', backgroundColor: '#FFFFFF' }}
+                    sx={{
+                      width: '262px', height: '56px', backgroundColor: '#FFFFFF',
+                      '& .MuiInputBase-input': {
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                      },
+
+                    }}
                     InputProps={{
                       readOnly: true,
                       endAdornment: (
@@ -5185,7 +5531,13 @@ const Campains: React.FC = () => {
                       setCalendarTarget('end');
                       setCurrentHorarioIndex(index);
                     }}
-                    sx={{ width: '262px', height: '56px', backgroundColor: '#FFFFFF' }}
+                    sx={{
+                      width: '262px', height: '56px', backgroundColor: '#FFFFFF',
+                      '& .MuiInputBase-input': {
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                      },
+                    }}
                     InputProps={{
                       readOnly: true,
                       endAdornment: (
@@ -5210,14 +5562,14 @@ const Campains: React.FC = () => {
                   {/* Botón eliminar horario */}
                   {duplicateHorarios.length > 1 && (
                     <IconButton onClick={() => handleRemoveDuplicateHorario(index)}>
-                      <RemoveIcon sx={{ color: '#6C3A52' }} />
+                      <RemoveIcon sx={{ color: '#6C3A52', width: 20, height: 20, ml: -2, mr: -1.5 }} />
                     </IconButton>
                   )}
 
                   {/* Botón añadir horario (solo en el último si hay menos de 5) */}
                   {index === duplicateHorarios.length - 1 && duplicateHorarios.length < 5 && (
                     <IconButton onClick={handleAddDuplicateHorario}>
-                      <AddIcon sx={{ color: '#6C3A52' }} />
+                      <AddIcon sx={{ color: '#6C3A52', width: 20, height: 20, ml: -1.5, mr: -1.5 }} />
                     </IconButton>
                   )}
                   {index > 0 && (
@@ -5242,23 +5594,84 @@ const Campains: React.FC = () => {
             </Box>
 
 
-
-
             <FormControlLabel
               control={
                 <Checkbox
                   checked={duplicateAutoStart}
                   onChange={(e) => setDuplicateAutoStart(e.target.checked)}
+                  icon={
+                    <Box
+                      sx={{
+                        ml: 2.5, mt: -1,
+                        width: "20px",
+                        height: "20px",
+                        borderRadius: "4px",
+                        border: "2px solid #8F4D63",
+                      }}
+                    />
+                  }
+                  checkedIcon={
+                    <Box
+                      sx={{
+                        ml: 2.5, mt: -1,
+                        width: "20px",
+                        height: "20px",
+                        borderRadius: "4px",
+                        backgroundColor: "#8F4D63",
+                        border: "2px solid #8F4D63",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Box
+                        component="span"
+                        sx={{
+                          color: "#FFFFFF",
+                          fontSize: "13px",
+                          fontWeight: "bold",
+                          lineHeight: "1",
+                          fontFamily: "Poppins, sans-serif",
+                        }}
+                      >
+                        ✓
+                      </Box>
+                    </Box>
+                  }
+                  sx={{
+                    color: "#8F4D63",
+                    "&.Mui-checked": { color: "#8F4D63" },
+                    alignSelf: "flex-start",
+                    padding: 0,
+                  }}
                 />
               }
-              label={<Typography sx={{ fontFamily: 'Poppins', fontSize: '13px' }}>Iniciar campaña automáticamente</Typography>}
+              label={
+                <Typography
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontSize: "16px",
+                    color: "#8F4D63",
+                    whiteSpace: "nowrap", ml: 1.5, mt: -1
+                  }}
+                >
+                  Iniciar campaña automáticamente
+                </Typography>
+              }
               sx={{ marginTop: 2 }}
             />
           </DialogContent>
 
           <Divider />
 
-          <DialogActions sx={{ padding: '16px' }}>
+          <DialogActions
+            sx={{
+              padding: '16px',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: 40
+            }}
+          >
             <SecondaryButton onClick={() => setOpenDuplicateModal(false)} text='Cancelar' />
             <MainButton onClick={handleConfirmDuplicateCampaign} text='Duplicar' />
           </DialogActions>
