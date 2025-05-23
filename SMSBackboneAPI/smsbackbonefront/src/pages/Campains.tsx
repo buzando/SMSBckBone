@@ -1092,14 +1092,16 @@ const Campains: React.FC = () => {
   };
 
 
- 
+  const isEditNameInvalid = !!(
+    editCampaignName &&
+    (editCampaignName.length > 40 || !/^[a-zA-Z0-9ñÑ ]+$/.test(editCampaignName))
+  );
 
 
   const isDuplicateNameInvalid = !!(
     duplicateName &&
-    (duplicateName.length > 40 || !/^[a-zA-Z0-9 ]+$/.test(duplicateName))
+    (duplicateName.length > 40 || !/^[a-zA-Z0-9ñÑ ]+$/.test(duplicateName))
   );
-
   return (
 
     <Box sx={{ padding: "20px", marginLeft: "30px", maxWidth: "81%", mt: -7 }}>
@@ -3414,154 +3416,73 @@ const Campains: React.FC = () => {
                   <Box>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={shouldConcatenate}
-                            onChange={(e) => setShouldConcatenate(e.target.checked)}
-                            sx={{
-                              color: "#8F4D63",
-                              '&.Mui-checked': { color: "#8F4D63" },
-                            }}
-                          />
-                        }
+                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
                         label="Concatenar mensajes con más de 160 caracteres"
                         sx={{
                           fontFamily: "Poppins",
                           color: "#574B4F",
-                          '& .MuiFormControlLabel-label': {
-                            fontSize: "14px",
-                            color: "#574B4F",
-                          },
+                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
                         }}
                       />
                       <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={shouldShortenUrls}
-                            onChange={(e) => setShouldShortenUrls(e.target.checked)}
-                            sx={{
-                              color: "#8F4D63",
-                              '&.Mui-checked': { color: "#8F4D63" },
-                            }}
-                          />
-                        }
+                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
                         label="Acortar URLs en el mensaje"
                         sx={{
                           fontFamily: "Poppins",
                           color: "#574B4F",
-                          '& .MuiFormControlLabel-label': {
-                            fontSize: "14px",
-                            color: "#574B4F",
-                          },
+                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
                         }}
                       />
                       <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={saveAsTemplate}
-                            onChange={(e) => setSaveAsTemplate(e.target.checked)}
-                            sx={{
-                              color: "#8F4D63",
-                              '&.Mui-checked': { color: "#8F4D63" },
-                            }}
-                          />
-                        }
+                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
                         label="Guardar como plantilla"
                         sx={{
                           fontFamily: "Poppins",
                           color: "#574B4F",
-                          '& .MuiFormControlLabel-label': {
-                            fontSize: "14px",
-                            color: "#574B4F",
-                          },
+                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
                         }}
                       />
-
                     </Box>
 
+                    <Typography sx={{ fontFamily: "Poppins", fontWeight: 500, fontSize: "14px", mt: 2, mb: 1 }}>
+                      Nombre
+                    </Typography>
+
                     <TextField
-                      value={templateName}
-                      onChange={(e) => setTemplateName(e.target.value)}
-                      placeholder="Nombre plantilla"
                       fullWidth
-                      sx={{
-                        mt: 1,
-                        backgroundColor: "#FFFFFF",
-                        borderRadius: "8px",
-                        '& .MuiInputBase-input': {
-                          fontFamily: 'Poppins',
-                          fontSize: '14px',
-                          color: '#574B4F',
-                        }
-                      }}
+                      placeholder="Nombre de la plantilla"
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
                             <img src={infoicon} alt="info" style={{ width: 20, height: 20 }} />
                           </InputAdornment>
-                        )
+                        ),
+                      }}
+                      sx={{
+                        fontFamily: "Poppins",
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "8px",
+                        '& .MuiOutlinedInput-root': {
+                          fontSize: "14px",
+                          paddingRight: "8px",
+                        },
                       }}
                     />
-
                   </Box>
                 </Box>
               ) : (
                 // 🔵 CONTENIDO PLANTILLA
-                <Box>
-                  <TemplateViewer
-                    templates={templates}
-                    value={mensajeTexto}
-                    onChange={setMensajeTexto}
-                    onSelectTemplateId={(id) => {
-                      const tpl = templates.find(t => t.id === id);
-                      setSelectedTemplate(tpl);
-                    }}
-                  />
+                <TemplateViewer
+                  templates={templates}
+                  value={mensajeTexto}
+                  onChange={setMensajeTexto}
+                  onSelectTemplateId={(id) => {
+                    const tpl = templates.find(t => t.id === id);
+                    setSelectedTemplate(tpl);
+                  }}
+                />
 
-                  <Box sx={{ mt: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                      <SecondaryButton text="Visualizar" onClick={() => console.log("Vista previa")} />
-                    </Box>
 
-                    <FormGroup>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            sx={{
-                              color: "#8F4E63",
-                              '&.Mui-checked': {
-                                color: "#8F4E63",
-                              }
-                            }}
-                          />
-                        }
-                        label={
-                          <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F' }}>
-                            Concatenar mensaje con más de 160 caracteres
-                          </Typography>
-                        }
-                      />
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            sx={{
-                              color: "#8F4E63",
-                              '&.Mui-checked': {
-                                color: "#8F4E63",
-                              }
-                            }}
-                          />
-                        }
-                        label={
-                          <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F' }}>
-                            Acortar URLs en el mensaje
-                          </Typography>
-                        }
-                      />
-                    </FormGroup>
-                  </Box>
-
-                </Box>
               )}
             </>
           )}
@@ -4039,7 +3960,6 @@ const Campains: React.FC = () => {
         anchorEl={calendarAnchor}
         onClose={() => setCalendarOpen(false)}
         placement="bottom"
-        offset={[0, -150]}
         onApply={(selectedDate, hour, minute) => {
           const fullDate = new Date(selectedDate);
           fullDate.setHours(hour);
@@ -4432,7 +4352,7 @@ const Campains: React.FC = () => {
                   error={isEditNameInvalid}
                   helperText={isEditNameInvalid ? 'Formato inválido' : ''}
                   InputProps={{
-                    endAdornment: isEditNameInvalid ? (
+                    endAdornment:
                       <Tooltip
                         title={
                           <Box
@@ -4477,7 +4397,7 @@ const Campains: React.FC = () => {
                         </InputAdornment>
                       </Tooltip>
 
-                    ) : null
+                    
                   }}
                   sx={{
                     width: "340px",
@@ -4495,20 +4415,20 @@ const Campains: React.FC = () => {
               {/* Box 2: Horarios */}
               {/* Renderiza todos los horarios */}
               {editHorarios.map((horario, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    width: "672px",
-                    backgroundColor: "#F2EBEDCC",
-                    borderRadius: "8px",
-                    padding: "16px",
-                    marginTop: "-5px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px"
-                  }}
-                >
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+                <React.Fragment key={index}>
+
+                  {index > 0 && (
+                    <Box sx={{ width: "100%", height: "62px", backgroundColor: "#FFFFFF", mt: 0 }}>
+                      <Typography sx={{ fontFamily: "Poppins", fontSize: "18px", color: "#574B4F", mb: "4px" }}>
+                        Modo de operación
+                      </Typography>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <FormControlLabel
+                          control={<Radio checked={horario.operationMode === 1} onChange={() => {
+                            const nuevos = [...editHorarios];
+                            nuevos[index].operationMode = 1;
+                            setEditHorarios(nuevos);
                           }} value="reanudar" sx={{
                             color: "#8F4D63",
                             '&.Mui-checked': { color: "#8F4D63" }
@@ -5370,7 +5290,7 @@ const Campains: React.FC = () => {
               helperText={
                 duplicateName.length > 40
                   ? "Máximo 40 caracteres"
-                  : !/^[a-zA-Z0-9 ]+$/.test(duplicateName)
+                  : !/^[a-zA-Z0-9ñÑ ]+$/.test(duplicateName)
                     ? "Formato inválido"
                     : ""
               }
@@ -5572,23 +5492,6 @@ const Campains: React.FC = () => {
                       <AddIcon sx={{ color: '#6C3A52', width: 20, height: 20, ml: -1.5, mr: -1.5 }} />
                     </IconButton>
                   )}
-                  {index > 0 && (
-                    <RadioGroup
-                      row
-                      value={horario.operationMode}
-                      onChange={(e) => {
-                        const value = parseInt(e.target.value);
-                        setDuplicateHorarios(prev =>
-                          prev.map((h, i) => i === index ? { ...h, operationMode: value } : h)
-                        );
-                      }}
-                      sx={{ mt: 1 }}
-                    >
-                      <FormControlLabel value={1} control={<Radio />} label="Reanudar" />
-                      <FormControlLabel value={2} control={<Radio />} label="Reciclar" />
-                    </RadioGroup>
-                  )}
-
                 </Box>
               ))}
             </Box>
@@ -5680,6 +5583,7 @@ const Campains: React.FC = () => {
 
     </Box>
   );
+
 };
 
 export default Campains;
