@@ -20,7 +20,7 @@ namespace Business
                 }
                 return true;
             }
-            catch
+            catch(Exception e)
             {
                 return false;
             }
