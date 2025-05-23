@@ -32,7 +32,7 @@ namespace SMSBackboneAPI.Controllers
         }
 
         [HttpPost("AddTmpContacts")]
-        public async Task<IActionResult> AddTmpContacts (CampainContacttpmrequest contacts)
+        public async Task<IActionResult> AddTmpContacts(CampainContacttpmrequest contacts)
         {
             var templateManager = new TpmCampaignContactsManager();
             var result = templateManager.InsertBatchFromExcel(contacts);
@@ -49,7 +49,7 @@ namespace SMSBackboneAPI.Controllers
             var campaign = campaigns.Campaigns;
             campaign.CreatedDate = DateTime.Now;
 
-            var campaignSaved = manager.CreateCampaign(campaign);
+            var campaignSaved = manager.CreateCampaign(campaign, campaigns.SaveAsTemplate, campaigns.TemplateName);
             if (!campaignSaved)
                 return BadRequest(new { code = "ErrorSavingCampaign", description = "No se pudo guardar la campaña." });
 
@@ -129,6 +129,30 @@ namespace SMSBackboneAPI.Controllers
             {
                 return BadRequest();
             }
+        }
+
+        [HttpPost("EditCampaign")]
+        public async Task<IActionResult> EditCampaign(CampaignSaveRequest campaigns)
+        {
+            var manager = new CampaignManager();
+            var result = manager.EditCampaign(campaigns);
+
+            if (!result)
+                return BadRequest(new { code = "ErrorUpdatingCampaign", description = "No se pudo actualizar la campaña." });
+
+            return Ok(new { message = "Campaña actualizada correctamente", id = campaigns.Campaigns.Id });
+        }
+
+        [HttpPost("CloneCampaign")]
+        public async Task<IActionResult> CloneCampaign(CloneCampaignRequest request)
+        {
+            var manager = new CampaignManager();
+            var result = manager.CloneFullCampaign(request);
+
+            if (result == null)
+                return BadRequest(new { code = "ErrorCloningCampaign", description = "No se pudo clonar la campaña." });
+
+            return Ok(new { message = "Campaña clonada correctamente", id = result.Id });
         }
     }
 

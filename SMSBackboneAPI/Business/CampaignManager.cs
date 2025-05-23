@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Contract.Request;
 using Contract.Response;
 using Modal;
 using Modal.Model.Model;
@@ -9,42 +10,150 @@ namespace Business
 {
     public class CampaignManager
     {
-        public bool CreateCampaign(Campaigns campaign)
+        public bool CreateCampaign(Campaigns campaign, bool SaveAsTemplate, string TemplateName)
         {
             try
             {
                 using (var ctx = new Entities())
                 {
+                    if (SaveAsTemplate && !string.IsNullOrWhiteSpace(TemplateName))
+                    {
+                        var newTemplate = new Template
+                        {
+                            Name = TemplateName,
+                            Message = campaign.Message,
+                            IdRoom = campaign.RoomId,
+                            CreationDate = DateTime.Now
+                        };
+
+                        ctx.Template.Add(newTemplate);
+                        ctx.SaveChanges();
+
+                        campaign.TemplateId = newTemplate.Id;
+                        campaign.UseTemplate = true;
+                    }
+
                     ctx.Campaigns.Add(campaign);
                     ctx.SaveChanges();
                 }
+
                 return true;
             }
-            catch
+            catch (Exception e)
             {
                 return false;
             }
         }
 
-        public bool UpdateCampaign(Campaigns campaign)
+
+        public bool EditCampaign(CampaignSaveRequest campaigns)
         {
             try
             {
                 using (var ctx = new Entities())
                 {
+                    var campaign = campaigns.Campaigns;
+
                     var existing = ctx.Campaigns.FirstOrDefault(c => c.Id == campaign.Id);
                     if (existing == null) return false;
 
-                    existing.Name = campaign.Name;
-                    existing.Message = campaign.Message;
-                    existing.UseTemplate = campaign.UseTemplate;
-                    existing.TemplateId = campaign.TemplateId;
-                    existing.AutoStart = campaign.AutoStart;
-                    existing.FlashMessage = campaign.FlashMessage;
-                    existing.CustomANI = campaign.CustomANI;
-                    existing.RecycleRecords = campaign.RecycleRecords;
-                    existing.NumberType = campaign.NumberType;
+                    // Guardar plantilla primero (como en CreateCampaign)
+                    if (campaigns.SaveAsTemplate && !string.IsNullOrWhiteSpace(campaigns.TemplateName))
+                    {
+                        var newTemplate = new Template
+                        {
+                            Name = campaigns.TemplateName,
+                            Message = campaign.Message,
+                            IdRoom = campaign.RoomId,
+                            CreationDate = DateTime.Now
+                        };
+
+                        ctx.Template.Add(newTemplate);
+                        ctx.SaveChanges();
+
+                        campaign.TemplateId = newTemplate.Id;
+                        campaign.UseTemplate = true;
+
+                        existing.TemplateId = newTemplate.Id;
+                        existing.UseTemplate = true;
+                    }
+
+                    // Solo actualizar propiedades si cambian
+                    if (existing.Name != campaign.Name)
+                        existing.Name = campaign.Name;
+
+                    if (existing.Message != campaign.Message)
+                        existing.Message = campaign.Message;
+
+                    if (existing.AutoStart != campaign.AutoStart)
+                        existing.AutoStart = campaign.AutoStart;
+
+                    if (existing.FlashMessage != campaign.FlashMessage)
+                        existing.FlashMessage = campaign.FlashMessage;
+
+                    if (existing.CustomANI != campaign.CustomANI)
+                        existing.CustomANI = campaign.CustomANI;
+
+                    if (existing.RecycleRecords != campaign.RecycleRecords)
+                        existing.RecycleRecords = campaign.RecycleRecords;
+
+                    if (existing.NumberType != campaign.NumberType)
+                        existing.NumberType = campaign.NumberType;
+
                     existing.ModifiedDate = DateTime.Now;
+
+                    // -----------------------------------
+                    // HORARIOS - Comentado por validación
+                    // -----------------------------------
+                    /*
+                    var schedules = ctx.CampaignSchedules.Where(s => s.CampaignId == campaign.Id).ToList();
+                    ctx.CampaignSchedules.RemoveRange(schedules);
+                    ctx.SaveChanges();
+
+                    foreach (var schedule in campaigns.CampaignSchedules)
+                    {
+                        schedule.CampaignId = campaign.Id;
+                        ctx.CampaignSchedules.Add(schedule);
+                    }
+                    */
+
+                    // -----------------------------------
+                    // CONFIGURACIÓN DE RECICLADO
+                    // -----------------------------------
+                    var existingRecycle = ctx.CampaignRecycleSettings.FirstOrDefault(r => r.CampaignId == campaign.Id);
+
+                    bool isSameRecycle = existingRecycle != null &&
+                                         campaigns.CampaignRecycleSetting != null &&
+                                         existingRecycle.TypeOfRecords == campaigns.CampaignRecycleSetting.TypeOfRecords &&
+                                         existingRecycle.IncludeNotContacted == campaigns.CampaignRecycleSetting.IncludeNotContacted &&
+                                         existingRecycle.NumberOfRecycles == campaigns.CampaignRecycleSetting.NumberOfRecycles;
+
+                    if (!isSameRecycle)
+                    {
+                        if (existingRecycle != null)
+                            ctx.CampaignRecycleSettings.Remove(existingRecycle);
+
+                        if (campaigns.CampaignRecycleSetting != null)
+                        {
+                            campaigns.CampaignRecycleSetting.CampaignId = campaign.Id;
+                            ctx.CampaignRecycleSettings.Add(campaigns.CampaignRecycleSetting);
+                        }
+                    }
+
+                    // -----------------------------------
+                    // LISTAS NEGRAS
+                    // -----------------------------------
+                    var existingBlacklists = ctx.blacklistcampains.Where(b => b.idcampains == campaign.Id).ToList();
+                    ctx.blacklistcampains.RemoveRange(existingBlacklists);
+
+                    foreach (var id in campaigns.BlacklistIds)
+                    {
+                        ctx.blacklistcampains.Add(new blacklistcampains
+                        {
+                            idblacklist = id,
+                            idcampains = campaign.Id
+                        });
+                    }
 
                     ctx.SaveChanges();
                     return true;
@@ -55,6 +164,7 @@ namespace Business
                 return false;
             }
         }
+
 
         public bool DeleteCampaign(int campaignId)
         {
@@ -452,6 +562,98 @@ namespace Business
             }
         }
 
+        public Campaigns CloneFullCampaign(CloneCampaignRequest campaign)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var original = ctx.Campaigns.FirstOrDefault(c => c.Id == campaign.CampaignIdToClone);
+                    if (original == null) return null;
+
+                    // Crear nueva campaña base
+                    var clone = new Campaigns
+                    {
+                        Name = campaign.NewName,
+                        Message = original.Message,
+                        RoomId = original.RoomId,
+                        UseTemplate = original.UseTemplate,
+                        TemplateId = original.TemplateId,
+                        AutoStart = false, // no debe iniciar al clonarse
+                        FlashMessage = original.FlashMessage,
+                        CustomANI = original.CustomANI,
+                        RecycleRecords = original.RecycleRecords,
+                        NumberType = original.NumberType,
+                        CreatedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now
+                    };
+
+                    ctx.Campaigns.Add(clone);
+                    ctx.SaveChanges(); // genera ID
+
+                    int newId = clone.Id;
+
+                    // Clonar horarios
+                    foreach (var h in campaign.NewSchedules)
+                    {
+                        ctx.CampaignSchedules.Add(new CampaignSchedules
+                        {
+                            CampaignId = newId,
+                            StartDateTime = h.StartDateTime,
+                            EndDateTime = h.EndDateTime,
+                            OperationMode = h.OperationMode,
+                            Order = h.Order
+                        });
+                    }
+
+                    // Clonar configuración de reciclado (si existe)
+                    var reciclado = ctx.CampaignRecycleSettings.FirstOrDefault(r => r.CampaignId == campaign.CampaignIdToClone);
+                    if (reciclado != null)
+                    {
+                        ctx.CampaignRecycleSettings.Add(new CampaignRecycleSettings
+                        {
+                            CampaignId = newId,
+                            TypeOfRecords = reciclado.TypeOfRecords,
+                            IncludeNotContacted = reciclado.IncludeNotContacted,
+                            NumberOfRecycles = reciclado.NumberOfRecycles
+                        });
+                    }
+
+                    // Clonar listas negras asociadas
+                    var blacklists = ctx.blacklistcampains.Where(b => b.idcampains == campaign.CampaignIdToClone).ToList();
+                    foreach (var b in blacklists)
+                    {
+                        ctx.blacklistcampains.Add(new blacklistcampains
+                        {
+                            idcampains = newId,
+                            idblacklist = b.idblacklist
+                        });
+                    }
+
+                    // Clonar contactos
+                    var contactos = ctx.CampaignContacts.Where(c => c.CampaignId == campaign.CampaignIdToClone).ToList();
+                    foreach (var c in contactos)
+                    {
+                        ctx.CampaignContacts.Add(new CampaignContacts
+                        {
+                            CampaignId = newId,
+                            PhoneNumber = c.PhoneNumber,
+                            Dato = c.Dato,
+                            DatoId = c.DatoId,
+                            Misc01 = c.Misc01,
+                            Misc02 = c.Misc02
+                        });
+                    }
+
+                    ctx.SaveChanges();
+                    return clone;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
     }
 }

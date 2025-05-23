@@ -14,5 +14,7 @@ namespace Contract.Request
         public CampaignRecycleSettings? CampaignRecycleSetting { get; set; }
         public List<int> BlacklistIds { get; set; } = new();
         public string SessionId { get; set; } = string.Empty;
+        public bool SaveAsTemplate { get; set; } = false;
+        public string? TemplateName { get; set; }
     }
 }

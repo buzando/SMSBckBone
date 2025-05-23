@@ -28,6 +28,7 @@ import {
   SelectChangeEvent,
   Switch,
   Radio,
+  FormGroup,
   Popover
 } from "@mui/material";
 import axios from 'axios';
@@ -138,6 +139,8 @@ export interface CampaignFullResponse {
   schedules: CampaignScheduleDto[];
   recycleSetting?: CampaignRecycleSettingDto;
   contacts: CampaignContactDto[];
+  saveAsTemplate: boolean;
+  templateName: String;
 }
 
 export interface CampaignScheduleDto {
@@ -146,6 +149,13 @@ export interface CampaignScheduleDto {
   operationMode?: number;
   order: number;
 }
+
+export interface DuplicateHorario {
+  start: Date;
+  end: Date;
+  operationMode: number; // 1 = normal, 2 = reciclado
+};
+
 
 export interface CampaignRecycleSettingDto {
   typeOfRecords?: string;
@@ -160,7 +170,6 @@ export interface CampaignContactDto {
   misc01?: string;
   misc02?: string;
 }
-
 
 const Campains: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | undefined>(undefined);
@@ -215,7 +224,18 @@ const Campains: React.FC = () => {
   const [openDuplicateModal, setOpenDuplicateModal] = useState(false);
   const [duplicateName, setDuplicateName] = useState('');
   const [duplicateAutoStart, setDuplicateAutoStart] = useState(false);
-  const [duplicateHorarios, setDuplicateHorarios] = useState<{ start: Date; end: Date }[]>([]);
+  const [duplicateHorarios, setDuplicateHorarios] = useState<DuplicateHorario[]>([
+    {
+      start: new Date(),
+      end: new Date(),
+      operationMode: 1
+    }
+  ]); const [shouldConcatenate, setShouldConcatenate] = useState(true);
+  const [shouldShortenUrls, setShouldShortenUrls] = useState(false);
+  const [saveAsTemplate, setSaveAsTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+
+
 
   const [openPicker, setOpenPicker] = useState<{
     open: boolean;
@@ -779,7 +799,9 @@ const Campains: React.FC = () => {
           customANI: aniEnabled,
           recycleRecords: recycleEnabled,
           numberType: tipoNumero === 'corto' ? 1 : 2,
-          createdDate: new Date().toISOString()
+          createdDate: new Date().toISOString(),
+          concatenate: shouldConcatenate,
+          shortenUrls: shouldShortenUrls
         },
         campaignSchedules: horarios.map((h, index) => ({
           startDateTime: h.start?.toISOString(),
@@ -793,7 +815,9 @@ const Campains: React.FC = () => {
           numberOfRecycles: recycleCount
         } : null,
         blacklistIds: blacklistEnabled ? selectedBlackListIds : [],
-        sessionId: sessionIdRef.current
+        sessionId: sessionIdRef.current,
+        saveAsTemplate: saveAsTemplate,
+        templateName: templateName,
       };
 
       const response = await axios.post(
@@ -865,15 +889,11 @@ const Campains: React.FC = () => {
       // Ir al paso de configuraciones (step 2)
       setEditActiveStep(2);
     } else if (editActiveStep === 2) {
-      // Guardar
-      console.log("Guardar campaña editada:", {
-        nombre: editCampaignName,
-        horarios: editHorarios,
-        autoStart: editAutoStart
-      });
-      setOpenEditCampaignModal(false);
+      // Ir al último paso: guardar como plantilla
+      handleEditCampaign();
     }
   };
+
 
   const handleSelectCampaign = (selected: CampaignFullResponse) => {
     if (selectedCampaign?.id === selected.id) return; // 🔒 Ya está seleccionada
@@ -906,7 +926,9 @@ const Campains: React.FC = () => {
           customANI: editCustomAni,
           recycleRecords: editReciclar,
           numberType: editIsLongNumber ? 2 : 1,
-          createdDate: selectedCampaign.createdDate || new Date().toISOString()
+          createdDate: selectedCampaign.createdDate || new Date().toISOString(),
+          shouldConcatenate: false,
+          shouldShortenUrls: false,
         },
         campaignSchedules: editHorarios.map((h, index) => ({
           startDateTime: h.start?.toISOString(),
@@ -920,11 +942,13 @@ const Campains: React.FC = () => {
           numberOfRecycles: recycleCount
         } : null,
         blacklistIds: editUsarListaNegra ? selectedBlackListIds : [],
-        sessionId: sessionIdRef.current
+        sessionId: sessionIdRef.current || "",
+        saveAsTemplate: editGuardarComoPlantilla,
+        templateName: editTemplateName,
       };
 
       const response = await axios.post(
-        `${import.meta.env.VITE_SMS_API_URL}/api/Campaigns/EditCampaign`,
+        `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_EDIT_CAMPAIGN}`,
         payload,
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -983,6 +1007,37 @@ const Campains: React.FC = () => {
     }
   };
 
+  const handleConfirmDuplicateCampaign = async () => {
+    try {
+      const payload = {
+        campaignIdToClone: selectedCampaign?.id,
+        newName: duplicateName,
+        newSchedules: duplicateHorarios.map((h, index) => ({
+          startDateTime: h.start.toISOString(),
+          endDateTime: h.end.toISOString(),
+          operationMode: h.operationMode ?? 1, // ✅ conservamos el valor real
+          order: index + 1
+        }))
+      };
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_CLONE_CAMPAIGN}`,
+        payload,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
+      if (response.status === 200) {
+        fetchCampaigns();
+        setOpenDuplicateModal(false);
+        setMessageChipBar("Campaña clonada con éxito");
+      }
+    } catch (error) {
+      console.error('Error duplicando campaña:', error);
+      setMessageChipBar("Error al duplicar la campaña");
+    }
+  };
+
+
   const handleStartCampaign = async (campaign: any) => {
     const updated = {
       ...campaign,
@@ -1003,20 +1058,29 @@ const Campains: React.FC = () => {
     setSelectedCampaign(campaign);
     setDuplicateName(`${campaign.name} copia`);
     setDuplicateAutoStart(campaign.autoStart);
-    setDuplicateHorarios([{ start: new Date(), end: new Date() }]);
+    setDuplicateHorarios([{ start: new Date(), end: new Date(), operationMode: 1 }]);
+
     setOpenDuplicateModal(true);
   };
 
   const handleAddDuplicateHorario = () => {
     if (duplicateHorarios.length < 5) {
-      setDuplicateHorarios([...duplicateHorarios, { start: new Date(), end: new Date() }]);
+      setDuplicateHorarios(prev => [
+        ...prev,
+        {
+          start: new Date(),
+          end: new Date(),
+          operationMode: 1
+        }
+      ]);
     }
   };
 
+
   const handleRemoveDuplicateHorario = (index: number) => {
-    const updated = [...duplicateHorarios];
-    updated.splice(index, 1);
-    setDuplicateHorarios(updated);
+    if (duplicateHorarios.length > 1) {
+      setDuplicateHorarios(prev => prev.filter((_, i) => i !== index));
+    }
   };
 
   const handleDuplicateHorarioChange = (index: number,
@@ -1025,30 +1089,6 @@ const Campains: React.FC = () => {
     const updated = [...duplicateHorarios];
     updated[index][field] = value;
     setDuplicateHorarios(updated);
-  };
-
-  const handleConfirmDuplicateCampaign = async () => {
-    try {
-      const payload = {
-        originalCampaignId: selectedCampaign?.id,
-        newName: duplicateName,
-        autoStart: duplicateAutoStart,
-        schedules: duplicateHorarios.map((h, index) => ({
-          startDateTime: h.start.toISOString(),
-          endDateTime: h.end.toISOString(),
-          operationMode: 1,
-          order: index + 1
-        }))
-      };
-
-      const response = await axios.post(`${import.meta.env.VITE_SMS_API_URL}/api/Campaigns/DuplicateCampaign`, payload);
-      if (response.status === 200) {
-        fetchCampaigns();
-        setOpenDuplicateModal(false);
-      }
-    } catch (error) {
-      console.error('Error duplicando campaña:', error);
-    }
   };
 
 
@@ -3365,73 +3405,154 @@ const Campains: React.FC = () => {
                   <Box>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <FormControlLabel
-                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        control={
+                          <Checkbox
+                            checked={shouldConcatenate}
+                            onChange={(e) => setShouldConcatenate(e.target.checked)}
+                            sx={{
+                              color: "#8F4D63",
+                              '&.Mui-checked': { color: "#8F4D63" },
+                            }}
+                          />
+                        }
                         label="Concatenar mensajes con más de 160 caracteres"
                         sx={{
                           fontFamily: "Poppins",
                           color: "#574B4F",
-                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                          '& .MuiFormControlLabel-label': {
+                            fontSize: "14px",
+                            color: "#574B4F",
+                          },
                         }}
                       />
                       <FormControlLabel
-                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        control={
+                          <Checkbox
+                            checked={shouldShortenUrls}
+                            onChange={(e) => setShouldShortenUrls(e.target.checked)}
+                            sx={{
+                              color: "#8F4D63",
+                              '&.Mui-checked': { color: "#8F4D63" },
+                            }}
+                          />
+                        }
                         label="Acortar URLs en el mensaje"
                         sx={{
                           fontFamily: "Poppins",
                           color: "#574B4F",
-                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                          '& .MuiFormControlLabel-label': {
+                            fontSize: "14px",
+                            color: "#574B4F",
+                          },
                         }}
                       />
                       <FormControlLabel
-                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        control={
+                          <Checkbox
+                            checked={saveAsTemplate}
+                            onChange={(e) => setSaveAsTemplate(e.target.checked)}
+                            sx={{
+                              color: "#8F4D63",
+                              '&.Mui-checked': { color: "#8F4D63" },
+                            }}
+                          />
+                        }
                         label="Guardar como plantilla"
                         sx={{
                           fontFamily: "Poppins",
                           color: "#574B4F",
-                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                          '& .MuiFormControlLabel-label': {
+                            fontSize: "14px",
+                            color: "#574B4F",
+                          },
                         }}
                       />
+
                     </Box>
 
-                    <Typography sx={{ fontFamily: "Poppins", fontWeight: 500, fontSize: "14px", mt: 2, mb: 1 }}>
-                      Nombre
-                    </Typography>
-
                     <TextField
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                      placeholder="Nombre plantilla"
                       fullWidth
-                      placeholder="Nombre de la plantilla"
+                      sx={{
+                        mt: 1,
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "8px",
+                        '& .MuiInputBase-input': {
+                          fontFamily: 'Poppins',
+                          fontSize: '14px',
+                          color: '#574B4F',
+                        }
+                      }}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
                             <img src={infoicon} alt="info" style={{ width: 20, height: 20 }} />
                           </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        fontFamily: "Poppins",
-                        backgroundColor: "#FFFFFF",
-                        borderRadius: "8px",
-                        '& .MuiOutlinedInput-root': {
-                          fontSize: "14px",
-                          paddingRight: "8px",
-                        },
+                        )
                       }}
                     />
+
                   </Box>
                 </Box>
               ) : (
                 // 🔵 CONTENIDO PLANTILLA
-                <TemplateViewer
-                  templates={templates}
-                  value={mensajeTexto}
-                  onChange={setMensajeTexto}
-                  onSelectTemplateId={(id) => {
-                    const tpl = templates.find(t => t.id === id);
-                    setSelectedTemplate(tpl);
-                  }}
-                />
+                <Box>
+                  <TemplateViewer
+                    templates={templates}
+                    value={mensajeTexto}
+                    onChange={setMensajeTexto}
+                    onSelectTemplateId={(id) => {
+                      const tpl = templates.find(t => t.id === id);
+                      setSelectedTemplate(tpl);
+                    }}
+                  />
 
+                  <Box sx={{ mt: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                      <SecondaryButton text="Visualizar" onClick={() => console.log("Vista previa")} />
+                    </Box>
 
+                    <FormGroup>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            sx={{
+                              color: "#8F4E63",
+                              '&.Mui-checked': {
+                                color: "#8F4E63",
+                              }
+                            }}
+                          />
+                        }
+                        label={
+                          <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F' }}>
+                            Concatenar mensaje con más de 160 caracteres
+                          </Typography>
+                        }
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            sx={{
+                              color: "#8F4E63",
+                              '&.Mui-checked': {
+                                color: "#8F4E63",
+                              }
+                            }}
+                          />
+                        }
+                        label={
+                          <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F' }}>
+                            Acortar URLs en el mensaje
+                          </Typography>
+                        }
+                      />
+                    </FormGroup>
+                  </Box>
+
+                </Box>
               )}
             </>
           )}
@@ -3909,6 +4030,7 @@ const Campains: React.FC = () => {
         anchorEl={calendarAnchor}
         onClose={() => setCalendarOpen(false)}
         placement="bottom"
+        offset={[0, -150]}
         onApply={(selectedDate, hour, minute) => {
           const fullDate = new Date(selectedDate);
           fullDate.setHours(hour);
@@ -4217,191 +4339,226 @@ const Campains: React.FC = () => {
 
               {/* Box 2: Horarios */}
               {/* Renderiza todos los horarios */}
-              {editHorarios.map((horario, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    width: "672px",
-                    backgroundColor: "#F2EBEDCC",
-                    borderRadius: "8px",
-                    padding: "16px",
-                    marginTop: "-5px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px"
-                  }}
-                >
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Typography
-                      sx={{
-                        fontFamily: "Poppins",
-                        fontSize: "16px",
-                        fontWeight: 500,
-                        color: "#574B4F",
-                      }}
-                    >
-                      {horario.titulo}
-                    </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      {index > 0 && (
-                        <Tooltip title="Eliminar" arrow placement="top">
-                          <IconButton onClick={() => handleEliminarHorarioEditar(index)}>
-                            <Box
-                              component="img"
-                              src={IconTrash}
-                              alt="Eliminar"
-                              sx={{ width: "24px", height: "24px", cursor: "pointer", opacity: 0.6, position: "absolute", marginTop: "100px", marginRight: "80px" }}
-                            />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      {index === editHorarios.length - 1 && editHorarios.length < 5 && (
-                        <Tooltip title="Añadir horario" arrow placement="top"
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: "#000000",
-                                color: "#CCC3C3",
-                                fontFamily: "Poppins, sans-serif",
-                                fontSize: "12px",
-                                padding: "6px 8px",
-                                borderRadius: "8px",
-                                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.7)"
-                              }
-                            },
-                            arrow: {
-                              sx: {
-                                color: "#000000", marginLeft: "-6px"
-                              }
-                            }
-                          }}
-                          PopperProps={{
-                            modifiers: [
-                              {
-                                name: 'offset',
-                                options: { offset: [-6, -6] }
-                              }
-                            ]
-                          }}
-                        >
-                          <IconButton onClick={handleAgregarHorarioEditar}>
-                            <Box
-                              component="img"
-                              src={IconCirclePlus}
-                              alt="Agregar Horario"
-                              sx={{ width: "24px", height: "24px", cursor: "pointer", position: "absolute", marginTop: "100px", marginRight: "40px" }}
-                            />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <TextField
-                      key={`start-edit-${index}`}
-                      variant="outlined"
-                      placeholder="Inicia"
-                      value={
-                        horario.start
-                          ? horario.start.toLocaleString('es-MX', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                          : ''
-                      }
-                      sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={(e) => {
-                                setCalendarAnchor(e.currentTarget);
-                                setCalendarOpen(true);
-                                setCalendarTarget("start");
-                                setCurrentHorarioIndex(index);
-                              }}
-                              size="small"
-                              sx={{ padding: 0 }}
-                            >
-                              <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
-                            </IconButton>
-                          </InputAdornment>
-                        )
-                      }}
-                    />
-                    <TextField
-                      key={`end-edit-${index}`}
-                      variant="outlined"
-                      placeholder="Termina"
-                      value={
-                        horario.end
-                          ? horario.end.toLocaleString('es-MX', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                          : ''
-                      }
-                      sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={(e) => {
-                                setCalendarAnchor(e.currentTarget);
-                                setCalendarOpen(true);
-                                setCalendarTarget("end");
-                                setCurrentHorarioIndex(index);
-                              }}
-                              size="small"
-                              sx={{ padding: 0 }}
-                            >
-                              <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
-                            </IconButton>
-                          </InputAdornment>
-                        )
-                      }}
-                    />
-                  </Box>
-                  {index > 0 && (
-                    <Box sx={{ width: "100%", height: "62px", backgroundColor: "#FFFFFF", mt: 1 }}>
-                      <Typography sx={{ fontFamily: "Poppins", fontSize: "18px", color: "#574B4F", mb: "4px" }}>
-                        Modo de operación
+
+              {editHorarios.map((horario, index) => {
+                const isPast = horario.start && horario.start < new Date();
+
+                return (
+                  <Box
+                    key={index}
+                    sx={{
+                      width: "672px",
+                      backgroundColor: "#F2EBEDCC",
+                      borderRadius: "8px",
+                      padding: "16px",
+                      marginTop: "-5px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "12px"
+                    }}
+                  >
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins",
+                          fontSize: "16px",
+                          fontWeight: 500,
+                          color: "#574B4F",
+                        }}
+                      >
+                        {horario.titulo}
                       </Typography>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        <FormControlLabel
-                          control={<Radio checked={horario.operationMode === 1} onChange={() => {
-                            const nuevos = [...editHorarios];
-                            nuevos[index].operationMode = 1;
-                            setEditHorarios(nuevos);
-                          }} value="reanudar" sx={{
-                            color: "#8F4D63",
-                            '&.Mui-checked': { color: "#8F4D63" }
-                          }} />}
-                          label={<Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#8F4D63" }}>Reanudar</Typography>}
-                        />
-                        <FormControlLabel
-                          control={<Radio checked={horario.operationMode === 2} onChange={() => {
-                            const nuevos = [...editHorarios];
-                            nuevos[index].operationMode = 2;
-                            setEditHorarios(nuevos);
-                          }} value="reciclar" sx={{
-                            color: "#9B9295",
-                            '&.Mui-checked': { color: "#9B9295" }
-                          }} />}
-                          label={<Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#9B9295" }}>Reciclar</Typography>}
-                        />
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        {index > 0 && !isPast && (
+                          <Tooltip title="Eliminar" arrow placement="top">
+                            <IconButton onClick={() => handleEliminarHorarioEditar(index)}>
+                              <Box
+                                component="img"
+                                src={IconTrash}
+                                alt="Eliminar"
+                                sx={{ width: "24px", height: "24px", cursor: "pointer", opacity: 0.6, position: "absolute", marginTop: "100px", marginRight: "80px" }}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {index === editHorarios.length - 1 && editHorarios.length < 5 && (
+                          <Tooltip title="Añadir horario" arrow placement="top"
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: "#000000",
+                                  color: "#CCC3C3",
+                                  fontFamily: "Poppins, sans-serif",
+                                  fontSize: "12px",
+                                  padding: "6px 8px",
+                                  borderRadius: "8px",
+                                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.7)"
+                                }
+                              },
+                              arrow: {
+                                sx: {
+                                  color: "#000000", marginLeft: "-6px"
+                                }
+                              }
+                            }}
+                            PopperProps={{
+                              modifiers: [
+                                {
+                                  name: 'offset',
+                                  options: { offset: [-6, -6] }
+                                }
+                              ]
+                            }}
+                          >
+                            <IconButton onClick={handleAgregarHorarioEditar}>
+                              <Box
+                                component="img"
+                                src={IconCirclePlus}
+                                alt="Agregar Horario"
+                                sx={{ width: "24px", height: "24px", cursor: "pointer", position: "absolute", marginTop: "100px", marginRight: "40px" }}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </Box>
                     </Box>
-                  )}
-                </Box>
-              ))}
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <TextField
+                        key={`start-edit-${index}`}
+                        variant="outlined"
+                        placeholder="Inicia"
+                        value={
+                          horario.start
+                            ? horario.start.toLocaleString('es-MX', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                            : ''
+                        }
+                        sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={(e) => {
+                                  if (!isPast) {
+                                    setCalendarAnchor(e.currentTarget);
+                                    setCalendarOpen(true);
+                                    setCalendarTarget("start");
+                                    setCurrentHorarioIndex(index);
+                                  }
+                                }}
+                                size="small"
+                                sx={{ padding: 0 }}
+                              >
+                                <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          )
+                        }}
+                        disabled={isPast}
+                      />
+                      <TextField
+                        key={`end-edit-${index}`}
+                        variant="outlined"
+                        placeholder="Termina"
+                        value={
+                          horario.end
+                            ? horario.end.toLocaleString('es-MX', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                            : ''
+                        }
+                        sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={(e) => {
+                                  if (!isPast) {
+                                    setCalendarAnchor(e.currentTarget);
+                                    setCalendarOpen(true);
+                                    setCalendarTarget("end");
+                                    setCurrentHorarioIndex(index);
+                                  }
+                                }}
+                                size="small"
+                                sx={{ padding: 0 }}
+                              >
+                                <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          )
+                        }}
+                        disabled={isPast}
+                      />
+                    </Box>
+                    {index > 0 && (
+                      <Box sx={{ width: "100%", height: "62px", backgroundColor: "#FFFFFF", mt: 1 }}>
+                        <Typography sx={{ fontFamily: "Poppins", fontSize: "18px", color: "#574B4F", mb: "4px" }}>
+                          Modo de operación
+                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <FormControlLabel
+                            control={
+                              <Radio
+                                checked={horario.operationMode === 1}
+                                onChange={() => {
+                                  const nuevos = [...editHorarios];
+                                  nuevos[index].operationMode = 1;
+                                  setEditHorarios(nuevos);
+                                }}
+                                value="reanudar"
+                                disabled={isPast}
+                                sx={{
+                                  color: "#8F4D63",
+                                  '&.Mui-checked': { color: "#8F4D63" }
+                                }}
+                              />
+                            }
+                            label={
+                              <Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#8F4D63" }}>
+                                Reanudar
+                              </Typography>
+                            }
+                          />
+                          <FormControlLabel
+                            control={
+                              <Radio
+                                checked={horario.operationMode === 2}
+                                onChange={() => {
+                                  const nuevos = [...editHorarios];
+                                  nuevos[index].operationMode = 2;
+                                  setEditHorarios(nuevos);
+                                }}
+                                value="reciclar"
+                                disabled={isPast}
+                                sx={{
+                                  color: "#9B9295",
+                                  '&.Mui-checked': { color: "#9B9295" }
+                                }}
+                              />
+                            }
+                            label={
+                              <Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#9B9295" }}>
+                                Reciclar
+                              </Typography>
+                            }
+                          />
+                        </Box>
+                      </Box>
+                    )}
 
+                  </Box>
+                );
+              })}
 
 
               {/* Checkbox Iniciar campaña automáticamente */}
@@ -5063,6 +5220,23 @@ const Campains: React.FC = () => {
                       <AddIcon sx={{ color: '#6C3A52' }} />
                     </IconButton>
                   )}
+                  {index > 0 && (
+                    <RadioGroup
+                      row
+                      value={horario.operationMode}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        setDuplicateHorarios(prev =>
+                          prev.map((h, i) => i === index ? { ...h, operationMode: value } : h)
+                        );
+                      }}
+                      sx={{ mt: 1 }}
+                    >
+                      <FormControlLabel value={1} control={<Radio />} label="Reanudar" />
+                      <FormControlLabel value={2} control={<Radio />} label="Reciclar" />
+                    </RadioGroup>
+                  )}
+
                 </Box>
               ))}
             </Box>

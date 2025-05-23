@@ -23,6 +23,9 @@ namespace Modal.Model.Model
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? StartDate { get; set; }
+        public bool ShouldConcatenate { get; set; } = false;
+        public bool ShouldShortenUrls { get; set; } = false;
+
     }
 
 }

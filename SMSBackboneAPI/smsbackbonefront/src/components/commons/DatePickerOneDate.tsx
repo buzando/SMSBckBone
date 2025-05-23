@@ -16,14 +16,14 @@ interface DatePickerProps {
     onApply: (date: Date, hour: number, minute: number) => void;
     onClose: () => void;
     placement?: 'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
-    modifiers?: PopperProps['modifiers']; 
-
-     currentHorarioIndex?: number | null;
-  calendarTarget?: 'start' | 'end' | null;
+    modifiers?: PopperProps['modifiers'];
+    offset?: [number, number];
+    currentHorarioIndex?: number | null;
+    calendarTarget?: 'start' | 'end' | null;
 }
 
 const DatePickerOneDate: React.FC<DatePickerProps> = ({
-    open, anchorEl, onApply, onClose, placement = 'bottom-start',modifiers
+    open, anchorEl, onApply, onClose, placement = 'bottom-start', modifiers, offset = [0, 10]
 }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [hour, setHour] = useState(0);
@@ -43,8 +43,8 @@ const DatePickerOneDate: React.FC<DatePickerProps> = ({
             sx={{ zIndex: 1500 }}
             modifiers={modifiers ?? [
                 { name: 'preventOverflow', options: { boundary: 'window', padding: 10 } },
-                { name: 'offset', options: { offset: [0, 10] } }, 
-              ]}
+                { name: 'offset', options: { offset: offset ?? [0, 10] } }
+            ]}
         >
             <Paper elevation={3} className="date-picker-container">
                 <div className="date-picker-divider"></div>

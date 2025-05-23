@@ -259,7 +259,7 @@ CREATE TABLE client_access (
     status BIT NOT NULL DEFAULT 1 -- activo/inactivo
 );
 
-CREATE TABLE dbo.tpm_CampaignContacts (
+CREATE TABLE tpm_CampaignContacts (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     SessionId NVARCHAR(100) NOT NULL,
     PhoneNumber NVARCHAR(20) NOT NULL,
@@ -285,3 +285,10 @@ CREATE TABLE CampaignContactScheduleSend (
 
 
 alter table campaigns add StartDate DATETIME null
+alter table campaigns add concatenate Bit not null default 0
+alter table campaigns add shortenUrls Bit not null default 0
+
+alter table campaigns drop column concatenate
+
+alter table campaigns add ShouldConcatenate Bit not null default 0
+alter table campaigns add ShouldShortenUrls Bit not null default 0
