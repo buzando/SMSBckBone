@@ -4586,7 +4586,7 @@ const Campains: React.FC = () => {
         open={calendarOpen}
         anchorEl={calendarAnchor}
         onClose={() => setCalendarOpen(false)}
-        placement="bottom"
+        placement="top"
         onApply={(selectedDate, hour, minute) => {
           const fullDate = new Date(selectedDate);
           fullDate.setHours(hour);
