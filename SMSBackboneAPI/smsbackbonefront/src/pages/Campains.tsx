@@ -2887,7 +2887,7 @@ const Campains: React.FC = () => {
             }}
           />
 
-          <Divider sx={{ marginTop: "10px", marginBottom: "18px", opacity: 0.3 }} />
+          <Divider sx={{ marginTop: "14px", marginBottom: "18px", opacity: 0.3 }} />
 
           {/*Stepper */}
           <DialogContent sx={{ padding: "0 8px", }}>
@@ -3763,7 +3763,7 @@ const Campains: React.FC = () => {
 
 
                   {uploadedFile && !postCargaActiva && (
-                    <FormControl fullWidth sx={{ marginTop: "22px" }}>
+                    <FormControl fullWidth sx={{ marginTop: "24px" }}>
                       <Select
                         value={selectedSheet}
                         onChange={handleSheetChange}
@@ -3789,6 +3789,7 @@ const Campains: React.FC = () => {
                           backgroundColor: '#FFFFFF',
                           fontFamily: 'Poppins',
                           fontSize: '12px',
+                          mb: 0
                         }}
                       >
                         {sheetNames.map((name, idx) => (
