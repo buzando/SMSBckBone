@@ -37,6 +37,7 @@ import Templates from './pages/Templates'
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import 'dayjs/locale/es-mx';
+import PrivacyNotice from './pages/PrivacyNotice'
 //import TermsAndConditions from './pages/public/TermsAndConditions';
 //import PasswordReset from './pages/public/PasswordReset';
 //import HelpPage from './pages/private/HelpPage';
@@ -99,6 +100,9 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/TermsAndConditions' element={<TermsAndConditions />} />
+                            </Route>
+                             <Route element={<PrivateRoute />}>
+                                <Route path='/PrivacyNotice' element={<PrivacyNotice />} />
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/Templates' element={<Templates />} />

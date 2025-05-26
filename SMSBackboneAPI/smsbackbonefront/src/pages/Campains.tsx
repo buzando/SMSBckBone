@@ -77,7 +77,6 @@ import RestoreIcon from "@mui/icons-material/Restore";
 import { Tooltip } from "@mui/material";
 import IconSMS from '../assets/IconSMS.svg';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
-import { ComposableMap, Geographies, Geography, GeographyProps } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
 import DropZone from '../components/commons/DropZone';
 import { Tabs, Tab } from '@mui/material';
@@ -130,6 +129,12 @@ export interface CampaignFullResponse {
   blockedRecords: number;
   recycleCount: number;
   receptionRate: number;
+  inProcessCount: number;
+  deliveredCount: number;
+  notDeliveredCount: number;
+  notSentCount: number;
+  failedCount: number;
+  exceptionCount: number;
   noReceptionRate: number;
   waitRate: number;
   deliveryFailRate: number;
@@ -141,6 +146,18 @@ export interface CampaignFullResponse {
   contacts: CampaignContactDto[];
   saveAsTemplate: boolean;
   templateName: String;
+  campaignContactScheduleSendDTO?: CampaignContactScheduleSendDTO[];
+}
+
+export interface CampaignContactScheduleSendDTO {
+  id: number;
+  campaignId: number;
+  contactId: number;
+  scheduleId: number;
+  sentAt?: string;
+  status: string;
+  responseMessage?: string;
+  state: string;
 }
 
 export interface CampaignScheduleDto {
@@ -234,6 +251,7 @@ const Campains: React.FC = () => {
   const [shouldShortenUrls, setShouldShortenUrls] = useState(false);
   const [saveAsTemplate, setSaveAsTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
+  const [stateRespondedCounts, setStateRespondedCounts] = useState<{ stateName: string; messages: number }[]>([]);
 
 
 
@@ -476,6 +494,9 @@ const Campains: React.FC = () => {
   const [selectedBlackListIds, setSelectedBlackListIds] = useState<number[]>([]);
   const [campaigns, setCampaigns] = useState<CampaignFullResponse[]>([]);
   const [campaignToDelete, setCampaignToDelete] = useState<CampaignFullResponse | null>(null);
+  const [stateMessageCounts, setStateMessageCounts] = useState<{ stateName: string; messages: number }[]>([]);
+
+
 
   const handleAgregarHorarioEditar = () => {
     setEditHorarios(prev => [
@@ -859,27 +880,27 @@ const Campains: React.FC = () => {
   const getRatePercent = (valor: number) =>
     total > 0 ? Math.round((valor / total) * 100) : 0;
   const barData = [
-    { name: "Recibidos", value: selectedCampaign?.receptionRate ?? 0, color: "#A17EFF" },
-    { name: "No recibidos", value: selectedCampaign?.noReceptionRate ?? 0, color: "#F6B960" },
-    { name: "En espera", value: selectedCampaign?.waitRate ?? 0, color: "#5EBBFF" },
-    { name: "Entrega-falla", value: selectedCampaign?.deliveryFailRate ?? 0, color: "#FF88BB" },
-    { name: "Rechazados", value: selectedCampaign?.rejectionRate ?? 0, color: "#F6B960" },
-    { name: "No envio", value: selectedCampaign?.noSendRate ?? 0, color: "#A6A6A6" },
-    { name: "Excepciones", value: selectedCampaign?.exceptionRate ?? 0, color: "#7DD584" },
+    { name: "En proceso", value: selectedCampaign?.inProcessCount ?? 0, color: "#A17EFF" },
+    { name: "Entregados", value: selectedCampaign?.deliveredCount ?? 0, color: "#F6B960" },
+    { name: "No entregados", value: selectedCampaign?.notDeliveredCount ?? 0, color: "#5EBBFF" },
+    { name: "No enviados", value: selectedCampaign?.notSentCount ?? 0, color: "#FF88BB" },
+    { name: "Fallidos", value: selectedCampaign?.failedCount ?? 0, color: "#A6A6A6" },
+    { name: "Excepciones", value: selectedCampaign?.exceptionCount ?? 0, color: "#7DD584" }
   ];
+
 
   const getRate = (cantidad: number) =>
     total > 0 ? `${Math.round((cantidad / total) * 100)}%` : "0%";
 
   const indicadores = [
-    { label: "Tasa de recepción", value: getRate(selectedCampaign?.receptionRate ?? 0), color: "#A17EFF" },
-    { label: "Tasa de no recepción", value: getRate(selectedCampaign?.noReceptionRate ?? 0), color: "#F6B960" },
-    { label: "Tasa de espera", value: getRate(selectedCampaign?.waitRate ?? 0), color: "#5EBBFF" },
-    { label: "Tasa de entrega-falla", value: getRate(selectedCampaign?.deliveryFailRate ?? 0), color: "#FF88BB" },
-    { label: "Tasa de rechazos", value: getRate(selectedCampaign?.rejectionRate ?? 0), color: "#F6B960" },
-    { label: "Tasa de no envío", value: getRate(selectedCampaign?.noSendRate ?? 0), color: "#A6A6A6" },
-    { label: "Tasa de excepción", value: getRate(selectedCampaign?.exceptionRate ?? 0), color: "#7DD584" }
+    { label: "Tasa de en proceso", value: getRate(selectedCampaign?.inProcessCount ?? 0), color: "#A17EFF" },
+    { label: "Tasa de entrega", value: getRate(selectedCampaign?.deliveredCount ?? 0), color: "#F6B960" },
+    { label: "Tasa de no entrega", value: getRate(selectedCampaign?.notDeliveredCount ?? 0), color: "#5EBBFF" },
+    { label: "Tasa de no envío", value: getRate(selectedCampaign?.notSentCount ?? 0), color: "#FF88BB" },
+    { label: "Tasa de falla", value: getRate(selectedCampaign?.failedCount ?? 0), color: "#A6A6A6" },
+    { label: "Tasa de excepción", value: getRate(selectedCampaign?.exceptionCount ?? 0), color: "#7DD584" }
   ];
+
 
   const handleContinuarEditar = () => {
     if (editActiveStep === -1) {
@@ -1102,6 +1123,84 @@ const Campains: React.FC = () => {
     duplicateName &&
     (duplicateName.length > 40 || !/^[a-zA-Z0-9ñÑ ]+$/.test(duplicateName))
   );
+
+  useEffect(() => {
+    if (campaigns.length === 0) return;
+
+    const sentCounts: Record<string, number> = {};
+    const respondedCounts: Record<string, number> = {};
+
+    campaigns.forEach(campaign => {
+      campaign.campaignContactScheduleSendDTO?.forEach(send => {
+        if (send.state) {
+          // 🔥 Contar todos los enviados (sin importar si respondieron)
+          sentCounts[send.state] = (sentCounts[send.state] || 0) + 1;
+
+          // 🔥 Contar solo los respondidos (si tiene responseMessage no vacío)
+          if (send.responseMessage !== null && send.responseMessage.trim() !== "") {
+            respondedCounts[send.state] = (respondedCounts[send.state] || 0) + 1;
+          }
+        }
+      });
+    });
+
+    const mappedSent = Object.entries(sentCounts).map(([stateName, messages]) => ({ stateName, messages }));
+    const mappedResponded = Object.entries(respondedCounts).map(([stateName, messages]) => ({ stateName, messages }));
+
+    setStateMessageCounts(mappedSent);
+    setStateRespondedCounts(mappedResponded);
+  }, [campaigns]);
+
+  useEffect(() => {
+    if (!selectedCampaign?.id || !selectedCampaign.schedules) return;
+
+    const checkAndFetch = () => {
+      const now = new Date();
+
+      const isActive = selectedCampaign.schedules.some(schedule => {
+        const start = new Date(schedule.startDateTime);
+        const end = new Date(schedule.endDateTime);
+        return start <= now && now <= end;
+      });
+
+      if (isActive) {
+        const requestUrl = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_UPDATE_CAMPAIGN}${selectedCampaign.id}`
+        fetch(requestUrl)
+          .then(res => res.json())
+          .then(data => {
+            setSelectedCampaign(data); // refresca solo el seleccionado
+          })
+          .catch(err => {
+            console.error("Error refrescando selectedCampaign:", err);
+          });
+
+        const sentCounts: Record<string, number> = {};
+        const respondedCounts: Record<string, number> = {};
+        selectedCampaign.campaignContactScheduleSendDTO?.forEach(send => {
+          if (send.state) {
+            // 🔥 Contar todos los enviados (sin importar si respondieron)
+            sentCounts[send.state] = (sentCounts[send.state] || 0) + 1;
+
+            // 🔥 Contar solo los respondidos (si tiene responseMessage no vacío)
+            if (send.responseMessage !== null && send.responseMessage.trim() !== "") {
+              respondedCounts[send.state] = (respondedCounts[send.state] || 0) + 1;
+            }
+          }
+        });
+
+        const mappedSent = Object.entries(sentCounts).map(([stateName, messages]) => ({ stateName, messages }));
+        const mappedResponded = Object.entries(respondedCounts).map(([stateName, messages]) => ({ stateName, messages }));
+
+        setStateMessageCounts(mappedSent);
+        setStateRespondedCounts(mappedResponded);
+      }
+    };
+
+    const interval = setInterval(checkAndFetch, 5000); // revisa cada 5 seg
+
+    return () => clearInterval(interval); // limpia cuando cambia o desmonta
+  }, [selectedCampaign?.id, selectedCampaign?.schedules]);
+
   return (
 
     <Box sx={{ padding: "20px", marginLeft: "30px", maxWidth: "81%", mt: -7 }}>
@@ -2414,7 +2513,8 @@ const Campains: React.FC = () => {
                     </Tooltip>
                   </Box>
 
-                  <MapChart />
+                  <MapChart enviadosData={stateMessageCounts} respondidosData={stateRespondedCounts} />
+
 
                   <Box
                     sx={{
@@ -4397,7 +4497,7 @@ const Campains: React.FC = () => {
                         </InputAdornment>
                       </Tooltip>
 
-                    
+
                   }}
                   sx={{
                     width: "340px",

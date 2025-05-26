@@ -154,6 +154,19 @@ namespace SMSBackboneAPI.Controllers
 
             return Ok(new { message = "Campaña clonada correctamente", id = result.Id });
         }
+        [HttpGet("UpdateDataCampaign")]
+        public async Task<IActionResult> UpdateDataCampaign(int IdCampaign)
+        {
+            var manager = new CampaignManager();
+
+            var respuesta = manager.FullResponseUpdateCampaignInfo(IdCampaign);
+
+            if (respuesta == null)
+                return BadRequest(new { code = "ErrorGettingCampaigns", description = "Error al traer registros de campañas." });
+
+            return Ok(respuesta);
+
+        }
     }
 
 

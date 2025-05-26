@@ -21,12 +21,12 @@ namespace Business
                 using (var ctx = new Entities())
                 {
                     response = ctx.Campaigns
-                       .Where(c => c.AutoStart == true)
-    //                    &&
-    //ctx.CampaignSchedules.Any(s =>
-    //    s.CampaignId == c.Id &&
-    //    s.StartDateTime <= now &&
-    //    s.EndDateTime >= now))
+                       .Where(c => c.AutoStart == true
+                                            &&
+                        ctx.CampaignSchedules.Any(s =>
+                            s.CampaignId == c.Id &&
+                            s.StartDateTime <= now &&
+                            s.EndDateTime >= now))
                         .Select(c => new fullcampaign
                         {
                             Id = c.Id,
@@ -77,47 +77,35 @@ namespace Business
                         foreach (var contact in campaign.Contacts)
                         {
                             var schedules = campaign.Schedules.OrderBy(_ => rnd.Next()).FirstOrDefault();
-                            // Verifica si ya se envió algo a este contacto
+                            if (schedules == null) continue;
+
                             bool alreadySentInThisSchedule = ctx.CampaignContactScheduleSend.Any(x =>
-    x.ContactId == contact.Id &&
-    x.ScheduleId == schedules.Id
-);
+                                x.ContactId == contact.Id && x.ScheduleId == schedules.Id);
+
                             if (alreadySentInThisSchedule) continue;
 
-                            // Obtiene un horario activo aleatorio de la campaña
-                            var schedule = campaign.Schedules.OrderBy(_ => rnd.Next()).FirstOrDefault();
-                            if (schedule == null) continue;
+                            int responseNumber = rnd.Next(0, 6);
 
-                            // Simulación de mensaje enviado con posibles respuestas
-                            var simulatedResponses = new[]
-{
-    "OK",
-    "espera por respuesta",
-    "falla de entrega",
-    "rechazo por operador",
-    "error en carrier",
-    "excepcion del sistema",
-    "" // sin respuesta
-};
+                            var lada = contact.PhoneNumber.Substring(0, 2); // primero intentamos con 2 dígitos
+                            var ladaRecord = ctx.IFTLadas.FirstOrDefault(l => l.ClaveLada == lada);
 
-                            string response = simulatedResponses[rnd.Next(simulatedResponses.Length)];
-                            bool includeResponseMessage = rnd.NextDouble() < 0.3;
-                            string status = response switch
+                            if (ladaRecord == null && contact.PhoneNumber.Length >= 3)
                             {
-                                "falla de entrega" => "Error",
-                                "rechazo por operador" => "Rechazo",
-                                "error en carrier" => "Carrier",
-                                "excepcion del sistema" => "Excepcion",
-                                _ => "Enviado"
-                            };
+                                lada = contact.PhoneNumber.Substring(0, 3); // probamos con 3 dígitos
+                                ladaRecord = ctx.IFTLadas.FirstOrDefault(l => l.ClaveLada == lada);
+                            }
+
+                            string estado = ladaRecord != null ? ladaRecord.Estado : "Desconocido";
+
                             ctx.CampaignContactScheduleSend.Add(new CampaignContactScheduleSend
                             {
                                 CampaignId = campaign.Id,
-                                ContactId = contact.Id, // o contact.DatoId si aplica
-                                ScheduleId = schedule.Id,
+                                ContactId = contact.Id,
+                                ScheduleId = schedules.Id,
                                 SentAt = DateTime.Now,
-                                Status = status,
-                                ResponseMessage = includeResponseMessage ? response : null
+                                Status = responseNumber.ToString(),
+                                ResponseMessage = null,
+                                State = estado
                             });
                         }
 
@@ -128,8 +116,6 @@ namespace Business
             }
             catch (Exception ex)
             {
-                // Loggear error si se requiere
-                Console.WriteLine($"Error en simulación de SMS: {ex.Message}");
                 return false;
             }
         }

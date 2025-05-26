@@ -9,7 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Business;
-namespace SmsDeliveryWorker
+
+namespace IFTWorkerService
 {
     public class Worker : BackgroundService
     {
@@ -27,9 +28,10 @@ namespace SmsDeliveryWorker
             Console.WriteLine("¡Configuración cargada correctamente!");
             _logger.Info("¡Configuración cargada correctamente!");
         }
+
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.Info($"Iniciando Servicio SMS ENVIO RED QUANTUM...");
+            _logger.Info($"Iniciando Servicio Descarga IFT...");
             return base.StartAsync(cancellationToken);
         }
 
@@ -40,11 +42,18 @@ namespace SmsDeliveryWorker
                 var minutosEjecucion = int.TryParse(Common.ConfigurationManagerJson("MinutosEjecucion"), out int d) ? d : 10;
 
                 //Agregamos la clase para ser ejecutada:
-                var objRespuestas = new smsdeliveryManager().SimulateSmsDispatch();
-                if (objRespuestas)
-                    _logger.Info("");
-                else
-                    _logger.Error($"");
+                var PathCSV = Common.ConfigurationManagerJson("CarpetaCSV");
+                var files = Directory.GetFiles(PathCSV, "*.csv");
+                foreach (var file in files)
+                {
+                    var objRespuestas = new IFTManager().LoadFromCsv(file);
+                    if (objRespuestas)
+                        _logger.Info("");
+                    else
+                        _logger.Error($"");
+
+                    File.Delete(file);
+                }
 
                 _logger.Info($"Esperando {minutosEjecucion} minutos para la nueva ejecución del servicio Descarga Archivos Adjuntos...");
 

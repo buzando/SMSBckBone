@@ -55,7 +55,13 @@ const colorScale = scaleLinear<string>()
   .domain([0, maxMessages])
   .range(["#E0E0E0", "#8F4E63"]);
 
-const MapChart = () => {
+const MapChart = ({
+    enviadosData,
+    respondidosData
+}: {
+    enviadosData: { stateName: string; messages: number }[];
+    respondidosData: { stateName: string; messages: number }[];
+}) => {
   const [tab, setTab] = useState(0);
   const [tooltipContent, setTooltipContent] = useState("");
 
@@ -90,8 +96,8 @@ type MapaProps = {
   messageData: { stateName: string; messages: number }[];
   tooltipContent: string;
   setTooltipContent: (val: string) => void;
-  tooltipPosition: { x: number; y: number }; // ✅ nuevo
-  setTooltipPosition: (val: { x: number; y: number }) => void; // ✅ si aún no lo tienes
+  tooltipPosition: { x: number; y: number }; 
+  setTooltipPosition: (val: { x: number; y: number }) => void; 
   colorScale: (val: number) => string;
   label: string;
 };
@@ -99,7 +105,7 @@ type MapaProps = {
 const MapaPorDataset = ({
   messageData,
   tooltipContent,
-  tooltipPosition, // ✅ nuevo
+  tooltipPosition, 
   setTooltipContent,
   setTooltipPosition,
   colorScale,

@@ -292,3 +292,14 @@ alter table campaigns drop column concatenate
 
 alter table campaigns add ShouldConcatenate Bit not null default 0
 alter table campaigns add ShouldShortenUrls Bit not null default 0
+
+CREATE TABLE IFTLadas (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ClaveLada VARCHAR(5) NOT NULL, 
+    Estado VARCHAR(100) NOT NULL,          
+    Municipio VARCHAR(150) NOT NULL,       
+    FechaCarga DATETIME DEFAULT GETDATE()   
+);
+
+
+Alter table CampaignContactScheduleSend add State nvarchar(50)

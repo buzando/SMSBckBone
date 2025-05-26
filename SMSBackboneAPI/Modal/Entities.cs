@@ -44,5 +44,6 @@ namespace Modal
         public DbSet<ClientAccess> ClientAccess { get; set; }
         public DbSet<tpm_CampaignContacts> tpm_CampaignContacts { get; set; }  
         public DbSet<CampaignContactScheduleSend> CampaignContactScheduleSend { get; set; }
+        public DbSet<IFTLadas> IFTLadas { get; set; }
     }
 }

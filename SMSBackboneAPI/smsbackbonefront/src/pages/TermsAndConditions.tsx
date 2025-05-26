@@ -1,295 +1,69 @@
 ﻿import React from 'react';
-import { Box, Typography, List, ListItem, ListItemText } from '@mui/material';
-
+import { Box, Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
+import { useNavigate } from 'react-router-dom';
 const TermsAndConditions: React.FC = () => {
+    const navigate = useNavigate();
     return (
-        <Box padding={3}>
-            <Typography
-                variant="h4"
-                gutterBottom
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal medium 26px/55px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
-                Términos y Condiciones
-            </Typography>
+      <div style={{ padding: '20px', marginLeft: '40px', maxWidth: '1140px' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <IconButton onClick={() => navigate('/')} sx={{ p: 0, mr: 1, ml: '-28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src={ArrowBackIosNewIcon} alt="Regresar" style={{ width: 24, height: 24, transform: 'rotate(270deg)', display: 'block' }} />
+                </IconButton>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#330F1B', fontFamily: 'Poppins', fontSize: '26px' }}>Términos y Condiciones</Typography>
+            </Box>
 
-            <Typography
-                variant="body1"
-                paragraph
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal normal 16px/20px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
+            <Typography variant="body1" paragraph sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>
                 Aparte del crédito disponible en su cuenta, no establecemos un tope en el número de mensajes que puede enviar a través de nuestro servicio. Se evaluará si su comportamiento se alinea con los términos y esencia del acuerdo firmado entre las partes, y CENTERNEXT se reserva el derecho de finalizar el servicio en cualquier momento si su comportamiento viola lo establecido dentro del acuerdo firmado.
             </Typography>
 
-            <Typography
-                variant="body1"
-                paragraph
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal normal 16px/20px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
+            <Typography variant="body1" paragraph sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>
                 Nos esforzaremos por entregar sus mensajes tan rápido como sea posible, pero existen condiciones de demoras derivado de congestiones o tráfico alto en la red. A pesar de estos retrasos, el mensaje podría mostrarse como “entregado”.
             </Typography>
 
-            <Typography
-                variant="h6"
-                gutterBottom
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal normal 16px/20px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
-                Se compromete a utilizar los servicios únicamente:
-            </Typography>
-
+            <Typography variant="h6" gutterBottom sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>Se compromete a utilizar los servicios únicamente:</Typography>
             <List>
-                <ListItem>
-                    <ListItemText
-                        primary="Siguiendo estos términos y condiciones."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Con fines estrictamente apegados a la ley."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Respetando todas las leyes y normativas aplicables, tanto locales como internacionales."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Para los objetivos por los que fueron creados."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
+                <ListItem><ListItemText primary="Siguiendo estos términos y condiciones." /></ListItem>
+                <ListItem><ListItemText primary="Con fines estrictamente apegados a la ley." /></ListItem>
+                <ListItem><ListItemText primary="Respetando todas las leyes y normativas aplicables, tanto locales como internacionales." /></ListItem>
+                <ListItem><ListItemText primary="Para los objetivos por los que fueron creados." /></ListItem>
             </List>
 
-            <Typography
-                variant="h6"
-                gutterBottom
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal normal 16px/20px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
-                Al emplear nuestros servicios, deberá evitar:
-            </Typography>
-
+            <Typography variant="h6" gutterBottom sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>Al emplear nuestros servicios, deberá evitar:</Typography>
             <List>
-                <ListItem>
-                    <ListItemText
-                        primary="Enviar mensajes SMS no solicitados o spam."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Engañar, estafar o falsificar su identidad ante cualquier persona por cualquier motivo."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Alterar los detalles de origen en cualquier mensaje electrónico para ocultar o eliminar su procedencia."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Enviar mensajes que sean difamatorios, discriminatorios, obscenos, ofensivos, amenazantes, abusivos, acosadores, dañinos, violentos o que contengan contenido pornográfico o de violencia infantil."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Participar en fraudes o promover actividades comerciales o no comerciales fraudulentas como estafas financieras o esquemas piramidales."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Infringir los derechos de propiedad intelectual."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
-                <ListItem>
-                    <ListItemText
-                        primary="Realizar acciones que puedan dañar o afectar sistemas, redes o servicios, incluyendo los de CENTERNEXT."
-                        primaryTypographyProps={{
-                            sx: {
-                                textAlign: 'left',
-                                font: 'normal normal normal 16px/20px Poppins',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                opacity: 1
-                            }
-                        }}
-                    />
-                </ListItem>
+                <ListItem><ListItemText primary="Enviar mensajes SMS no solicitados o spam." /></ListItem>
+                <ListItem><ListItemText primary="Engañar, estafar, suplantar o crear una identidad falsa." /></ListItem>
+                <ListItem><ListItemText primary="Modificar comunicaciones recibidas sin clarificar los cambios." /></ListItem>
+                <ListItem><ListItemText primary="Alterar los detalles de origen en cualquier mensaje." /></ListItem>
+                <ListItem><ListItemText primary="Enviar mensajes ofensivos, amenazantes, abusivos o con contenido ilegal." /></ListItem>
+                <ListItem><ListItemText primary="Participar en fraudes o esquemas piramidales." /></ListItem>
+                <ListItem><ListItemText primary="Infringir derechos de propiedad intelectual." /></ListItem>
+                <ListItem><ListItemText primary="Afectar sistemas, redes o servicios, incluyendo los de CENTERNEXT." /></ListItem>
+                <ListItem><ListItemText primary="Violar la seguridad de sistemas, redes o servicios." /></ListItem>
+                <ListItem><ListItemText primary="Transmitir códigos maliciosos como virus o troyanos." /></ListItem>
+                <ListItem><ListItemText primary="Recolectar información sin consentimiento o violar la privacidad de terceros." /></ListItem>
+                <ListItem><ListItemText primary="Reproducir, copiar, vender o revender servicios sin autorización." /></ListItem>
+                <ListItem><ListItemText primary="Transmitir contenido sin contar con los derechos necesarios." /></ListItem>
+                <ListItem><ListItemText primary="Acceder sin autorización mediante hacking o minería de contraseñas." /></ListItem>
+                <ListItem><ListItemText primary="Promover actividades ilegales o peligrosas." /></ListItem>
+                <ListItem><ListItemText primary="Usar el servicio para fines comerciales sin autorización." /></ListItem>
+                <ListItem><ListItemText primary="Asistir a terceros en cualquiera de estas acciones prohibidas." /></ListItem>
             </List>
 
-            <Typography
-                variant="h6"
-                gutterBottom
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal normal 16px/20px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
-                Uso del Servicio API
-            </Typography>
-
-            <Typography
-                variant="body1"
-                paragraph
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal normal 16px/20px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
+            <Typography variant="h6" gutterBottom sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>Uso del Servicio API</Typography>
+            <Typography variant="body1" paragraph sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>
                 Hemos habilitado la posibilidad de que las empresas o los individuos se conecten a nuestro servidor para facilitar el envío de mensajes de texto directamente a nuestro sistema de SMS. Nos reservamos el derecho de aprobar o rechazar conexiones de clientes y APIs según nuestro propio criterio.
             </Typography>
-
-            <Typography
-                variant="body1"
-                paragraph
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal normal 16px/20px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
-                Promovemos activamente las políticas contra el envío de spam (mensajes no solicitados). Proporcionaremos especificaciones para las conexiones API y nos esforzaremos por mantenerlas actualizadas. Estas especificaciones pueden estar incompletas y estar sujetas a cambios sin previo aviso. Es su responsabilidad revisar periódicamente estas especificaciones, ya que no nos hacemos responsables por cualquier inexactitud o información incompleta en ellas.
+            <Typography variant="body1" paragraph sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>
+                Proporcionaremos especificaciones para las conexiones API y nos esforzaremos por mantenerlas actualizadas. Estas especificaciones pueden estar incompletas y sujetas a cambios sin previo aviso. Es su responsabilidad revisarlas periódicamente.
             </Typography>
-
-            <Typography
-                variant="body1"
-                paragraph
-                sx={{
-                    textAlign: 'left',
-                    font: 'normal normal normal 16px/20px Poppins',
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1
-                }}
-            >
-                Para todos los servicios de mensajería SMS, le proporcionaremos un nombre de usuario y contraseña. Cualquier medida de seguridad adicional incluyendo, pero no limitado a la gestión de accesos y contraseñas, uso indebido, etc., quedará bajo responsabilidad del usuario. EL CLIENTE será responsable totalmente de la gestión de las contraseñas y acceso al sistema donde se utiliza el servicio de SMS. CENTERNEXT quedará exento de cualquier uso inapropiado o indebido realizado por cuentas que gestionan el SMS.
+            <Typography variant="body1" paragraph sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>
+                Para todos los servicios de mensajería SMS, le proporcionaremos un nombre de usuario y contraseña. La seguridad, accesos y uso indebido son responsabilidad del usuario. CENTERNEXT queda exento de cualquier uso inapropiado realizado por las cuentas del cliente.
             </Typography>
-        </Box>
+            <Typography variant="body1" paragraph sx={{ textAlign: 'left', font: 'normal normal normal 16px/20px Poppins', letterSpacing: '0px', color: '#330F1B' }}>
+                Las transacciones de pago se gestionan a través de Openpay, propiedad de BBVA, y están sujetas a sus términos. CENTERNEXT no se hace responsable por errores o fallas imputables al servicio de Openpay.
+            </Typography>
+        </div>
     );
 };
 

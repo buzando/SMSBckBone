@@ -369,7 +369,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                 <Toolbar>
                     {/* Sección Izquierda */}
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-                          <IconButton
+                        <IconButton
                             edge="start"
                             color="inherit"
                             aria-label="menu"
@@ -825,7 +825,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         </MenuItem>
                         <MenuItem onClick={() => navigate('/TermsAndConditions')} sx={{
                             '&:hover': {
-                                background: '#F2EBED 0% 0% no-repeat padding-box', // ✨ Efecto hover
+                                background: '#F2EBED 0% 0% no-repeat padding-box', 
                                 opacity: 1,
                             },
                         }}>
@@ -842,6 +842,28 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 <Box display="flex" alignItems="center">
                                     <DescriptionIcon sx={{ fontSize: 20, mr: 1 }} />
                                     Términos y condiciones
+                                </Box>
+                            </Typography>
+                        </MenuItem>
+                        <MenuItem onClick={() => navigate('/PrivacyNotice')} sx={{
+                            '&:hover': {
+                                background: '#F2EBED 0% 0% no-repeat padding-box', 
+                                opacity: 1,
+                            },
+                        }}>
+                            <Typography
+                                sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal normal 14px/54px Poppins',
+                                    letterSpacing: '0px',
+                                    color: '#574B4F',
+                                    opacity: 1,
+                                    fontSize: '14px',
+                                }}
+                            >
+                                <Box display="flex" alignItems="center">
+                                    <DescriptionIcon sx={{ fontSize: 20, mr: 1 }} />
+                                    Aviso de privacidad
                                 </Box>
                             </Typography>
                         </MenuItem>

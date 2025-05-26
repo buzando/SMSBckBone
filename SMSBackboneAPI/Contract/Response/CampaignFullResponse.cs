@@ -34,6 +34,12 @@ namespace Contract.Response
         public int RejectionRate { get; set; } 
         public int NoSendRate { get; set; } 
         public int ExceptionRate { get; set; }
+        public int InProcessCount { get; set; }       // Status == "0"
+        public int DeliveredCount { get; set; }       // Status == "1"
+        public int NotDeliveredCount { get; set; }    // Status == "2"
+        public int NotSentCount { get; set; }         // Status == "3"
+        public int FailedCount { get; set; }          // Status == "4"
+        public int ExceptionCount { get; set; }       // Status == "5"
         public List<CampaignScheduleDto> Schedules { get; set; } = new();
         public CampaignRecycleSettingDto? RecycleSetting { get; set; }
         public List<CampaignContactDto> Contacts { get; set; } = new();
@@ -79,6 +85,7 @@ namespace Contract.Response
 
         public string? ResponseMessage { get; set; }
 
+        public string State { get; set; }
 
     }
 }

@@ -105,7 +105,7 @@ namespace Business
                     // -----------------------------------
                     // HORARIOS - Comentado por validación
                     // -----------------------------------
-                    /*
+
                     var schedules = ctx.CampaignSchedules.Where(s => s.CampaignId == campaign.Id).ToList();
                     ctx.CampaignSchedules.RemoveRange(schedules);
                     ctx.SaveChanges();
@@ -115,11 +115,8 @@ namespace Business
                         schedule.CampaignId = campaign.Id;
                         ctx.CampaignSchedules.Add(schedule);
                     }
-                    */
 
-                    // -----------------------------------
-                    // CONFIGURACIÓN DE RECICLADO
-                    // -----------------------------------
+
                     var existingRecycle = ctx.CampaignRecycleSettings.FirstOrDefault(r => r.CampaignId == campaign.Id);
 
                     bool isSameRecycle = existingRecycle != null &&
@@ -140,9 +137,6 @@ namespace Business
                         }
                     }
 
-                    // -----------------------------------
-                    // LISTAS NEGRAS
-                    // -----------------------------------
                     var existingBlacklists = ctx.blacklistcampains.Where(b => b.idcampains == campaign.Id).ToList();
                     ctx.blacklistcampains.RemoveRange(existingBlacklists);
 
@@ -427,69 +421,39 @@ namespace Business
                                 }).ToList(),
 
                             CampaignContactScheduleSendDTO = ctx.CampaignContactScheduleSend
-    .Where(s => s.CampaignId == c.Id)
-    .Select(s => new CampaignContactScheduleSendDTO
-    {
-        ContactId = s.ContactId,
-        ScheduleId = s.ScheduleId,
-        SentAt = s.SentAt,
-        Status = s.Status,
-        ResponseMessage = s.ResponseMessage
-    }).ToList()
+                                .Where(s => s.CampaignId == c.Id)
+                                .Select(s => new CampaignContactScheduleSendDTO
+                                {
+                                    ContactId = s.ContactId,
+                                    ScheduleId = s.ScheduleId,
+                                    SentAt = s.SentAt,
+                                    Status = s.Status,
+                                    ResponseMessage = s.ResponseMessage,
+                                    State = s.State
+                                }).ToList(),
+
                         })
                         .ToList();
-                }
 
-                foreach (var c in response)
-                {
-                    var duplicado = c.Schedules.Where(s => s.OperationMode == 2 && s.StartDateTime <= DateTime.Now).ToList();
-                    c.numeroInicial = duplicado.Count() > 1 ? c.Contacts.Count * duplicado.Count() : c.Contacts.Count;
-                    c.numeroActual = c.CampaignContactScheduleSendDTO.Count;
+                    foreach (var c in response)
+                    {
+                        var contactCount = c.Contacts.Count;
+                        var duplicadoCount = c.Schedules.Count(s => s.OperationMode == 2 && s.EndDateTime <= DateTime.Now);
 
-                    c.RespondedRecords = c.CampaignContactScheduleSendDTO
-                        .Count(x => !string.IsNullOrEmpty(x.ResponseMessage));
+                        c.numeroInicial = duplicadoCount > 1 ? contactCount * duplicadoCount : contactCount;
+                        c.RecycleCount = duplicadoCount;
 
-                    c.OutOfScheduleRecords = c.CampaignContactScheduleSendDTO
-                        .Count(x => x.Status.ToLower() == "fuera");
+                        c.numeroActual = c.CampaignContactScheduleSendDTO.Count;
+                        c.RespondedRecords = c.CampaignContactScheduleSendDTO.Count(x => !string.IsNullOrEmpty(x.ResponseMessage));
 
-                    c.BlockedRecords = c.CampaignContactScheduleSendDTO
-                        .Count(x => x.Status.ToLower() == "block");
-                    c.RecycleCount = c.Schedules.Count(s => s.OperationMode == 2);
+                        c.InProcessCount = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "0");
+                        c.DeliveredCount = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "1");
+                        c.NotDeliveredCount = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "2");
+                        c.NotSentCount = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "3");
+                        c.FailedCount = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "4");
+                        c.ExceptionCount = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "5");
+                    }
 
-                    int total = c.numeroInicial;
-
-                    int recibidos = c.CampaignContactScheduleSendDTO
-                        .Count(x => !string.IsNullOrEmpty(x.ResponseMessage) && x.Status.ToLower() != ("error"));
-
-                    int espera = c.CampaignContactScheduleSendDTO
-                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("espera"));
-
-                    int fallaEntrega = c.CampaignContactScheduleSendDTO
-                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("falla"));
-
-                    int rechazo = c.CampaignContactScheduleSendDTO
-                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("rechazo"));
-
-                    int errorCarrier = c.CampaignContactScheduleSendDTO
-                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("carrier"));
-
-                    int excepcion = c.CampaignContactScheduleSendDTO
-                        .Count(x => x.ResponseMessage == null && x.Status.ToLower() == ("excepcion"));
-
-                    int fuera = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "Fuera");
-                    int bloqueado = c.CampaignContactScheduleSendDTO.Count(x => x.Status == "Block");
-
-                    int totalClasificados = recibidos + espera + fallaEntrega + rechazo + errorCarrier + excepcion + fuera + bloqueado;
-                    int noRecibidos = Math.Max(0, total - totalClasificados);
-
-
-                    c.ReceptionRate = recibidos;
-                    c.WaitRate = espera;
-                    c.DeliveryFailRate = fallaEntrega;
-                    c.RejectionRate = rechazo;
-                    c.NoSendRate = errorCarrier;
-                    c.ExceptionRate = excepcion;
-                    c.NoReceptionRate = noRecibidos;
 
                 }
 
@@ -500,6 +464,105 @@ namespace Business
                 return null;
             }
         }
+
+        public CampaignFullResponse FullResponseUpdateCampaignInfo(int IdCampaign)
+        {
+            var response = new CampaignFullResponse();
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    response = ctx.Campaigns
+                        .Where(c => c.Id == IdCampaign)
+                        .Select(c => new CampaignFullResponse
+                        {
+                            Id = c.Id,
+                            Name = c.Name,
+                            Message = c.Message,
+                            UseTemplate = c.UseTemplate,
+                            TemplateId = c.TemplateId,
+                            AutoStart = c.AutoStart,
+                            FlashMessage = c.FlashMessage,
+                            CustomANI = c.CustomANI,
+                            RecycleRecords = c.RecycleRecords,
+                            NumberType = c.NumberType,
+                            CreatedDate = c.CreatedDate,
+                            StartDate = c.StartDate,
+
+                            Schedules = ctx.CampaignSchedules
+                                .Where(s => s.CampaignId == c.Id)
+                                .Select(s => new CampaignScheduleDto
+                                {
+                                    StartDateTime = s.StartDateTime,
+                                    EndDateTime = s.EndDateTime,
+                                    OperationMode = s.OperationMode,
+                                    Order = s.Order
+                                }).ToList(),
+
+                            RecycleSetting = ctx.CampaignRecycleSettings
+                                .Where(r => r.CampaignId == c.Id)
+                                .Select(r => new CampaignRecycleSettingDto
+                                {
+                                    TypeOfRecords = r.TypeOfRecords,
+                                    IncludeNotContacted = r.IncludeNotContacted,
+                                    NumberOfRecycles = r.NumberOfRecycles
+                                }).FirstOrDefault(),
+
+                            Contacts = ctx.CampaignContacts
+                                .Where(cc => cc.CampaignId == c.Id)
+                                .Select(cc => new CampaignContactDto
+                                {
+                                    PhoneNumber = cc.PhoneNumber,
+                                    Dato = cc.Dato,
+                                    DatoId = cc.DatoId,
+                                    Misc01 = cc.Misc01,
+                                    Misc02 = cc.Misc02
+                                }).ToList(),
+
+                            CampaignContactScheduleSendDTO = ctx.CampaignContactScheduleSend
+                                .Where(s => s.CampaignId == c.Id)
+                                .Select(s => new CampaignContactScheduleSendDTO
+                                {
+                                    ContactId = s.ContactId,
+                                    ScheduleId = s.ScheduleId,
+                                    SentAt = s.SentAt,
+                                    Status = s.Status,
+                                    ResponseMessage = s.ResponseMessage,
+                                    State = s.State
+                                }).ToList(),
+
+                        })
+                        .FirstOrDefault();
+
+
+                    var contactCount = response.Contacts.Count;
+                    var duplicadoCount = response.Schedules.Count(s => s.OperationMode == 2 && s.EndDateTime <= DateTime.Now);
+
+                    response.numeroInicial = duplicadoCount > 1 ? contactCount * duplicadoCount : contactCount;
+                    response.RecycleCount = duplicadoCount;
+
+                    response.numeroActual = response.CampaignContactScheduleSendDTO.Count;
+                    response.RespondedRecords = response.CampaignContactScheduleSendDTO.Count(x => !string.IsNullOrEmpty(x.ResponseMessage));
+
+                    response.InProcessCount = response.CampaignContactScheduleSendDTO.Count(x => x.Status == "0");
+                    response.DeliveredCount = response.CampaignContactScheduleSendDTO.Count(x => x.Status == "1");
+                    response.NotDeliveredCount = response.CampaignContactScheduleSendDTO.Count(x => x.Status == "2");
+                    response.NotSentCount = response.CampaignContactScheduleSendDTO.Count(x => x.Status == "3");
+                    response.FailedCount = response.CampaignContactScheduleSendDTO.Count(x => x.Status == "4");
+                    response.ExceptionCount = response.CampaignContactScheduleSendDTO.Count(x => x.Status == "5");
+
+
+
+                }
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
 
         public bool StartCampaign(int IdCampaign)
         {

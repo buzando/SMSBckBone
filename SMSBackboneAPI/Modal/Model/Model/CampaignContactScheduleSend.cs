@@ -25,6 +25,7 @@ namespace Modal.Model.Model
 
         public string? ResponseMessage { get; set; }
 
+        public string State { get; set; }
 
     }
 }
