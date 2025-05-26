@@ -1511,9 +1511,6 @@ const BlackList: React.FC = () => {
 
                                 }}
                             >
-
-
-
                                 {/* Subir archivo */}
                                 <Box
                                     marginBottom={'25px'}

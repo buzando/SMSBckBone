@@ -47,6 +47,9 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DynamicCampaignText from '../components/commons/DynamicCampaignText'
 import IconTrash from "../assets/IconTrash.svg";
 import IconCirclePlus from "../assets/IconCirclePlus.svg";
+import IconCloudError from '../assets/IconCloudError.svg'
+import CloudCheckedIcon from '../assets/CloudCheckedIcon.svg'
+import UpCloudIcon from '../assets/UpCloudIcon.svg'
 import SecondaryButton from '../components/commons/SecondaryButton'
 import MainModal from '../components/commons/MainModal';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
@@ -431,30 +434,41 @@ const Campains: React.FC = () => {
   const [calendarTarget, setCalendarTarget] = useState<"start" | "end" | null>(null); // saber cuál está editando
 
   const handleManageFile = (file: File) => {
-    console.log("📁 Archivo recibido:", file.name); // agrega esto
+    console.log("📁 Archivo recibido:", file.name);
+    const isValid = file.name.endsWith('.xlsx');
+
+    if (!isValid) {
+      setUploadedFile(null);
+      setFileError(true);
+      setFileSuccess(false);
+      return;
+    }
+
+    setFileError(false);
+    setFileSuccess(true);
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = new Uint8Array(e.target?.result as ArrayBuffer);
       const wb = XLSX.read(data, { type: 'array' });
       setWorkbook(wb);
       setSheetNames(wb.SheetNames);
-      const firstSheet = wb.SheetNames[0];
-      setSelectedSheet(firstSheet);
-      const sheetData = XLSX.utils.sheet_to_json(wb.Sheets[firstSheet], { header: 1 }) as any[][];
-      setExcelData(sheetData);
-      setColumns(sheetData[0] as string[]);
+      setSelectedSheet(''); // 👈 dejar vacío para que no seleccione nada automáticamente
+      setExcelData([]);
+      setColumns([]);
     };
     reader.readAsArrayBuffer(file);
 
-    // === BASE64 ===
     const readerB64 = new FileReader();
     readerB64.onloadend = () => {
       const base64 = (readerB64.result as string).split(',')[1];
       setBase64File(base64);
-      setUploadedFileBase64(base64); // <- este es el que usas en el payload
+      setUploadedFileBase64(base64);
     };
     readerB64.readAsDataURL(file);
   };
+
+
 
   const [telefonos, setTelefonos] = useState<string[]>([]);
   const [variables, setVariables] = useState<string[]>([]);
@@ -462,6 +476,7 @@ const Campains: React.FC = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState(false);
   const [fileSuccess, setFileSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedSheet, setSelectedSheet] = useState('');
   const [sheetNames, setSheetNames] = useState<string[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
@@ -517,8 +532,10 @@ const Campains: React.FC = () => {
         ...prev,
         {
           titulo: `Horario ${prev.length + 1}`,
-          start: new Date(),
-          end: new Date()
+          start: null,  // ← dejamos vacío
+          end: null,    // ← dejamos vacío
+          operationMode: 1,
+          order: prev.length + 1
         }
       ];
     });
@@ -780,6 +797,18 @@ const Campains: React.FC = () => {
     setEstadisticasCarga(null);
     setMessageChipBar('');
     sessionIdRef.current = null;
+    setFileError(false);
+    setFileSuccess(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setWorkbook(null);
+    setSheetNames([]);
+    setSelectedSheet('');
+    setColumns([]);
+    setExcelData([]);
+    setBase64File('');
+    setUploadedFileBase64('');
   };
 
 
@@ -1091,17 +1120,22 @@ const Campains: React.FC = () => {
     setDuplicateHorarios(updated);
   };
 
-
   const isEditNameInvalid = !!(
     editCampaignName &&
     (editCampaignName.length > 40 || !/^[a-zA-Z0-9ñÑ ]+$/.test(editCampaignName))
   );
 
+  const isNameInvalid = !!(
+    campaignName &&
+    (campaignName.length > 40 || !/^[a-zA-Z0-9ñÑ ]+$/.test(campaignName))
+  );
 
   const isDuplicateNameInvalid = !!(
     duplicateName &&
     (duplicateName.length > 40 || !/^[a-zA-Z0-9ñÑ ]+$/.test(duplicateName))
   );
+
+  const [isChecked, setIsChecked] = useState(false);
   return (
 
     <Box sx={{ padding: "20px", marginLeft: "30px", maxWidth: "81%", mt: -7 }}>
@@ -2731,7 +2765,7 @@ const Campains: React.FC = () => {
             }}
           >
             Crear campaña SMS
-            <IconButton onClick={() => setOpenCreateCampaignModal(false)}>
+            <IconButton onClick={handleCloseModalCampaña}>
               <CloseIcon sx={{
                 fontSize: "22px", color: "#574B4F",
                 marginLeft: "65px",
@@ -2880,6 +2914,69 @@ const Campains: React.FC = () => {
                   placeholder="Nombre"
                   value={campaignName}
                   onChange={(e) => setCampaignName(e.target.value)}
+                  error={isNameInvalid}
+                  helperText={
+                    campaignName
+                      ? campaignName.length > 40
+                        ? "Máximo 40 caracteres"
+                        : !/^[a-zA-Z0-9ñÑ ]+$/.test(campaignName)
+                          ? "Formato inválido"
+                          : ""
+                      : ""
+                  }
+                  FormHelperTextProps={{
+                    sx: {
+                      fontFamily: 'Poppins, sans-serif',
+                    },
+                  }}
+                  InputProps={{
+                    endAdornment:
+                      <Tooltip
+                        title={
+                          <Box
+                            sx={{
+                              backgroundColor: "#FFFFFF",
+                              borderRadius: "8px",
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                              padding: "8px 12px",
+                              fontSize: "14px",
+                              fontFamily: "Poppins",
+                              color: "#574B4F",
+                              whiteSpace: "pre-line",
+                              transform: "translate(-1px, -15px)",
+                              borderColor: "#00131F3D",
+                              borderStyle: "solid",
+                              borderWidth: "1px"
+                            }}
+                          >
+                            <>
+                              • Solo caracteres alfabéticos<br />
+                              • Longitud máxima de 40<br />
+                              caracteres
+                            </>
+                          </Box>
+                        }
+                        placement="bottom-end"
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "transparent",
+                              padding: 0
+                            }
+                          }
+                        }}
+                      >
+                        <InputAdornment position="end">
+                          <img
+                            src={isNameInvalid ? infoiconerror : infoicon}
+                            alt="info-icon"
+                            style={{ width: 24, height: 24 }}
+                          />
+                        </InputAdornment>
+                      </Tooltip>
+
+
+                  }}
                   sx={{
                     width: "340px",
                     height: "54px",
@@ -2888,7 +2985,6 @@ const Campains: React.FC = () => {
                       fontFamily: "Poppins",
                       height: "54px",
                       boxSizing: "border-box",
-                      padding: "0 14px"
                     }
                   }}
                 />
@@ -2897,28 +2993,15 @@ const Campains: React.FC = () => {
               {/* Box 2: Horarios */}
               {/* Renderiza todos los horarios */}
               {horarios.map((horario, index) => (
-
-                <Box
-                  key={index}
-                  sx={{
-                    width: "672px",
-                    backgroundColor: "#F2EBEDCC",
-                    borderRadius: "8px",
-                    padding: "16px",
-                    marginTop: "-5px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px"
-                  }}
-                >
+                <React.Fragment key={index}>
                   {/*Modo de operación*/}
                   {index !== 0 && mostrarModoOperacion && (
-                    <Box sx={{ mt: 2 }}>
+                    <Box sx={{ mt: -2, mb: -2, ml: 2 }}>
                       <Typography
                         sx={{
                           fontFamily: "Poppins",
                           fontWeight: 500,
-                          fontSize: "14px",
+                          fontSize: "18px",
                           color: "#330F1B",
                           marginBottom: "8px",
                         }}
@@ -2929,68 +3012,460 @@ const Campains: React.FC = () => {
                       <FormControl>
                         <RadioGroup row>
                           <FormControlLabel
-                            value="reanudar"
-                            control={<Radio color="secondary" />}
-                            label="Reanudar"
+                            control={
+                              <Radio
+                                value="reanudar"
+                                sx={{
+                                  color: "#574B4F",
+                                  '&.Mui-checked': { color: "#8F4D63" }
+                                }}
+                              />
+                            }
+                            label={
+                              <Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#574B4F" }}>
+                                Reanudar
+                              </Typography>
+                            }
                           />
+
                           <FormControlLabel
-                            value="reciclar"
-                            control={<Radio color="secondary" />}
-                            label="Reciclar"
+                            control={
+                              <Radio
+                                value="reciclar"
+                                sx={{
+                                  color: "#574B4F",
+                                  '&.Mui-checked': { color: "#8F4D63" }
+                                }}
+                              />
+                            }
+                            label={
+                              <Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#574B4F" }}>
+                                Reciclar
+                              </Typography>
+                            }
                           />
+
+
                         </RadioGroup>
                       </FormControl>
                     </Box>
-
                   )}
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Typography
+
+                  <Box
+                    key={index}
+                    sx={{
+                      width: "672px",
+                      backgroundColor: "#F2EBEDCC",
+                      borderRadius: "8px",
+                      padding: "16px",
+                      marginTop: "-5px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "12px"
+                    }}
+                  >
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins",
+                          fontSize: "16px",
+                          fontWeight: 500,
+                          color: "#574B4F",
+                        }}
+                      >
+                        {horario.titulo}
+                      </Typography>
+                    </Box>
+                    {/*Horarios textfields */}
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <TextField
+                        key={`start-${index}`}
+                        variant="outlined"
+                        placeholder="Inicia"
+                        value={
+                          horario.start
+                            ? horario.start.toLocaleString('es-MX', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                            : ''
+                        }
+                        sx={{
+                          width: "262px", height: "56px", backgroundColor: "#FFFFFF", '& .MuiInputBase-input': {
+                            fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F"
+                          },
+                        }}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={(e) => {
+                                  setCalendarAnchor(e.currentTarget);
+                                  setCalendarOpen(true);
+                                  setCalendarTarget("start");
+                                  setCurrentHorarioIndex(index);
+                                }}
+                                size="small"
+                                sx={{ padding: 0 }}
+                              >
+                                <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          )
+                        }}
+                      />
+                      <TextField
+                        key={`end-${index}`}
+                        variant="outlined"
+                        placeholder="Termina"
+                        value={
+                          horario.end
+                            ? horario.end.toLocaleString('es-MX', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                            : ''
+                        }
+                        sx={{
+                          width: "262px", height: "56px", backgroundColor: "#FFFFFF", '& .MuiInputBase-input': {
+                            fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F"
+                          },
+                        }}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={(e) => {
+                                  setCalendarAnchor(e.currentTarget);
+                                  setCalendarOpen(true);
+                                  setCalendarTarget("end");
+                                  setCurrentHorarioIndex(index);
+                                }}
+                                size="small"
+                                sx={{ padding: 0 }}
+                              >
+                                <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
+                              </IconButton>
+
+                            </InputAdornment>
+                          )
+                        }}
+                      />
+                      {/* Botones a la derecha */}
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
+                        {/* Eliminar */}
+                        {index > 0 && (
+                          <Tooltip title="Eliminar" arrow placement="top"
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                  color: "#CCC3C3",
+                                  fontFamily: "Poppins, sans-serif",
+                                  fontSize: "12px",
+                                  padding: "6px 8px",
+                                  borderRadius: "8px",
+                                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                }
+                              },
+                              arrow: {
+                                sx: {
+                                  color: "rgba(0, 0, 0, 0.8)"
+                                }
+                              }
+                            }}
+                            PopperProps={{
+                              modifiers: [
+                                {
+                                  name: 'offset',
+                                  options: {
+                                    offset: [-0, -10] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                  }
+                                }
+                              ]
+                            }}
+                          >
+                            <IconButton onClick={() => handleEliminarHorario(index)}>
+                              <Box
+                                component="img"
+                                src={IconTrash}
+                                alt="Eliminar"
+                                sx={{ width: 24, height: 24, cursor: "pointer", opacity: 0.6, }}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {/* Agregar solo en el último horario */}
+                        {index === horarios.length - 1 && horarios.length < 5 && (
+                          <Tooltip title="Añadir horario" arrow placement="top"
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                  color: "#CCC3C3",
+                                  fontFamily: "Poppins, sans-serif",
+                                  fontSize: "12px",
+                                  padding: "6px 8px",
+                                  borderRadius: "8px",
+                                }
+                              },
+                              arrow: {
+                                sx: {
+                                  color: "rgba(0, 0, 0, 0.8)"
+                                }
+                              }
+                            }}
+                            PopperProps={{
+                              modifiers: [
+                                {
+                                  name: 'offset',
+                                  options: {
+                                    offset: [0, -12] // [horizontal, vertical]
+                                  }
+                                }
+                              ]
+                            }}
+                          >
+                            <IconButton onClick={handleAgregarHorario} disabled={horarios.length >= 5}>
+                              <Box
+                                component="img"
+                                src={IconCirclePlus}
+                                alt="Agregar Horario"
+                                sx={{ width: "24px", height: "24px", cursor: "pointer", }}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
+                    </Box>
+                  </Box>
+
+                  {/* Checkbox Iniciar campaña automáticamente */}
+                  {index === 0 && (
+                    <Box
                       sx={{
-                        fontFamily: "Poppins",
-                        fontSize: "16px",
-                        fontWeight: 500,
-                        color: "#574B4F",
+                        width: "250px",
+                        height: "80px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        mt: horarios.length <= 1 ? -4.5 : -1,
+                        marginBotttom: -1,
+                        ml: 2
                       }}
                     >
-                      {horario.titulo}
-                    </Typography>
-
-
-
-
-                    {/* Botones a la derecha */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      {/* Eliminar */}
-                      {index > 0 && (
-                        <Tooltip title="Eliminar" arrow placement="top">
-                          <IconButton onClick={() => handleEliminarHorario(index)}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px"
+                        }}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          onChange={(e) => setIsChecked(e.target.checked)}
+                          icon={
                             <Box
-                              component="img"
-                              src={IconTrash}
-                              alt="Eliminar"
-                              sx={{ width: "24px", height: "24px", cursor: "pointer", opacity: 0.6, position: "absolute", marginTop: "100px", marginRight: "80px" }}
+                              sx={{
+                                width: "20px",
+                                height: "20px",
+                                borderRadius: "4px",
+                                border: "2px solid #574B4FCC",
+                              }}
                             />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      {/* Agregar solo en el último horario */}
-                      {index === horarios.length - 1 && (
-                        <Tooltip title="Añadir horario" arrow placement="top"
+                          }
+                          checkedIcon={
+                            <Box
+                              sx={{
+                                width: "20px",
+                                height: "20px",
+                                borderRadius: "4px",
+                                backgroundColor: "#8F4D63",
+                                border: "2px solid #8F4D63",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Box
+                                component="span"
+                                sx={{
+                                  color: "#FFFFFF",
+                                  fontSize: "13px",
+                                  fontWeight: "bold",
+                                  lineHeight: "1",
+                                  fontFamily: "Poppins, sans-serif",
+                                }}
+                              >
+                                ✓
+                              </Box>
+                            </Box>
+                          }
+                          sx={{
+                            color: "#8F4D63",
+                            "&.Mui-checked": { color: "#8F4D63" },
+                            alignSelf: "flex-start",
+                            padding: 0,
+                          }}
+                        />
+                        <Typography
+                          sx={{
+                            fontFamily: "Poppins",
+                            fontSize: "14px",
+                            color: isChecked ? '#8F4D63' : '#574B4FCC',
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Iniciar campaña automáticamente
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
+                </React.Fragment>
+              ))}
+
+            </Box>
+          )}
+
+          {activeStep === 0 && (
+            // 🟰 CONTENIDO de "Registros" nuevo (el que quieres mostrar)
+            <Box sx={{ marginTop: "30px", display: "flex", flexDirection: "column", gap: 2, maxHeight: "420px", overflowY: "auto" }}>
+              {!fileSuccess && (
+                <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', mt: "-7px", textAlign: 'center' }}>
+                  Cargue un archivo desde su biblioteca.
+                </Typography>
+              )}
+              {fileSuccess && (
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'center', // 👈 separa a los extremos
+                  alignItems: 'center', // 👈 alinea verticalmente si hace falta
+                  gap: 27
+                }}
+                >
+                  <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', textAlign: 'left' }}>
+                    Archivo cargado
+                  </Typography>
+                  <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', textAlign: 'right' }}>
+                    Seleccionar datos
+                  </Typography>
+                </Box>
+              )}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 4,
+                  width: '100%',
+                  marginTop: '16px', overflowY: "hidden"
+                }}
+              >
+                {/* DropZon´t */}
+                <Box sx={{ width: "320px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+                  <Box
+                    marginBottom={'20px'}
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const file = e.dataTransfer.files?.[0];
+                      if (file) {
+                        setUploadedFile(file);
+                        handleManageFile(file);
+                      }
+                    }}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: fileSuccess ? 'flex-start' : 'center', // 👈 aquí está la magia
+                      alignItems: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: '200px',
+                        height: '200px',
+                        minWidth: '200px',    // ← fuerza el tamaño mínimo
+                        minHeight: '200px',   // ← fuerza el tamaño mínimo
+                        maxWidth: '200px',    // ← evita que crezca más
+                        maxHeight: '200px',   // ← evita que crezca más
+                        border: fileError
+                          ? '2px solid #EF5466'
+                          : fileSuccess
+                            ? '2px solid #8F4E63CC'
+                            : '2px dashed #D9B4C3',
+                        backgroundColor: fileError
+                          ? '#FFF4F5'
+                          : fileSuccess
+                            ? '#E5CBD333'
+                            : 'transparent',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        fontFamily: 'Poppins',
+                        fontSize: '13px',
+                        color: '#330F1B',
+                        cursor: 'pointer',
+                        px: 1,
+                        marginLeft: fileSuccess ? '80px' : '380px',
+                      }}
+                    >
+                      {/*Tooltip */}
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          marginTop: "-140px",
+                          marginRight: '-140px',
+                          width: 24,
+                          height: 24,
+
+                        }}
+                      >
+                        <Tooltip
+                          placement="right"
+                          title={
+                            fileError ? (
+                              <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
+                                Solo se permiten archivos .xlsx
+                              </Box>
+                            ) : (
+                              <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
+                                · El archivo debe ser Excel (.xls/.xlsx)<br />
+                                · La primera columna debe contener<br />
+                                el ID de cada registro<br />
+                                · Los teléfonos y datos adicionales<br />
+                                pueden presentarse en cualquier<br />
+                                orden<br />
+                                · Las columnas deben contar con el<br />
+                                formato de texto o dato general
+                              </Box>
+                            )
+                          }
                           componentsProps={{
                             tooltip: {
                               sx: {
-                                backgroundColor: "#000000",
-                                color: "#CCC3C3",
-                                fontFamily: "Poppins, sans-serif",
-                                fontSize: "12px",
-                                padding: "6px 8px",
+                                backgroundColor: "#FFFFFF",
                                 borderRadius: "8px",
-                                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.7)"
-                              }
-                            },
-                            arrow: {
-                              sx: {
-                                color: "#000000", marginLeft: "-6px"
+                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                padding: "8px 12px",
+                                fontSize: "14px",
+                                fontFamily: "Poppins",
+                                color: "#000000",
+                                whiteSpace: "pre-line",
+                                transform: "translate(-5px, -5px)",
+                                borderColor: "#00131F3D",
+                                borderStyle: "solid",
+                                borderWidth: "1px"
                               }
                             }
                           }}
@@ -2999,248 +3474,301 @@ const Campains: React.FC = () => {
                               {
                                 name: 'offset',
                                 options: {
-                                  offset: [-6, -6]
+                                  offset: [104, -260] //  [horizontal, vertical]
                                 }
                               }
                             ]
                           }}
                         >
-                          <IconButton onClick={handleAgregarHorario} disabled={horarios.length >= 5}>
-                            <Box
-                              component="img"
-                              src={IconCirclePlus}
-                              alt="Agregar Horario"
-                              sx={{ width: "24px", height: "24px", cursor: "pointer", position: "absolute", marginTop: "100px", marginRight: "40px" }}
-                            />
-                          </IconButton>
+                          <img
+                            src={fileError ? infoiconerror : infoicon}
+                            alt="estado"
+                            style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                          />
                         </Tooltip>
-                      )}
+                        {fileSuccess && (
+                          <Tooltip title="Eliminar" arrow placement="top"
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                  color: "#CCC3C3",
+                                  fontFamily: "Poppins, sans-serif",
+                                  fontSize: "12px",
+                                  padding: "6px 8px",
+                                  borderRadius: "8px",
+                                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                }
+                              },
+                              arrow: {
+                                sx: {
+                                  color: "rgba(0, 0, 0, 0.8)"
+                                }
+                              }
+                            }}
+                            PopperProps={{
+                              modifiers: [
+                                {
+                                  name: 'offset',
+                                  options: {
+                                    offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                  }
+                                }
+                              ]
+                            }}
+                          >
+                            <IconButton
+                              onClick={(e) => {
+                                e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
+                                setSelectedFile(null);
+                                setUploadedFile(null);
+                                setFileSuccess(false);
+                                setFileError(false);
+                                setBase64File('');
+                                setUploadedFileBase64('');
+                                setFormData(prev => ({ ...prev, File: '' }));
+                                if (fileInputRef.current) {
+                                  fileInputRef.current.value = '';
+                                }
+                              }}
+                              sx={{
+                                position: 'absolute',
+                                mt: 8,
+                                marginLeft: "30px",
+                                width: 24,
+                                height: 24,
+                                padding: 0,
+                              }}
+                            >
+                              <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
+                      </Box>
+
+                      <input
+                        type="file"
+                        hidden
+                        ref={fileInputRef}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setUploadedFile(file);
+                            handleManageFile(file);
+                          }
+                        }}
+                      />
+
+                      <Box sx={{ width: '142px', height: '100px' }}>
+                        <img
+                          src={
+                            fileError
+                              ? IconCloudError
+                              : fileSuccess
+                                ? CloudCheckedIcon
+                                : UpCloudIcon
+                          }
+                          alt="estado archivo"
+                          style={{ marginBottom: '8px', width: "72px", height: "48px" }}
+                        />
+
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            fontFamily: 'Poppins',
+                            color: '#330F1B',
+                            fontSize: '14px',
+                            opacity: !fileError && !fileSuccess ? 0.6 : 1,
+                          }}
+                        >
+                          {fileError
+                            ? 'Archivo inválido'
+                            : fileSuccess
+                              ? 'Archivo cargado'
+                              : 'Subir archivo'}
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            fontFamily: 'Poppins',
+                            fontSize: '12px',
+                            color: '#574B4F',
+                            opacity: 0.7,
+                            textAlign: 'center',
+                            wordBreak: 'break-word',
+                            maxWidth: '142px',
+                          }}
+                        >
+                          {fileSuccess && uploadedFile
+                            ? uploadedFile.name
+                            : 'Arrastre un archivo aquí, o selecciónelo.'}
+                        </Typography>
+                        {fileSuccess && (
+                          <Typography
+                            sx={{
+                              fontFamily: 'Poppins',
+                              fontSize: '12px',
+                              color: '#574B4F',
+                              opacity: 0.7,
+                              textAlign: 'center',
+                              mt: '4px'
+                            }}
+                          >
+                            Total de registros:
+                          </Typography>
+                        )}
+                      </Box>
                     </Box>
                   </Box>
 
-                  {/*Horarios textfields */}
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <TextField
-                      key={`start-${index}`}
-                      variant="outlined"
-                      placeholder="Inicia"
-                      value={
-                        horario.start
-                          ? horario.start.toLocaleString('es-MX', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                          : ''
-                      }
-                      sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={(e) => {
-                                setCalendarAnchor(e.currentTarget);
-                                setCalendarOpen(true);
-                                setCalendarTarget("start");
-                                setCurrentHorarioIndex(index);
-                              }}
-                              size="small"
-                              sx={{ padding: 0 }}
-                            >
-                              <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
-                            </IconButton>
-                          </InputAdornment>
-                        )
+
+                  {/*Descargar archivo de muestra*/}
+                  {!fileSuccess && (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        mt: -1, ml: '380px'
                       }}
-                    />
-
-                    <TextField
-                      key={`start-${index}`}
-                      variant="outlined"
-                      placeholder="Termina"
-                      value={
-                        horario.end
-                          ? horario.end.toLocaleString('es-MX', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                          : ''
-                      }
-                      sx={{ width: "262px", height: "56px", backgroundColor: "#FFFFFF" }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={(e) => {
-                                setCalendarAnchor(e.currentTarget);
-                                setCalendarOpen(true);
-                                setCalendarTarget("end");
-                                setCurrentHorarioIndex(index);
-                              }}
-                              size="small"
-                              sx={{ padding: 0 }}
-                            >
-                              <CalendarTodayIcon sx={{ width: "15px", height: "15px", color: "#8F4D63" }} />
-                            </IconButton>
-
-                          </InputAdornment>
-                        )
-                      }}
-                    />
-
-                  </Box>
-
-                </Box>
-
-              ))}
-
-              {/* Checkbox Iniciar campaña automáticamente */}
-              <Box
-                sx={{
-                  width: "250px",
-                  height: "80px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  mt: -2, // espacio superior
-                  marginBotttom: "10px"
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                  }}
-                >
-                  <Checkbox
-                    icon={
-                      <Box
+                    >
+                      <Button
+                        disableRipple
                         sx={{
-                          width: "20px",
-                          height: "20px",
-                          borderRadius: "4px",
-                          border: "2px solid #8F4D63",
+                          backgroundColor: 'transparent',
+                          textTransform: 'none',
+                          padding: 0,
+                          minWidth: 'auto',
+                          '&:hover': {
+                            backgroundColor: 'transparent'
+                          }
                         }}
-                      />
-                    }
-                    checkedIcon={
-                      <Box
-                        sx={{
-                          width: "20px",
-                          height: "20px",
-                          borderRadius: "4px",
-                          backgroundColor: "#8F4D63",
-                          border: "2px solid #8F4D63",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
+                        onClick={() => {
+                          // tu lógica si la necesitas
                         }}
                       >
-                        <Box
-                          component="span"
+                        <Typography
                           sx={{
-                            color: "#FFFFFF",
-                            fontSize: "13px",
-                            fontWeight: "bold",
-                            lineHeight: "1",
-                            fontFamily: "Poppins, sans-serif",
+                            textDecoration: "underline",
+                            fontFamily: 'Poppins',
+                            fontSize: '11px',
+                            color: "#8F4D63",
                           }}
                         >
-                          ✓
-                        </Box>
-                      </Box>
-                    }
-                    sx={{
-                      color: "#8F4D63",
-                      "&.Mui-checked": { color: "#8F4D63" },
-                      alignSelf: "flex-start",
-                      padding: 0,
-                    }}
-                  />
-                  <Typography
-                    sx={{
-                      fontFamily: "Poppins",
-                      fontSize: "14px",
-                      color: "#574B4F",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Iniciar campaña automáticamente
-                  </Typography>
-                </Box>
-              </Box>
+                          Descargar archivo de muestra
+                        </Typography>
+                      </Button>
+                    </Box>
+                  )}
 
-
-            </Box>
-          )}
-
-          {activeStep === 0 && (
-            // 🟰 CONTENIDO de "Registros" nuevo (el que quieres mostrar)
-            <Box sx={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: 2, maxHeight: "420px", overflowY: "auto" }}>
-
-              <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', mt: -1 }}>
-                Cargue un archivo desde su biblioteca.
-              </Typography>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: 4,
-                  width: '100%',
-                  marginTop: '16px',
-                }}
-              >
-                {/* Parte izquierda: DropZone y Seleccionar hoja */}
-                <Box sx={{ width: "320px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <DropZone onDrop={(file) => {
-                    setUploadedFile(file);
-                    handleManageFile(file);
-                  }} error={fileError} />
 
                   {uploadedFile && !postCargaActiva && (
-                    <FormControl fullWidth sx={{ marginTop: "16px" }}>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '15px', mb: 1 }}>
-                        Seleccionar hoja
-                      </Typography>
+                    <FormControl fullWidth sx={{ marginTop: "22px" }}>
                       <Select
                         value={selectedSheet}
                         onChange={handleSheetChange}
                         displayEmpty
+                        renderValue={(selected) =>
+                          selected ? (
+                            <span style={{ color: '#786E71', fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}>
+                              {selected}
+                            </span>
+                          ) : (
+                            <span style={{ color: '#786E71', fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}>
+                              Seleccionar hoja
+                            </span>
+                          )
+                        }
                         sx={{
-                          borderRadius: "8px",
-                          backgroundColor: "#FFFFFF",
-                          fontFamily: "Poppins",
-                          fontSize: "14px"
+                          marginLeft: '80px',
+                          marginTop: '-5px',
+                          color: '#786E71',
+                          width: '200px',
+                          height: '40px',
+                          borderRadius: '8px',
+                          backgroundColor: '#FFFFFF',
+                          fontFamily: 'Poppins',
+                          fontSize: '12px',
                         }}
                       >
                         {sheetNames.map((name, idx) => (
-                          <MenuItem key={idx} value={name}>{name}</MenuItem>
+                          <MenuItem
+                            key={idx}
+                            value={name}
+                            sx={{
+                              fontFamily: 'Poppins, sans-serif',
+                              fontSize: '12px',
+                              color: '#9B9295',
+                              '&:hover': {
+                                backgroundColor: '#F2EBED', // color solo al pasar el mouse
+                              },
+                              '&.Mui-selected': {
+                                backgroundColor: 'transparent', //  quita el fondo cuando está seleccionado
+                              },
+                              '&.Mui-selected:hover': {
+                                backgroundColor: '#F2EBED', //  mantiene el hover cuando está seleccionado
+                              },
+                            }}
+                          >
+                            {name}
+                          </MenuItem>
                         ))}
                       </Select>
+
                     </FormControl>
+
+
                   )}
                 </Box>
+                {/*Caja visual para archivos subidos*/}
+                {fileSuccess && (
+                  <Box
+                    sx={{
+                      position: "absolute", width: "312px", height: "305px", borderRadius: '15px', marginBottom: "-10px",
+                      border: "1px solid #E6E4E4", marginLeft: "25px", marginTop: "-16px", pointerEvents: "none",
+                    }}
+                  >
+                    <Divider sx={{
+                      width: 'calc(100% + 0px)', marginTop: '240px',
+                    }} />
+                  </Box>
+                )}
 
                 {!postCargaActiva && uploadedFile && (
-                  <Box sx={{ width: 380, border: '1px solid #E0E0E0', borderRadius: '12px', padding: '20px', marginTop: '24px', fontFamily: 'Poppins' }}>
-                    <Typography sx={{ fontWeight: 600, fontSize: '18px', marginBottom: '12px', color: '#330F1B' }}>Seleccionar datos y orden</Typography>
+                  <Box sx={{
+                    width: 380, border: '1px solid #E0E0E0', borderRadius: '12px', padding: '20px',
+                    marginTop: '0px', fontFamily: 'Poppins',
+                  }}>
                     <Tabs
                       value={selectedTab}
                       onChange={(_, newValue) => setSelectedTab(newValue)}
                       indicatorColor="secondary"
                       textColor="inherit"
-                      sx={{ borderBottom: '1px solid #D9B4C3', marginBottom: '16px', '.MuiTab-root': { fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', textTransform: 'none', color: '#7B354D', paddingBottom: '6px', minWidth: '100px' } }}
+                      sx={{
+                        borderBottom: '1px solid #D9B4C3',
+                        marginBottom: '12px', marginTop: "-18px",
+                        '.MuiTab-root': {
+                          fontFamily: 'Poppins',
+                          fontWeight: 500,
+                          fontSize: '14px',
+                          textTransform: 'none',
+                          color: '#7B354D',
+                          paddingBottom: '6px',
+                          minWidth: '100px',
+                          '&:hover': {
+                            backgroundColor: 'transparent', // 👈 quita el fondo al pasar el mouse
+                          },
+                        },
+                        '.Mui-selected': {
+                          backgroundColor: 'transparent', // opcional: evita fondo cuando está seleccionado
+                        },
+                      }}
                     >
                       <Tab label="Teléfonos" value="telefonos" />
                       <Tab label="Variables" value="variables" />
                     </Tabs>
+
 
                     <DragDropContext onDragEnd={handleDragEnd}>
                       <Droppable droppableId="columns-droppable">
@@ -4349,8 +4877,24 @@ const Campains: React.FC = () => {
                   placeholder="Nombre"
                   value={editCampaignName}
                   onChange={(e) => setEditCampaignName(e.target.value)}
-                  error={isEditNameInvalid}
-                  helperText={isEditNameInvalid ? 'Formato inválido' : ''}
+                  helperText={
+                    editCampaignName
+                      ? editCampaignName.length > 40
+                        ? "Máximo 40 caracteres"
+                        : !/^[a-zA-Z0-9ñÑ ]+$/.test(editCampaignName)
+                          ? "Formato inválido"
+                          : ""
+                      : ""
+                  }
+                  error={
+                    !!editCampaignName &&
+                    (editCampaignName.length > 40 || !/^[a-zA-Z0-9ñÑ ]+$/.test(editCampaignName))
+                  }
+                  FormHelperTextProps={{
+                    sx: {
+                      fontFamily: 'Poppins, sans-serif',
+                    },
+                  }}
                   InputProps={{
                     endAdornment:
                       <Tooltip
@@ -4397,7 +4941,7 @@ const Campains: React.FC = () => {
                         </InputAdornment>
                       </Tooltip>
 
-                    
+
                   }}
                   sx={{
                     width: "340px",
@@ -4429,10 +4973,12 @@ const Campains: React.FC = () => {
                             const nuevos = [...editHorarios];
                             nuevos[index].operationMode = 1;
                             setEditHorarios(nuevos);
-                          }} value="reanudar" sx={{
-                            color: "#8F4D63",
-                            '&.Mui-checked': { color: "#8F4D63" }
-                          }} />}
+                          }} value="reanudar"
+                            sx={{
+                              color: "#8F4D63",
+                              '&.Mui-checked': { color: "#8F4D63" }
+                            }}
+                          />}
                           label={<Typography sx={{ fontFamily: "Poppins", fontSize: "16px", color: "#8F4D63" }}>Reanudar</Typography>}
                         />
                         <FormControlLabel
@@ -4475,6 +5021,7 @@ const Campains: React.FC = () => {
                       </Typography>
 
                     </Box>
+
                     <Box sx={{ display: "flex", gap: 2 }}>
                       <TextField
                         key={`start-edit-${index}`}
