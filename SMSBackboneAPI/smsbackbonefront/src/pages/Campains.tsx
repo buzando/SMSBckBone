@@ -38,6 +38,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import welcome from '../assets/icon-welcome.svg'
 import PushPinIcon from "@mui/icons-material/PushPin";
 import iconplus from "../assets/Icon-plus.svg";
+import IconArrowDown1 from "../assets/IconArrowDown1.svg";
 import CloseIcon from '@mui/icons-material/Close';
 import IconTache from "../assets/icon-close.svg";
 import iconclose from "../assets/icon-close.svg";
@@ -1232,7 +1233,7 @@ const Campains: React.FC = () => {
 
     return () => clearInterval(interval); // limpia cuando cambia o desmonta
   }, [selectedCampaign?.id, selectedCampaign?.schedules]);
-    const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   return (
 
@@ -1281,7 +1282,7 @@ const Campains: React.FC = () => {
       <Grid container spacing={2}>
         {/* Listado de campañas */}
 
-        <Grid item sx={{ display: 'flex' }}>
+        <Grid item sx={{ display: 'flex', }}>
           <Box sx={{ display: "flex", }}>
             {/* Panel de campañas */}
             {panelAbierto && (
@@ -1292,7 +1293,7 @@ const Campains: React.FC = () => {
                   width: "370px",
                   height: "581px",
                   display: "flex",
-                  flexDirection: "column"
+                  flexDirection: "column",
                 }}
               >
                 <Box
@@ -1301,7 +1302,7 @@ const Campains: React.FC = () => {
                     justifyContent: "space-between",
                     alignItems: "center",
                     width: "279px",
-                    marginBottom: "10px",
+                    marginBottom: "10px", marginLeft: "25px"
                   }}
                 >
                   <Typography
@@ -1317,7 +1318,6 @@ const Campains: React.FC = () => {
                   >
                     Listado de campañas
                   </Typography>
-
                   <Tooltip title="Crear" arrow placement="top"
                     componentsProps={{
                       tooltip: {
@@ -1348,8 +1348,8 @@ const Campains: React.FC = () => {
                       ]
                     }}
                   >
-                    <IconButton onClick={handleOpenModal}>
-                      <img src={iconplus} alt="Agregar" style={{ width: "20px", height: "20px" }} />
+                    <IconButton onClick={handleOpenModal} sx={{}}>
+                      <img src={iconplus} alt="Agregar" style={{ width: "20px", height: "20px", }} />
                     </IconButton>
                   </Tooltip>
                 </Box>
@@ -1367,7 +1367,7 @@ const Campains: React.FC = () => {
                     borderRadius: "4px",
                     height: "40px",
                     width: "279px",
-                    marginBottom: "15px",
+                    marginBottom: "15px", marginLeft: "25px",
                     "& .MuiOutlinedInput-root": {
                       padding: "8px 12px",
                       height: "40px",
@@ -1432,7 +1432,7 @@ const Campains: React.FC = () => {
                   displayEmpty
                   sx={{
                     marginTop: "10px",
-                    width: "279px",
+                    width: "279px", marginLeft: "25px",
                     marginBottom: "10px",
                     textAlign: "left",
                     fontFamily: "Poppins, sans-serif",
@@ -3439,13 +3439,15 @@ const Campains: React.FC = () => {
                 <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', mt: "-7px", textAlign: 'center' }}>
                   Cargue un archivo desde su biblioteca.
                 </Typography>
+
               )}
-              {fileSuccess && (
+
+              {!postCargaActiva && uploadedFile && (
                 <Box sx={{
                   display: 'flex',
                   justifyContent: 'center', // 👈 separa a los extremos
                   alignItems: 'center', // 👈 alinea verticalmente si hace falta
-                  gap: 27
+                  gap: 27, marginBottom: "-10px", mt: 1
                 }}
                 >
                   <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', textAlign: 'left' }}>
@@ -3465,143 +3467,107 @@ const Campains: React.FC = () => {
                   marginTop: '16px', overflowY: "hidden"
                 }}
               >
-                {/* DropZon´t */}
-                <Box sx={{ width: "320px", display: "flex", flexDirection: "column", alignItems: "center" }}>
 
-                  <Box
-                    marginBottom={'20px'}
-                    onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const file = e.dataTransfer.files?.[0];
-                      if (file) {
-                        setUploadedFile(file);
-                        handleManageFile(file);
-                      }
-                    }}
-                    sx={{
-                      display: 'flex',
-                      justifyContent: fileSuccess ? 'flex-start' : 'center', // 👈 aquí está la magia
-                      alignItems: 'center',
-                      width: '100%',
-                    }}
-                  >
+                {/* DropZon´t (Cargue un archivo desde su biblioteca.*/}
+                {!fileSuccess && (
+                  <Box sx={{ width: "320px", display: "flex", flexDirection: "column", alignItems: "center" }}>
                     <Box
+                      marginBottom={'20px'} marginTop={'10px'}
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) {
+                          setUploadedFile(file);
+                          handleManageFile(file);
+                        }
+                      }}
                       sx={{
-                        width: '200px',
-                        height: '200px',
-                        minWidth: '200px',    // ← fuerza el tamaño mínimo
-                        minHeight: '200px',   // ← fuerza el tamaño mínimo
-                        maxWidth: '200px',    // ← evita que crezca más
-                        maxHeight: '200px',   // ← evita que crezca más
-                        border: fileError
-                          ? '2px solid #EF5466'
-                          : fileSuccess
-                            ? '2px solid #8F4E63CC'
-                            : '2px dashed #D9B4C3',
-                        backgroundColor: fileError
-                          ? '#FFF4F5'
-                          : fileSuccess
-                            ? '#E5CBD333'
-                            : 'transparent',
-                        borderRadius: '8px',
                         display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
+                        justifyContent: fileSuccess ? 'flex-start' : 'center', // 👈 aquí está la magia
                         alignItems: 'center',
-                        textAlign: 'center',
-                        fontFamily: 'Poppins',
-                        fontSize: '13px',
-                        color: '#330F1B',
-                        cursor: 'pointer',
-                        px: 1,
-                        marginLeft: fileSuccess ? '80px' : '380px',
+                        width: '100%',
                       }}
                     >
-                      {/*Tooltip */}
                       <Box
                         sx={{
-                          position: 'absolute',
-                          marginTop: "-140px",
-                          marginRight: '-140px',
-                          width: 24,
-                          height: 24,
-
+                          width: '200px',
+                          height: '200px',
+                          minWidth: '200px',    // ← fuerza el tamaño mínimo
+                          minHeight: '200px',   // ← fuerza el tamaño mínimo
+                          maxWidth: '200px',    // ← evita que crezca más
+                          maxHeight: '200px',   // ← evita que crezca más
+                          border: fileError
+                            ? '2px solid #EF5466'
+                            : fileSuccess
+                              ? '2px solid #8F4E63CC'
+                              : '2px dashed #D9B4C3',
+                          backgroundColor: fileError
+                            ? '#FFF4F5'
+                            : fileSuccess
+                              ? '#E5CBD333'
+                              : 'transparent',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          textAlign: 'center',
+                          fontFamily: 'Poppins',
+                          fontSize: '13px',
+                          color: '#330F1B',
+                          cursor: 'pointer',
+                          px: 1,
+                          marginLeft: fileSuccess ? '80px' : '380px',
                         }}
                       >
-                        <Tooltip
-                          placement="right"
-                          title={
-                            fileError ? (
-                              <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
-                                Solo se permiten archivos .xlsx
-                              </Box>
-                            ) : (
-                              <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
-                                · El archivo debe ser Excel (.xls/.xlsx)<br />
-                                · La primera columna debe contener<br />
-                                el ID de cada registro<br />
-                                · Los teléfonos y datos adicionales<br />
-                                pueden presentarse en cualquier<br />
-                                orden<br />
-                                · Las columnas deben contar con el<br />
-                                formato de texto o dato general
-                              </Box>
-                            )
-                          }
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: "#FFFFFF",
-                                borderRadius: "8px",
-                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                                padding: "8px 12px",
-                                fontSize: "14px",
-                                fontFamily: "Poppins",
-                                color: "#000000",
-                                whiteSpace: "pre-line",
-                                transform: "translate(-5px, -5px)",
-                                borderColor: "#00131F3D",
-                                borderStyle: "solid",
-                                borderWidth: "1px"
-                              }
-                            }
-                          }}
-                          PopperProps={{
-                            modifiers: [
-                              {
-                                name: 'offset',
-                                options: {
-                                  offset: [104, -260] //  [horizontal, vertical]
-                                }
-                              }
-                            ]
+                        {/*Tooltip */}
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            marginTop: "-140px",
+                            marginRight: '-140px',
+                            width: 24,
+                            height: 24,
+
                           }}
                         >
-                          <img
-                            src={fileError ? infoiconerror : infoicon}
-                            alt="estado"
-                            style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
-                          />
-                        </Tooltip>
-                        {fileSuccess && (
-                          <Tooltip title="Eliminar" arrow placement="top"
+                          <Tooltip
+                            placement="right"
+                            title={
+                              fileError ? (
+                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
+                                  Solo se permiten archivos .xlsx
+                                </Box>
+                              ) : (
+                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
+                                  · El archivo debe ser Excel (.xls/.xlsx)<br />
+                                  · La primera columna debe contener<br />
+                                  el ID de cada registro<br />
+                                  · Los teléfonos y datos adicionales<br />
+                                  pueden presentarse en cualquier<br />
+                                  orden<br />
+                                  · Las columnas deben contar con el<br />
+                                  formato de texto o dato general
+                                </Box>
+                              )
+                            }
                             componentsProps={{
                               tooltip: {
                                 sx: {
-                                  backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                  color: "#CCC3C3",
-                                  fontFamily: "Poppins, sans-serif",
-                                  fontSize: "12px",
-                                  padding: "6px 8px",
+                                  backgroundColor: "#FFFFFF",
                                   borderRadius: "8px",
-                                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
-                                }
-                              },
-                              arrow: {
-                                sx: {
-                                  color: "rgba(0, 0, 0, 0.8)"
+                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                  padding: "8px 12px",
+                                  fontSize: "14px",
+                                  fontFamily: "Poppins",
+                                  color: "#000000",
+                                  whiteSpace: "pre-line",
+                                  transform: "translate(-5px, -5px)",
+                                  borderColor: "#00131F3D",
+                                  borderStyle: "solid",
+                                  borderWidth: "1px"
                                 }
                               }
                             }}
@@ -3610,100 +3576,121 @@ const Campains: React.FC = () => {
                                 {
                                   name: 'offset',
                                   options: {
-                                    offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                    offset: [104, -260] //  [horizontal, vertical]
                                   }
                                 }
                               ]
                             }}
                           >
-                            <IconButton
-                              onClick={(e) => {
-                                e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
-                                setSelectedFile(null);
-                                setUploadedFile(null);
-                                setFileSuccess(false);
-                                setFileError(false);
-                                setBase64File('');
-                                setUploadedFileBase64('');
-                                setFormData(prev => ({ ...prev, File: '' }));
-                                if (fileInputRef.current) {
-                                  fileInputRef.current.value = '';
+                            <img
+                              src={fileError ? infoiconerror : infoicon}
+                              alt="estado"
+                              style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                            />
+                          </Tooltip>
+                          {!postCargaActiva && uploadedFile && (
+                            <Tooltip title="Eliminar" arrow placement="top"
+                              componentsProps={{
+                                tooltip: {
+                                  sx: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                    color: "#CCC3C3",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "12px",
+                                    padding: "6px 8px",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                  }
+                                },
+                                arrow: {
+                                  sx: {
+                                    color: "rgba(0, 0, 0, 0.8)"
+                                  }
                                 }
                               }}
-                              sx={{
-                                position: 'absolute',
-                                mt: 8,
-                                marginLeft: "30px",
-                                width: 24,
-                                height: 24,
-                                padding: 0,
+                              PopperProps={{
+                                modifiers: [
+                                  {
+                                    name: 'offset',
+                                    options: {
+                                      offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                    }
+                                  }
+                                ]
                               }}
                             >
-                              <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
+                                  setSelectedFile(null);
+                                  setUploadedFile(null);
+                                  setFileSuccess(false);
+                                  setFileError(false);
+                                  setBase64File('');
+                                  setUploadedFileBase64('');
+                                  setFormData(prev => ({ ...prev, File: '' }));
+                                  if (fileInputRef.current) {
+                                    fileInputRef.current.value = '';
+                                  }
+                                }}
+                                sx={{
+                                  position: 'absolute',
+                                  mt: 8,
+                                  marginLeft: "30px",
+                                  width: 24,
+                                  height: 24,
+                                  padding: 0,
+                                }}
+                              >
+                                <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
 
-                      </Box>
+                        </Box>
 
-                      <input
-                        type="file"
-                        hidden
-                        ref={fileInputRef}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setUploadedFile(file);
-                            handleManageFile(file);
-                          }
-                        }}
-                      />
-
-                      <Box sx={{ width: '142px', height: '100px' }}>
-                        <img
-                          src={
-                            fileError
-                              ? IconCloudError
-                              : fileSuccess
-                                ? CloudCheckedIcon
-                                : UpCloudIcon
-                          }
-                          alt="estado archivo"
-                          style={{ marginBottom: '8px', width: "72px", height: "48px" }}
+                        <input
+                          type="file"
+                          hidden
+                          ref={fileInputRef}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setUploadedFile(file);
+                              handleManageFile(file);
+                            }
+                          }}
                         />
 
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontFamily: 'Poppins',
-                            color: '#330F1B',
-                            fontSize: '14px',
-                            opacity: !fileError && !fileSuccess ? 0.6 : 1,
-                          }}
-                        >
-                          {fileError
-                            ? 'Archivo inválido'
-                            : fileSuccess
-                              ? 'Archivo cargado'
-                              : 'Subir archivo'}
-                        </Typography>
+                        <Box sx={{ width: '142px', height: '100px' }}>
+                          <img
+                            src={
+                              fileError
+                                ? IconCloudError
+                                : fileSuccess
+                                  ? CloudCheckedIcon
+                                  : UpCloudIcon
+                            }
+                            alt="estado archivo"
+                            style={{ marginBottom: '8px', width: "72px", height: "48px" }}
+                          />
 
-                        <Typography
-                          sx={{
-                            fontFamily: 'Poppins',
-                            fontSize: '12px',
-                            color: '#574B4F',
-                            opacity: 0.7,
-                            textAlign: 'center',
-                            wordBreak: 'break-word',
-                            maxWidth: '142px',
-                          }}
-                        >
-                          {fileSuccess && uploadedFile
-                            ? uploadedFile.name
-                            : 'Arrastre un archivo aquí, o selecciónelo.'}
-                        </Typography>
-                        {fileSuccess && (
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontFamily: 'Poppins',
+                              color: '#330F1B',
+                              fontSize: '14px',
+                              opacity: !fileError && !fileSuccess ? 0.6 : 1,
+                            }}
+                          >
+                            {fileError
+                              ? 'Archivo inválido'
+                              : fileSuccess
+                                ? 'Archivo cargado'
+                                : 'Subir archivo'}
+                          </Typography>
+
                           <Typography
                             sx={{
                               fontFamily: 'Poppins',
@@ -3711,122 +3698,497 @@ const Campains: React.FC = () => {
                               color: '#574B4F',
                               opacity: 0.7,
                               textAlign: 'center',
-                              mt: '4px'
+                              wordBreak: 'break-word',
+                              maxWidth: '142px',
                             }}
                           >
-                            Total de registros:
+                            {fileSuccess && uploadedFile
+                              ? uploadedFile.name
+                              : 'Arrastre un archivo aquí, o selecciónelo.'}
                           </Typography>
-                        )}
+                          {fileSuccess && (
+                            <Typography
+                              sx={{
+                                fontFamily: 'Poppins',
+                                fontSize: '12px',
+                                color: '#574B4F',
+                                opacity: 0.7,
+                                textAlign: 'center',
+                                mt: '4px'
+                              }}
+                            >
+                              Total de registros:
+                            </Typography>
+                          )}
+                        </Box>
                       </Box>
                     </Box>
-                  </Box>
 
 
-                  {/*Descargar archivo de muestra*/}
-                  {!fileSuccess && (
-                    <Box
-                      sx={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "center",
-                        mt: -1, ml: '380px'
-                      }}
-                    >
-                      <Button
-                        disableRipple
+                    {/*Descargar archivo de muestra*/}
+                    {!fileSuccess && (
+                      <Box
                         sx={{
-                          backgroundColor: 'transparent',
-                          textTransform: 'none',
-                          padding: 0,
-                          minWidth: 'auto',
-                          '&:hover': {
-                            backgroundColor: 'transparent'
-                          }
-                        }}
-                        onClick={() => {
-                          // tu lógica si la necesitas
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          mt: -1, ml: '380px'
                         }}
                       >
-                        <Typography
+                        <Button
+                          disableRipple
                           sx={{
-                            textDecoration: "underline",
-                            fontFamily: 'Poppins',
-                            fontSize: '11px',
-                            color: "#8F4D63",
+                            backgroundColor: 'transparent',
+                            textTransform: 'none',
+                            padding: 0,
+                            minWidth: 'auto',
+                            '&:hover': {
+                              backgroundColor: 'transparent'
+                            }
+                          }}
+                          onClick={() => {
+                            // tu lógica si la necesitas
                           }}
                         >
-                          Descargar archivo de muestra
-                        </Typography>
-                      </Button>
-                    </Box>
-                  )}
-
-
-                  {uploadedFile && !postCargaActiva && (
-                    <FormControl fullWidth sx={{ marginTop: "24px" }}>
-                      <Select
-                        value={selectedSheet}
-                        onChange={handleSheetChange}
-                        displayEmpty
-                        renderValue={(selected) =>
-                          selected ? (
-                            <span style={{ color: '#786E71', fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}>
-                              {selected}
-                            </span>
-                          ) : (
-                            <span style={{ color: '#786E71', fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}>
-                              Seleccionar hoja
-                            </span>
-                          )
-                        }
-                        sx={{
-                          marginLeft: '80px',
-                          marginTop: '-5px',
-                          color: '#786E71',
-                          width: '200px',
-                          height: '40px',
-                          borderRadius: '8px',
-                          backgroundColor: '#FFFFFF',
-                          fontFamily: 'Poppins',
-                          fontSize: '12px',
-                          mb: 0
-                        }}
-                      >
-                        {sheetNames.map((name, idx) => (
-                          <MenuItem
-                            key={idx}
-                            value={name}
+                          <Typography
                             sx={{
-                              fontFamily: 'Poppins, sans-serif',
-                              fontSize: '12px',
-                              color: '#9B9295',
-                              '&:hover': {
-                                backgroundColor: '#F2EBED', // color solo al pasar el mouse
-                              },
-                              '&.Mui-selected': {
-                                backgroundColor: 'transparent', //  quita el fondo cuando está seleccionado
-                              },
-                              '&.Mui-selected:hover': {
-                                backgroundColor: '#F2EBED', //  mantiene el hover cuando está seleccionado
-                              },
+                              textDecoration: "underline",
+                              fontFamily: 'Poppins',
+                              fontSize: '11px',
+                              color: "#8F4D63",
                             }}
                           >
-                            {name}
-                          </MenuItem>
-                        ))}
-                      </Select>
+                            Descargar archivo de muestra
+                          </Typography>
+                        </Button>
+                      </Box>
+                    )}
 
-                    </FormControl>
+
+                    {uploadedFile && !postCargaActiva && (
+                      <FormControl fullWidth sx={{ marginTop: "24px" }}>
+                        <Select
+                          value={selectedSheet}
+                          onChange={handleSheetChange}
+                          displayEmpty
+                          renderValue={(selected) =>
+                            selected ? (
+                              <span style={{ color: '#786E71', fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}>
+                                {selected}
+                              </span>
+                            ) : (
+                              <span style={{ color: '#786E71', fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}>
+                                Seleccionar hoja
+                              </span>
+                            )
+                          }
+                          sx={{
+                            marginLeft: '80px',
+                            marginTop: '-5px',
+                            color: '#786E71',
+                            width: '200px',
+                            height: '40px',
+                            borderRadius: '8px',
+                            backgroundColor: '#FFFFFF',
+                            fontFamily: 'Poppins',
+                            fontSize: '12px',
+                            mb: 0
+                          }}
+                        >
+                          {sheetNames.map((name, idx) => (
+                            <MenuItem
+                              key={idx}
+                              value={name}
+                              sx={{
+                                fontFamily: 'Poppins, sans-serif',
+                                fontSize: '12px',
+                                color: '#9B9295',
+                                '&:hover': {
+                                  backgroundColor: '#F2EBED', // color solo al pasar el mouse
+                                },
+                                '&.Mui-selected': {
+                                  backgroundColor: 'transparent', //  quita el fondo cuando está seleccionado
+                                },
+                                '&.Mui-selected:hover': {
+                                  backgroundColor: '#F2EBED', //  mantiene el hover cuando está seleccionado
+                                },
+                              }}
+                            >
+                              {name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+
+                      </FormControl>
 
 
-                  )}
-                </Box>
-                {/*Caja visual para archivos subidos*/}
-                {fileSuccess && (
+                    )}
+                  </Box>
+                )}
+                {/* DropZon´t para pagina siguiente (Archivo cargado / Seleccionar datos)*/}
+                {!postCargaActiva && uploadedFile && (
+                  <Box sx={{ width: "320px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Box
+                      marginBottom={'20px'} marginTop={'10px'}
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) {
+                          setUploadedFile(file);
+                          handleManageFile(file);
+                        }
+                      }}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: fileSuccess ? 'flex-start' : 'center', // 👈 aquí está la magia
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: '200px',
+                          height: '200px',
+                          minWidth: '200px',    // ← fuerza el tamaño mínimo
+                          minHeight: '200px',   // ← fuerza el tamaño mínimo
+                          maxWidth: '200px',    // ← evita que crezca más
+                          maxHeight: '200px',   // ← evita que crezca más
+                          border: fileError
+                            ? '2px solid #EF5466'
+                            : fileSuccess
+                              ? '2px solid #8F4E63CC'
+                              : '2px dashed #D9B4C3',
+                          backgroundColor: fileError
+                            ? '#FFF4F5'
+                            : fileSuccess
+                              ? '#E5CBD333'
+                              : 'transparent',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          textAlign: 'center',
+                          fontFamily: 'Poppins',
+                          fontSize: '13px',
+                          color: '#330F1B',
+                          cursor: 'pointer',
+                          px: 1,
+                          marginLeft: fileSuccess ? '80px' : '380px',
+                        }}
+                      >
+                        {/*Tooltip */}
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            marginTop: "-140px",
+                            marginRight: '-140px',
+                            width: 24,
+                            height: 24,
+
+                          }}
+                        >
+                          <Tooltip
+                            placement="right"
+                            title={
+                              fileError ? (
+                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
+                                  Solo se permiten archivos .xlsx
+                                </Box>
+                              ) : (
+                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
+                                  · El archivo debe ser Excel (.xls/.xlsx)<br />
+                                  · La primera columna debe contener<br />
+                                  el ID de cada registro<br />
+                                  · Los teléfonos y datos adicionales<br />
+                                  pueden presentarse en cualquier<br />
+                                  orden<br />
+                                  · Las columnas deben contar con el<br />
+                                  formato de texto o dato general
+                                </Box>
+                              )
+                            }
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: "#FFFFFF",
+                                  borderRadius: "8px",
+                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                  padding: "8px 12px",
+                                  fontSize: "14px",
+                                  fontFamily: "Poppins",
+                                  color: "#000000",
+                                  whiteSpace: "pre-line",
+                                  transform: "translate(-5px, -5px)",
+                                  borderColor: "#00131F3D",
+                                  borderStyle: "solid",
+                                  borderWidth: "1px"
+                                }
+                              }
+                            }}
+                            PopperProps={{
+                              modifiers: [
+                                {
+                                  name: 'offset',
+                                  options: {
+                                    offset: [104, -260] //  [horizontal, vertical]
+                                  }
+                                }
+                              ]
+                            }}
+                          >
+                            <img
+                              src={fileError ? infoiconerror : infoicon}
+                              alt="estado"
+                              style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                            />
+                          </Tooltip>
+                          {!postCargaActiva && uploadedFile && (
+                            <Tooltip title="Eliminar" arrow placement="top"
+                              componentsProps={{
+                                tooltip: {
+                                  sx: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                    color: "#CCC3C3",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "12px",
+                                    padding: "6px 8px",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                  }
+                                },
+                                arrow: {
+                                  sx: {
+                                    color: "rgba(0, 0, 0, 0.8)"
+                                  }
+                                }
+                              }}
+                              PopperProps={{
+                                modifiers: [
+                                  {
+                                    name: 'offset',
+                                    options: {
+                                      offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                    }
+                                  }
+                                ]
+                              }}
+                            >
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
+                                  setSelectedFile(null);
+                                  setUploadedFile(null);
+                                  setFileSuccess(false);
+                                  setFileError(false);
+                                  setBase64File('');
+                                  setUploadedFileBase64('');
+                                  setFormData(prev => ({ ...prev, File: '' }));
+                                  if (fileInputRef.current) {
+                                    fileInputRef.current.value = '';
+                                  }
+                                }}
+                                sx={{
+                                  position: 'absolute',
+                                  mt: 8,
+                                  marginLeft: "30px",
+                                  width: 24,
+                                  height: 24,
+                                  padding: 0,
+                                }}
+                              >
+                                <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+
+                        </Box>
+
+                        <input
+                          type="file"
+                          hidden
+                          ref={fileInputRef}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setUploadedFile(file);
+                              handleManageFile(file);
+                            }
+                          }}
+                        />
+
+                        <Box sx={{ width: '142px', height: '100px' }}>
+                          <img
+                            src={
+                              fileError
+                                ? IconCloudError
+                                : fileSuccess
+                                  ? CloudCheckedIcon
+                                  : UpCloudIcon
+                            }
+                            alt="estado archivo"
+                            style={{ marginBottom: '8px', width: "72px", height: "48px" }}
+                          />
+
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontFamily: 'Poppins',
+                              color: '#330F1B',
+                              fontSize: '14px',
+                              opacity: !fileError && !fileSuccess ? 0.6 : 1,
+                            }}
+                          >
+                            {fileError
+                              ? 'Archivo inválido'
+                              : fileSuccess
+                                ? 'Archivo cargado'
+                                : 'Subir archivo'}
+                          </Typography>
+
+                          <Typography
+                            sx={{
+                              fontFamily: 'Poppins',
+                              fontSize: '12px',
+                              color: '#574B4F',
+                              opacity: 0.7,
+                              textAlign: 'center',
+                              wordBreak: 'break-word',
+                              maxWidth: '142px',
+                            }}
+                          >
+                            {fileSuccess && uploadedFile
+                              ? uploadedFile.name
+                              : 'Arrastre un archivo aquí, o selecciónelo.'}
+                          </Typography>
+                          {fileSuccess && (
+                            <Typography
+                              sx={{
+                                fontFamily: 'Poppins',
+                                fontSize: '12px',
+                                color: '#574B4F',
+                                opacity: 0.7,
+                                textAlign: 'center',
+                                mt: '4px'
+                              }}
+                            >
+                              Total de registros:
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
+
+
+                    {/*Descargar archivo de muestra*/}
+                    {!fileSuccess && (
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          mt: -1, ml: '380px'
+                        }}
+                      >
+                        <Button
+                          disableRipple
+                          sx={{
+                            backgroundColor: 'transparent',
+                            textTransform: 'none',
+                            padding: 0,
+                            minWidth: 'auto',
+                            '&:hover': {
+                              backgroundColor: 'transparent'
+                            }
+                          }}
+                          onClick={() => {
+                            // tu lógica si la necesitas
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              textDecoration: "underline",
+                              fontFamily: 'Poppins',
+                              fontSize: '11px',
+                              color: "#8F4D63",
+                            }}
+                          >
+                            Descargar archivo de muestra
+                          </Typography>
+                        </Button>
+                      </Box>
+                    )}
+
+
+                    {uploadedFile && !postCargaActiva && (
+                      <FormControl fullWidth sx={{ marginTop: "24px" }}>
+                        <Select
+                          value={selectedSheet}
+                          onChange={handleSheetChange}
+                          displayEmpty
+                          renderValue={(selected) =>
+                            selected ? (
+                              <span style={{ color: '#786E71', fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}>
+                                {selected}
+                              </span>
+                            ) : (
+                              <span style={{ color: '#786E71', fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}>
+                                Seleccionar hoja
+                              </span>
+                            )
+                          }
+                          sx={{
+                            marginLeft: '80px',
+                            marginTop: '-5px',
+                            color: '#786E71',
+                            width: '200px',
+                            height: '40px',
+                            borderRadius: '8px',
+                            backgroundColor: '#FFFFFF',
+                            fontFamily: 'Poppins',
+                            fontSize: '12px',
+                            mb: 0
+                          }}
+                        >
+                          {sheetNames.map((name, idx) => (
+                            <MenuItem
+                              key={idx}
+                              value={name}
+                              sx={{
+                                fontFamily: 'Poppins, sans-serif',
+                                fontSize: '12px',
+                                color: '#9B9295',
+                                '&:hover': {
+                                  backgroundColor: '#F2EBED', // color solo al pasar el mouse
+                                },
+                                '&.Mui-selected': {
+                                  backgroundColor: 'transparent', //  quita el fondo cuando está seleccionado
+                                },
+                                '&.Mui-selected:hover': {
+                                  backgroundColor: '#F2EBED', //  mantiene el hover cuando está seleccionado
+                                },
+                              }}
+                            >
+                              {name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+
+                      </FormControl>
+
+
+                    )}
+                  </Box>
+                )}
+
+                {/*Caja visual para archivos subidos en (Archivo cargado / Seleccionar datos)*/}
+                {!postCargaActiva && uploadedFile && (
                   <Box
                     sx={{
                       position: "absolute", width: "312px", height: "305px", borderRadius: '15px', marginBottom: "-10px",
-                      border: "1px solid #E6E4E4", marginLeft: "25px", marginTop: "-16px", pointerEvents: "none",
+                      border: "1px solid #E6E4E4", marginLeft: "25px", marginTop: "-5px", pointerEvents: "none",
                     }}
                   >
                     <Divider sx={{
@@ -3834,11 +4196,11 @@ const Campains: React.FC = () => {
                     }} />
                   </Box>
                 )}
-
+                {/*Teléfonos y Variables en (Archivo cargado / Seleccionar datos)*/}
                 {!postCargaActiva && uploadedFile && (
                   <Box sx={{
                     width: 380, border: '1px solid #E0E0E0', borderRadius: '12px', padding: '20px',
-                    marginTop: '0px', fontFamily: 'Poppins',
+                    marginTop: '-0px', fontFamily: 'Poppins',
                   }}>
                     <Tabs
                       value={selectedTab}
@@ -3847,21 +4209,27 @@ const Campains: React.FC = () => {
                       textColor="inherit"
                       sx={{
                         borderBottom: '1px solid #D9B4C3',
-                        marginBottom: '12px', marginTop: "-18px",
+                        marginTop: '-20px',
+                        marginBottom: '14px',
+                        '.MuiTabs-flexContainer': {
+                          width: '100%',
+                        },
                         '.MuiTab-root': {
                           fontFamily: 'Poppins',
-                          fontWeight: 500,
-                          fontSize: '14px',
+                          fontWeight: 600,
+                          fontSize: '14px', letterSpacing: '0.96px',
                           textTransform: 'none',
                           color: '#7B354D',
                           paddingBottom: '6px',
-                          minWidth: '100px',
+                          flex: 1, // <-- esto reparte mitad y mitad
+                          justifyContent: 'center',
+                          marginBottom: '10px',
                           '&:hover': {
-                            backgroundColor: 'transparent', // 👈 quita el fondo al pasar el mouse
+                            backgroundColor: 'transparent',
                           },
                         },
                         '.Mui-selected': {
-                          backgroundColor: 'transparent', // opcional: evita fondo cuando está seleccionado
+                          backgroundColor: 'transparent',
                         },
                       }}
                     >
@@ -3870,10 +4238,11 @@ const Campains: React.FC = () => {
                     </Tabs>
 
 
+
                     <DragDropContext onDragEnd={handleDragEnd}>
                       <Droppable droppableId="columns-droppable">
                         {(provided) => (
-                          <Box ref={provided.innerRef} {...provided.droppableProps} sx={{ maxHeight: '160px', overflowY: 'auto' }}>
+                          <Box ref={provided.innerRef} {...provided.droppableProps} sx={{ maxHeight: '192px', overflowY: 'auto' }}>
                             {currentSelected.map((col, index) => {
                               const isDisabled = selectedTab === 'telefonos' ? selectedVariables.includes(col) : selectedTelefonos.includes(col);
                               const toggleValue = () => {
@@ -3887,13 +4256,20 @@ const Campains: React.FC = () => {
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
                                       {...provided.dragHandleProps}
-                                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #D9B4C3', borderRadius: '8px', padding: '6px 12px', marginBottom: '10px', backgroundColor: '#F2EBED', width: '100%', cursor: 'grab' }}
+                                      sx={{
+                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                        border: '1px solid #A46F80', borderRadius: '4px', padding: '6px 12px',
+                                        marginBottom: '10px', backgroundColor: '#F2EBED', width: '192px', height: "40px", cursor: 'grab'
+                                      }}
                                     >
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <Checkbox checked onChange={toggleValue} sx={{ '&.Mui-checked': { color: '#7B354D' } }} />
-                                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>{col}</Typography>
+                                        <Typography sx={{
+                                          fontFamily: 'Poppins', fontSize: '16px', color: "#8F4D63"
+
+                                        }}>{col}</Typography>
                                       </Box>
-                                      <DragIndicatorIcon sx={{ fontSize: '18px', color: '#9B9295', cursor: 'grab' }} />
+                                      <DragIndicatorIcon sx={{ fontSize: '18px', color: '#576771', cursor: 'grab', width: '24px', height: "24px" }} />
                                     </Box>
                                   )}
                                 </Draggable>
@@ -3916,13 +4292,18 @@ const Campains: React.FC = () => {
                                 return (
                                   <Box
                                     key={col}
-                                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #D9B4C3', borderRadius: '8px', padding: '6px 12px', marginBottom: '10px', backgroundColor: '#FFF', width: '100%', opacity: isDisabled ? 0.5 : 1 }}
+                                    sx={{
+                                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                      border: '1px solid #786F72', borderRadius: '4px', padding: '6px 12px',
+                                      marginBottom: '10px', backgroundColor: '#FFF', width: '192px',
+                                      opacity: isDisabled ? 0.6 : 1, height: "40px",
+                                    }}
                                   >
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, }}>
                                       <Checkbox checked={false} onChange={toggleValue} disabled={isDisabled} sx={{ '&.Mui-checked': { color: '#7B354D' } }} />
-                                      <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>{col}</Typography>
+                                      <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F", opacity: 0.9 }}>{col}</Typography>
                                     </Box>
-                                    <DragIndicatorIcon sx={{ fontSize: '18px', color: '#D9D9D9' }} />
+                                    <DragIndicatorIcon sx={{ fontSize: '18px', color: '#576771', width: '24px', height: "24px", fontFamily: "Poppins", opacity: 0.8 }} />
                                   </Box>
                                 );
                               })}
@@ -3933,73 +4314,616 @@ const Campains: React.FC = () => {
                   </Box>
                 )}
 
+                {/*Box con Estados y Registros (Detalle de carga)*/}
                 {postCargaActiva && estadisticasCarga && (
-                  <Box
-                    sx={{
-                      border: "1px solid #D9B4C3",
-                      borderRadius: "8px",
-                      padding: "16px 24px",
-                      marginLeft: "32px",
-                      width: "280px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center"
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: 600, fontSize: "16px", mb: 2, fontFamily: "Poppins" }}>
-                      Resumen de carga
+                  <Box sx={{
+                    position: "relative", width: "1000px",
+                    minHeight: "500px", // altura fija
+                    backgroundColor: "#FFFFFF",
+                    overflowY: "auto"
+                  }}>
+                    <Typography sx={{
+                      marginLeft: "30px", mt: -0, mb: "16px",
+                      fontFamily: 'Poppins', color: '#330F1B', fontWeight: 600, fontSize: '18px',
+                    }}>
+                      Detalles de Carga
                     </Typography>
-
-                    {/* Registros */}
-                    <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins", mb: 1 }}>
-                      <Typography>Registros</Typography>
-                      <Typography>{porcentajeRegistrosCargados}%</Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={porcentajeRegistrosCargados}
+                    <Box
                       sx={{
-                        height: 8,
-                        borderRadius: 5,
-                        backgroundColor: "#E2E2E2",
-                        "& .MuiLinearProgress-bar": {
-                          backgroundColor: "#8F4D63",
-                        },
-                        mb: 1,
+                        display: 'flex',
+                        flexWrap: 'wrap', border: "1px solid #E6E4E4", marginLeft: "20px",
+                        width: '658px', height: '600px', gap: "2px", borderRadius: "12px",
                       }}
-                    />
-                    <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins", mb: 2 }}>
-                      <Typography>Cargados: {estadisticasCarga.registrosCargados}</Typography>
-                      <Typography>No cargados: {estadisticasCarga.registrosFallidos}</Typography>
-                    </Box>
+                    >
+                      <Box sx={{
+                        width: "200px", height: "200px", display: "flex", flexDirection: "column",
+                        alignItems: "center", marginLeft: "-51px", marginTop: "16px"
+                      }}>
+                        <Box
+                          marginBottom={'0px'} marginTop={'0px'} marginRight={"20px"}
+                          onClick={() => fileInputRef.current?.click()}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const file = e.dataTransfer.files?.[0];
+                            if (file) {
+                              setUploadedFile(file);
+                              handleManageFile(file);
+                            }
+                          }}
+                          sx={{
+                            justifyContent: fileSuccess ? 'flex-start' : 'center', // 👈 aquí está la magia
 
-                    {/* Teléfonos */}
-                    <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins", mb: 1 }}>
-                      <Typography>Teléfonos</Typography>
-                      <Typography>{porcentajeTelefonosCargados}%</Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={porcentajeTelefonosCargados}
-                      sx={{
-                        height: 8,
-                        borderRadius: 5,
-                        backgroundColor: "#E2E2E2",
-                        "& .MuiLinearProgress-bar": {
-                          backgroundColor: "#8F4D63",
-                        },
-                        mb: 1,
-                      }}
-                    />
-                    <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins" }}>
-                      <Typography>Cargados: {estadisticasCarga.telefonosCargados}</Typography>
-                      <Typography>No cargados: {estadisticasCarga.telefonosFallidos}</Typography>
+                            width: '200px',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: '200px',
+                              height: '200px',
+                              minWidth: '200px',    // ← fuerza el tamaño mínimo
+                              minHeight: '200px',   // ← fuerza el tamaño mínimo
+                              maxWidth: '200px',    // ← evita que crezca más
+                              maxHeight: '200px',   // ← evita que crezca más
+                              border: fileError
+                                ? '2px solid #EF5466'
+                                : fileSuccess
+                                  ? '2px solid #8F4E63CC'
+                                  : '2px dashed #D9B4C3',
+                              backgroundColor: fileError
+                                ? '#FFF4F5'
+                                : fileSuccess
+                                  ? '#E5CBD333'
+                                  : 'transparent',
+                              borderRadius: '8px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              textAlign: 'center',
+                              fontFamily: 'Poppins',
+                              fontSize: '13px',
+                              color: '#330F1B',
+                              cursor: 'pointer',
+                              px: 1,
+                              marginLeft: fileSuccess ? '80px' : '380px',
+                            }}
+                          >
+                            {/*Tooltip */}
+                            <Box
+                              sx={{
+                                marginTop: "-42px",
+                                marginRight: '-140px',
+                                width: 24,
+                                height: 24,
+
+                              }}
+                            >
+                              <Tooltip
+                                placement="right"
+                                title={
+                                  fileError ? (
+                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
+                                      Solo se permiten archivos .xlsx
+                                    </Box>
+                                  ) : (
+                                    <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
+                                      · El archivo debe ser Excel (.xls/.xlsx)<br />
+                                      · La primera columna debe contener<br />
+                                      el ID de cada registro<br />
+                                      · Los teléfonos y datos adicionales<br />
+                                      pueden presentarse en cualquier<br />
+                                      orden<br />
+                                      · Las columnas deben contar con el<br />
+                                      formato de texto o dato general
+                                    </Box>
+                                  )
+                                }
+                                componentsProps={{
+                                  tooltip: {
+                                    sx: {
+                                      backgroundColor: "#FFFFFF",
+                                      borderRadius: "8px",
+                                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                      padding: "8px 12px",
+                                      fontSize: "14px",
+                                      fontFamily: "Poppins",
+                                      color: "#000000",
+                                      whiteSpace: "pre-line",
+                                      transform: "translate(-5px, -5px)",
+                                      borderColor: "#00131F3D",
+                                      borderStyle: "solid",
+                                      borderWidth: "1px"
+                                    }
+                                  }
+                                }}
+                                PopperProps={{
+                                  modifiers: [
+                                    {
+                                      name: 'offset',
+                                      options: {
+                                        offset: [104, -260] //  [horizontal, vertical]
+                                      }
+                                    }
+                                  ]
+                                }}
+                              >
+                                <img
+                                  src={fileError ? infoiconerror : infoicon}
+                                  alt="estado"
+                                  style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                                />
+                              </Tooltip>
+                              {!postCargaActiva && uploadedFile && (
+                                <Tooltip title="Eliminar" arrow placement="top"
+                                  componentsProps={{
+                                    tooltip: {
+                                      sx: {
+                                        backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                        color: "#CCC3C3",
+                                        fontFamily: "Poppins, sans-serif",
+                                        fontSize: "12px",
+                                        padding: "6px 8px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                      }
+                                    },
+                                    arrow: {
+                                      sx: {
+                                        color: "rgba(0, 0, 0, 0.8)"
+                                      }
+                                    }
+                                  }}
+                                  PopperProps={{
+                                    modifiers: [
+                                      {
+                                        name: 'offset',
+                                        options: {
+                                          offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                        }
+                                      }
+                                    ]
+                                  }}
+                                >
+                                  <IconButton
+                                    onClick={(e) => {
+                                      e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
+                                      setSelectedFile(null);
+                                      setUploadedFile(null);
+                                      setFileSuccess(false);
+                                      setFileError(false);
+                                      setBase64File('');
+                                      setUploadedFileBase64('');
+                                      setFormData(prev => ({ ...prev, File: '' }));
+                                      if (fileInputRef.current) {
+                                        fileInputRef.current.value = '';
+                                      }
+                                    }}
+                                    sx={{
+                                      mt: 8,
+                                      marginLeft: "0px",
+                                      width: 24,
+                                      height: 24,
+                                      padding: 0,
+                                    }}
+                                  >
+                                    <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+
+                            </Box>
+
+                            <input
+                              type="file"
+                              hidden
+                              ref={fileInputRef}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadedFile(file);
+                                  handleManageFile(file);
+                                }
+                              }}
+                            />
+
+                            <Box sx={{ width: '142px', height: '100px' }}>
+                              <img
+                                src={
+                                  fileError
+                                    ? IconCloudError
+                                    : fileSuccess
+                                      ? CloudCheckedIcon
+                                      : UpCloudIcon
+                                }
+                                alt="estado archivo"
+                                style={{ marginBottom: '8px', width: "72px", height: "48px" }}
+                              />
+
+                              <Typography
+                                sx={{
+                                  fontWeight: 600,
+                                  fontFamily: 'Poppins',
+                                  color: '#330F1B',
+                                  fontSize: '14px',
+                                  opacity: !fileError && !fileSuccess ? 0.6 : 1,
+                                }}
+                              >
+                                {fileError
+                                  ? 'Archivo inválido'
+                                  : fileSuccess
+                                    ? 'Archivo cargado'
+                                    : 'Subir archivo'}
+                              </Typography>
+
+                              <Typography
+                                sx={{
+                                  fontFamily: 'Poppins',
+                                  fontSize: '12px',
+                                  color: '#574B4F',
+                                  opacity: 0.7,
+                                  textAlign: 'center',
+                                  wordBreak: 'break-word',
+                                  maxWidth: '142px',
+                                }}
+                              >
+                                {fileSuccess && uploadedFile
+                                  ? uploadedFile.name
+                                  : 'Arrastre un archivo aquí, o selecciónelo.'}
+                              </Typography>
+                              {fileSuccess && (
+                                <Typography
+                                  sx={{
+                                    fontFamily: 'Poppins',
+                                    fontSize: '12px',
+                                    color: '#574B4F',
+                                    opacity: 0.7,
+                                    textAlign: 'center',
+                                    mt: '4px'
+                                  }}
+                                >
+                                  Total de registros:
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
+                        </Box>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexWrap: 'wrap', height: "220px",
+                          width: '416px', marginTop: "16px", marginLeft: "86px"
+                        }}
+                      >
+                        {/* Box 1 de textos - Estados 1*/}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: "100px",
+                            height: "74px", mr: 1
+                          }}
+                        >
+                          <Typography sx={{
+                            fontWeight: 600, fontSize: '14px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >Estado
+                          </Typography>
+
+                          <Typography sx={{
+                            fontWeight: 500, fontSize: '12px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >Cargados
+                          </Typography>
+
+                          <Typography sx={{
+                            fontWeight: 500, fontSize: '12px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >No cargados
+                          </Typography>
+                        </Box>
+
+                        {/* Box 2 de textos - Registros */}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: "100px",
+                            height: "74px", mr: 1
+                          }}
+                        >
+                          <Typography sx={{
+                            fontWeight: 600, fontSize: '14px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >Registros
+                          </Typography>
+
+                          <Typography sx={{
+                            fontWeight: 500, fontSize: '12px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          > {estadisticasCarga.registrosCargados}
+                          </Typography>
+
+                          <Typography sx={{
+                            fontWeight: 500, fontSize: '12px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          > {estadisticasCarga.registrosFallidos}
+                          </Typography>
+                        </Box>
+
+                        {/* Box 3 de textos - Porcentajes */}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: "142px", height: "74px"
+                          }}
+                        >
+
+                          <Typography sx={{
+                            fontWeight: 600, fontSize: '14px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >Porcentaje
+                          </Typography>
+
+
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: "6px" }}>
+                            <LinearProgress
+                              variant="determinate"
+                              value={porcentajeRegistrosCargados}
+                              sx={{
+                                flex: 1,
+                                height: 8,
+                                borderRadius: 5,
+                                backgroundColor: "#E2E2E2",
+                                "& .MuiLinearProgress-bar": {
+                                  backgroundColor: "#8F4D63",
+                                },
+                              }}
+                            />
+                            <Typography sx={{
+                              minWidth: '40px', textAlign: 'right', color: "#574B4F", fontSize: "12px", fontFamily: 'Poppins, sans-serif',
+                            }}>
+                              {porcentajeRegistrosCargados}%
+                            </Typography>
+                          </Box>
+
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: "6px" }}>
+                            <LinearProgress
+                              variant="determinate"
+                              value={porcentajeTelefonosCargados}
+                              sx={{
+                                flex: 1,
+                                height: 8,
+                                borderRadius: 5,
+                                backgroundColor: "#E2E2E2",
+                                "& .MuiLinearProgress-bar": {
+                                  backgroundColor: "#8F4D63",
+                                },
+                              }}
+                            />
+                            <Typography sx={{
+                              minWidth: '40px', textAlign: 'right', color: "#574B4F",
+                              fontFamily: "Poppins", fontSize: '12px'
+                            }}>
+                              {porcentajeTelefonosCargados}%
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* Box 4 de textos - Estados 2*/}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: "100px",
+                            height: "74px", mt: -0, mr: 0
+                          }}
+                        >
+                          <Typography sx={{
+                            fontWeight: 600, fontSize: '14px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >Estado
+                          </Typography>
+
+                          <Typography sx={{
+                            fontWeight: 500, fontSize: '12px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >Cargados
+                          </Typography>
+
+                          <Typography sx={{
+                            fontWeight: 500, fontSize: '12px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >No cargados
+                          </Typography>
+                        </Box>
+
+                        {/* Box 5 de textos - Teléfonos */}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: "100px",
+                            height: "74px", mt: -0
+                          }}
+                        >
+                          <Typography sx={{
+                            fontWeight: 600, fontSize: '14px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          >Teléfonos
+                          </Typography>
+
+                          <Typography sx={{
+                            fontWeight: 500, fontSize: '12px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          > {estadisticasCarga.telefonosCargados}
+                          </Typography>
+
+                          <Typography sx={{
+                            fontWeight: 500, fontSize: '12px', fontFamily: 'Poppins, sans-serif',
+                            marginBottom: '6px', color: '#574B4F'
+                          }}
+                          > {estadisticasCarga.telefonosFallidos}
+                          </Typography>
+                        </Box>
+
+                      </Box>
+                      <Divider
+                        sx={{
+                          position: "absolute",
+                          width: 'calc(80% + 60px)', // compensa 15px de padding a cada lado
+                          marginTop: '230px',
+                        }}
+                      />
+                      <Box sx={{
+                        width: "658px", height: "30px", marginTop: "-116px"
+                      }}>
+                        <Typography sx={{
+                          fontFamily: "Poppins", fontSize: "16px", fontWeight: 600,
+                          color: "#330F1B", ml: 2
+                        }}>
+                          Datos seleccionados</Typography>
+                      </Box>
+
+                      <Box sx={{
+                        display: 'flex', flexDirection: 'row',
+                        gap: 0, marginTop: "-205px", ml: "-1px"
+                      }}>
+                        {/*Teléfonos*/}
+                        <Box
+                          sx={{
+                            flex: 1,
+                            border: '1px solid #E6E4E4',
+                            padding: '12px',
+                            maxHeight: '200px', width: "329px",
+                            overflowY: 'auto',
+                          }}
+                        >
+                          <Typography sx={{
+                            fontFamily: 'Poppins', fontWeight: 600, fontSize: '14px',
+                            color: '#330F1B', mb: 1
+                          }}>
+                            Teléfonos
+                          </Typography>
+
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {telefonos.map((variable, i) => (
+                              <Button
+                                key={i}
+                                sx={{
+                                  justifyContent: 'space-between',
+                                  border: '1px solid #A46F80',
+                                  width: '192px', height: "40px",
+                                  color: '#8F4D63',
+                                  fontFamily: 'Poppins',
+                                  textTransform: 'none',
+                                  borderRadius: '4px',
+                                  fontSize: '14px',
+                                  padding: '6px 12px',
+                                  '&:hover': {
+                                    backgroundColor: '#F2EBED',
+                                    borderColor: '#8F4D63',
+                                  },
+                                }}
+                              >
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, ml: -1 }}>
+                                  <Checkbox checked={true} sx={{ '&.Mui-checked': { color: '#7B354D' } }} />
+                                  <Typography
+                                    sx={{
+                                      fontFamily: 'Poppins',
+                                      color: '#8F4D63',
+                                      fontSize: '16px',
+                                    }}
+                                  >
+                                    {variable}
+                                  </Typography>
+                                </Box>
+                              </Button>
+                            ))}
+                          </Box>
+                        </Box>
+
+                        {/*Variables*/}
+                        <Box
+                          sx={{
+                            flex: 1,
+                            border: '1px solid #E6E4E4',
+                            padding: '12px',
+                            maxHeight: '200px', width: "329px",
+                            overflowY: 'auto',
+                          }}
+                        >
+                          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '14px', color: '#330F1B', mb: 1 }}>
+                            Variables
+                          </Typography>
+
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {variables.map((variable, i) => (
+                              <Button
+                                key={i}
+                                sx={{
+                                  justifyContent: 'space-between',
+                                  border: '1px solid #A46F80',
+                                  width: '192px', height: "40px",
+                                  color: '#8F4D63',
+                                  fontFamily: 'Poppins',
+                                  textTransform: 'none',
+                                  borderRadius: '4px',
+                                  fontSize: '14px',
+                                  padding: '6px 12px',
+                                  '&:hover': {
+                                    backgroundColor: '#F2EBED',
+                                    borderColor: '#8F4D63',
+                                  },
+                                }}
+                              >
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, ml: -1 }}>
+                                  <Checkbox checked={true} sx={{ '&.Mui-checked': { color: '#7B354D' } }} />
+                                  <Typography
+                                    sx={{
+                                      fontFamily: 'Poppins',
+                                      color: '#8F4D63',
+                                      fontSize: '16px',
+                                    }}
+                                  >
+                                    {variable}
+                                  </Typography>
+                                </Box>
+                              </Button>
+                            ))}
+                          </Box>
+                        </Box>
+                      </Box>
                     </Box>
                   </Box>
                 )}
 
+                {/*Box con absolute para creación de fondo*
+                {postCargaActiva && estadisticasCarga && (
+                  <Box
+                    sx={{
+                      position: "absolute", width: "658px", height: "232px", marginBottom: "-10px",
+                      border: "1px solid #FFFFF", marginLeft: "64px", marginTop: "-5px", pointerEvents: "none",
+                      borderTopLeftRadius: '12px', borderTopRightRadius: '12px',
+                    }}>
+                  </Box>
+                )}
+*/}
               </Box>
-
             </Box>
           )}
 
@@ -4007,32 +4931,98 @@ const Campains: React.FC = () => {
             <>
               {!mensajeAceptado ? (
                 // 🔴 SELECCIÓN DE TIPO DE MENSAJE
-                <Box sx={{ display: "flex", justifyContent: "center", gap: 4 }}>
-                  <FormControlLabel
-                    value="escrito"
-                    control={<Radio checked={tipoMensaje === "escrito"} onChange={() => setTipoMensaje("escrito")} />}
-                    label={
-                      <Box sx={{ textAlign: "center", p: 2, border: "1px solid", borderColor: tipoMensaje === "escrito" ? "#8F4D63" : "#ccc", borderRadius: "12px", width: 120 }}>
-                        <Typography variant="h6" sx={{ color: "#8F4D63", fontWeight: 600 }}>Abc|</Typography>
-                        <Typography sx={{ mt: 1, fontFamily: "Poppins", fontWeight: 500 }}>Escrito + variables</Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 4, }}>
+
+                  <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', textAlign: "center", mt: 3 }}>
+                    Seleccionar el tipo de mensaje.
+                  </Typography>
+
+                  <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: 5 }}>
+
+                    <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", }}>
+                      <Box sx={{ border: "2px solid #9B929599", borderRadius: "8px", width: "160px", height: "160px" }}
+                      >
+                        <FormControlLabel
+                          value="escrito"
+                          control={
+                            <Radio
+                              checked={tipoMensaje === "escrito"}
+                              onChange={() => setTipoMensaje("escrito")}
+                              sx={{
+                                color: "#574B4F",
+                                '&.Mui-checked': {
+                                  color: "#574B4F",
+                                },
+                              }}
+                            />
+                          }
+                          label={
+                            <Box sx={{
+                              textAlign: "center", p: 2, mb: 6,
+                              borderColor: tipoMensaje === "escrito" ? "#8F4D63" : "#ccc",
+                              borderRadius: "12px", width: 120
+                            }}>
+                              <Typography variant="h6" sx={{
+                                color: "#8F4D63", marginLeft: "-180px",
+                                fontWeight: 600, fontSize: "30px"
+                              }}>
+                                Abc|
+                              </Typography>
+                            </Box>
+                          }
+                          labelPlacement="bottom"
+                          sx={{
+                            marginLeft: "110px",
+                            alignItems: 'flex-start',      //  opcional, ajusta alineación vertical si lo necesitas
+                          }}
+                        />
+
                       </Box>
-                    }
-                    labelPlacement="bottom"
-                  />
-                  <FormControlLabel
-                    value="plantilla"
-                    control={<Radio checked={tipoMensaje === "plantilla"} onChange={() => setTipoMensaje("plantilla")} />}
-                    label={
-                      <Box sx={{ textAlign: "center", p: 2, border: "1px solid", borderColor: tipoMensaje === "plantilla" ? "#8F4D63" : "#ccc", borderRadius: "12px", width: 120 }}>
-                        <ArrowDropDownIcon sx={{ fontSize: 32, color: "#8F4D63" }} />
-                        <Typography sx={{ mt: 1, fontFamily: "Poppins", fontWeight: 500 }}>Plantilla</Typography>
+                      <Box>
+                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 500, color: "#574B4F", mt: 2, textAlign: "center" }}>
+                          Escrito + variables
+                        </Typography>
                       </Box>
-                    }
-                    labelPlacement="bottom"
-                  />
+                    </Box>
+
+                    <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", }}>
+                      <Box sx={{ border: "2px solid #9B929599", borderRadius: "8px", width: "160px", height: "160px" }}>
+                        <FormControlLabel
+                          value="plantilla"
+                          control={<Radio checked={tipoMensaje === "plantilla"} onChange={() => setTipoMensaje("plantilla")} />}
+                          label={
+                            <Box sx={{
+                              textAlign: "center", p: 2, border: "3px solid",
+                              borderColor: tipoMensaje === "plantilla" ? "#8F4D63" : "#8F4D63",
+                              borderRadius: "6px", width: "123px", height: "37px", mt: 2, mb: 8
+                            }}>
+                              <Box sx={{ marginLeft: "70px", marginTop: "-12px", }}>
+                                <img
+                                  src={IconArrowDown1}
+                                  alt="ArrowDown"
+                                  style={{
+                                    fontSize: 32, color: "#8F4D63",
+                                    width: 24,
+                                    height: 24,
+                                  }}
+                                />
+                              </Box>
+                            </Box>
+                          }
+                          labelPlacement="bottom"
+                        />
+                      </Box>
+                      <Box>
+                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 500, color: "#574B4F", mt: 2, textAlign: "center" }}>
+                          Plantilla
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+
                 </Box>
               ) : tipoMensaje === "escrito" ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, overflowX: "hidden", }}>
                   {/* Componente editor de mensaje */}
                   <DynamicCampaignText
                     variables={variables}
@@ -4042,34 +5032,82 @@ const Campains: React.FC = () => {
 
                   {/* Opciones adicionales debajo */}
                   <Box>
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: -2, marginTop: "-25px" }}>
                       <FormControlLabel
-                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        control={
+                          <Checkbox
+                            sx={{
+                              color: "#786F72", // color cuando está desmarcado
+                              '&.Mui-checked': {
+                                color: "#8F4D63", // color cuando está marcado
+                              },
+                            }}
+                          />
+                        }
                         label="Concatenar mensajes con más de 160 caracteres"
                         sx={{
                           fontFamily: "Poppins",
-                          color: "#574B4F",
-                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                          '& .MuiFormControlLabel-label': {
+                            fontFamily: "Poppins",
+                            fontSize: "14px",
+                            color: "#786F72", // color texto cuando no está marcado
+                          },
+                          '& .Mui-checked + .MuiFormControlLabel-label': {
+                            color: "#8F4D63", // color texto cuando está marcado
+                          },
                         }}
                       />
+
                       <FormControlLabel
-                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        control={
+                          <Checkbox
+                            sx={{
+                              color: "#786F72", // color cuando está desmarcado
+                              '&.Mui-checked': {
+                                color: "#8F4D63", // color cuando está marcado
+                              },
+                            }}
+                          />
+                        }
                         label="Acortar URLs en el mensaje"
                         sx={{
                           fontFamily: "Poppins",
-                          color: "#574B4F",
-                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                          '& .MuiFormControlLabel-label': {
+                            fontFamily: "Poppins",
+                            fontSize: "14px",
+                            color: "#786F72", // color texto cuando no está marcado
+                          },
+                          '& .Mui-checked + .MuiFormControlLabel-label': {
+                            color: "#8F4D63", // color texto cuando está marcado
+                          },
                         }}
                       />
+
                       <FormControlLabel
-                        control={<Checkbox defaultChecked sx={{ color: "#8F4D63" }} />}
+                        control={
+                          <Checkbox
+                            sx={{
+                              color: "#786F72", // color cuando está desmarcado
+                              '&.Mui-checked': {
+                                color: "#8F4D63", // color cuando está marcado
+                              },
+                            }}
+                          />
+                        }
                         label="Guardar como plantilla"
                         sx={{
                           fontFamily: "Poppins",
-                          color: "#574B4F",
-                          '& .MuiFormControlLabel-label': { fontSize: "14px" },
+                          '& .MuiFormControlLabel-label': {
+                            fontFamily: "Poppins",
+                            fontSize: "14px",
+                            color: "#786F72", // color texto cuando no está marcado
+                          },
+                          '& .Mui-checked + .MuiFormControlLabel-label': {
+                            color: "#8F4D63", // color texto cuando está marcado
+                          },
                         }}
                       />
+
                     </Box>
 
                     <Typography sx={{ fontFamily: "Poppins", fontWeight: 500, fontSize: "14px", mt: 2, mb: 1 }}>
@@ -4087,6 +5125,7 @@ const Campains: React.FC = () => {
                         ),
                       }}
                       sx={{
+                        width: "500px",
                         fontFamily: "Poppins",
                         backgroundColor: "#FFFFFF",
                         borderRadius: "8px",
