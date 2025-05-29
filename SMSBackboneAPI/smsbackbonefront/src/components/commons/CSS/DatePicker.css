@@ -1,98 +1,122 @@
-/* Estilos para los nombres de los meses */
-.rdrMonthName {
-    text-align: center;
-    font: normal normal medium 16px/16px Poppins;
-    letter-spacing: 0px;
-    color: #574B4F;
-    opacity: 1;
-    font-size: 16px;
+/* General: Forzar fuente Poppins en todo */
+.date-picker-container,
+.date-picker-container * {
+    font-family: 'Poppins', sans-serif !important;
 }
 
-/* Ocultar el t�tulo superior "Feb 2025" que aparece por defecto */
+/* Nombre del mes */
+.rdrMonthName {
+    text-align: center;
+    font-size: 16px;
+    color: #574B4F;
+    font-weight: 500;
+}
+
+/* Ocultar título superior (opcional) */
 .rdrMonthAndYearWrapper {
     display: none !important;
 }
 
-/* L�nea divisoria debajo de los meses */
-.date-picker-divider {
-    width: 100%;
-    height: 1px;
-    background: #E6E4E4;
-    margin-top: 8px;
-    margin-bottom: 8px;
+/* Días deshabilitados → gris claro */
+.rdrDay.rdrDayDisabled span {
+    color: #CCCCCC !important;
 }
 
-.rdrDay:focus,
-.rdrDay:active,
-.rdrDay:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
+/* Días normales (no seleccionados, no deshabilitados) → texto morado, fondo transparente */
+.rdrDay:not(.rdrDaySelected):not(.rdrDayDisabled) button {
+    background-color: transparent !important;
     border: none !important;
 }
 
-/* Color del d�a seleccionado */
+.rdrDay:not(.rdrDaySelected):not(.rdrDayDisabled) span {
+    color: #8F4D63 !important;
+}
+
+/* Día en hover y día seleccionado → bolita morada, texto negro */
+.rdrDay:hover button,
+.rdrDay.rdrDaySelected button {
+    background-color: #8F4D63 !important;
+    border-radius: 50% !important;
+    border: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.rdrDay:hover span,
+.rdrDay.rdrDaySelected span {
+    color: #000000 !important;
+}
+
+/* Día actual (hoy) → fondo suave */
 .rdrDayToday span {
     background-color: #F2EBED !important;
 }
 
-.rdrDay.rdrDaySelected span {
-    background-color: #8F4D63 !important;
-    color: #FFFFFF !important; /* Para que el texto sea blanco y legible */
-    border-radius: 50%;
-}
-
-/* Para mejorar el contraste con el rango seleccionado */
-
-.rdrEndEdge {
-    background-color: #8F4D63 !important;
-}
-
-.rdrStartEdge {
-    background-color: #8F4D63 !important;
-}
-
-
-.rdrDayHovered,
-.rdrDayHovered span {
-    color: inherit !important;
-}
-
+/* Rango seleccionado → fondo suave, texto morado */
 .rdrInRange {
     background-color: #F2EBED !important;
     color: #8F4D63 !important;
 }
 
-/* Asegurar que el n�mero dentro del d�a seleccionado sea blanco */
-.rdrDayNumber span {
-    color: #574B4F !important;
+/* Inicio y fin del rango → bolita morada */
+.rdrStartEdge,
+.rdrEndEdge {
+    background-color: #8F4D63 !important;
 }
 
-/* Eliminar bordes azules */
-.rdrDayToday span:focus,
-.rdrStartEdge span:focus,
-.rdrEndEdge span:focus {
+/* Quitar pseudo-elementos molestos y azul base */
+.rdrDay.rdrDaySelected::before,
+.rdrDay.rdrDaySelected::after,
+.rdrDay.rdrDaySelected button::before,
+.rdrDay.rdrDaySelected button::after {
+    display: none !important;
+    content: none !important;
+}
+
+.rdrDay span::after {
+    display: none !important;
+}
+
+/* Quitar bordes, outlines, sombras */
+.rdrDay:focus,
+.rdrDay:active,
+.rdrDay:focus-visible,
+.rdrDay button:focus,
+.rdrDay button:active,
+.rdrDay button:focus-visible {
     outline: none !important;
     box-shadow: none !important;
+    border: none !important;
 }
 
+/* Divisores visuales */
+.date-picker-divider {
+    width: 100%;
+    height: 1px;
+    background: #E6E4E4;
+    margin: 8px 0;
+}
 
-
-/* Estilos para el bot�n de fecha cuando est� presionado */
+/* Botones de control (fuera del calendario) */
 .date-button {
     background: #F6F6F6;
     border: 1px solid #C6BFC2;
     border-radius: 18px;
-    opacity: 1;
     width: 90px;
     height: 36px;
+    opacity: 1;
 }
 
-    .date-button.active {
-        background: #FEFEFE;
-        border: 1px solid #8F4E63CC;
-    }
+.date-button.active {
+    background: #FEFEFE;
+    border: 1px solid #8F4E63CC;
+}
 
-/* Contenedor de las dos columnas */
+/* Contenedor de las dos columnas (hora) */
 .time-container {
     display: flex;
     justify-content: space-between;
@@ -105,32 +129,30 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 48%; /* Ajuste para que ambas columnas se repartan el espacio */
+    width: 48%;
 }
 
-    /* T�tulos "HORA INICIAL" y "HORA FINAL" */
-    .time-section h3 {
-        text-align: center;
-        font: normal normal medium 14px/54px Poppins;
-        letter-spacing: 1.12px;
-        color: #574B4F;
-        text-transform: uppercase;
-        opacity: 1;
-        font-size: 16px;
-    }
+/* Títulos "HORA INICIAL" y "HORA FINAL" */
+.time-section h3 {
+    text-align: center;
+    font-size: 16px;
+    color: #574B4F;
+    text-transform: uppercase;
+    font-weight: 500;
+}
 
-/* Estilos para los inputs de tiempo */
+/* Inputs de tiempo */
 .time-input {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-    .time-input input {
-        width: 45px;
-        height: 40px;
-        text-align: center;
-        border: 1px solid #9B9295;
-        border-radius: 4px;
-        font-size: 16px;
-    }
+.time-input input {
+    width: 45px;
+    height: 40px;
+    text-align: center;
+    border: 1px solid #9B9295;
+    border-radius: 4px;
+    font-size: 16px;
+}

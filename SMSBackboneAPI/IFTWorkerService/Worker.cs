@@ -40,6 +40,7 @@ namespace IFTWorkerService
             while (!stoppingToken.IsCancellationRequested)
             {
                 var minutosEjecucion = int.TryParse(Common.ConfigurationManagerJson("MinutosEjecucion"), out int d) ? d : 10;
+                _logger.Info("¡Cargando Archivo!");
 
                 //Agregamos la clase para ser ejecutada:
                 var PathCSV = Common.ConfigurationManagerJson("CarpetaCSV");

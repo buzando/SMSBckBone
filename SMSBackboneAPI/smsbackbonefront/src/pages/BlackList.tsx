@@ -2760,189 +2760,234 @@ const BlackList: React.FC = () => {
                                 display: 'flex',
                                 justifyContent: 'center',
                                 gap: "25px",
-
                             }}
                         >
-                            <Box
-                                sx={{
-                                    width: "64px",
-                                    height: "64px",
-                                    borderRadius: "6px",
-                                    border: '2px solid #8F4E63',
-                                    backgroundColor: manageOperation === 'agregar' ? '#8F4D63' : '#FFFFFF',
-
-                                }}
-                            >
-
-                                <ToggleButton
-                                    value="agregar"
-                                    sx={{
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        width: "64px",
-                                        height: "64px",
-                                        padding: 1
-                                    }}
-                                >
-                                    <img
-                                        src={
-                                            manageOperation === 'agregar'
-                                                ? IconPlusCircle
-                                                : IconPlusUnselected
-                                        }
-                                        alt="Icono de acción"
-                                        style={{ width: 32, height: 32, marginBottom: 4 }}
-                                    />
-
-                                </ToggleButton>
-                                <Typography
-                                    sx={{
-                                        fontWeight: 500,
-                                        fontFamily: 'Poppins',
-                                        fontSize: '12px',
-                                        lineHeight: 1,
-                                        color: '#8F4D63',
-                                        textTransform: 'none',
-                                        marginLeft: "0px",
-                                        marginTop: "7px"
-                                    }}
-                                >
-                                    Cargar
-                                </Typography>
-                                <InputAdornment position="end"
-                                    sx={{ marginTop: "-15px", marginLeft: "46px" }}
-                                >
-                                    <Tooltip
-                                        title={
-                                            <Box
-                                                sx={{
-
-                                                    backgroundColor: "#FFFFFF",
-                                                    borderRadius: "8px",
-                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                                                    padding: "8px 12px",
-                                                    fontSize: "14px",
-                                                    fontFamily: "Poppins",
-                                                    color: "#000000",
-                                                    whiteSpace: "pre-line",
-                                                    transform: "translate(2px, -15px)",
-                                                    borderColor: "#00131F3D",
-                                                    borderStyle: "solid",
-                                                    borderWidth: "1px"
-                                                }}
-                                            >
-                                                <>
-                                                    Añadir teléfonos a la<br />
-                                                    lista actual
-                                                </>
-                                            </Box>
-                                        }
-                                        placement="bottom-end"
-                                        componentsProps={{
-                                            tooltip: {
-                                                sx: {
-                                                    backgroundColor: "transparent",
-                                                    padding: 0,
-
-                                                },
-                                            },
+                            {/* CARGAR */}
+                            <Tooltip
+                                title={
+                                    <Box
+                                        sx={{
+                                            backgroundColor: "#FFFFFF",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                            padding: "8px 12px",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins",
+                                            color: "#000000",
+                                            whiteSpace: "pre-line",
+                                            transform: "translate(-5px, -5px)",
+                                            borderColor: "#00131F3D",
+                                            borderStyle: "solid",
+                                            borderWidth: "1px"
                                         }}
                                     >
-                                        <img src={infoicon} alt="info" style={{ width: 20, height: 20 }} />
-                                    </Tooltip>
-                                </InputAdornment>
-
-
-                            </Box>
-
-                            <Box
-                                sx={{
-                                    width: "64px",
-                                    height: "64px",
-                                    borderRadius: "6px",
-                                    border: '2px solid #8F4E63',
-                                    backgroundColor: manageOperation === 'eliminar' ? '#8F4D63' : '#FFFFFF',
-
+                                        Añadir teléfonos a la<br />lista actual
+                                    </Box>
+                                }
+                                placement="top"
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            backgroundColor: "transparent",
+                                            padding: 0
+                                        }
+                                    }
                                 }}
                             >
-                                <ToggleButton value="eliminar"
+                                <Box
                                     sx={{
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
                                         width: "64px",
                                         height: "64px",
-                                        padding: 1,
+                                        borderRadius: "6px",
+                                        border: '2px solid #8F4E63',
+                                        backgroundColor: manageOperation === 'agregar' ? '#8F4D63' : '#FFFFFF',
                                     }}
                                 >
-                                    <img
-                                        src={manageOperation === 'eliminar' ? IconMinusSelected : IconNegativeCircle}
-                                        alt="Eliminar"
-                                        style={{ width: 32, height: 32, marginBottom: 4 }}
-                                    />
+                                    <ToggleButton
+                                        value="agregar"
+                                        sx={{
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: "64px",
+                                            height: "64px",
+                                            padding: 1
+                                        }}
+                                    >
+                                        <img
+                                            src={manageOperation === 'agregar' ? IconPlusCircle : IconPlusUnselected}
+                                            alt="Agregar"
+                                            style={{ width: 32, height: 32, marginBottom: 4 }}
+                                        />
+                                    </ToggleButton>
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 500,
+                                            fontFamily: 'Poppins',
+                                            fontSize: '12px',
+                                            lineHeight: 1,
+                                            color: '#8F4D63',
+                                            textTransform: 'none',
+                                            marginLeft: "0px",
+                                            marginTop: "7px"
+                                        }}
+                                    >
+                                        Cargar
+                                    </Typography>
+                                </Box>
+                            </Tooltip>
 
-                                </ToggleButton>
-                                <Typography
-                                    sx={{
-                                        fontWeight: 500,
-                                        fontFamily: 'Poppins',
-                                        fontSize: '12px',
-                                        lineHeight: 1,
-                                        color: '#8F4D63',
-                                        textTransform: 'none',
-                                        marginLeft: "7px",
-                                        marginTop: "6px"
-                                    }}
-                                >
-                                    Eliminar
-                                </Typography>
-                            </Box>
-
-                            <Box
-                                sx={{
-                                    width: "64px",
-                                    height: "64px",
-                                    borderRadius: "6px",
-                                    border: '2px solid #8F4E63',
-                                    backgroundColor: manageOperation === 'actualizar' ? '#8F4D63' : '#FFFFFF',
-
+                            {/* ELIMINAR */}
+                            <Tooltip
+                                title={
+                                    <Box
+                                        sx={{
+                                            backgroundColor: "#FFFFFF",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                            padding: "8px 12px",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins",
+                                            color: "#000000",
+                                            whiteSpace: "pre-line",
+                                            transform: "translate(-5px, -5px)",
+                                            borderColor: "#00131F3D",
+                                            borderStyle: "solid",
+                                            borderWidth: "1px"
+                                        }}
+                                    >
+                                        Eliminar teléfonos<br />de la lista actual
+                                    </Box>
+                                }
+                                placement="top"
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            backgroundColor: "transparent",
+                                            padding: 0
+                                        }
+                                    }
                                 }}
                             >
-                                <ToggleButton value="actualizar"
+                                <Box
                                     sx={{
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
                                         width: "64px",
                                         height: "64px",
-                                        padding: 1
+                                        borderRadius: "6px",
+                                        border: '2px solid #8F4E63',
+                                        backgroundColor: manageOperation === 'eliminar' ? '#8F4D63' : '#FFFFFF',
                                     }}
                                 >
-                                    <img
-                                        src={manageOperation === 'actualizar' ? IconUpdateSelected : IconReUpdate1}
-                                        alt="Actualizar"
-                                        style={{ width: 27, height: 27, marginBottom: 4 }}
-                                    />
+                                    <ToggleButton
+                                        value="eliminar"
+                                        sx={{
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: "64px",
+                                            height: "64px",
+                                            padding: 1
+                                        }}
+                                    >
+                                        <img
+                                            src={manageOperation === 'eliminar' ? IconMinusSelected : IconNegativeCircle}
+                                            alt="Eliminar"
+                                            style={{ width: 32, height: 32, marginBottom: 4 }}
+                                        />
+                                    </ToggleButton>
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 500,
+                                            fontFamily: 'Poppins',
+                                            fontSize: '12px',
+                                            lineHeight: 1,
+                                            color: '#8F4D63',
+                                            textTransform: 'none',
+                                            marginLeft: "7px",
+                                            marginTop: "6px"
+                                        }}
+                                    >
+                                        Eliminar
+                                    </Typography>
+                                </Box>
+                            </Tooltip>
 
-                                </ToggleButton>
-                                <Typography
+                            {/* ACTUALIZAR */}
+                            <Tooltip
+                                title={
+                                    <Box
+                                        sx={{
+                                            backgroundColor: "#FFFFFF",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                            padding: "8px 12px",
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins",
+                                            color: "#000000",
+                                            whiteSpace: "pre-line",
+                                            transform: "translate(-5px, -5px)",
+                                            borderColor: "#00131F3D",
+                                            borderStyle: "solid",
+                                            borderWidth: "1px"
+                                        }}
+                                    >
+                                        Actualizar registros<br />de la lista negra
+                                    </Box>
+                                }
+                                placement="top"
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            backgroundColor: "transparent",
+                                            padding: 0
+                                        }
+                                    }
+                                }}
+                            >
+                                <Box
                                     sx={{
-                                        fontWeight: 500,
-                                        fontFamily: 'Poppins',
-                                        fontSize: '12px',
-                                        lineHeight: 1,
-                                        color: '#8F4D63',
-                                        textTransform: 'none',
-                                        marginLeft: "0px",
-                                        marginTop: "6px"
+                                        width: "64px",
+                                        height: "64px",
+                                        borderRadius: "6px",
+                                        border: '2px solid #8F4E63',
+                                        backgroundColor: manageOperation === 'actualizar' ? '#8F4D63' : '#FFFFFF',
                                     }}
                                 >
-                                    Actualizar
-                                </Typography>
-                            </Box>
-
+                                    <ToggleButton
+                                        value="actualizar"
+                                        sx={{
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: "64px",
+                                            height: "64px",
+                                            padding: 1
+                                        }}
+                                    >
+                                        <img
+                                            src={manageOperation === 'actualizar' ? IconUpdateSelected : IconReUpdate1}
+                                            alt="Actualizar"
+                                            style={{ width: 27, height: 27, marginBottom: 4 }}
+                                        />
+                                    </ToggleButton>
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 500,
+                                            fontFamily: 'Poppins',
+                                            fontSize: '12px',
+                                            lineHeight: 1,
+                                            color: '#8F4D63',
+                                            textTransform: 'none',
+                                            marginLeft: "0px",
+                                            marginTop: "6px"
+                                        }}
+                                    >
+                                        Actualizar
+                                    </Typography>
+                                </Box>
+                            </Tooltip>
                         </ToggleButtonGroup>
+
 
                         <Divider sx={{ my: 3, mt: 5 }} />
                     </Box>

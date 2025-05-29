@@ -21,11 +21,11 @@ namespace Modal.Model.Model
 
         public DateTime? SentAt { get; set; }
 
-        public string Status { get; set; } = "";
+        public string? Status { get; set; } = "";
 
         public string? ResponseMessage { get; set; }
 
-        public string State { get; set; }
+        public string? State { get; set; }
 
     }
 }

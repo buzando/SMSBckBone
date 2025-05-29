@@ -593,9 +593,19 @@ namespace Business
                 using (var ctx = new Entities())
                 {
                     foreach (var campaignId in campaignIds)
-                    {
+                        {
+
+                    
                         var campaign = ctx.Campaigns.FirstOrDefault(c => c.Id == campaignId);
                         if (campaign == null) continue;
+
+                        var blacklist = ctx.blacklistcampains.Where(b => b.idcampains == campaignId).ToList();
+                        ctx.blacklistcampains.RemoveRange(blacklist);
+                        ctx.SaveChanges();
+
+                        var sentRecords = ctx.CampaignContactScheduleSend.Where(s => s.CampaignId == campaignId).ToList();
+                        ctx.CampaignContactScheduleSend.RemoveRange(sentRecords);
+                        ctx.SaveChanges();
 
                         var contacts = ctx.CampaignContacts.Where(c => c.CampaignId == campaignId).ToList();
                         ctx.CampaignContacts.RemoveRange(contacts);
@@ -606,11 +616,8 @@ namespace Business
                         var recycle = ctx.CampaignRecycleSettings.Where(r => r.CampaignId == campaignId).ToList();
                         ctx.CampaignRecycleSettings.RemoveRange(recycle);
 
-                        var blacklist = ctx.blacklistcampains.Where(b => b.idcampains == campaignId).ToList();
-                        ctx.blacklistcampains.RemoveRange(blacklist);
 
-                        var sentRecords = ctx.CampaignContactScheduleSend.Where(s => s.CampaignId == campaignId).ToList();
-                        ctx.CampaignContactScheduleSend.RemoveRange(sentRecords);
+                      
 
                         ctx.Campaigns.Remove(campaign);
                     }

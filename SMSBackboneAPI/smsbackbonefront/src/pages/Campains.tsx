@@ -88,7 +88,7 @@ import { Menu, MenuItem } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
-
+import Chipbar from '../components/commons/ChipBar'
 interface Horario {
   titulo: string;
   start: Date | null;
@@ -255,8 +255,10 @@ const Campains: React.FC = () => {
   const [saveAsTemplate, setSaveAsTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
   const [stateRespondedCounts, setStateRespondedCounts] = useState<{ stateName: string; messages: number }[]>([]);
-
-
+  const [showChipBarAdd, setShowChipBarAdd] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingPage, setLoadingPage] = useState(false);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<number | null>(null);
 
   const [openPicker, setOpenPicker] = useState<{
     open: boolean;
@@ -657,6 +659,7 @@ const Campains: React.FC = () => {
 
 
   const fetchCampaigns = async () => {
+    setLoadingPage(true);
     const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
     if (!salaId) return;
 
@@ -665,10 +668,20 @@ const Campains: React.FC = () => {
       const response = await axios.get(url);
       if (response.status === 200) {
         setCampaigns(response.data);
-        setSelectedCampaign(response.data[0]);
+        if (selectedCampaignId) {
+          const exists = response.data.some(c => c.id === selectedCampaignId);
+          if (!exists) {
+            setSelectedCampaignId(response.data[0]?.id || null);
+          }
+        } else {
+          setSelectedCampaignId(response.data[0]?.id || null);
+        }
       }
     } catch (error) {
       console.error("Error al traer campañas:", error);
+    }
+    finally {
+      setLoadingPage(false);
     }
   };
 
@@ -734,6 +747,7 @@ const Campains: React.FC = () => {
 
   const handleSaveTemplate = async (): Promise<boolean> => {
     setLoadingTemplates(true);
+    setLoading(true);
     const sessionId = crypto.randomUUID();
     const createdBy = localStorage.getItem("userName") || "frontend"; // o ajústalo si usas otra clave
     const sheetName = selectedSheet; // nombre de la hoja seleccionada
@@ -761,7 +775,7 @@ const Campains: React.FC = () => {
 
       if (response.status === 200) {
         setMessageChipBar("Registros añadidos con éxito");
-        setEstadisticasCarga(response.data); // Guardamos la respuesta
+        setEstadisticasCarga(response.data);
       }
       return true;
     } catch (error) {
@@ -772,6 +786,7 @@ const Campains: React.FC = () => {
       return false;
     } finally {
       setLoadingTemplates(false);
+      setLoading(false);
     }
   };
 
@@ -786,7 +801,6 @@ const Campains: React.FC = () => {
     : 0;
 
   const handleCloseModalCampaña = () => {
-    setOpenCreateCampaignModal(false);
     setCampaignName('');
     setMensajeTexto('');
     setTipoMensaje('escrito');
@@ -830,10 +844,28 @@ const Campains: React.FC = () => {
     setExcelData([]);
     setBase64File('');
     setUploadedFileBase64('');
+    setOpenCreateCampaignModal(false);
   };
 
+  const handleRemoveUploadedFile = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setUploadedFile(null);
+    setUploadedFileBase64('');
+    setFileError(false);
+    setFileSuccess(false);
+    setWorkbook(null);
+    setSheetNames([]);
+    setSelectedSheet('');
+    setColumns([]);
+    setExcelData([]);
+    setBase64File('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSaveCampaign = async () => {
+    setLoading(true);
     try {
       const salaId = JSON.parse(localStorage.getItem('selectedRoom') || '{}')?.id;
 
@@ -877,10 +909,17 @@ const Campains: React.FC = () => {
       );
 
       if (response.status === 200) {
-        handleCloseModalCampaña();
+        setMessageChipBar("Campaña Agregada con Exito");
+        setShowChipBarAdd(true);
+        setTimeout(() => setShowChipBarAdd(false), 3000);
       }
     } catch (error) {
       console.error(error);
+    }
+    finally {
+      handleCloseModalCampaña();
+      setLoading(false);
+      await fetchCampaigns();
     }
   };
 
@@ -947,7 +986,7 @@ const Campains: React.FC = () => {
 
   const handleSelectCampaign = (selected: CampaignFullResponse) => {
     if (selectedCampaign?.id === selected.id) return; // 🔒 Ya está seleccionada
-
+    setSelectedCampaignId(selected.id);
     // 🔁 Reorganizamos: el seleccionado va primero, los demás le siguen
     const reordered = [selected, ...campaigns.filter(c => c.id !== selected.id)];
     setCampaigns(reordered);
@@ -1005,16 +1044,21 @@ const Campains: React.FC = () => {
 
       if (response.status === 200) {
         setMessageChipBar("Campaña actualizada con éxito");
+        setShowChipBarAdd(true);
+        setTimeout(() => setShowChipBarAdd(false), 3000);
         setOpenEditCampaignModal(false);
         await fetchCampaigns(); // opcional: recargar campañas
       }
     } catch (error) {
-      console.error("Error al editar la campaña:", error);
-      setMessageChipBar("Error al actualizar la campaña");
+      setTitleErrorModal("Error al actualizar campaña");
+      setMessageErrorModal("No ha sido posible actualizar la campaña. Intente más tarde.");
+      setIsErrorModalOpen(true);
+      setOpenDeleteModal(false);
     }
   };
 
   const handleDeleteCampaign = async (ids?: number | number[]) => {
+    setLoading(true);
     try {
       // 🔄 Normaliza el parámetro a un array
       const idArray = Array.isArray(ids) ? ids : ids ? [ids] : [];
@@ -1046,14 +1090,19 @@ const Campains: React.FC = () => {
 
       setOpenDeleteModal(false);
       setCampaignToDelete(null);
+      setMessageChipBar("Campaña(s) Eliminada(s) con Exito");
+      setShowChipBarAdd(true);
+      setTimeout(() => setShowChipBarAdd(false), 3000);
       setSelectedCampaigns([]);
       await fetchCampaigns();
     } catch (error) {
-      console.error("Error al eliminar:", error);
       setTitleErrorModal("Error al eliminar campaña");
       setMessageErrorModal("No ha sido posible eliminar la campaña. Intente más tarde.");
       setIsErrorModalOpen(true);
       setOpenDeleteModal(false);
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -1077,13 +1126,20 @@ const Campains: React.FC = () => {
       );
 
       if (response.status === 200) {
-        fetchCampaigns();
+
         setOpenDuplicateModal(false);
-        setMessageChipBar("Campaña clonada con éxito");
+        setMessageChipBar("Campaña duplicada con Exito");
+        setShowChipBarAdd(true);
+        setTimeout(() => setShowChipBarAdd(false), 3000);
       }
     } catch (error) {
-      console.error('Error duplicando campaña:', error);
-      setMessageChipBar("Error al duplicar la campaña");
+      setTitleErrorModal("Error al duplicar la campaña");
+      setMessageErrorModal("No ha sido posible duplicar la campaña. Intente más tarde.");
+      setIsErrorModalOpen(true);
+    }
+    finally {
+      await fetchCampaigns();
+      setOpenDuplicateModal(false);
     }
   };
 
@@ -1106,7 +1162,6 @@ const Campains: React.FC = () => {
 
   const handleOpenDuplicateModal = (campaign: CampaignFullResponse) => {
     setSelectedCampaign(campaign);
-    setDuplicateName(`${campaign.name} copia`);
     setDuplicateAutoStart(campaign.autoStart);
     setDuplicateHorarios([{ start: new Date(), end: new Date(), operationMode: 1 }]);
 
@@ -1232,11 +1287,39 @@ const Campains: React.FC = () => {
 
     return () => clearInterval(interval); // limpia cuando cambia o desmonta
   }, [selectedCampaign?.id, selectedCampaign?.schedules]);
-    const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   return (
 
     <Box sx={{ padding: "20px", marginLeft: "30px", maxWidth: "81%", mt: -7 }}>
+      {loadingPage && (
+        <Box sx={{
+          position: 'fixed',
+          top: 0, left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <Box sx={{
+            width: '80px',
+            height: '80px',
+            border: '8px solid #f3f3f3',
+            borderTop: '8px solid #8F4D63',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <style>{`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `}</style>
+        </Box>
+      )}
 
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
         <IconButton
@@ -1646,7 +1729,12 @@ const Campains: React.FC = () => {
                       return (
                         <ListItem key={index} sx={{
                           background: "#FFFFFF",
-                          backgroundColor: isSelected ? "rgba(209, 119, 154, 0.15)" : "#FFFFFF",
+                          backgroundColor:
+                            selectedCampaign?.id === campaign.id
+                              ? "#F2EBEDCC"  // ← mismo color que hover
+                              : isSelected
+                                ? "rgba(209, 119, 154, 0.15)"
+                                : "#FFFFFF",
                           border: "1px solid #AE78884D",
                           opacity: 1,
                           width: "100%",
@@ -1658,9 +1746,10 @@ const Campains: React.FC = () => {
                           flexDirection: "column",
                           transition: "background-color 0.3s",
                           "&:hover": {
-                            backgroundColor: "#F2EBEDCC" // 🔥 Fondo cuando pasas el mouse
+                            backgroundColor: "#F2EBEDCC"
                           }
                         }}>
+
                           <Box sx={{ display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
                             <Box sx={{ marginTop: "-5px", display: "flex", alignItems: "center" }}>
                               <Checkbox
@@ -3617,19 +3706,7 @@ const Campains: React.FC = () => {
                             }}
                           >
                             <IconButton
-                              onClick={(e) => {
-                                e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
-                                setSelectedFile(null);
-                                setUploadedFile(null);
-                                setFileSuccess(false);
-                                setFileError(false);
-                                setBase64File('');
-                                setUploadedFileBase64('');
-                                setFormData(prev => ({ ...prev, File: '' }));
-                                if (fileInputRef.current) {
-                                  fileInputRef.current.value = '';
-                                }
-                              }}
+                              onClick={handleRemoveUploadedFile}
                               sx={{
                                 position: 'absolute',
                                 mt: 8,
@@ -3747,16 +3824,24 @@ const Campains: React.FC = () => {
                           // tu lógica si la necesitas
                         }}
                       >
-                        <Typography
-                          sx={{
-                            textDecoration: "underline",
-                            fontFamily: 'Poppins',
-                            fontSize: '11px',
-                            color: "#8F4D63",
-                          }}
+                        <a
+                          href="/SMS/Files/ArchivoEjemplo.xlsx"
+                          download
+                          style={{ textDecoration: 'none' }} // quitamos decoración del <a>
                         >
-                          Descargar archivo de muestra
-                        </Typography>
+                          <Typography
+                            sx={{
+                              textDecoration: 'underline',
+                              fontFamily: 'Poppins',
+                              fontSize: '11px',
+                              color: '#8F4D63',
+                              cursor: 'pointer', // ¡importante para que parezca clickeable!
+                            }}
+                          >
+                            Descargar archivo de muestra
+                          </Typography>
+                        </a>
+
                       </Button>
                     </Box>
                   )}
@@ -4560,6 +4645,7 @@ const Campains: React.FC = () => {
                 activeStep === -1 &&
                 (campaignName.trim() === '' || horarios.length === 0)
               }
+              loading={loading}
               sx={{
                 width: "118px",
                 height: "36px",
@@ -4588,6 +4674,7 @@ const Campains: React.FC = () => {
         anchorEl={calendarAnchor}
         onClose={() => setCalendarOpen(false)}
         placement="top"
+        offset={[100, -200]}
         onApply={(selectedDate, hour, minute) => {
           const fullDate = new Date(selectedDate);
           fullDate.setHours(hour);
@@ -6227,7 +6314,13 @@ const Campains: React.FC = () => {
           </DialogActions>
         </Box>
       </Dialog>
-
+      {showChipBarAdd && (
+        <Chipbar
+          message={messageChipBar}
+          buttonText="Cerrar"
+          onClose={() => setShowChipBarAdd(false)}
+        />
+      )}
     </Box>
   );
 

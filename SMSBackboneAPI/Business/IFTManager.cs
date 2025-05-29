@@ -10,10 +10,13 @@ using Modal;
 using Modal.Model.Model;
 using CsvHelper;
 using Contract.Other;
+using log4net;
 namespace Business
 {
     public class IFTManager
     {
+        private static readonly ILog _logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public bool LoadFromCsv(string filePath)
         {
             try
@@ -53,6 +56,7 @@ namespace Business
             }
             catch (Exception e)
             {
+                _logger.Error(e.Message);
                 return false;
             }
         }
