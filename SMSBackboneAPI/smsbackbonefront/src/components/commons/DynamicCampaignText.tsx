@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
-
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 interface Props {
   variables: string[];
   value: string;
@@ -142,96 +142,165 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
   };
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 4, mt: 2 }}>
-      <Box sx={{ flex: 2 }}>
-        <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: '#330F1B', mb: 1 }}>
-          Escribir mensaje y agregar variables según se requiera.
-        </Typography>
-
-        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '14px', color: '#330F1B', mb: 1 }}>
-          Mensaje
-        </Typography>
-
-        <Box
-          contentEditable
-          ref={editorRef}
-          onInput={updateRawText}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          suppressContentEditableWarning
-          sx={{
-            border: '2px dashed #D6CED2',
-            borderRadius: '8px',
-            padding: '12px',
-            fontFamily: 'Poppins',
-            fontSize: '14px',
-            minHeight: '140px',
-            backgroundColor: '#fff',
-            overflowY: 'auto',
-            whiteSpace: 'pre-wrap',
-            direction: 'ltr',
-            unicodeBidi: 'plaintext',
-            textAlign: 'left'
-          }}
-        />
-
-        <Typography
-          sx={{
-            fontFamily: 'Poppins',
-            fontSize: '12px',
-            color: '#574B4F',
-            mt: 1,
-          }}
-        >
-          {value.length}/160 caracteres para que el mensaje se realice en un sólo envío.
-        </Typography>
-      </Box>
-
-      <Box
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2, width: "770px" }}>
+      {/* Título principal */}
+      <Typography
         sx={{
-          flex: 1,
-          border: '1px solid #8F4D63',
-          borderRadius: '12px',
-          padding: '12px',
-          maxHeight: '210px',
-          overflowY: 'auto',
+          fontFamily: 'Poppins',
+          fontSize: '18px',
+          color: '#330F1B',
+          fontWeight: 600,
         }}
       >
-        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '14px', color: '#330F1B', mb: 1 }}>
-          Variables
-        </Typography>
+        Escribir mensaje y agregar variables según se requiera.
+      </Typography>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {variables.map((variable, i) => (
-            <Button
-              key={i}
-              draggable
-              onDragStart={(e) => e.dataTransfer.setData('text/plain', variable)}
-              onClick={() => handleInsertVariable(variable)}
+      {/* Contenedor horizontal que divide Mensaje y Variables */}
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4, width: "770px" }}>
+        {/* Mensaje: título, editor y contador */}
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Typography
+            sx={{
+              fontFamily: 'Poppins',
+              fontWeight: 600,
+              fontSize: '16px',
+              color: '#330F1B',
+              mb: 1,
+            }}
+          >
+            Mensaje
+          </Typography>
+
+          {/* Caja de creación de mensaje */}
+          <Box sx={{ position: 'relative', marginLeft: '5px', width: "520px" }}>
+            {value.trim() === '' && (
+              <Typography
+                sx={{
+                  position: 'absolute',
+                  top: '12px',
+                  left: '12px',
+                  pointerEvents: 'none',
+                  fontFamily: 'Poppins',
+                  fontSize: '14px',
+                  color: '#574B4F66',
+                }}
+              >
+                Escriba aquí su mensaje.
+              </Typography>
+            )}
+
+            <Box
+              contentEditable
+              ref={editorRef}
+              onInput={updateRawText}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              suppressContentEditableWarning
               sx={{
-                justifyContent: 'space-between',
-                border: '1px solid #8F4D63',
-                color: '#8F4D63',
-                fontFamily: 'Poppins',
-                textTransform: 'none',
+                border: '2px solid #9B9295CC',
                 borderRadius: '8px',
+                padding: '12px',
+                fontFamily: 'Poppins',
                 fontSize: '14px',
-                padding: '6px 12px',
-                '&:hover': {
-                  backgroundColor: '#F2EBED',
-                  borderColor: '#8F4D63',
-                },
+                minHeight: '140px',
+                backgroundColor: '#fff',
+                overflowY: 'hidden',
+                whiteSpace: 'pre-wrap',
+                direction: 'ltr',
+                unicodeBidi: 'plaintext',
+                textAlign: 'left',
               }}
-              endIcon={
-                <Box sx={{ width: 18, height: 18, backgroundColor: '#8F4D63', borderRadius: '3px' }} />
-              }
-            >
-              {variable}
-            </Button>
-          ))}
+            />
+          </Box>
+
+          <Typography
+            sx={{
+              fontFamily: 'Poppins',
+              fontSize: '12px',
+              color: '#574B4F',
+              mt: 1,
+            }}
+          >
+            {value.length}/160 caracteres para que el mensaje se realice en un sólo envío.
+          </Typography>
+        </Box>
+
+        {/* Variables: título y botones */}
+        <Box
+          sx={{
+            width: "150px", mt: 1,
+            borderRadius: '12px',
+            height: '200px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography
+            sx={{
+              fontFamily: 'Poppins',
+              fontWeight: 600,
+              fontSize: '14px',
+              color: '#330F1B',
+              mb: 1,
+            }}
+          >
+            Variables
+          </Typography>
+
+
+          <Box sx={{
+            display: 'flex', flexDirection: 'column', gap: 1,
+          }}>
+            {variables.map((variable, i) => (
+              <Button
+                key={i}
+                draggable
+                onDragStart={(e) =>
+                  e.dataTransfer.setData('text/plain', variable)
+                }
+                onClick={() => handleInsertVariable(variable)}
+                sx={{
+                  justifyContent: 'space-between',
+                  width: "150px", height: "40px",
+                  border: '1px solid #8F4D63',
+                  backgroundColor: "#FAF5F6",
+                  color: '#8F4D63',
+                  fontFamily: 'Poppins',
+                  textTransform: 'none',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  padding: '6px 12px',
+                  '&:hover': {
+                    backgroundColor: '#FAF5F6',
+                    borderColor: '#8F4D63',
+                  },
+                }}
+                endIcon={
+                  <DragIndicatorIcon
+                    sx={{
+                      fontSize: '18px',
+                      color: '#576771',
+                      cursor: 'grab',
+                      width: '24px',
+                      height: '24px',
+                    }}
+                  />
+                }
+              >
+                <Typography sx={{
+                  fontFamily: 'Poppins', fontSize: '16px', color: "#8F4D63"
+                }}>
+                  {variable}
+                </Typography>
+              </Button>
+            ))}
+          </Box>
+
         </Box>
       </Box>
     </Box>
+
   );
 };
 
