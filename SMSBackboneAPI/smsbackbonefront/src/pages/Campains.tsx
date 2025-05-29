@@ -5153,56 +5153,139 @@ const Campains: React.FC = () => {
               )}
             </>
           )}
-
+          {/*Configuraciones Avanzadas en crar campaña SMS*/}
           {activeStep === 2 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', mb: 2 }}>
+            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', ml: 7 }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', mb: 2 }}>
                 Configuraciones avanzadas
               </Typography>
               <RadioGroup
                 row
                 value={tipoNumero}
                 onChange={(e) => setTipoNumero(e.target.value)}
-                sx={{ mb: 2 }}
+                sx={{ mb: 1, }}
               >
                 <FormControlLabel
                   value="corto"
-                  control={<Radio sx={{ color: '#330F1B', '&.Mui-checked': { color: '#330F1B' } }} />}
+                  control={
+                    <Radio
+                      sx={{
+                        color: '#330F1B', // color cuando no está seleccionado
+                        '&.Mui-checked': {
+                          color: '#8F4D63', // color circulito seleccionado
+                        },
+                      }}
+                    />
+                  }
                   label="Número corto"
-                  sx={{ mr: 4 }}
+                  sx={{
+                    mr: 4,
+                    '& .MuiFormControlLabel-label': {
+                      fontFamily: 'Poppins',
+                      color: tipoNumero === 'corto' ? '#8F4D63' : '#330F1B', // texto cambia con selección
+                    },
+                  }}
                 />
                 <FormControlLabel
                   value="largo"
-                  control={<Radio sx={{ color: '#330F1B', '&.Mui-checked': { color: '#330F1B' } }} />}
+                  control={
+                    <Radio
+                      sx={{
+                        color: '#330F1B',
+                        '&.Mui-checked': {
+                          color: '#8F4D63',
+                        },
+                      }}
+                    />
+                  }
                   label="Número largo"
+                  sx={{
+                    '& .MuiFormControlLabel-label': {
+                      fontFamily: 'Poppins',
+                      color: tipoNumero === 'largo' ? '#8F4D63' : '#330F1B',
+                    },
+                  }}
                 />
               </RadioGroup>
-
-
+              {/*Mensaje flash box*/}
               <Box
                 sx={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  alignItems: 'center',
-                  border: '1px solid #D6CED2',
-                  borderRadius: '8px',
+                  alignItems: 'center', width: "584px", height: "57px",
+                  border: '1px solid #E6E4E4',
+                  borderRadius: '6px',
                   padding: '12px 16px',
                   opacity: tipoNumero === 'largo' ? 0.5 : 1,
-                  backgroundColor: flashEnabled ? '#FFFFFF' : '#F8F8F8',
+                  backgroundColor: flashEnabled ? '#FFFFFF' : '#FFFFFF',
                   mb: 2,
                 }}
               >
-                <Typography
-                  sx={{
-                    fontFamily: 'Poppins',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    color: '#330F1B',
-                  }}
-                >
-                  Mensaje flash
-                </Typography>
-
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: 'Poppins',
+                      fontSize: '16px',
+                      fontWeight: 500,
+                      color: '#330F1B',
+                    }}
+                  >
+                    Mensaje flash
+                  </Typography>
+                  <Tooltip
+                    placement="right"
+                    title={(
+                      <Box sx={{
+                        fontFamily: 'Poppins', fontSize: '14px',
+                        color: '#000000', opacity: 0.7,
+                      }}>
+                        · Configuración que define<br />
+                        cuántas veces se reciclarán<br />
+                        automáticamente los registros de<br />
+                        la campaña.<br />
+                        Pueden ser todos los registros o<br />
+                        solo los no contactados,<br />
+                        incluyendo los de máquina/<br />
+                        buzón.
+                      </Box>
+                    )
+                    }
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#FFFFFF",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                          padding: "8px 12px",
+                          fontSize: "14px",
+                          fontFamily: "Poppins",
+                          color: "#000000",
+                          whiteSpace: "pre-line",
+                          transform: "translate(-5px, -5px)",
+                          borderColor: "#00131F3D",
+                          borderStyle: "solid",
+                          borderWidth: "1px"
+                        }
+                      }
+                    }}
+                    PopperProps={{
+                      modifiers: [
+                        {
+                          name: 'offset',
+                          options: {
+                            offset: [104, -260] //  [horizontal, vertical]
+                          }
+                        }
+                      ]
+                    }}
+                  >
+                    <img
+                      src={infoicon}
+                      alt="info"
+                      style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                    />
+                  </Tooltip>
+                </Box>
                 <Switch
                   checked={flashEnabled}
                   disabled={tipoNumero === 'largo'}
@@ -5217,112 +5300,270 @@ const Campains: React.FC = () => {
                   }}
                 />
               </Box>
-
+              {/*Personalizar ANI box*/}
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  border: '1px solid #D6CED2',
-                  borderRadius: '8px',
+                  flexDirection: 'column',
+                  width: "584px",
+                  minHeight: "57px",
+                  border: '1px solid #E6E4E4',
+                  borderRadius: '6px',
                   padding: '12px 16px',
-                  backgroundColor: aniEnabled ? '#FFFFFF' : '#F8F8F8',
+                  backgroundColor: aniEnabled ? '#FFFFFF' : '#FFFFFF',
                   opacity: tipoNumero === 'corto' ? 0.5 : 1,
                   mb: 2,
+                  gap: 1, // espacio entre los dos bloques
                 }}
               >
-                <Typography
-                  sx={{
-                    fontFamily: 'Poppins',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    color: '#330F1B',
-                  }}
-                >
-                  Personalizar ANI
-                </Typography>
+                {/* Primer bloque: texto + tooltip + switch */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '16px',
+                        fontWeight: 500,
+                        color: '#330F1B',
+                      }}
+                    >
+                      Personalizar ANI
+                    </Typography>
+                    <Tooltip
+                      placement="right"
+                      title={(
+                        <Box sx={{
+                          fontFamily: 'Poppins', fontSize: '14px',
+                          color: '#000000', opacity: 0.7,
+                        }}>
+                          · Configuración que define<br />
+                          cuántas veces se reciclarán<br />
+                          automáticamente los registros de<br />
+                          la campaña.<br />
+                          Pueden ser todos los registros o<br />
+                          solo los no contactados,<br />
+                          incluyendo los de máquina/<br />
+                          buzón.
+                        </Box>
+                      )
+                      }
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#FFFFFF",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                            padding: "8px 12px",
+                            fontSize: "14px",
+                            fontFamily: "Poppins",
+                            color: "#000000",
+                            whiteSpace: "pre-line",
+                            transform: "translate(-5px, -5px)",
+                            borderColor: "#00131F3D",
+                            borderStyle: "solid",
+                            borderWidth: "1px"
+                          }
+                        }
+                      }}
+                      PopperProps={{
+                        modifiers: [
+                          {
+                            name: 'offset',
+                            options: {
+                              offset: [104, -260] //  [horizontal, vertical]
+                            }
+                          }
+                        ]
+                      }}
+                    >
+                      <img
+                        src={infoicon}
+                        alt="info"
+                        style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                      />
+                    </Tooltip>
+                  </Box>
 
-                <Switch
-                  checked={aniEnabled}
-                  disabled={tipoNumero === 'corto'}
-                  onChange={(e) => setAniEnabled(e.target.checked)}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: '#8F4D63',
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: '#8F4D63',
-                    },
-                  }}
-                />
-                {aniEnabled && (
-                  <Select
-                    fullWidth
-                    value={selectedAni}
-                    onChange={(e) => setSelectedAni(e.target.value)}
-                    displayEmpty
+                  <Switch
+                    checked={aniEnabled}
+                    disabled={tipoNumero === 'corto'}
+                    onChange={(e) => setAniEnabled(e.target.checked)}
                     sx={{
-                      backgroundColor: '#FFFFFF',
-                      fontFamily: 'Poppins',
-                      fontSize: '14px',
-                      borderRadius: '6px',
-                      height: '40px',
-                      border: '1px solid #D6CED2',
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: '#8F4D63',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: '#8F4D63',
+                      },
                     }}
-                  >
-                    <MenuItem disabled value="">
-                      Seleccionar
-                    </MenuItem>
-                    {aniOptions.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
+                  />
+                </Box>
 
+                {/* Segundo bloque: Select, visible solo si el switch está activado */}
+                {aniEnabled && (
+                  <Box sx={{ mt: 1 }}>
+                    <Select
+                      fullWidth
+                      value={selectedAni}
+                      onChange={(e) => setSelectedAni(e.target.value)}
+                      displayEmpty
+                      renderValue={(selected) =>
+                        selected ? (
+                          <span style={{ fontFamily: 'Poppins', fontSize: '12px', color: '#786E71' }}>
+                            {selected}
+                          </span>
+                        ) : (
+                          <span style={{ fontFamily: 'Poppins', fontSize: '12px', color: '#786E71' }}>
+                            Seleccionar
+                          </span>
+                        )
+                      }
+                      sx={{
+                        backgroundColor: '#FFFFFF',
+                        fontFamily: 'Poppins',
+                        fontSize: '12px', // también puedes poner aquí, pero lo controlamos mejor en renderValue
+                        borderRadius: '8px',
+                        height: '40px',
+                        width: '200px',
+                        border: '1px solid #9B9295',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#D6CED2',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#D6CED2',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#D6CED2',
+                          borderWidth: '1px',
+                        },
+                      }}
+                    >
+                      {aniOptions.map((option) => (
+                        <MenuItem
+                          key={option}
+                          value={option}
+                          sx={{
+                            fontFamily: 'Poppins',
+                            fontSize: '12px',
+                            color: '#786E71',
+                            '&:hover': {
+                              backgroundColor: '#F2EBED',
+                            },
+                          }}
+                        >
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </Select>
+
+
+
+
+                  </Box>
+                )}
               </Box>
 
+              {/*Reciclar registros automaticamente box*/}
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  flexDirection: 'column',
+                  width: "584px",
                   border: '1px solid #D6CED2',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   padding: '12px 16px',
-                  backgroundColor: recycleEnabled ? '#FFFFFF' : '#F8F8F8',
+                  backgroundColor: recycleEnabled ? '#FFFFFF' : '#FFFFFF',
                   mb: 2,
+                  gap: 2,
                 }}
               >
-                <Typography
-                  sx={{
-                    fontFamily: 'Poppins',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    color: '#330F1B',
-                  }}
-                >
-                  Reciclar registros automaticamente
-                </Typography>
+                {/* Bloque 1: Texto + tooltip + switch */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '16px',
+                        fontWeight: 500,
+                        color: '#330F1B',
+                      }}
+                    >
+                      Reciclar registros automáticamente
+                    </Typography>
+                    <Tooltip
+                      placement="right"
+                      title={(
+                        <Box sx={{
+                          fontFamily: 'Poppins', fontSize: '14px',
+                          color: '#000000', opacity: 0.7,
+                        }}>
+                          · Configuración que define<br />
+                          cuántas veces se reciclarán<br />
+                          automáticamente los registros de<br />
+                          la campaña.<br />
+                          Pueden ser todos los registros o<br />
+                          solo los no contactados,<br />
+                          incluyendo los de máquina/<br />
+                          buzón.
+                        </Box>
+                      )
+                      }
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#FFFFFF",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                            padding: "8px 12px",
+                            fontSize: "14px",
+                            fontFamily: "Poppins",
+                            color: "#000000",
+                            whiteSpace: "pre-line",
+                            transform: "translate(-5px, -5px)",
+                            borderColor: "#00131F3D",
+                            borderStyle: "solid",
+                            borderWidth: "1px"
+                          }
+                        }
+                      }}
+                      PopperProps={{
+                        modifiers: [
+                          {
+                            name: 'offset',
+                            options: {
+                              offset: [104, -260] //  [horizontal, vertical]
+                            }
+                          }
+                        ]
+                      }}
+                    >
+                      <img
+                        src={infoicon}
+                        alt="info"
+                        style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                      />
+                    </Tooltip>
+                  </Box>
 
-                <Switch
-                  checked={recycleEnabled}
-                  onChange={(e) => setRecycleEnabled(e.target.checked)}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: '#8F4D63',
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: '#8F4D63',
-                    },
-                  }}
-                />
+                  <Switch
+                    checked={recycleEnabled}
+                    onChange={(e) => setRecycleEnabled(e.target.checked)}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: '#8F4D63',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: '#8F4D63',
+                      },
+                    }}
+                  />
+                </Box>
 
+                {/* Bloque 2: Visible solo si switch está activado */}
                 {recycleEnabled && (
-                  <Box sx={{ display: 'flex', gap: 4, mt: 2, alignItems: 'center' }}>
-                    {/* Tipo de registros */}
-                    <Box>
+                  <Box sx={{ display: 'flex', gap: 6 }}>
+                    {/* Box A: Tipo de registros */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                       <Typography sx={{ fontSize: '14px', fontFamily: 'Poppins', mb: 1 }}>
                         Tipo de registros
                       </Typography>
@@ -5332,30 +5573,70 @@ const Campains: React.FC = () => {
                       >
                         <FormControlLabel
                           value="todos"
-                          control={<Radio />}
+                          control={
+                            <Radio
+                              sx={{
+                                color: '#574B4F', // color normal del circulito
+                                '&.Mui-checked': {
+                                  color: '#8F4D63', // color cuando está seleccionado
+                                },
+                              }}
+                            />
+                          }
                           label="Todos"
+                          sx={{
+                            '& .MuiFormControlLabel-label': {
+                              fontFamily: 'Poppins',
+                              fontSize: '16px',
+                              color: recycleType === 'todos' ? '#8F4D63' : '#574B4F', // color texto seleccionado
+                            },
+                          }}
                         />
                         <FormControlLabel
                           value="rechazados"
-                          control={<Radio />}
+                          control={
+                            <Radio
+                              sx={{
+                                color: '#330F1B',
+                                '&.Mui-checked': {
+                                  color: '#8F4D63',
+                                },
+                              }}
+                            />
+                          }
                           label="Rechazados"
+                          sx={{
+                            '& .MuiFormControlLabel-label': {
+                              fontFamily: 'Poppins',
+                              fontSize: '16px',
+                              color: recycleType === 'rechazados' ? '#8F4D63' : '#574B4F',
+                            },
+                          }}
                         />
                       </RadioGroup>
+
                     </Box>
 
-                    {/* Incluir no contactados */}
-                    <Box>
-                      <Typography sx={{ fontSize: '14px', fontFamily: 'Poppins', mb: 1 }}>
+                    {/* Box B: Incluir no contactados */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: "130px" }}>
+                      <Typography sx={{ fontSize: '14px', fontFamily: 'Poppins', mb: 1, textAlign: "center" }}>
                         Incluir registros no contactados
                       </Typography>
                       <Checkbox
                         checked={includeUncontacted}
                         onChange={(e) => setIncludeUncontacted(e.target.checked)}
+                        sx={{
+                          color: '#330F1B', // color del cuadro cuando está desmarcado
+                          '&.Mui-checked': {
+                            color: '#8F4D63', // color cuando está marcado
+                          },
+                        }}
                       />
+
                     </Box>
 
-                    {/* Número de reciclajes */}
-                    <Box>
+                    {/* Box C: Número de reciclajes */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <Typography sx={{ fontSize: '14px', fontFamily: 'Poppins', mb: 1 }}>
                         Número de reciclajes
                       </Typography>
@@ -5383,48 +5664,108 @@ const Campains: React.FC = () => {
                     </Box>
                   </Box>
                 )}
-
               </Box>
 
+              {/*Listas negras box*/}
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  flexDirection: 'column',
+                  width: "584px",
                   border: '1px solid #D6CED2',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   padding: '12px 16px',
-                  backgroundColor: blacklistEnabled ? '#FFFFFF' : '#F8F8F8',
+                  backgroundColor: '#FFFFFF',
                   mb: 2,
+                  gap: 2,
                 }}
               >
-                <Typography
-                  sx={{
-                    fontFamily: 'Poppins',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    color: '#330F1B',
-                  }}
-                >
-                  Listas Negras
-                </Typography>
+                {/* Primer Box: Título + tooltip + switch */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '16px',
+                        fontWeight: 500,
+                        color: '#330F1B',
+                      }}
+                    >
+                      Listas Negras
+                    </Typography>
+                    <Tooltip
+                      placement="right"
+                      title={(
+                        <Box sx={{
+                          fontFamily: 'Poppins', fontSize: '14px',
+                          color: '#000000', opacity: 0.7,
+                        }}>
+                          · Configuración que define<br />
+                          cuántas veces se reciclarán<br />
+                          automáticamente los registros de<br />
+                          la campaña.<br />
+                          Pueden ser todos los registros o<br />
+                          solo los no contactados,<br />
+                          incluyendo los de máquina/<br />
+                          buzón.
+                        </Box>
+                      )
+                      }
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#FFFFFF",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                            padding: "8px 12px",
+                            fontSize: "14px",
+                            fontFamily: "Poppins",
+                            color: "#000000",
+                            whiteSpace: "pre-line",
+                            transform: "translate(-5px, -5px)",
+                            borderColor: "#00131F3D",
+                            borderStyle: "solid",
+                            borderWidth: "1px"
+                          }
+                        }
+                      }}
+                      PopperProps={{
+                        modifiers: [
+                          {
+                            name: 'offset',
+                            options: {
+                              offset: [104, -260] //  [horizontal, vertical]
+                            }
+                          }
+                        ]
+                      }}
+                    >
+                      <img
+                        src={infoicon}
+                        alt="info"
+                        style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                      />
+                    </Tooltip>
+                  </Box>
 
-                <Switch
-                  checked={blacklistEnabled}
-                  onChange={(e) => setBlacklistEnabled(e.target.checked)}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: '#8F4D63',
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: '#8F4D63',
-                    },
-                  }}
-                />
+                  <Switch
+                    checked={blacklistEnabled}
+                    onChange={(e) => setBlacklistEnabled(e.target.checked)}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: '#8F4D63',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: '#8F4D63',
+                      },
+                    }}
+                  />
+                </Box>
 
+                {/* Segundo Box: Buscador + tabla */}
                 {blacklistEnabled && (
-                  <Box mt={2}>
-                    {/* Buscador visual */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {/* Buscador */}
                     <Box
                       display="flex"
                       alignItems="center"
@@ -5436,7 +5777,6 @@ const Campains: React.FC = () => {
                         width: "100%",
                         maxWidth: "360px",
                         height: "40px",
-                        mb: 2,
                       }}
                     >
                       <img
@@ -5446,7 +5786,9 @@ const Campains: React.FC = () => {
                           marginRight: "8px",
                           width: "18px",
                           height: "18px",
-                          filter: searchTermBlacklist ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none",
+                          filter: searchTermBlacklist
+                            ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)"
+                            : "none",
                         }}
                       />
                       <input
@@ -5479,20 +5821,20 @@ const Campains: React.FC = () => {
                       )}
                     </Box>
 
-                    {/* Lista filtrada */}
-                    <Box sx={{ maxHeight: "160px", overflowY: "auto", border: "1px solid #D6CED2", borderRadius: "8px" }}>
-                      <table style={{ width: "100%", fontFamily: 'Poppins', fontSize: "14px" }}>
+                    {/* Tabla */}
+                    <Box sx={{ maxHeight: "191px", overflowY: "auto", border: "1px solid #D6CED2", borderRadius: "8px" }}>
+                      <table style={{ width: "100%", fontFamily: 'Poppins', fontSize: "14px", borderCollapse: 'collapse' }}>
                         <thead>
                           <tr>
-                            <th style={{ textAlign: 'left', padding: '8px' }}>Nombre</th>
-                            <th style={{ textAlign: 'left' }}>Creación</th>
-                            <th style={{ textAlign: 'left' }}>Expiración</th>
+                            <th style={{ textAlign: 'left', padding: '2px 4px', width: '30%' }}>Nombre</th>
+                            <th style={{ textAlign: 'left', padding: '4px 6px', width: '35%' }}>Creación</th>
+                            <th style={{ textAlign: 'left', padding: '4px 6px', width: '35%' }}>Expiración</th>
                           </tr>
                         </thead>
                         <tbody>
                           {filteredBlackLists.map((list) => (
                             <tr key={list.id}>
-                              <td style={{ padding: '8px' }}>
+                              <td style={{ padding: '2px 4px' }}>
                                 <Checkbox
                                   checked={selectedBlackListIds.includes(list.id)}
                                   onChange={(e) => {
@@ -5509,23 +5851,19 @@ const Campains: React.FC = () => {
                                 />
                                 {list.name}
                               </td>
-                              <td>{list.creationDate || 'NA'}</td>
-                              <td>{list.expirationDate || 'NA'}</td>
+                              <td style={{ padding: '2px 4px' }}>{list.creationDate || 'NA'}</td>
+                              <td style={{ padding: '2px 4px' }}>{list.expirationDate || 'NA'}</td>
                             </tr>
                           ))}
-
                         </tbody>
                       </table>
                     </Box>
                   </Box>
                 )}
-
-
               </Box>
 
             </Box>
           )}
-
 
         </Box>
 
@@ -6765,94 +7103,205 @@ const Campains: React.FC = () => {
           )}
 
           {editActiveStep === 2 && (
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', ml: 7 }}>
               <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', fontWeight: 500, mb: 2 }}>
-                Configuraciones avanzadas
+                Configuraciones avanzadass
               </Typography>
-
               <RadioGroup
                 row
                 value={tipoNumero}
                 onChange={(e) => setTipoNumero(e.target.value)}
-                sx={{ mb: 3 }}
+                sx={{ mb: 1 }}
               >
                 <FormControlLabel
                   value="corto"
-                  control={<Radio sx={{ color: '#8F4D63', '&.Mui-checked': { color: '#8F4D63' } }} />}
-                  label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Número corto</Typography>}
+                  control={
+                    <Radio
+                      sx={{
+                        color: '#330F1B', // color cuando no está seleccionado
+                        '&.Mui-checked': {
+                          color: '#8F4D63', // color circulito seleccionado
+                        },
+                      }}
+                    />
+                  }
+                  label="Número corto"
+                  sx={{
+                    mr: 4,
+                    '& .MuiFormControlLabel-label': {
+                      fontFamily: 'Poppins',
+                      color: tipoNumero === 'corto' ? '#8F4D63' : '#330F1B', // texto cambia con selección
+                    },
+                  }}
                 />
                 <FormControlLabel
                   value="largo"
-                  control={<Radio sx={{ color: '#8F4D63', '&.Mui-checked': { color: '#8F4D63' } }} />}
-                  label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Número largo</Typography>}
+                  control={
+                    <Radio
+                      sx={{
+                        color: '#330F1B',
+                        '&.Mui-checked': {
+                          color: '#8F4D63',
+                        },
+                      }}
+                    />
+                  }
+                  label="Número largo"
+                  sx={{
+                    '& .MuiFormControlLabel-label': {
+                      fontFamily: 'Poppins',
+                      color: tipoNumero === 'largo' ? '#8F4D63' : '#330F1B',
+                    },
+                  }}
                 />
               </RadioGroup>
 
-              <Paper sx={{ p: 2, backgroundColor: '#F6F6F6', borderRadius: '8px', mb: 2 }}>
-                {/* Flash Message */}
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={flashEnabled}
-                      onChange={(e) => setFlashEnabled(e.target.checked)}
+              {/* Flash Message */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: "584px",
+                  minHeight: "57px",
+                  border: '1px solid #E6E4E4',
+                  borderRadius: '6px',
+                  padding: '12px 16px',
+                  backgroundColor: aniEnabled ? '#FFFFFF' : '#FFFFFF',
+                  opacity: tipoNumero === 'corto' ? 0.5 : 1,
+                  mb: 2,
+                  gap: 1, // espacio entre los dos bloques
+                }}
+              >
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: 'Poppins',
+                      fontSize: '16px',
+                      fontWeight: 500,
+                      color: '#330F1B',
+                    }}
+                  >
+                    Mensaje flash
+                  </Typography>
+                  <Tooltip
+                    placement="right"
+                    title={(
+                      <Box sx={{
+                        fontFamily: 'Poppins', fontSize: '14px',
+                        color: '#000000', opacity: 0.7,
+                      }}>
+                        · Configuración que define<br />
+                        cuántas veces se reciclarán<br />
+                        automáticamente los registros de<br />
+                        la campaña.<br />
+                        Pueden ser todos los registros o<br />
+                        solo los no contactados,<br />
+                        incluyendo los de máquina/<br />
+                        buzón.
+                      </Box>
+                    )
+                    }
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#FFFFFF",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                          padding: "8px 12px",
+                          fontSize: "14px",
+                          fontFamily: "Poppins",
+                          color: "#000000",
+                          whiteSpace: "pre-line",
+                          transform: "translate(-5px, -5px)",
+                          borderColor: "#00131F3D",
+                          borderStyle: "solid",
+                          borderWidth: "1px"
+                        }
+                      }
+                    }}
+                    PopperProps={{
+                      modifiers: [
+                        {
+                          name: 'offset',
+                          options: {
+                            offset: [104, -260] //  [horizontal, vertical]
+                          }
+                        }
+                      ]
+                    }}
+                  >
+                    <img
+                      src={infoicon}
+                      alt="info"
+                      style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
                     />
-                  }
-                  label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Mensaje flash</Typography>}
-                  sx={{ display: 'flex', justifyContent: 'space-between', m: 0 }}
+                  </Tooltip>
+                </Box>
+                <Switch
+                  checked={flashEnabled}
+                  onChange={(e) => setFlashEnabled(e.target.checked)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#8F4D63',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#8F4D63',
+                    },
+                  }}
                 />
+              </Box>
+              {/* ANI */}
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={aniEnabled}
+                    onChange={(e) => setAniEnabled(e.target.checked)}
+                  />
+                }
+                label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Personalizar ANI</Typography>}
+                sx={{ display: 'flex', justifyContent: 'space-between', m: 0, mt: 2 }}
+              />
 
-                {/* ANI */}
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={aniEnabled}
-                      onChange={(e) => setAniEnabled(e.target.checked)}
-                    />
-                  }
-                  label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Personalizar ANI</Typography>}
-                  sx={{ display: 'flex', justifyContent: 'space-between', m: 0, mt: 2 }}
-                />
+              <Select
+                value={selectedAni}
+                onChange={(e) => setSelectedAni(e.target.value)}
+                disabled={!aniEnabled}
+                displayEmpty
+                fullWidth
+                sx={{ mt: 1, fontFamily: 'Poppins', backgroundColor: '#fff', borderRadius: 1 }}
+              >
+                <MenuItem value="">
+                  <em>Seleccionar</em>
+                </MenuItem>
+                {aniOptions.map((ani) => (
+                  <MenuItem key={ani} value={ani}>{ani}</MenuItem>
+                ))}
+              </Select>
 
-                <Select
-                  value={selectedAni}
-                  onChange={(e) => setSelectedAni(e.target.value)}
-                  disabled={!aniEnabled}
-                  displayEmpty
-                  fullWidth
-                  sx={{ mt: 1, fontFamily: 'Poppins', backgroundColor: '#fff', borderRadius: 1 }}
-                >
-                  <MenuItem value="">
-                    <em>Seleccionar</em>
-                  </MenuItem>
-                  {aniOptions.map((ani) => (
-                    <MenuItem key={ani} value={ani}>{ani}</MenuItem>
-                  ))}
-                </Select>
+              {/* Reciclar */}
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={recycleEnabled}
+                    onChange={(e) => setRecycleEnabled(e.target.checked)}
+                  />
+                }
+                label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Reciclar registros automáticamente</Typography>}
+                sx={{ display: 'flex', justifyContent: 'space-between', m: 0, mt: 2 }}
+              />
 
-                {/* Reciclar */}
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={recycleEnabled}
-                      onChange={(e) => setRecycleEnabled(e.target.checked)}
-                    />
-                  }
-                  label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Reciclar registros automáticamente</Typography>}
-                  sx={{ display: 'flex', justifyContent: 'space-between', m: 0, mt: 2 }}
-                />
+              {/* Listas negras */}
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={blacklistEnabled}
+                    onChange={(e) => setBlacklistEnabled(e.target.checked)}
+                  />
+                }
+                label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Listas Negras</Typography>}
+                sx={{ display: 'flex', justifyContent: 'space-between', m: 0, mt: 2 }}
+              />
 
-                {/* Listas negras */}
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={blacklistEnabled}
-                      onChange={(e) => setBlacklistEnabled(e.target.checked)}
-                    />
-                  }
-                  label={<Typography sx={{ fontFamily: 'Poppins', fontSize: 14 }}>Listas Negras</Typography>}
-                  sx={{ display: 'flex', justifyContent: 'space-between', m: 0, mt: 2 }}
-                />
-              </Paper>
             </Box>
           )}
 
