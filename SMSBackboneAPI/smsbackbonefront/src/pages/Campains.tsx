@@ -802,6 +802,8 @@ const Campains: React.FC = () => {
     : 0;
 
   const handleCloseModalCampaña = () => {
+    setTelefonos([]);
+    setVariables([]);
     setCampaignName('');
     setMensajeTexto('');
     setTipoMensaje('escrito');
@@ -984,6 +986,14 @@ const Campains: React.FC = () => {
     }
   };
 
+  const handleAtrasEditar = () => {
+    if (editActiveStep === 1) {
+      // Ir al último paso: guardar como plantilla
+      setEditActiveStep(-1)
+    } else {
+      setEditActiveStep(editActiveStep - 1)
+    }
+  };
 
   const handleSelectCampaign = (selected: CampaignFullResponse) => {
     if (selectedCampaign?.id === selected.id) return; // 🔒 Ya está seleccionada
@@ -3574,7 +3584,7 @@ const Campains: React.FC = () => {
                       }}
                       sx={{
                         display: 'flex',
-                        justifyContent: fileSuccess ? 'flex-start' : 'center', // 👈 aquí está la magia
+                        justifyContent: fileSuccess ? 'flex-start' : 'center',
                         alignItems: 'center',
                         width: '100%',
                       }}
@@ -3583,10 +3593,10 @@ const Campains: React.FC = () => {
                         sx={{
                           width: '200px',
                           height: '200px',
-                          minWidth: '200px',    // ← fuerza el tamaño mínimo
-                          minHeight: '200px',   // ← fuerza el tamaño mínimo
-                          maxWidth: '200px',    // ← evita que crezca más
-                          maxHeight: '200px',   // ← evita que crezca más
+                          minWidth: '200px',
+                          minHeight: '200px',
+                          maxWidth: '200px',
+                          maxHeight: '200px',
                           border: fileError
                             ? '2px solid #EF5466'
                             : fileSuccess
@@ -3620,80 +3630,43 @@ const Campains: React.FC = () => {
                             width: 24,
                             height: 24,
 
-                        }}
-                      >
-                        <Tooltip
-                          placement="right"
-                          title={
-                            fileError ? (
-                              <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
-                                Solo se permiten archivos .xlsx
-                              </Box>
-                            ) : (
-                              <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
-                                · El archivo debe ser Excel (.xls/.xlsx)<br />
-                                · La primera columna debe contener<br />
-                                el ID de cada registro<br />
-                                · Los teléfonos y datos adicionales<br />
-                                pueden presentarse en cualquier<br />
-                                orden<br />
-                                · Las columnas deben contar con el<br />
-                                formato de texto o dato general
-                              </Box>
-                            )
-                          }
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: "#FFFFFF",
-                                borderRadius: "8px",
-                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                                padding: "8px 12px",
-                                fontSize: "14px",
-                                fontFamily: "Poppins",
-                                color: "#000000",
-                                whiteSpace: "pre-line",
-                                transform: "translate(-5px, -5px)",
-                                borderColor: "#00131F3D",
-                                borderStyle: "solid",
-                                borderWidth: "1px"
-                              }
-                            }
-                          }}
-                          PopperProps={{
-                            modifiers: [
-                              {
-                                name: 'offset',
-                                options: {
-                                  offset: [104, -260] //  [horizontal, vertical]
-                                }
-                              }
-                            ]
                           }}
                         >
-                          <img
-                            src={fileError ? infoiconerror : infoicon}
-                            alt="estado"
-                            style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
-                          />
-                        </Tooltip>
-                        {fileSuccess && (
-                          <Tooltip title="Eliminar" arrow placement="top"
+                          <Tooltip
+                            placement="right"
+                            title={
+                              fileError ? (
+                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#EF5466', opacity: 0.7 }}>
+                                  Solo se permiten archivos .xlsx
+                                </Box>
+                              ) : (
+                                <Box sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#000000', opacity: 0.7 }}>
+                                  · El archivo debe ser Excel (.xls/.xlsx)<br />
+                                  · La primera columna debe contener<br />
+                                  el ID de cada registro<br />
+                                  · Los teléfonos y datos adicionales<br />
+                                  pueden presentarse en cualquier<br />
+                                  orden<br />
+                                  · Las columnas deben contar con el<br />
+                                  formato de texto o dato general
+                                </Box>
+                              )
+                            }
                             componentsProps={{
                               tooltip: {
                                 sx: {
-                                  backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                  color: "#CCC3C3",
-                                  fontFamily: "Poppins, sans-serif",
-                                  fontSize: "12px",
-                                  padding: "6px 8px",
+                                  backgroundColor: "#FFFFFF",
                                   borderRadius: "8px",
-                                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
-                                }
-                              },
-                              arrow: {
-                                sx: {
-                                  color: "rgba(0, 0, 0, 0.8)"
+                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                  padding: "8px 12px",
+                                  fontSize: "14px",
+                                  fontFamily: "Poppins",
+                                  color: "#000000",
+                                  whiteSpace: "pre-line",
+                                  transform: "translate(-5px, -5px)",
+                                  borderColor: "#00131F3D",
+                                  borderStyle: "solid",
+                                  borderWidth: "1px"
                                 }
                               }
                             }}
@@ -3702,27 +3675,64 @@ const Campains: React.FC = () => {
                                 {
                                   name: 'offset',
                                   options: {
-                                    offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                    offset: [104, -260] //  [horizontal, vertical]
                                   }
                                 }
                               ]
                             }}
                           >
-                            <IconButton
-                              onClick={handleRemoveUploadedFile}
-                              sx={{
-                                position: 'absolute',
-                                mt: 8,
-                                marginLeft: "30px",
-                                width: 24,
-                                height: 24,
-                                padding: 0,
+                            <img
+                              src={fileError ? infoiconerror : infoicon}
+                              alt="estado"
+                              style={{ width: '24px', height: '24px', pointerEvents: 'auto', cursor: 'default' }}
+                            />
+                          </Tooltip>
+                          {fileSuccess && (
+                            <Tooltip title="Eliminar" arrow placement="top"
+                              componentsProps={{
+                                tooltip: {
+                                  sx: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                    color: "#CCC3C3",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontSize: "12px",
+                                    padding: "6px 8px",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                  }
+                                },
+                                arrow: {
+                                  sx: {
+                                    color: "rgba(0, 0, 0, 0.8)"
+                                  }
+                                }
+                              }}
+                              PopperProps={{
+                                modifiers: [
+                                  {
+                                    name: 'offset',
+                                    options: {
+                                      offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                    }
+                                  }
+                                ]
                               }}
                             >
-                              <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
+                              <IconButton
+                                onClick={handleRemoveUploadedFile}
+                                sx={{
+                                  position: 'absolute',
+                                  mt: 8,
+                                  marginLeft: "30px",
+                                  width: 24,
+                                  height: 24,
+                                  padding: 0,
+                                }}
+                              >
+                                <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24 }} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
 
                         </Box>
 
@@ -3802,52 +3812,48 @@ const Campains: React.FC = () => {
                     </Box>
 
 
-                  {/*Descargar archivo de muestra*/}
-                  {!fileSuccess && (
-                    <Box
-                      sx={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "center",
-                        mt: -1, ml: '380px'
-                      }}
-                    >
-                      <Button
-                        disableRipple
+                    {!fileSuccess && (
+                      <Box
                         sx={{
-                          backgroundColor: 'transparent',
-                          textTransform: 'none',
-                          padding: 0,
-                          minWidth: 'auto',
-                          '&:hover': {
-                            backgroundColor: 'transparent'
-                          }
-                        }}
-                        onClick={() => {
-                          // tu lógica si la necesitas
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          mt: -1, ml: '380px'
                         }}
                       >
-                        <a
-                          href="/SMS/Files/ArchivoEjemplo.xlsx"
-                          download
-                          style={{ textDecoration: 'none' }} // quitamos decoración del <a>
+                        <Button
+                          disableRipple
+                          sx={{
+                            backgroundColor: 'transparent',
+                            textTransform: 'none',
+                            padding: 0,
+                            minWidth: 'auto',
+                            '&:hover': {
+                              backgroundColor: 'transparent'
+                            }
+                          }}
                         >
-                          <Typography
-                            sx={{
-                              textDecoration: 'underline',
-                              fontFamily: 'Poppins',
-                              fontSize: '11px',
-                              color: '#8F4D63',
-                              cursor: 'pointer', // ¡importante para que parezca clickeable!
-                            }}
+                          <a
+                            href="/SMS/Files/ArchivoEjemplo.xlsx"
+                            download
+                            style={{ textDecoration: 'none' }}
                           >
-                            Descargar archivo de muestra
-                          </Typography>
-                        </a>
+                            <Typography
+                              sx={{
+                                textDecoration: 'underline',
+                                fontFamily: 'Poppins',
+                                fontSize: '11px',
+                                color: '#8F4D63',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Descargar archivo de muestra
+                            </Typography>
+                          </a>
 
-                      </Button>
-                    </Box>
-                  )}
+                        </Button>
+                      </Box>
+                    )}
 
 
                     {uploadedFile && !postCargaActiva && (
@@ -3936,10 +3942,10 @@ const Campains: React.FC = () => {
                         sx={{
                           width: '200px',
                           height: '200px',
-                          minWidth: '200px',    // ← fuerza el tamaño mínimo
-                          minHeight: '200px',   // ← fuerza el tamaño mínimo
-                          maxWidth: '200px',    // ← evita que crezca más
-                          maxHeight: '200px',   // ← evita que crezca más
+                          minWidth: '200px',
+                          minHeight: '200px',
+                          maxWidth: '200px',
+                          maxHeight: '200px',
                           border: fileError
                             ? '2px solid #EF5466'
                             : fileSuccess
@@ -4055,26 +4061,16 @@ const Campains: React.FC = () => {
                                   {
                                     name: 'offset',
                                     options: {
-                                      offset: [0, -8] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                                      offset: [0, -8]
                                     }
                                   }
                                 ]
                               }}
                             >
                               <IconButton
-                                onClick={(e) => {
-                                  e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
-                                  setSelectedFile(null);
-                                  setUploadedFile(null);
-                                  setFileSuccess(false);
-                                  setFileError(false);
-                                  setBase64File('');
-                                  setUploadedFileBase64('');
-                                  setFormData(prev => ({ ...prev, File: '' }));
-                                  if (fileInputRef.current) {
-                                    fileInputRef.current.value = '';
-                                  }
-                                }}
+                                onClick={
+                                  handleRemoveUploadedFile
+                                }
                                 sx={{
                                   position: 'absolute',
                                   mt: 8,
@@ -4187,9 +4183,6 @@ const Campains: React.FC = () => {
                             '&:hover': {
                               backgroundColor: 'transparent'
                             }
-                          }}
-                          onClick={() => {
-                            // tu lógica si la necesitas
                           }}
                         >
                           <Typography
@@ -7945,9 +7938,9 @@ const Campains: React.FC = () => {
 
           {/* Botones Atrás y Siguiente a la derecha */}
           <Box sx={{ display: "flex", gap: "20px" }}>
-            {activeStep > -1 && (
+            {editActiveStep > -1 && (
               <Button
-                onClick={() => setEditActiveStep((prev) => prev - 1)}
+                onClick={handleAtrasEditar}
                 sx={{
                   width: "118px",
                   height: "36px",
