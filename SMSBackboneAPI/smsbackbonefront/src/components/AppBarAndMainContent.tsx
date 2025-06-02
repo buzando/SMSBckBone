@@ -58,7 +58,7 @@ import CloseSession from '../assets/Icon-CerrarSesion.svg';
 import facturicone from '../assets/facturicone.svg';
 import Iconhelpu from '../assets/Iconhelpu.svg';
 import logorq from '../assets/Logo-RQ_2.svg';
-
+import PrivacityIcon from '../assets/Icon_privacidad.svg'
 const drawerWidth = 278;
 
 type Page = {
@@ -82,13 +82,13 @@ const pages: Page[] = [
     { id: 0, title: 'Inicio', path: '/', icon: <HomeIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 1, title: 'Usuarios', path: '/UserAdministration', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 2, title: 'Administración', path: '', icon: <Iconpeople sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 2, title: 'Administración', path: '', icon: <img src={Iconpeople} alt="Administración" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Usuarios', path: '/users', icon: <PeopleAltIcon sx={{ color: 'white' }} /> },
             { id: 2, title: 'Salas', path: '/rooms', icon: <HomeIcon sx={{ color: 'white' }} /> },
         ]
     },
     {
-        id: 3, title: 'Facturación', path: '/billing', icon: <facturicone sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 3, title: 'Facturación', path: '/billing', icon: <img src={facturicone} alt="Facturación" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Historial de pagos', path: '/PaymentHistoric', icon: <HistoryIcon sx={{ color: 'white' }} /> },
             { id: 2, title: 'Métodos de pago', path: '/PaymentMethods', icon: <PaymentIcon sx={{ color: 'white' }} /> },
             { id: 3, title: 'Facturación', path: '/BillingInformation', icon: <DataUsageIcon sx={{ color: 'white' }} /> },
@@ -96,13 +96,13 @@ const pages: Page[] = [
             { id: 5, title: 'Ajustes de pago', path: '/PaymentSettings', icon: <SettingsSuggestIcon sx={{ color: 'white' }} /> },
         ]
     },
-    { id: 4, title: 'Reportes', path: '/Reports', icon: <Iconreports sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 4, title: 'Reportes', path: '/Reports', icon: <img src={Iconreports} alt="Reportes" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 5, title: 'SMS', path: '/numbers', icon: <Iconmesage sx={{ color: 'white' }} />, hasSubMenus: true, subMenus: [
+        id: 5, title: 'SMS', path: '/numbers',    icon: <img src={Iconmesage} alt="SMS" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Configuración SMS', path: '/sms', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
         ]
     },
-    { id: 6, title: 'Ayuda', path: '/help', icon: <Iconhelpu sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
+    { id: 6, title: 'Ayuda', path: '/help', icon: <img src={Iconhelpu} alt="Ayuda" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: false, subMenus: [] },
 
     // Opciones del botón de usuario
     { id: 7, title: 'Editar cuenta', path: '/ManageAccount', icon: <EditIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
@@ -825,7 +825,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         </MenuItem>
                         <MenuItem onClick={() => navigate('/TermsAndConditions')} sx={{
                             '&:hover': {
-                                background: '#F2EBED 0% 0% no-repeat padding-box', 
+                                background: '#F2EBED 0% 0% no-repeat padding-box',
                                 opacity: 1,
                             },
                         }}>
@@ -847,7 +847,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         </MenuItem>
                         <MenuItem onClick={() => navigate('/PrivacyNotice')} sx={{
                             '&:hover': {
-                                background: '#F2EBED 0% 0% no-repeat padding-box', 
+                                background: '#F2EBED 0% 0% no-repeat padding-box',
                                 opacity: 1,
                             },
                         }}>
@@ -862,7 +862,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 }}
                             >
                                 <Box display="flex" alignItems="center">
-                                    <DescriptionIcon sx={{ fontSize: 20, mr: 1 }} />
+                                    <img src={PrivacityIcon} alt="Privacidad" style={{ width: 20, height: 20, marginRight: 8 }} />
                                     Aviso de privacidad
                                 </Box>
                             </Typography>

@@ -670,7 +670,7 @@ const Campains: React.FC = () => {
       if (response.status === 200) {
         setCampaigns(response.data);
         if (selectedCampaignId) {
-          const exists = response.data.some(c => c.id === selectedCampaignId);
+          const exists = response.data.some((c: { id: number }) => c.id === selectedCampaignId);
           if (!exists) {
             setSelectedCampaignId(response.data[0]?.id || null);
           }
@@ -1235,7 +1235,7 @@ const Campains: React.FC = () => {
           sentCounts[send.state] = (sentCounts[send.state] || 0) + 1;
 
           // 🔥 Contar solo los respondidos (si tiene responseMessage no vacío)
-          if (send.responseMessage !== null && send.responseMessage.trim() !== "") {
+          if (send.responseMessage !== null && send.responseMessage!.trim() !== "") {
             respondedCounts[send.state] = (respondedCounts[send.state] || 0) + 1;
           }
         }
@@ -1280,7 +1280,7 @@ const Campains: React.FC = () => {
             sentCounts[send.state] = (sentCounts[send.state] || 0) + 1;
 
             // 🔥 Contar solo los respondidos (si tiene responseMessage no vacío)
-            if (send.responseMessage !== null && send.responseMessage.trim() !== "") {
+            if (send.responseMessage !== null && send.responseMessage!.trim() !== "") {
               respondedCounts[send.state] = (respondedCounts[send.state] || 0) + 1;
             }
           }
@@ -1519,7 +1519,7 @@ const Campains: React.FC = () => {
 
                 <Select
                   value={campaignFilter}
-                  onChange={(e) => setCampaignFilter(e.target.value)}
+                  onChange={(e) => setCampaignFilter(e.target.value as 'todas' | 'encendidas' | 'detenidas')}
                   fullWidth
                   size="small"
                   displayEmpty
@@ -1869,8 +1869,8 @@ const Campains: React.FC = () => {
                             }} />
                           </Box>
                           <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center", width: "100%", marginTop: "0px", paddingLeft: "45px" }}>
-                            <Typography sx={{ fontSize: "12px", fontWeight: "600", color: "#574B4FCC", marginLeft: "7px", marginTop: "-7px", color: isSelected ? "#8E5065" : "#574B4F" }}>{Math.round(progreso)}%</Typography>
-                            <Typography sx={{ fontSize: "12px", color: "#574B4FCC", marginTop: "-7px", marginLeft: "7px", color: isSelected ? "#8E5065" : "#574B4F", fontFamily: "Poppins" }}>{campaign.numeroActual}/{campaign.numeroInicial}</Typography>
+                            <Typography sx={{ fontSize: "12px", fontWeight: "600", marginLeft: "7px", marginTop: "-7px", color: isSelected ? "#8E5065" : "#574B4F" }}>{Math.round(progreso)}%</Typography>
+                            <Typography sx={{ fontSize: "12px", marginTop: "-7px", marginLeft: "7px", color: isSelected ? "#8E5065" : "#574B4F", fontFamily: "Poppins" }}>{campaign.numeroActual}/{campaign.numeroInicial}</Typography>
                           </Box>
                         </ListItem>
                       );
@@ -4565,14 +4565,12 @@ const Campains: React.FC = () => {
                                 >
                                   <IconButton
                                     onClick={(e) => {
-                                      e.stopPropagation(); // ❌ evita que el click se propague al Box que abre el file picker
-                                      setSelectedFile(null);
+                                      e.stopPropagation();
                                       setUploadedFile(null);
                                       setFileSuccess(false);
                                       setFileError(false);
                                       setBase64File('');
                                       setUploadedFileBase64('');
-                                      setFormData(prev => ({ ...prev, File: '' }));
                                       if (fileInputRef.current) {
                                         fileInputRef.current.value = '';
                                       }
@@ -7043,6 +7041,7 @@ const Campains: React.FC = () => {
               />
 
               <FormControlLabel
+                label=""
                 control={
                   <Box
                     sx={{

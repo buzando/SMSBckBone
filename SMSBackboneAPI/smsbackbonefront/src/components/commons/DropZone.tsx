@@ -12,6 +12,7 @@ interface DropZoneProps {
   fileError?: boolean;
   helperText?: string;
   acceptedFiles?: string;
+  error:boolean;
 }
 
 const DropZone: React.FC<DropZoneProps> = ({
@@ -21,6 +22,7 @@ const DropZone: React.FC<DropZoneProps> = ({
   fileError = false,
   helperText = 'Arrastre un archivo aquí, o selecciónelo.',
   acceptedFiles = '.xlsx',
+  error = false,
 }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
