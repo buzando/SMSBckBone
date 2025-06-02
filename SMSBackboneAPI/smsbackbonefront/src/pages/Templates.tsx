@@ -421,7 +421,7 @@ const Templates = () => {
     };
 
 
-const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensaje.trim();
+    const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensaje.trim();
 
 
 
@@ -638,7 +638,7 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                         borderRadius: '8px',
                         boxShadow: '0px 2px 6px rgba(0,0,0,0.05)',
                         overflow: 'hidden',
-                        height: "246%",
+                        height: "650px",
                         mt: 3
                     }}
                 >
@@ -842,22 +842,23 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
 
                     }}
                 >
-                    <Typography variant="h6" fontWeight={600} fontFamily="Poppins" color='#574B4F' marginTop="-5px">
+                    <Typography variant="h6" fontWeight={600} fontFamily="Poppins"
+                        color='#574B4F' marginTop="0px">
                         Añadir plantilla
                     </Typography>
 
-                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-44px", marginLeft: '506px' }}>
+                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-48px", marginLeft: '506px' }}>
                         <CloseIcon />
                     </IconButton>
 
-                    <Divider sx={{ width: 'calc(100% + 58px)', marginLeft: '-28px', mb: 2, mt: 2 }} />
+                    <Divider sx={{ width: 'calc(100% + 58px)', marginLeft: '-28px', mb: 2, mt: 3 }} />
 
                     <Typography
-                        mt={2}
+                        mt={2} mb={1}
                         fontWeight={500}
-                        fontSize={16}
+                        fontSize={"16px"}
                         fontFamily="Poppins"
-                        sx={{ color: isTemplateNameInvalid ? '#D01247' : '#574B4F' }}
+                        sx={{ color: isTemplateNameInvalid ? '#D01247' : '#330F1B' }}
                     >
                         Nombre
                         <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
@@ -885,6 +886,7 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                                 }
                             }}
                             sx={{
+                                width: "340px", height: "54px",
                                 fontFamily: 'Poppins',
                                 '& input': {
                                     fontFamily: 'Poppins',
@@ -900,8 +902,8 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                                         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                                         padding: "8px 12px",
                                         fontFamily: "Poppins",
-                                        fontSize: "12px",
-                                        color: "#000000",
+                                        fontSize: "14px",
+                                        color: "#574B4F",
                                         whiteSpace: "pre-line",
                                         transform: "translate(-10px, -22px)",
                                         borderColor: "#00131F3D",
@@ -929,7 +931,7 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                         >
                             <IconButton
                                 size="small"
-                                sx={{ position: 'absolute', marginLeft: "-45px", marginTop: "11px" }}
+                                sx={{ position: 'absolute', marginLeft: "-50px", marginTop: "11px" }}
                             >
                                 <img
                                     src={isTemplateNameInvalid ? infoiconerror : infoicon}
@@ -940,7 +942,7 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                         </Tooltip>
                     </Box>
 
-                    <Typography mt={3} fontWeight={500} fontSize={16} fontFamily="Poppins" mb={3}>
+                    <Typography mt={4.5} fontWeight={500} fontSize={'16px'} fontFamily="Poppins" mb={1.5} color={'#330F1B'}>
                         Mensaje
                         <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
                     </Typography>

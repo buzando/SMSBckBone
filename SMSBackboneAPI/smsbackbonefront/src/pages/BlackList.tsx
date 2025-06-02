@@ -807,7 +807,7 @@ const BlackList: React.FC = () => {
 
     const handleConfirmDelete = async () => {
         if (rowToDelete) {
-            await handleDeleteSelected(rowToDelete); // tu función ya existente
+            await handleDeleteSelected(rowToDelete);
             handleCloseDeleteModal();
         }
     };
@@ -1083,10 +1083,10 @@ const BlackList: React.FC = () => {
                             borderRadius: '8px',
                             boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
                             overflowX: 'auto',
-                            mt: 3
+                            mt: 3, height: "650px"
                         }}
                     >
-                        <table style={{ width: '1500px', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
+                        <table style={{ width: '1500px', borderCollapse: 'collapse', fontFamily: 'Poppins', }}>
                             <thead>
                                 {selectedRows.length === 0 ? (
                                     <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
@@ -1202,7 +1202,7 @@ const BlackList: React.FC = () => {
                                                         ]
                                                     }}
                                                 >
-                                                    <IconButton onClick={handleDeleteSelected} >
+                                                    <IconButton onClick={() => handleDeleteSelected()}>
                                                         <img src={Thrashicon} alt="Eliminar" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
@@ -1417,6 +1417,7 @@ const BlackList: React.FC = () => {
                                         }
                                     }}
                                     sx={{
+                                        width: "340px", height: "54px",
                                         fontFamily: "Poppins",
                                         "& .MuiInputBase-input": {
                                             fontFamily: "Poppins",
@@ -1505,8 +1506,8 @@ const BlackList: React.FC = () => {
                             <Box
                                 sx={{
                                     display: 'flex',
-                                    flexDirection: 'column', // 🔥 esta línea es clave
-                                    alignItems: 'center',     // Opcional: centra horizontalmente
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
                                     gap: 0,
 
                                 }}
@@ -1518,7 +1519,7 @@ const BlackList: React.FC = () => {
                                     onDragOver={(e) => e.preventDefault()}
                                     onDrop={(e) => {
                                         e.preventDefault();
-                                        if (hasPhoneInput) return; // 🔒 prevenir carga
+                                        if (hasPhoneInput) return; // prevenir carga
                                         const file = e.dataTransfer.files?.[0];
                                         if (file) handleFile(file);
                                     }}
@@ -1703,9 +1704,9 @@ const BlackList: React.FC = () => {
                                             sx={{
                                                 fontWeight: 600,
                                                 fontFamily: "Poppins",
-                                                color: "#330F1B",
-                                                fontSize: '14px',
-                                                opacity: !fileError && !fileSuccess ? 0.6 : 1 // 🔥 esta línea es la clave
+                                                color: "#574B4F",
+                                                fontSize: '12px',
+                                                opacity: !fileError && !fileSuccess ? 0.6 : 1
                                             }}
                                         >
                                             {fileError
@@ -2015,7 +2016,7 @@ const BlackList: React.FC = () => {
                                 sx={{
                                     width: '340px',
                                     height: '54px',
-                                    border: '1px solid #D9B4C3',
+                                    border: '1px solid #574B4F66',
                                     borderRadius: '4px',
                                     padding: '10px 12px',
                                     fontSize: '14px',
@@ -2055,7 +2056,7 @@ const BlackList: React.FC = () => {
 
                         </Box>
 
-                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: -4, mt: 1 }} />
+                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: -3, mt: 1 }} />
 
                         {/* Botones */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
@@ -2640,8 +2641,8 @@ const BlackList: React.FC = () => {
                             >                                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins', border: '1px solid #E6E4E4' }}>
                                     <thead>
                                         <tr style={{ backgroundColor: '#ffff', border: '1px solid #E6E4E4' }}>
-                                            <th style={{ padding: '12px', textAlign: 'left' }}>Teléfono</th>
-                                            <th style={{ padding: '12px', textAlign: 'left' }}>Dato</th>
+                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500 }}>Teléfono</th>
+                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500 }}>Dato</th>
                                         </tr>
                                     </thead>
                                     {inspectData
@@ -2824,11 +2825,11 @@ const BlackList: React.FC = () => {
                                         sx={{
                                             fontWeight: 500,
                                             fontFamily: 'Poppins',
-                                            fontSize: '12px',
+                                            fontSize: '14px',
                                             lineHeight: 1,
                                             color: '#8F4D63',
                                             textTransform: 'none',
-                                            marginLeft: "0px",
+                                            marginLeft: "6px",
                                             marginTop: "7px"
                                         }}
                                     >
@@ -2899,11 +2900,11 @@ const BlackList: React.FC = () => {
                                         sx={{
                                             fontWeight: 500,
                                             fontFamily: 'Poppins',
-                                            fontSize: '12px',
+                                            fontSize: '14px',
                                             lineHeight: 1,
                                             color: '#8F4D63',
                                             textTransform: 'none',
-                                            marginLeft: "7px",
+                                            marginLeft: "3px",
                                             marginTop: "6px"
                                         }}
                                     >
@@ -2974,11 +2975,11 @@ const BlackList: React.FC = () => {
                                         sx={{
                                             fontWeight: 500,
                                             fontFamily: 'Poppins',
-                                            fontSize: '12px',
+                                            fontSize: '14px',
                                             lineHeight: 1,
                                             color: '#8F4D63',
                                             textTransform: 'none',
-                                            marginLeft: "0px",
+                                            marginLeft: "-2px",
                                             marginTop: "6px"
                                         }}
                                     >
