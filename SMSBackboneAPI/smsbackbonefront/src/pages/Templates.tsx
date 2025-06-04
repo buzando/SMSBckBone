@@ -535,72 +535,73 @@ const Templates = () => {
                 <Box sx={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', marginTop: '-46px',
                 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, marginLeft: "10px" }}>
                         <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
                             {startItem}–{endItem} de {totalItems}
                         </Typography>
+                        <Box sx={{ marginLeft: "-25px" }}>
+                            {/* Ir al inicio */}
+                            <IconButton
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22 }}
+                                    alt="Primera página"
+                                />
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
+                                    alt=""
+                                />
+                            </IconButton>
 
-                        {/* Ir al inicio */}
-                        <IconButton
-                            onClick={() => setCurrentPage(1)}
-                            disabled={currentPage === 1}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22 }}
-                                alt="Primera página"
-                            />
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
-                                alt=""
-                            />
-                        </IconButton>
+                            {/* Anterior */}
+                            <IconButton
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22 }}
+                                    alt="Anterior"
+                                />
+                            </IconButton>
 
-                        {/* Anterior */}
-                        <IconButton
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22 }}
-                                alt="Anterior"
-                            />
-                        </IconButton>
+                            {/* Siguiente */}
+                            <IconButton
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22 }}
+                                    alt="Siguiente"
+                                />
+                            </IconButton>
 
-                        {/* Siguiente */}
-                        <IconButton
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22 }}
-                                alt="Siguiente"
-                            />
-                        </IconButton>
-
-                        {/* Ir al final */}
-                        <IconButton
-                            onClick={() => setCurrentPage(totalPages)}
-                            disabled={currentPage === totalPages}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22 }}
-                                alt="Última página"
-                            />
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
-                                alt=""
-                            />
-                        </IconButton>
+                            {/* Ir al final */}
+                            <IconButton
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22 }}
+                                    alt="Última página"
+                                />
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
+                                    alt=""
+                                />
+                            </IconButton>
+                        </Box>
                     </Box>
                 </Box>
             )}
@@ -612,7 +613,7 @@ const Templates = () => {
                         backgroundColor: '#FFFFFF',
                         borderRadius: '8px',
                         padding: '60px 0',
-                        height: '634px',
+                        height: '625px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -621,7 +622,9 @@ const Templates = () => {
                         mt: 3,
                     }}
                 >
-                    <img src={BoxEmpty} alt="Caja vacía" style={{ width: '220px', marginBottom: '16px' }} />
+                    <img src={BoxEmpty}
+                        alt="Caja vacía"
+                        style={{ width: '263px', marginBottom: '16px' }} />
                     <Typography
                         sx={{
                             fontFamily: 'Poppins',
@@ -638,46 +641,52 @@ const Templates = () => {
                     sx={{
                         backgroundColor: '#fff',
                         borderRadius: '8px',
-                        boxShadow: '0px 2px 6px rgba(0,0,0,0.05)',
-                        overflow: 'hidden',
-                        height: "150%",
-                        mt: 3
+                        boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                        overflowX: 'auto',
+                        height: "450px",
+                        mt: 3.6
                     }}
                 >
                     <table style={{
-                        width: '100%',
+                        width: '100%', minWidth: '1080px',
                         borderCollapse: 'collapse',
                         fontFamily: 'Poppins',
                     }}>
                         <thead>
                             {selectedTemplates.length === 0 ? (
-                                <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', borderBottom: '1px solid #E6E4E4', }}>
-                                    <th style={{ padding: '12px 16px' }}>
-                                        <Checkbox
-                                            checked={selectedTemplates.length === templates.length && templates.length > 0}
-                                            indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
-                                            onChange={handleSelectAllTemplates}
-                                            sx={{
-                                                color: '#574861',
-                                                '&.Mui-checked': {
-                                                    color: '#7B354D'
-                                                },
-                                                '&.MuiCheckbox-indeterminate': {
-                                                    color: '#7B354D'
-                                                }
-                                            }}
-                                        />
-                                    </th><th style={{ padding: '12px 10px', fontWeight: 500 }}>Fecha de creación</th>
-                                    <th style={{ padding: '12px 10px', fontWeight: 500 }}>Nombre</th>
-                                    <th style={{ padding: '12px 10px', fontWeight: 500, borderRight: "1px solid #E6E4E4" }}>Contenido</th>
-                                    <th style={{ padding: '12px 10px', fontWeight: 500 }}></th>
+                                <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', }}>
+                                    <th style={{ padding: '5px' }}>
+                                        <Box sx={{ marginLeft: "6px" }}>
+                                            <Checkbox
+                                                checked={selectedTemplates.length === templates.length && templates.length > 0}
+                                                indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
+                                                onChange={handleSelectAllTemplates}
+                                                sx={{
+                                                    color: '#574861',
+                                                    '&.Mui-checked': {
+                                                        color: '#7B354D'
+                                                    },
+                                                    '&.MuiCheckbox-indeterminate': {
+                                                        color: '#7B354D'
+                                                    }
+                                                }}
+                                            />
+                                        </Box>
+                                    </th><th style={{ padding: '00px', fontWeight: 500 }}>Fecha de creación</th>
+                                    <th style={{ padding: '0px', fontWeight: 500 }}>Nombre</th>
+                                    <th style={{ padding: '0px', fontWeight: 500, borderRight: "1px solid #E6E4E4" }}>Contenido</th>
+                                    <th style={{ padding: '0px', fontWeight: 500 }}></th>
                                 </tr>
                             ) : (
-                                <tr style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E6E4E4', }}>
-                                    <th colSpan={5}>
-                                        <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"12px"} marginLeft={"-2px"} marginBottom={"10px"}>
+                                <tr style={{
+                                    backgroundColor: '#FFFFFF',
+                                    textAlign: 'left', width: '100%'
+                                }}>
+                                    <th colSpan={6} style={{ minWidth: "967px" }}>
+
+                                        <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"6px"} marginLeft={"-7px"} marginBottom={"8px"}>
                                             {/*Checkbox para tablas*/}
-                                            <Box sx={{ marginBottom: "0px" }}>
+                                            <Box sx={{ marginBottom: "0px", marginTop: "2px" }}>
                                                 <Checkbox
                                                     checked={selectedTemplates.length === templates.length}
                                                     indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
@@ -806,41 +815,50 @@ const Templates = () => {
                                 </Box>
                             ) : (
                                 currentItems.map((template) => (
-                                    <tr key={template.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '0px 10px', fontSize: '14px' }}>
-                                            <Checkbox
-                                                checked={selectedTemplates.some((t) => t.id === template.id)}
-                                                onChange={() => handleSelectTemplate(template)}
-                                                checkedIcon={
-                                                    <Box
-                                                        sx={{
-                                                            width: '24px',
-                                                            height: '24px',
-                                                        }}
-                                                    >
-                                                        <img
-                                                            src={IconCheckBox1}
-                                                            alt="Seleccionado"
-                                                            style={{ width: '24px', height: '24px' }}
-                                                        />
-                                                    </Box>
-                                                }
-                                                sx={{
-                                                    color: '#574861',
-                                                    '&.MuiCheckbox-indeterminate': {
-                                                        color: '#7B354D'
+                                    <tr key={template.id} style={{ borderTop: '1px solid #E0E0E0' }}>
+                                        <td style={{ padding: '0px', width: "60px" }}>
+                                            <Box sx={{ marginLeft: "10px" }}>
+                                                <Checkbox
+                                                    checked={selectedTemplates.some((t) => t.id === template.id)}
+                                                    onChange={() => handleSelectTemplate(template)}
+                                                    checkedIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+                                                        </Box>
                                                     }
-                                                }}
-                                            />
+                                                    sx={{
+                                                        color: '#574861',
+                                                        '&.MuiCheckbox-indeterminate': {
+                                                            color: '#7B354D'
+                                                        }
+                                                    }}
+                                                />
+                                            </Box>
                                         </td>
 
                                         {/* Fecha */}
-                                        <td style={{ padding: '12px 10px', fontSize: '13px', color: "#574B4F" }}>
+                                        <td style={{
+                                            padding: '0px', width: '200px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', textAlign: "left",
+                                            fontSize: '13px', color: "#574B4F", fontFamily: 'Poppins',
+                                        }}>
                                             {new Date(template.creationDate).toLocaleDateString('es-MX')}
                                         </td>
 
                                         {/* Nombre con Tooltip */}
-                                        <td style={{ padding: '12px 10px', fontSize: '13px', color: "#574B4F", maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <td style={{
+                                            padding: '0px', width: '160px', whiteSpace: 'nowrap', overflow: 'hidden', textAlign: "left",
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>
                                             {template.name.length > 15 ? (
                                                 <Tooltip title={template.name} arrow>
                                                     <span>{template.name.slice(0, 15) + '...'}</span>
@@ -851,15 +869,17 @@ const Templates = () => {
                                         </td>
 
                                         {/* Contenido */}
-                                        <td style={{ padding: '12px 10px', fontSize: '13px', color: "#574B4F" }}>{template.message}</td>
+                                        <td style={{
+                                            padding: '0px', width: '480px', whiteSpace: 'nowrap', overflow: 'hidden', textAlign: "left",
+                                            textOverflow: 'ellipsis', fontSize: '13px', color: "#574B4F", fontFamily: 'Poppins'
+                                        }}>{template.message}</td>
 
                                         {/* Menú de acciones */}
                                         <td
                                             style={{
-                                                width: "75px",
-                                                padding: '12px 10px',
-                                                textAlign: 'right',
-                                                borderLeft: '1px solid #D9D9D9',
+                                                padding: '0px', width: '50px',
+                                                borderLeft: '1px solid #E0E0E0',
+                                                textAlign: 'center',
                                             }}
                                         >
                                             <IconButton onClick={(e) => handleMenuClick(e, template)}>

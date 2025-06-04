@@ -24,7 +24,7 @@ import IconCheckBox1 from "../assets/IconCheckBox1.svg";
 import IconCheckBox2 from "../assets/IconCheckBox2.svg";
 import IconNegativeCircle from '../assets/IconNegativeCircle.svg'
 import IconReUpdate1 from '../assets/IconReUpdate1.svg'
-
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconCloudError from '../assets/IconCloudError.svg'
 import CloudCheckedIcon from '../assets/CloudCheckedIcon.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
@@ -972,72 +972,73 @@ const BlackList: React.FC = () => {
                 <Box sx={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', marginTop: '-46px',
                 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, marginLeft: "10px" }}>
                         <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
                             {startItem}–{endItem} de {totalItems}
                         </Typography>
+                        <Box sx={{ marginLeft: "-25px" }}>
+                            {/* Ir al inicio */}
+                            <IconButton
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22 }}
+                                    alt="Primera página"
+                                />
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
+                                    alt=""
+                                />
+                            </IconButton>
 
-                        {/* Ir al inicio */}
-                        <IconButton
-                            onClick={() => setCurrentPage(1)}
-                            disabled={currentPage === 1}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22 }}
-                                alt="Primera página"
-                            />
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
-                                alt=""
-                            />
-                        </IconButton>
+                            {/* Anterior */}
+                            <IconButton
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22 }}
+                                    alt="Anterior"
+                                />
+                            </IconButton>
 
-                        {/* Anterior */}
-                        <IconButton
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22 }}
-                                alt="Anterior"
-                            />
-                        </IconButton>
+                            {/* Siguiente */}
+                            <IconButton
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22 }}
+                                    alt="Siguiente"
+                                />
+                            </IconButton>
 
-                        {/* Siguiente */}
-                        <IconButton
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22 }}
-                                alt="Siguiente"
-                            />
-                        </IconButton>
-
-                        {/* Ir al final */}
-                        <IconButton
-                            onClick={() => setCurrentPage(totalPages)}
-                            disabled={currentPage === totalPages}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22 }}
-                                alt="Última página"
-                            />
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
-                                alt=""
-                            />
-                        </IconButton>
+                            {/* Ir al final */}
+                            <IconButton
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22 }}
+                                    alt="Última página"
+                                />
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
+                                    alt=""
+                                />
+                            </IconButton>
+                        </Box>
                     </Box>
                 </Box>
             )}
@@ -1083,19 +1084,18 @@ const BlackList: React.FC = () => {
                             borderRadius: '8px',
                             boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
                             overflowX: 'auto',
-                            mt: 3, height: "650px"
+                            mt: 1.2, height: "450px"
                         }}
                     >
                         <table style={{
-                            width: 'auto', minWidth: '1300px',
+                            width: 'auto', minWidth: '1100px',
                             borderCollapse: 'collapse',
-                            fontFamily: 'Poppins',
-
+                            fontFamily: 'Poppins'
                         }}>
                             <thead>
                                 {selectedRows.length === 0 ? (
                                     <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
-                                        <th style={{ padding: '10px' }}>
+                                        <th style={{ padding: '5px' }}>
                                             <Box sx={{ marginLeft: "7px" }}>
                                                 <Checkbox
                                                     sx={{
@@ -1109,17 +1109,20 @@ const BlackList: React.FC = () => {
                                                 />
                                             </Box>
                                         </th>
-                                        <th style={{ padding: '10px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de creación</th>
-                                        <th style={{ padding: '10px', fontFamily: 'Poppins', fontWeight: '500' }}>Nombre de lista</th>
-                                        <th style={{ padding: '10px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de expiración</th>
-                                        <th style={{ padding: '10px', fontFamily: 'Poppins', fontWeight: '500', borderRight: "1px solid #E6E4E4" }}>Cantidad de registros</th>
-                                        <th style={{ padding: '10px' }}></th>
+                                        <th style={{ padding: '0px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de creación</th>
+                                        <th style={{ padding: '0px', fontFamily: 'Poppins', fontWeight: '500' }}>Nombre de lista</th>
+                                        <th style={{ padding: '0px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de expiración</th>
+                                        <th style={{ padding: '0px', fontFamily: 'Poppins', fontWeight: '500', borderRight: '1px solid #E0E0E0', }}>Cantidad de registros</th>
+                                        <th style={{ padding: '0px' }}></th>
                                     </tr>
                                 ) : (
-                                    <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
+                                    <tr style={{
+                                        backgroundColor: '#FFFFFF',
+                                        textAlign: 'left', width: '100%'
+                                    }}>
                                         <th colSpan={6} style={{ minWidth: "967px" }}>
 
-                                            <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"9px"} marginLeft={"0px"} marginBottom={"9px"}>
+                                            <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"4px"} marginLeft={"-5px"} marginBottom={"4px"}>
                                                 {/*Checkbox para tablas*/}
                                                 <Checkbox
                                                     checked={isAllSelected}
@@ -1216,7 +1219,7 @@ const BlackList: React.FC = () => {
                             <tbody>
                                 {currentItems.map((black) => (
                                     <tr key={black.id} style={{ borderTop: '1px solid #E0E0E0', }}>
-                                        <td style={{ padding: '6px' }}>
+                                        <td style={{ padding: '0px', width: "50px" }}>
                                             <Box sx={{ marginLeft: "10px" }}>
                                                 <Checkbox
                                                     checkedIcon={
@@ -1252,27 +1255,29 @@ const BlackList: React.FC = () => {
                                         </td>
                                         <td style={{
                                             padding: '0px', fontFamily: 'Poppins',
-                                            color: "#574B4F", fontSize: "13px",
+                                            color: "#574B4F", fontSize: "13px", width: '210px',
                                         }}>{formatDate(black.creationDate)}</td>
+
                                         <td style={{
-                                            padding: '0px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            padding: '0px', width: '160px', whiteSpace: 'nowrap', overflow: 'hidden',
                                             textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
                                         }}>
                                             {black.name}
                                         </td>
-                                        <td style={{ padding: '0px', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px" }}>{formatDate(black.expirationDate)}</td>
-                                        <td style={{ padding: '0px', textAlign: 'left', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px", }}>{black.quantity}</td>
+
+                                        <td style={{ padding: '0px', width: '200px', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px" }}>{formatDate(black.expirationDate)}</td>
+                                        <td style={{ padding: '0px', width: '200px', textAlign: 'left', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px", }}>{black.quantity}</td>
                                         <td style={{
-                                            padding: '0px',
+                                            padding: '0px', width: '50px',
                                             borderLeft: '1px solid #E0E0E0',
                                             textAlign: 'center'
                                         }}>
                                             <IconButton onClick={(e) => {
                                                 setMenuAnchorEl(e.currentTarget);
-                                                setSelectedBlackList(black); // GUÁRDALO DIRECTO
+                                                setSelectedBlackList(black);
                                             }}>
 
-                                                <span style={{ fontSize: '24px', color: '#7B354D' }}>⋮</span>
+                                                <MoreVertIcon sx={{ color: '#7B354D' }} />
                                             </IconButton>
 
                                         </td>
@@ -1347,9 +1352,9 @@ const BlackList: React.FC = () => {
                         height: 'auto',
                         bgcolor: 'background.paper',
                         boxShadow: 24,
-                        pt: 1.5,     // 🔥 Padding top reducido
-                        px: 4,     // Conservamos padding lateral
-                        pb: 2,     // Padding bottom igual
+                        pt: 1.5,
+                        px: 4,
+                        pb: 2,
                         borderRadius: '8px',
                         overflowY: 'hidden',
                         overflowX: 'hidden',
@@ -2379,7 +2384,7 @@ const BlackList: React.FC = () => {
                     <Box
                         sx={{
                             display: 'flex',
-                            justifyContent: 'space-between', // Asegura que se distribuyan
+                            justifyContent: 'space-between',
                             width: '100%',
                             borderBottom: '1px solid #E0E0E0',
                             mb: 2,
