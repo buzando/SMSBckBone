@@ -20,8 +20,8 @@ import IconPlusUnselected from '../assets/IconPlusUnselected.svg'
 import IconMinusSelected from '../assets/IconMinusSelected.svg'
 import IconUpdateSelected from '../assets/IconUpdateSelected.svg'
 import IconEyeOpen from '../assets/IconEyeOpen.svg'
-
-
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import IconCheckBox2 from "../assets/IconCheckBox2.svg";
 import IconNegativeCircle from '../assets/IconNegativeCircle.svg'
 import IconReUpdate1 from '../assets/IconReUpdate1.svg'
 
@@ -1086,33 +1086,40 @@ const BlackList: React.FC = () => {
                             mt: 3, height: "650px"
                         }}
                     >
-                        <table style={{ width: '1500px', borderCollapse: 'collapse', fontFamily: 'Poppins', }}>
+                        <table style={{
+                            width: 'auto', minWidth: '1300px',
+                            borderCollapse: 'collapse',
+                            fontFamily: 'Poppins',
+
+                        }}>
                             <thead>
                                 {selectedRows.length === 0 ? (
                                     <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
-                                        <th style={{ padding: '16px' }}>
-                                            <Checkbox
-                                                sx={{
-                                                    color: '#8F4E63',
-                                                    '&.Mui-checked': { color: '#8F4E63' },
-                                                    '&.MuiCheckbox-indeterminate': { color: '#8F4E63' }
-                                                }}
-                                                checked={isAllSelected}
-                                                indeterminate={isIndeterminate}
-                                                onChange={handleSelectAll}
-                                            />
+                                        <th style={{ padding: '10px' }}>
+                                            <Box sx={{ marginLeft: "7px" }}>
+                                                <Checkbox
+                                                    sx={{
+                                                        color: '#574861',
+                                                        '&.Mui-checked': { color: '#8F4E63' },
+                                                        '&.MuiCheckbox-indeterminate': { color: '#8F4E63' }
+                                                    }}
+                                                    checked={isAllSelected}
+                                                    indeterminate={isIndeterminate}
+                                                    onChange={handleSelectAll}
+                                                />
+                                            </Box>
                                         </th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de creación</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Nombre de lista</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de expiración</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Cantidad de registros</th>
-                                        <th style={{ padding: '16px' }}></th>
+                                        <th style={{ padding: '10px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de creación</th>
+                                        <th style={{ padding: '10px', fontFamily: 'Poppins', fontWeight: '500' }}>Nombre de lista</th>
+                                        <th style={{ padding: '10px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de expiración</th>
+                                        <th style={{ padding: '10px', fontFamily: 'Poppins', fontWeight: '500', borderRight: "1px solid #E6E4E4" }}>Cantidad de registros</th>
+                                        <th style={{ padding: '10px' }}></th>
                                     </tr>
                                 ) : (
                                     <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
                                         <th colSpan={6} style={{ minWidth: "967px" }}>
 
-                                            <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"18px"} marginLeft={"2px"} marginBottom={"18px"}>
+                                            <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"9px"} marginLeft={"0px"} marginBottom={"9px"}>
                                                 {/*Checkbox para tablas*/}
                                                 <Checkbox
                                                     checked={isAllSelected}
@@ -1121,8 +1128,8 @@ const BlackList: React.FC = () => {
                                                     icon={
                                                         <Box
                                                             sx={{
-                                                                width: 18,
-                                                                height: 18,
+                                                                width: 24,
+                                                                height: 24,
                                                                 border: '2px solid #8F4E63',
                                                                 borderRadius: '2px',
                                                             }}
@@ -1131,46 +1138,38 @@ const BlackList: React.FC = () => {
                                                     checkedIcon={
                                                         <Box
                                                             sx={{
-                                                                width: 18,
-                                                                height: 18,
-                                                                backgroundColor: '#8F4E63',
-                                                                border: '2px solid #8F4E63',
-                                                                borderRadius: '2px',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                fontSize: 14,
-                                                                color: 'white',
-                                                                fontWeight: 'bold',
-                                                                lineHeight: 1,
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '0px',
+                                                                marginLeft: '0px',
                                                             }}
                                                         >
-                                                            ✓
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
                                                         </Box>
                                                     }
                                                     indeterminateIcon={
                                                         <Box
                                                             sx={{
-                                                                width: 18,
-                                                                height: 18,
-                                                                backgroundColor: '#8F4E63',
-                                                                border: '2px solid #8F4E63',
-                                                                borderRadius: '4px',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '0px',
+                                                                marginLeft: '0px',
                                                             }}
                                                         >
-                                                            <Box
-                                                                sx={{
-                                                                    width: 10,
-                                                                    height: 2,
-                                                                    backgroundColor: 'white',
-                                                                    borderRadius: 1,
-                                                                }}
+                                                            <img
+                                                                src={IconCheckBox2}
+                                                                alt="Indeterminado"
+                                                                style={{ width: '24px', height: '24px' }}
                                                             />
                                                         </Box>
                                                     }
+
                                                 />
                                                 <Tooltip title="Eliminar" arrow placement="top"
                                                     componentsProps={{
@@ -1216,31 +1215,55 @@ const BlackList: React.FC = () => {
 
                             <tbody>
                                 {currentItems.map((black) => (
-                                    <tr key={black.id} style={{ borderTop: '1px solid #E0E0E0' }}>
-                                        <td style={{ padding: '16px' }}>
-                                            <Checkbox
-                                                sx={{
-                                                    color: '#8F4E63',
-                                                    '&.Mui-checked': { color: '#8F4E63' },
-                                                }}
-                                                checked={selectedRows.some(r => r.id === black.id)}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setSelectedRows(prev => [...prev, black]);
-                                                    } else {
-                                                        setSelectedRows(prev => prev.filter(r => r.id !== black.id));
+                                    <tr key={black.id} style={{ borderTop: '1px solid #E0E0E0', }}>
+                                        <td style={{ padding: '6px' }}>
+                                            <Box sx={{ marginLeft: "10px" }}>
+                                                <Checkbox
+                                                    checkedIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '0px',
+                                                                marginLeft: '0px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+                                                        </Box>
                                                     }
-                                                }}
-                                            />
+                                                    sx={{
+                                                        color: '#574861',
+                                                    }}
+                                                    checked={selectedRows.some(r => r.id === black.id)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setSelectedRows(prev => [...prev, black]);
+                                                        } else {
+                                                            setSelectedRows(prev => prev.filter(r => r.id !== black.id));
+                                                        }
+                                                    }}
+                                                />
+                                            </Box>
                                         </td>
-                                        <td style={{ padding: '16px', fontFamily: 'Poppins', }}>{formatDate(black.creationDate)}</td>
-                                        <td style={{ padding: '16px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'Poppins', }}>
+                                        <td style={{
+                                            padding: '0px', fontFamily: 'Poppins',
+                                            color: "#574B4F", fontSize: "13px",
+                                        }}>{formatDate(black.creationDate)}</td>
+                                        <td style={{
+                                            padding: '0px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>
                                             {black.name}
                                         </td>
-                                        <td style={{ padding: '16px', fontFamily: 'Poppins', }}>{formatDate(black.expirationDate)}</td>
-                                        <td style={{ padding: '16px', textAlign: 'center', fontFamily: 'Poppins', }}>{black.quantity}</td>
+                                        <td style={{ padding: '0px', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px" }}>{formatDate(black.expirationDate)}</td>
+                                        <td style={{ padding: '0px', textAlign: 'left', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px", }}>{black.quantity}</td>
                                         <td style={{
-                                            padding: '16px',
+                                            padding: '0px',
                                             borderLeft: '1px solid #E0E0E0',
                                             textAlign: 'center'
                                         }}>
@@ -4573,10 +4596,11 @@ const BlackList: React.FC = () => {
                     <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 2, mb: 1 }} />
 
                     <Box sx={{
-                        px: 3,
+                        px: 2.5,
                         py: 1,
                         display: 'flex',
                         justifyContent: 'space-between',
+                        marginBottom: "6px"
 
                     }}>
                         <SecondaryButton onClick={() => setIsManageModalOpen(false)} text='Cancelar'
@@ -4623,12 +4647,12 @@ const BlackList: React.FC = () => {
                         fontFamily: 'Poppins',
                         fontSize: '14px',
                         '&:hover': {
-                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                            backgroundColor: '#F2EBED'
                         }
                     }}
                 >
-                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
-                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#583B43" }}>
 
                         Editar
                     </Typography>
@@ -4647,12 +4671,12 @@ const BlackList: React.FC = () => {
                         fontFamily: 'Poppins',
                         fontSize: '14px',
                         '&:hover': {
-                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                            backgroundColor: '#F2EBED'
                         }
                     }}
                 >
-                    <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
-                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                    <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
                         Inspeccionar
                     </Typography>
                 </MenuItem>
@@ -4670,8 +4694,8 @@ const BlackList: React.FC = () => {
                         }
                     }}
                 >
-                    <ListIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
-                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>Gestionar registros</Typography>
+                    <ListIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>Gestionar registros</Typography>
                 </MenuItem>
                 <MenuItem
                     onClick={() => {
@@ -4685,7 +4709,7 @@ const BlackList: React.FC = () => {
                         fontFamily: 'Poppins',
                         fontSize: '14px',
                         '&:hover': {
-                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                            backgroundColor: '#F2EBED'
                         }
                     }}
                 >
@@ -4693,9 +4717,9 @@ const BlackList: React.FC = () => {
                         <img
                             src={Thrashicon}
                             alt="Eliminar"
-                            style={{ width: 24, height: 24 }}
+                            style={{ width: 24, height: 24, color: '#5F5064' }}
                         />
-                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
                             Eliminar
                         </Typography>
                     </Box>

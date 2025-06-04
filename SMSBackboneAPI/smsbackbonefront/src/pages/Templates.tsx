@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import MainIcon from '../components/commons/MainButtonIcon';
 import seachicon from '../assets/icon-lupa.svg';
 import iconclose from "../assets/icon-close.svg";
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import IconCheckBox2 from "../assets/IconCheckBox2.svg";
 import BoxEmpty from '../assets/Nousers.svg';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
@@ -21,7 +23,7 @@ import SmsIcon from '@mui/icons-material/Sms';
 import Emptybox from '../assets/NoResultados.svg';
 import MainModal from "../components/commons/MainModal"
 import ChipBar from "../components/commons/ChipBar";
-
+import Thrashicon from '../assets/Icon-trash-Card.svg'
 import backarrow from '../assets/MoveTable.svg';
 import backarrowD from '../assets/MoveTabledesactivated.svg';
 
@@ -638,11 +640,15 @@ const Templates = () => {
                         borderRadius: '8px',
                         boxShadow: '0px 2px 6px rgba(0,0,0,0.05)',
                         overflow: 'hidden',
-                        height: "650px",
+                        height: "150%",
                         mt: 3
                     }}
                 >
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins', }}>
+                    <table style={{
+                        width: '100%',
+                        borderCollapse: 'collapse',
+                        fontFamily: 'Poppins',
+                    }}>
                         <thead>
                             {selectedTemplates.length === 0 ? (
                                 <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', borderBottom: '1px solid #E6E4E4', }}>
@@ -652,7 +658,7 @@ const Templates = () => {
                                             indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
                                             onChange={handleSelectAllTemplates}
                                             sx={{
-                                                color: '#7B354D',
+                                                color: '#574861',
                                                 '&.Mui-checked': {
                                                     color: '#7B354D'
                                                 },
@@ -661,31 +667,67 @@ const Templates = () => {
                                                 }
                                             }}
                                         />
-                                    </th><th style={{ padding: '12px 16px', fontWeight: 500 }}>Fecha de creación</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}>Nombre</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}>Contenido</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}></th>
+                                    </th><th style={{ padding: '12px 10px', fontWeight: 500 }}>Fecha de creación</th>
+                                    <th style={{ padding: '12px 10px', fontWeight: 500 }}>Nombre</th>
+                                    <th style={{ padding: '12px 10px', fontWeight: 500, borderRight: "1px solid #E6E4E4" }}>Contenido</th>
+                                    <th style={{ padding: '12px 10px', fontWeight: 500 }}></th>
                                 </tr>
                             ) : (
                                 <tr style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E6E4E4', }}>
                                     <th colSpan={5}>
                                         <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"12px"} marginLeft={"-2px"} marginBottom={"10px"}>
                                             {/*Checkbox para tablas*/}
-                                            <Checkbox
-                                                checked={selectedTemplates.length === templates.length}
-                                                indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
-                                                onChange={handleSelectAllTemplates}
-                                                sx={{
-                                                    color: '#7B354D',
-                                                    '&.Mui-checked': {
-                                                        color: '#7B354D'
-                                                    },
-                                                    '&.MuiCheckbox-indeterminate': {
-                                                        color: '#7B354D'
+                                            <Box sx={{ marginBottom: "0px" }}>
+                                                <Checkbox
+                                                    checked={selectedTemplates.length === templates.length}
+                                                    indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
+                                                    onChange={handleSelectAllTemplates}
+                                                    icon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                            }}
+                                                        />
                                                     }
-                                                }}
-                                            />
-                                            <Tooltip title="Eliminar Seleccionados" arrow placement="top"
+                                                    checkedIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '1px',
+                                                                marginLeft: '10px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+                                                        </Box>
+                                                    }
+                                                    indeterminateIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '1px',
+                                                                marginLeft: '10px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={IconCheckBox2}
+                                                                alt="Indeterminado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+                                                        </Box>
+                                                    }
+                                                    sx={{ padding: 0 }}
+                                                />
+                                            </Box>
+                                            <Tooltip title="Eliminar" arrow placement="top"
                                                 componentsProps={{
                                                     tooltip: {
                                                         sx: {
@@ -724,8 +766,6 @@ const Templates = () => {
                                 </tr>
                             )}
                         </thead>
-
-
 
                         <tbody>
                             {filteredTemplates.length === 0 ? (
@@ -767,15 +807,26 @@ const Templates = () => {
                             ) : (
                                 currentItems.map((template) => (
                                     <tr key={template.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>
+                                        <td style={{ padding: '0px 10px', fontSize: '14px' }}>
                                             <Checkbox
                                                 checked={selectedTemplates.some((t) => t.id === template.id)}
                                                 onChange={() => handleSelectTemplate(template)}
+                                                checkedIcon={
+                                                    <Box
+                                                        sx={{
+                                                            width: '24px',
+                                                            height: '24px',
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={IconCheckBox1}
+                                                            alt="Seleccionado"
+                                                            style={{ width: '24px', height: '24px' }}
+                                                        />
+                                                    </Box>
+                                                }
                                                 sx={{
-                                                    color: '#7B354D',
-                                                    '&.Mui-checked': {
-                                                        color: '#7B354D'
-                                                    },
+                                                    color: '#574861',
                                                     '&.MuiCheckbox-indeterminate': {
                                                         color: '#7B354D'
                                                     }
@@ -784,12 +835,12 @@ const Templates = () => {
                                         </td>
 
                                         {/* Fecha */}
-                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>
+                                        <td style={{ padding: '12px 10px', fontSize: '13px', color: "#574B4F" }}>
                                             {new Date(template.creationDate).toLocaleDateString('es-MX')}
                                         </td>
 
                                         {/* Nombre con Tooltip */}
-                                        <td style={{ padding: '12px 16px', fontSize: '14px', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <td style={{ padding: '12px 10px', fontSize: '13px', color: "#574B4F", maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {template.name.length > 15 ? (
                                                 <Tooltip title={template.name} arrow>
                                                     <span>{template.name.slice(0, 15) + '...'}</span>
@@ -800,13 +851,13 @@ const Templates = () => {
                                         </td>
 
                                         {/* Contenido */}
-                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>{template.message}</td>
+                                        <td style={{ padding: '12px 10px', fontSize: '13px', color: "#574B4F" }}>{template.message}</td>
 
                                         {/* Menú de acciones */}
                                         <td
                                             style={{
                                                 width: "75px",
-                                                padding: '12px 16px',
+                                                padding: '12px 10px',
                                                 textAlign: 'right',
                                                 borderLeft: '1px solid #D9D9D9',
                                             }}
@@ -1056,58 +1107,70 @@ const Templates = () => {
                     elevation: 3,
                     sx: {
                         borderRadius: 2,
-                        mt: -1,
-                        ml: -12,
+                        mt: 0,
+                        ml: -15,
                         minWidth: 160,
                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                         '& .MuiMenuItem-root': {
                             fontFamily: 'Poppins',
                             fontSize: '14px',
                             color: '#333',
-                            '&:hover': { backgroundColor: '#F6F6F6' }
+                            '&:hover': { backgroundColor: '#F2EBED' }
                         }
                     }
                 }}
             >
-                <MenuItem disabled={hasAssignedCampaigns} onClick={() => !hasAssignedCampaigns && handleOpenEditTemplate(selectedTemplate!)}>
+                <MenuItem disabled={hasAssignedCampaigns} onClick={() => !hasAssignedCampaigns && handleOpenEditTemplate(selectedTemplate!)}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'
+                        }
+                    }}
+                >
                     <ListItemIcon>
-                        <EditIcon sx={{ color: hasAssignedCampaigns ? '#B0A8A8' : '#7B354D' }} />
+                        <EditIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
                     </ListItemIcon>
-                    <ListItemText
-                        primary="Editar"
-                        primaryTypographyProps={{
-                            fontFamily: 'Poppins',
-                            color: hasAssignedCampaigns ? '#B0A8A8' : 'inherit'
-                        }}
-                    />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
+
+                        Editar
+                    </Typography>
                 </MenuItem>
 
 
 
                 <MenuItem onClick={() => { handleMenuClose(); handleInspectTemplate(selectedTemplate!); }}
-                    sx={{}}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'
+                        }
+                    }}
                 >
                     <ListItemIcon>
-                        <VisibilityIcon fontSize="small" sx={{ color: '#7B354D' }} />
+                        <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '5F5064', width: 24, height: 24 }} />
                     </ListItemIcon>
-                    <ListItemText>Inspeccionar</ListItemText>
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
+                        Inspeccionar
+                    </Typography>
                 </MenuItem>
                 <MenuItem
                     onClick={() => { handleMenuClose(); handleOpenDeleteModal(selectedTemplate!); }}
                     disabled={hasAssignedCampaigns}
 
                 >
-                    <ListItemIcon>
-                        <img src={DeleteIcon} alt="Borrar"
-                            style={{
-                                width: 24,
-                                height: 24,
-                                display: 'block',
-                                opacity: hasAssignedCampaigns ? 0.5 : 1 // 🔥 Se pone más clarito si está deshabilitado
-                            }}
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <img
+                            src={Thrashicon}
+                            alt="Eliminar"
+                            style={{ width: 24, height: 24, color: "#5F5064" }}
                         />
-                    </ListItemIcon>
-                    <ListItemText>Eliminar</ListItemText>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F", marginLeft: "4px" }}>
+                            Eliminar
+                        </Typography>
+                    </Box>
                 </MenuItem>
             </Menu>
 
