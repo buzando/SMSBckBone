@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const TermsAndConditions: React.FC = () => {
     const navigate = useNavigate();
     return (
-      <div style={{ padding: '20px', marginLeft: '40px', maxWidth: '1140px' }}>
+     <div style={{ padding: '20px', marginLeft: '40px', maxWidth: '1140px', minHeight: '170vh' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <IconButton onClick={() => navigate('/')} sx={{ p: 0, mr: 1, ml: '-28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <img src={ArrowBackIosNewIcon} alt="Regresar" style={{ width: 24, height: 24, transform: 'rotate(270deg)', display: 'block' }} />

@@ -1825,8 +1825,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                 maxWidth={false} // 🔥 Permite que se expanda a todo el ancho
                 disableGutters // 🔥 Elimina el padding interno del contenedor
                 sx={{
-                    width: '100%',
-                    height: '100vh',
+                    width: '81.7%',
+                    height: '100%',
                     overflowX: 'hidden',
                     margin: 0,
                     marginLeft: "277px",

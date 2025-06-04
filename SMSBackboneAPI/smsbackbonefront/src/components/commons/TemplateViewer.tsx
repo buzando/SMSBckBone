@@ -1,5 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { Box, Typography, Select, MenuItem, Menu, TextField, InputAdornment, IconButton } from '@mui/material';
+import React, { useState, useRef } from 'react';
+import {
+  Box, Typography, TextField, MenuItem, InputAdornment, Popper, Paper, Menu
+} from '@mui/material';
 import SearchIcon from '../../assets/icon-lupa.svg';
 import iconclose from '../../assets/icon-close.svg';
 
@@ -7,7 +9,7 @@ interface Template {
   id: number;
   name: string;
   message: string;
-  creationDate: string; // DateTime en C# es string en JS/TS
+  creationDate: string;
   idRoom: number;
 }
 
@@ -16,112 +18,70 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   onSelectTemplateId?: (id: number) => void;
+  dynamicVariables?: string[];
 }
 
-const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectTemplateId }) => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const [selectedId, setSelectedId] = React.useState<string>('');
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [searchText, setSearchText] = React.useState('');
+const parseMessage = (msg: string): (string | { variable: string })[] => {
+  const parts = msg.split(/(\{.*?\})/);
+  return parts.map(part => (/^\{.*\}$/.test(part) ? { variable: part.slice(1, -1) } : part));
+};
 
-  useEffect(() => {
-    if (editorRef.current) {
-      // Limpia el contenido
-      editorRef.current.innerHTML = '';
+const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectTemplateId, dynamicVariables }) => {
+  const [tokens, setTokens] = useState(parseMessage(value));
+  const [chipAnchorEl, setChipAnchorEl] = useState<null | HTMLElement>(null);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+  const [chipSearch, setChipSearch] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [searchText, setSearchText] = useState('');
+  const [selectedId, setSelectedId] = useState<string>('');
 
-      // Fragmento de texto limpio con chips
-      const fragment = document.createDocumentFragment();
+  const variables = dynamicVariables ?? [];
+  console.log("variables recibidad: " + dynamicVariables);
+  const handleChipClick = (index: number, e: React.MouseEvent<HTMLElement>) => {
+    setChipAnchorEl(e.currentTarget);
+    setCurrentIndex(index);
+    setChipSearch('');
+  };
 
-      // Regex para dividir texto y chips
-      const parts = value.split(/(\{.*?\})/);
+  const handleVariableReplace = (newVar: string) => {
+    if (currentIndex === null) return;
+    const newTokens = [...tokens];
+    newTokens[currentIndex] = { variable: newVar };
+    setTokens(newTokens);
+    setChipAnchorEl(null);
+    setCurrentIndex(null);
+    onChange(newTokens.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join(''));
+  };
 
-      parts.forEach(part => {
-        if (/^\{.*\}$/.test(part)) {
-          const variable = part.slice(1, -1); // elimina { y }
-
-          const chip = document.createElement('span');
-          chip.setAttribute('contenteditable', 'false');
-          chip.style.backgroundColor = '#8F4D63';
-          chip.style.color = '#fff';
-          chip.style.padding = '2px 6px';
-          chip.style.margin = '0 4px';
-          chip.style.borderRadius = '12px';
-          chip.style.fontFamily = 'Poppins';
-          chip.style.fontSize = '12px';
-          chip.style.display = 'inline-flex';
-          chip.style.alignItems = 'center';
-          chip.style.whiteSpace = 'nowrap';
-          chip.style.lineHeight = '1';
-          chip.style.gap = '6px';
-
-          const label = document.createElement('span');
-          label.textContent = variable;
-
-          const close = document.createElement('span');
-          close.textContent = '✖';
-          close.style.cursor = 'pointer';
-          close.style.marginLeft = '4px';
-          close.onclick = (e) => {
-            e.stopPropagation();
-            chip.remove();
-            const updated = value.replace(`{${variable}}`, '');
-            onChange(updated);
-          };
-
-          chip.appendChild(label);
-          chip.appendChild(close);
-          fragment.appendChild(chip);
-        } else {
-          fragment.appendChild(document.createTextNode(part));
-        }
-      });
-
-      editorRef.current.appendChild(fragment);
-
-      const range = document.createRange();
-      range.selectNodeContents(editorRef.current);
-      range.collapse(false);
-      const sel = window.getSelection();
-      sel?.removeAllRanges();
-      sel?.addRange(range);
-    }
-  }, [value]);
-
+  const handleDeleteVariable = (index: number) => {
+    const newTokens = [...tokens];
+    newTokens.splice(index, 1);
+    setTokens(newTokens);
+    onChange(newTokens.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join(''));
+  };
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
     const template = templates.find(t => t.id === Number(id));
     if (template) {
+      const parsed = parseMessage(template.message);
+      setTokens(parsed);
       onChange(template.message);
-      if (onSelectTemplateId) onSelectTemplateId(template.id);
+      onSelectTemplateId?.(template.id);
     }
+    setAnchorEl(null);
+    setSearchText('');
   };
 
-  const updateRawText = () => {
-    if (!editorRef.current) return;
-    const spans = editorRef.current.querySelectorAll('span[contenteditable="false"]');
-    let htmlText = editorRef.current.innerHTML;
-    spans.forEach((span) => {
-      const label = span.childNodes[0]?.textContent || '';
-      htmlText = htmlText.replace(span.outerHTML, `{${label}}`);
-    });
-    const div = document.createElement('div');
-    div.innerHTML = htmlText;
-    const cleanText = div.innerText;
-    onChange(cleanText);
-  };
-  const filteredTemplates = templates.filter(t =>
-    t.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredTemplates = templates.filter(t => t.name.toLowerCase().includes(searchText.toLowerCase()));
+  const filteredVars = variables.filter(v => v.toLowerCase().includes(chipSearch.toLowerCase()));
+
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box>
       <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', mb: 2 }}>
         Seleccionar plantilla y editar variables según se requiera.
       </Typography>
 
-      <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', mb: 1 }}>
-        Plantilla
-      </Typography>
       <Box sx={{ position: 'relative', mb: 3 }}>
         <TextField
           fullWidth
@@ -158,7 +118,6 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
           }}
           PaperProps={{ style: { maxHeight: 300, width: anchorEl?.clientWidth } }}
         >
-          {/* Campo de búsqueda con lupa AL INICIO */}
           <Box sx={{ px: 2, py: 1 }}>
             <TextField
               placeholder="Buscar mensaje..."
@@ -175,60 +134,37 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
                 ),
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => setSearchText('')}>
-                      <img src={iconclose} alt="cerrar" style={{ width: 16, height: 16 }} />
-                    </IconButton>
+                    <img src={iconclose} alt="cerrar" style={{ width: 16, height: 16, cursor: 'pointer' }} onClick={() => setSearchText('')} />
                   </InputAdornment>
                 )
               }}
-              sx={{
-                backgroundColor: '#F8F8F8',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontFamily: 'Poppins',
-                mb: 1
-              }}
+              sx={{ backgroundColor: '#F8F8F8', borderRadius: '8px', fontSize: '14px', fontFamily: 'Poppins', mb: 1 }}
             />
           </Box>
 
           {filteredTemplates.length > 0 ? (
             filteredTemplates.map((t) => (
-              <MenuItem
-                key={t.id}
-                onClick={() => {
-                  handleSelect(t.id.toString());
-                  setAnchorEl(null);
-                  setSearchText('');
-                }}
-              >
+              <MenuItem key={t.id} onClick={() => handleSelect(t.id.toString())}>
                 {t.name}
               </MenuItem>
             ))
           ) : (
-            <Typography
-              sx={{
-                fontFamily: 'Poppins',
-                fontSize: '14px',
-                color: '#8F4D63',
-                textAlign: 'center',
-                py: 2,
-                px: 2
-              }}
-            >
+            <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#8F4D63', textAlign: 'center', py: 2, px: 2 }}>
               No se encontraron resultados
             </Typography>
           )}
-
-
         </Menu>
       </Box>
 
-
       <Box
         contentEditable
-        ref={editorRef}
-        onInput={updateRawText}
         suppressContentEditableWarning
+        onInput={(e) => {
+          const raw = e.currentTarget.innerText;
+          const parsed = parseMessage(raw);
+          setTokens(parsed);
+          onChange(raw);
+        }}
         sx={{
           backgroundColor: '#F8F8F8',
           borderRadius: '8px',
@@ -237,12 +173,99 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
           minHeight: '160px',
           padding: '12px',
           border: '1px solid #ccc',
-          whiteSpace: 'pre-wrap'
+          whiteSpace: 'pre-wrap',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'flex-start',
+          gap: '4px',
         }}
-      />
+      >
+        {tokens.map((token, i) =>
+          typeof token === 'string' ? (
+            <span key={i}>{token}</span>
+          ) : (
+            <Box
+              key={i}
+              onClick={(e) => handleChipClick(i, e)}
+              sx={{
+                backgroundColor: '#C08194',
+                color: '#fff',
+                px: '6px',
+                py: '2px',
+                borderRadius: '16px',
+                fontSize: '12px',
+                fontFamily: 'Poppins',
+                lineHeight: 1,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                userSelect: 'none',
+                maxHeight: '24px'
+              }}
+            >
+              <span>{`{{${token.variable}}}`}</span>
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteVariable(i);
+                }}
+                style={{ cursor: 'pointer', marginLeft: '4px' }}
+              >✖</span>
+            </Box>
+          )
+        )}
+      </Box>
+
+      <Popper
+        open={Boolean(chipAnchorEl)}
+        anchorEl={chipAnchorEl}
+        placement="bottom-start"
+        modifiers={[{ name: 'offset', options: { offset: [0, 8] } }]}
+        style={{ zIndex: 1500 }}
+      >
+        <Paper sx={{ mt: 1, p: 1, width: 200, zIndex: 1300 }}>
+          <TextField
+            placeholder="Buscar variable..."
+            size="small"
+            fullWidth
+            autoFocus
+            value={chipSearch}
+            onChange={(e) => setChipSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <img src={SearchIcon} alt="buscar" style={{ width: 16, height: 16 }} />
+                </InputAdornment>
+              ),
+              endAdornment: chipSearch && (
+                <InputAdornment position="end">
+                  <img
+                    src={iconclose}
+                    alt="cerrar"
+                    style={{ width: 16, height: 16, cursor: 'pointer' }}
+                    onClick={() => setChipSearch('')}
+                  />
+                </InputAdornment>
+              )
+
+            }}
+            sx={{ mb: 1, backgroundColor: '#F8F8F8', borderRadius: '8px' }}
+          />
+          {filteredVars.map((v, i) => (
+            <MenuItem key={i} onClick={() => handleVariableReplace(v)}>
+              {v}
+            </MenuItem>
+          ))}
+          {filteredVars.length === 0 && (
+            <Typography sx={{ px: 2, py: 1, color: '#8F4D63', fontSize: '13px' }}>
+              Sin resultados
+            </Typography>
+          )}
+        </Paper>
+      </Popper>
 
       <Typography sx={{ fontFamily: 'Poppins', fontSize: '12px', mt: 1 }}>
-        {value.length}/160 caracteres para que el mensaje se realice en un sólo envío.
+        {tokens.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join('').length}/160 caracteres para que el mensaje se realice en un sólo envío.
       </Typography>
     </Box>
   );

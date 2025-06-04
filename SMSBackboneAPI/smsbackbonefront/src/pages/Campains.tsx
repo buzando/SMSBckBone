@@ -5223,6 +5223,7 @@ const Campains: React.FC = () => {
                     const tpl = templates.find(t => t.id === id);
                     setSelectedTemplate(tpl);
                   }}
+                  dynamicVariables={selectedVariables}
                 />
 
 

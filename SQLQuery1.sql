@@ -149,7 +149,7 @@ Estatus varchar(50) not null,
 invoice varchar(300) null,
 AutomaticInvoice bit not null,
 )
-
+alter table creditRecharge add EstatusError nvarchar(100) null
 
 INSERT INTO Roles (Role) VALUES 
 ('Root'),

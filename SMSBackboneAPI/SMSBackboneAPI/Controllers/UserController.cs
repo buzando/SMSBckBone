@@ -15,6 +15,7 @@ using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using log4net;
 using System.Threading.Tasks;
+using System.Security.Policy;
 
 namespace SMSBackboneAPI.Controllers
 {
@@ -893,6 +894,7 @@ namespace SMSBackboneAPI.Controllers
         [HttpPost("AddRechageUser")]
         public async Task<IActionResult> AddRechageUser(CreditRechargeRequest credit)
         {
+            log.Info("Comenzando recarga");
             GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
             //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
             //if (login == null)
@@ -901,6 +903,35 @@ namespace SMSBackboneAPI.Controllers
             //}
             var UserManager = new Business.UserManager();
             var responseDto = UserManager.RechargeUser(credit);
+            log.Info(responseDto);
+            if (responseDto.StartsWith("http"))
+            {
+               return Ok(responseDto);
+            }
+            if (!string.IsNullOrEmpty(responseDto))
+            {
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = responseDto });
+            }
+            else
+            {
+                var response = Ok(responseDto);
+                return response;
+            }
+
+        }
+
+        [HttpGet("UpdateRecharge")]
+        public async Task<IActionResult> UpdateRecharge(string ID)
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.UserManager();
+            var responseDto = UserManager.VerifyRechargeStatus(ID);
+
             if (!responseDto)
             {
                 return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Adding Recharge" });

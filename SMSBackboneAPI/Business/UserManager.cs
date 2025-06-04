@@ -21,6 +21,7 @@ using Openpay.Entities.Request;
 using Contract;
 using Contract.Other;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Azure.Core.Pipeline;
 
 namespace Business
 {
@@ -705,8 +706,9 @@ namespace Business
         #endregion
 
         #region recharge
-        public bool RechargeUser(CreditRechargeRequest credit)
+        public string RechargeUser(CreditRechargeRequest credit)
         {
+            log.Info("Comenzando proceso");
             var tarjeta = new creditcards();
             var usuario = new Modal.Model.Model.Users();
             try
@@ -745,8 +747,26 @@ namespace Business
                     Cvv2 = $"{tarjeta.CVV}",
                     DeviceSessionId = "kR1v4EXgk0kpbv2e4HkQWg9oBytTR84f"
                 };
+                var card = new Card();
+                try
+                {
+                    card = openpay.CardService.Create(cardRequest);
 
-                var card = openpay.CardService.Create(cardRequest);
+                }
+                catch (Exception e)
+                {
+                    using (var ctx = new Entities())
+                    {
+                        creditrecharge.Estatus = "Error";
+                        creditrecharge.EstatusError = e.Message;
+                        ctx.CreditRecharge.Add(creditrecharge);
+
+                        ctx.SaveChanges();
+
+
+                    }
+                    return "Error";
+                }
 
 
                 var boolproduction = Common.ConfigurationManagerJson("OPENPAYPRODUCTION");
@@ -760,7 +780,9 @@ namespace Business
                     Amount = credit.QuantityMoney,
                     Description = "Recarga de créditos",
                     Currency = "MXN",
-                    DeviceSessionId = "kR1v4EXgk0kpbv2e4HkQWg9oBytTR84f", // Dummy
+                    DeviceSessionId = "kR1v4EXgk0kpbv2e4HkQWg9oBytTR84f",
+                    Use3DSecure = true,
+                    RedirectUrl = Common.ConfigurationManagerJson("OPENPAY_REDIRECT_URL"),
                     Customer = new Openpay.Entities.Customer
                     {
                         Name = usuario.firstName,
@@ -770,17 +792,35 @@ namespace Business
                         Address = new Openpay.Entities.Address
                         {
                             Line1 = $"{tarjeta.street} {tarjeta.interior_number}",
-                            Line2 = "",
-                            Line3 = "",
                             PostalCode = "57800",
                             State = "Mexico",
                             City = "Mexico",
-                            CountryCode = "MX",        // 🔥 Código de país de México
+                            CountryCode = "MX",
                         }
                     }
                 };
 
-                var charge = openpay.ChargeService.Create(chargeRequest);
+                var charge = new Charge();
+
+                try
+                {
+
+                    charge = openpay.ChargeService.Create(chargeRequest);
+
+                }
+                catch (Exception e)
+                {
+                    using (var ctx = new Entities())
+                    {
+                        creditrecharge.Estatus = "Error";
+                        creditrecharge.EstatusError = e.Message;
+                        ctx.CreditRecharge.Add(creditrecharge);
+
+                        ctx.SaveChanges();
+
+                    }
+                    return "Error";
+                }
                 creditrecharge.Estatus = charge.Status;
                 switch (charge.Status.ToLower())
                 {
@@ -795,6 +835,9 @@ namespace Business
                         break;
                     case "cancelled":
                         creditrecharge.Estatus = "Cancelada";
+                        break;
+                    case "charge_pending":
+                        creditrecharge.Estatus = "Cargo Pendiente";
                         break;
                     default:
                         break;
@@ -815,7 +858,7 @@ namespace Business
                         BankAuthorization = charge.Authorization,
                         Amount = charge.Amount,
                         Status = charge.Status,
-                        CreationDate = charge.CreationDate.HasValue ? charge.CreationDate.Value: DateTime.Now,
+                        CreationDate = charge.CreationDate.HasValue ? charge.CreationDate.Value : DateTime.Now,
                         CardId = charge.Card?.Id,
                         CustomerId = charge.Customer?.Id,
                         Conciliated = charge.Conciliated,
@@ -825,13 +868,80 @@ namespace Business
                     ctx.CreditRechargeOpenPay.Add(openpayRecord);
                     ctx.SaveChanges();
                 }
-                return true;
+                return charge.PaymentMethod.Url;
             }
             catch (Exception e)
             {
+                log.Error(e.ToString());
+                return e.ToString();
+
+            }
+        }
+
+        public bool VerifyRechargeStatus(string idRecharge)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    // Busca el registro en tu base local
+                    var openpayRecord = ctx.CreditRechargeOpenPay.FirstOrDefault(x => x.IdCreditRecharge.ToString() == idRecharge);
+                    if (openpayRecord == null)
+                    {
+                        log.Warn($"No se encontró recarga con ID {idRecharge}");
+                        return false;
+                    }
+
+                    var creditRecharge = ctx.CreditRecharge.FirstOrDefault(x => x.Id == openpayRecord.IdCreditRecharge);
+                    if (creditRecharge == null)
+                    {
+                        log.Warn($"No se encontró el registro base de CreditRecharge para ID {idRecharge}");
+                        return false;
+                    }
+
+                    // Configuración Openpay
+                    var apiKey = Common.ConfigurationManagerJson("APIKEY");
+                    var merchantId = Common.ConfigurationManagerJson("MERCHANTID");
+                    var boolProduction = Common.ConfigurationManagerJson("OPENPAYPRODUCTION");
+                    var production = bool.Parse(boolProduction);
+
+                    var openpay = new OpenpayAPI(apiKey, merchantId)
+                    {
+                        Production = production
+                    };
+
+                    // Consulta el charge en Openpay
+                    var chargeService = openpay.ChargeService;
+                    var charge = chargeService.Get(openpayRecord.CustomerId, openpayRecord.ChargeId);
+
+                    if (charge != null)
+                    {
+                        // Actualiza los estatus locales según Openpay
+                        creditRecharge.Estatus = charge.Status;
+                        openpayRecord.Status = charge.Status;
+                        openpayRecord.Conciliated = charge.Conciliated;
+                        openpayRecord.Description = charge.Description;
+                        openpayRecord.Amount = charge.Amount;
+                        openpayRecord.CreationDate = charge.CreationDate.HasValue ? charge.CreationDate.Value : DateTime.Now;
+
+                        ctx.SaveChanges();
+                        log.Info($"Actualizado el estatus de recarga {idRecharge} a '{charge.Status}' correctamente.");
+                        return true;
+                    }
+                    else
+                    {
+                        log.Warn($"No se encontró el charge en Openpay para ChargeId {openpayRecord.ChargeId}");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error al verificar el estatus de recarga {idRecharge}: {ex.Message}");
                 return false;
             }
         }
+
 
         public List<CreditHystoric> GetHistoricByUser(Datepickers credit)
         {

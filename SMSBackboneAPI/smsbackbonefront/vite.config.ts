@@ -32,5 +32,5 @@ export default defineConfig({
         port: 55578,
         host: true, // Permite acceso desde la red local
     },
-    base: '/SMS/',
+    base: '/RedQuantum/',
 })

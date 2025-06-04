@@ -15,7 +15,10 @@ import IconButton from '@mui/material/IconButton';
 import visa from '../assets/visa.png';
 import mastercard from '../assets/masterCard.png';
 import amex from '../assets/americanExpress.png';
-import openpay from '../assets/Openpay_logo.png';
+import openpay from '../assets/OpenPayLogoColor.jpg';
+import spei from '../assets/spei.png'
+import ModalError from "../components/commons/ModalError"
+import { useLocation } from 'react-router-dom';
 interface CreditCard {
     id: number;
     user_id: number;
@@ -78,6 +81,9 @@ const AccountRecharge: React.FC = () => {
     const [cardToDelete, setCardToDelete] = useState<CreditCard | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
+    const [TitleErrorModal, setTitleErrorModa] = useState<string>("");
+    const [OpenErrorModal, setOpenErrorModa] = useState<boolean>(Boolean);
+    const [MessageErrorModal, setMessageErrorModa] = useState<string>("");
     const [generateInvoice, setGenerateInvoice] = useState(false);
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
     const invoiceData = {
@@ -94,6 +100,45 @@ const AccountRecharge: React.FC = () => {
     const [showChipBarAdd, setshowChipBarAdd] = useState(false);
     const [showChipBarCard, setshowChipBarCard] = useState(false);
     const [showChipBarDelete, setshowChipBarDelete] = useState(false);
+
+    const useQuery = () => {
+        return new URLSearchParams(useLocation().search);
+    };
+
+    const checkRechargeStatus = async (id: string) => {
+        try {
+            const requestUrl = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_VERIFY_RECHARGE}${id}`; // Ajusta el endpoint real aquí
+            const response = await axios.get(requestUrl);
+
+            if (response.status === 200 && response.data) {
+                if (response.data.success) {
+                    setshowChipBarAdd(true);
+                    setTimeout(() => setshowChipBarAdd(false), 10000);
+                } else {
+                    setTitleErrorModa("Error en recarga");
+                    setMessageErrorModa(response.data.message || "Hubo un problema al validar la recarga.");
+                    setOpenErrorModa(true);
+                }
+            }
+        } catch {
+
+        }
+        finally {
+            setshowChipBarAdd(true);
+            setTimeout(() => setshowChipBarAdd(false), 10000);
+        }
+    };
+
+    const query = useQuery();
+    const id = query.get('id');
+
+    useEffect(() => {
+        if (id) {
+            checkRechargeStatus(id);
+        }
+    }, [id]);
+
+
     const handleGenerateInvoiceCheck = () => {
         if (generateInvoice) {
             setGenerateInvoice(false);
@@ -199,15 +244,17 @@ const AccountRecharge: React.FC = () => {
             const response = await axios.post(requestUrl, payload);
 
             if (response.status === 200) {
-                setshowChipBarAdd(true);
-                setTimeout(() => setshowChipBarAdd(false), 3000);
-                setLoading(false);
+                if (response.data.startsWith('http'))
+                    window.location.href = response.data;
+                return;
+
             }
-        } catch {
-            setErrorModal({
-                title: "Error al cargar saldo",
-                message: "Algo salió mal. Inténtelo de nuevo o regrese más tarde.",
-            });
+        } catch(error) {
+            console.log(error);
+            setTitleErrorModa("Error en la recarga de saldo");
+            setMessageErrorModa("Error de pago, comuniquese con su banco e inténtelo de nuevo.");
+            setOpenErrorModa(true);
+
             setLoading(false);
         } finally {
             setLoading(false);
@@ -444,6 +491,7 @@ const AccountRecharge: React.FC = () => {
             position: 'relative',
             maxWidth: '800px',
             margin: '-60px 0 0 30px',
+            height: '840px',
             fontFamily: 'Arial, sans-serif',
             color: '#4a4a4a',
 
@@ -508,7 +556,13 @@ const AccountRecharge: React.FC = () => {
                 </div>
             )}
 
-            {/* Modal de error */}
+            <ModalError
+                isOpen={OpenErrorModal}
+                title={TitleErrorModal}
+                message={MessageErrorModal}
+                buttonText="Cerrar"
+                onClose={() => setOpenErrorModa(false)}
+            />             {/* Modal de error */}
             {errorModal && (
                 <div style={{
                     position: 'fixed',
@@ -821,7 +875,7 @@ const AccountRecharge: React.FC = () => {
 
 
                 <Box sx={{ display: 'flex', gap: 2, marginBottom: 3 }}>
-                    {[visa, mastercard, amex].map((imgSrc, index) => (
+                    {[visa, mastercard, amex, spei].map((imgSrc, index) => (
                         <Box
                             key={index}
                             sx={{
@@ -829,8 +883,8 @@ const AccountRecharge: React.FC = () => {
                                 borderRadius: '8px',
                                 padding: '10px',
                                 backgroundColor: '#FFFFFF',
-                                width: '60px',
-                                height: '40px',
+                                width: '80px',
+                                height: '50px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -1531,6 +1585,30 @@ const AccountRecharge: React.FC = () => {
                                 }}>Establecer como forma de pago predeterminada.</span>
                             </div>
                         </div>
+                        <Box sx={{ display: 'flex', gap: 2, marginBottom: 3 }}>
+                            {[visa, mastercard, amex, spei, openpay].map((imgSrc, index) => (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        border: '1px solid #E1E1E1',
+                                        borderRadius: '8px',
+                                        padding: '10px',
+                                        backgroundColor: '#FFFFFF',
+                                        width: '80px',
+                                        height: '50px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <img
+                                        src={imgSrc}
+                                        alt={`Método ${index}`}
+                                        style={{ maxHeight: '24px', objectFit: 'contain' }}
+                                    />
+                                </Box>
+                            ))}
+                        </Box>
                         <hr
                             style={{
                                 gridColumn: 'span 2',

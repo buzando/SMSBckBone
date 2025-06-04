@@ -29,7 +29,7 @@ namespace Modal.Model.Model
         public string Estatus { get; set; }
         public bool AutomaticInvoice { get; set; }
 
-
+        public string EstatusError { get; set; }
         public string Invoice { get; set; }
     }
 }

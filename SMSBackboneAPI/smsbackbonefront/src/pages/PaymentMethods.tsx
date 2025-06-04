@@ -1073,7 +1073,7 @@ const PaymentMethods: React.FC = () => {
                                         <Select
                                             name="month"
                                             value={formData.month}
-                                            onChange={handleChange}
+                                            onChange={() => handleChange}
                                             required
                                             label="Mes"
                                             style={{
@@ -1094,7 +1094,7 @@ const PaymentMethods: React.FC = () => {
                                         <Select
                                             name="year" // 🔥 Aseguramos que `name` esté presente
                                             value={formData.year} // 🔥 `value` debe coincidir con `formData.year`
-                                            onChange={handleChange}
+                                            onChange={() => handleChange}
                                             label="año"
                                             required
                                             style={{
