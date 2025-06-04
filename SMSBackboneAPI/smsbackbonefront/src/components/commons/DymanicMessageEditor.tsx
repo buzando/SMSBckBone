@@ -104,34 +104,34 @@ const DynamicMessageEditor: React.FC<Props> = ({ onChange, initialMessage }) => 
   };
 
   const updateRawMessage = () => {
-  if (!editorRef.current) return;
+    if (!editorRef.current) return;
 
-  let finalText = '';
-  let count = 0;
+    let finalText = '';
+    let count = 0;
 
-  editorRef.current.childNodes.forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const text = node.textContent || '';
-      finalText += text;
-      count += text.length;
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const el = node as HTMLElement;
-      if (el.getAttribute('data-chip') === 'true') {
-        const input = el.querySelector('input');
-        const val = input?.value || 'Variable';
-        finalText += `{${val}}`;
-        count += val.length + 2; // sumamos 2 por las llaves {}
-      } else {
-        const text = el.textContent || '';
+    editorRef.current.childNodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent || '';
         finalText += text;
         count += text.length;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as HTMLElement;
+        if (el.getAttribute('data-chip') === 'true') {
+          const input = el.querySelector('input');
+          const val = input?.value || 'Variable';
+          finalText += `{${val}}`;
+          count += val.length + 2; // sumamos 2 por las llaves {}
+        } else {
+          const text = el.textContent || '';
+          finalText += text;
+          count += text.length;
+        }
       }
-    }
-  });
+    });
 
-  setCharCount(count);
-  onChange?.(finalText);
-};
+    setCharCount(count);
+    onChange?.(finalText);
+  };
 
 
   return (

@@ -1532,15 +1532,26 @@ const Campains: React.FC = () => {
                     letterSpacing: "0px",
                     color: "#645E60",
                     opacity: 1,
-                    fontSize: "12px"
+                    fontSize: "12px",
                   }}
                   renderValue={(selected) =>
-                    selected && typeof selected === "string" ? selected : <em>Seleccionar estatus</em>
+                    selected && typeof selected === "string" ? selected : (
+                      <span style={{ fontStyle: "normal" }}>Seleccionar estatus</span>
+                    )
                   }
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        borderColor: "#9B9295",
+                        borderBottomLeftRadius: "14px",
+                        borderBottomRightRadius: "14px",
+                      }
+                    }
+                  }}
                 >
                   <MenuItem sx={{
-                    marginTop: "10px",
-                    marginBottom: "10px",
+                    marginTop: "5px",
+                    marginBottom: "5px",
                     textAlign: "left",
                     fontFamily: "Poppins",
                     letterSpacing: "0px",
@@ -1553,8 +1564,8 @@ const Campains: React.FC = () => {
                   }} value="todas">Todos</MenuItem>
 
                   <MenuItem sx={{
-                    marginTop: "10px",
-                    marginBottom: "10px",
+                    marginTop: "5px",
+                    marginBottom: "5px",
                     textAlign: "left",
                     fontFamily: "Poppins",
                     letterSpacing: "0px",
@@ -1567,8 +1578,8 @@ const Campains: React.FC = () => {
                   }} value="encendidas">Campañas encendidas</MenuItem>
 
                   <MenuItem sx={{
-                    marginTop: "10px",
-                    marginBottom: "10px",
+                    marginTop: "5px",
+                    marginBottom: "5px",
                     textAlign: "left",
                     fontFamily: "Poppins",
                     letterSpacing: "0px",

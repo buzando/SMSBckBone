@@ -20,11 +20,11 @@ import IconPlusUnselected from '../assets/IconPlusUnselected.svg'
 import IconMinusSelected from '../assets/IconMinusSelected.svg'
 import IconUpdateSelected from '../assets/IconUpdateSelected.svg'
 import IconEyeOpen from '../assets/IconEyeOpen.svg'
-
-
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import IconCheckBox2 from "../assets/IconCheckBox2.svg";
 import IconNegativeCircle from '../assets/IconNegativeCircle.svg'
 import IconReUpdate1 from '../assets/IconReUpdate1.svg'
-
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconCloudError from '../assets/IconCloudError.svg'
 import CloudCheckedIcon from '../assets/CloudCheckedIcon.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
@@ -807,7 +807,7 @@ const BlackList: React.FC = () => {
 
     const handleConfirmDelete = async () => {
         if (rowToDelete) {
-            await handleDeleteSelected(rowToDelete); // tu función ya existente
+            await handleDeleteSelected(rowToDelete);
             handleCloseDeleteModal();
         }
     };
@@ -972,72 +972,73 @@ const BlackList: React.FC = () => {
                 <Box sx={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', marginTop: '-46px',
                 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, marginLeft: "10px" }}>
                         <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
                             {startItem}–{endItem} de {totalItems}
                         </Typography>
+                        <Box sx={{ marginLeft: "-25px" }}>
+                            {/* Ir al inicio */}
+                            <IconButton
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22 }}
+                                    alt="Primera página"
+                                />
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
+                                    alt=""
+                                />
+                            </IconButton>
 
-                        {/* Ir al inicio */}
-                        <IconButton
-                            onClick={() => setCurrentPage(1)}
-                            disabled={currentPage === 1}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22 }}
-                                alt="Primera página"
-                            />
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
-                                alt=""
-                            />
-                        </IconButton>
+                            {/* Anterior */}
+                            <IconButton
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22 }}
+                                    alt="Anterior"
+                                />
+                            </IconButton>
 
-                        {/* Anterior */}
-                        <IconButton
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22 }}
-                                alt="Anterior"
-                            />
-                        </IconButton>
+                            {/* Siguiente */}
+                            <IconButton
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22 }}
+                                    alt="Siguiente"
+                                />
+                            </IconButton>
 
-                        {/* Siguiente */}
-                        <IconButton
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22 }}
-                                alt="Siguiente"
-                            />
-                        </IconButton>
-
-                        {/* Ir al final */}
-                        <IconButton
-                            onClick={() => setCurrentPage(totalPages)}
-                            disabled={currentPage === totalPages}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22 }}
-                                alt="Última página"
-                            />
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
-                                alt=""
-                            />
-                        </IconButton>
+                            {/* Ir al final */}
+                            <IconButton
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22 }}
+                                    alt="Última página"
+                                />
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
+                                    alt=""
+                                />
+                            </IconButton>
+                        </Box>
                     </Box>
                 </Box>
             )}
@@ -1083,36 +1084,45 @@ const BlackList: React.FC = () => {
                             borderRadius: '8px',
                             boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
                             overflowX: 'auto',
-                            mt: 3
+                            mt: 1.2, height: "450px"
                         }}
                     >
-                        <table style={{ width: '1500px', borderCollapse: 'collapse', fontFamily: 'Poppins' }}>
+                        <table style={{
+                            width: 'auto', minWidth: '1100px',
+                            borderCollapse: 'collapse',
+                            fontFamily: 'Poppins'
+                        }}>
                             <thead>
                                 {selectedRows.length === 0 ? (
                                     <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
-                                        <th style={{ padding: '16px' }}>
-                                            <Checkbox
-                                                sx={{
-                                                    color: '#8F4E63',
-                                                    '&.Mui-checked': { color: '#8F4E63' },
-                                                    '&.MuiCheckbox-indeterminate': { color: '#8F4E63' }
-                                                }}
-                                                checked={isAllSelected}
-                                                indeterminate={isIndeterminate}
-                                                onChange={handleSelectAll}
-                                            />
+                                        <th style={{ padding: '5px' }}>
+                                            <Box sx={{ marginLeft: "7px" }}>
+                                                <Checkbox
+                                                    sx={{
+                                                        color: '#574861',
+                                                        '&.Mui-checked': { color: '#8F4E63' },
+                                                        '&.MuiCheckbox-indeterminate': { color: '#8F4E63' }
+                                                    }}
+                                                    checked={isAllSelected}
+                                                    indeterminate={isIndeterminate}
+                                                    onChange={handleSelectAll}
+                                                />
+                                            </Box>
                                         </th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de creación</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Nombre de lista</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de expiración</th>
-                                        <th style={{ padding: '16px', fontFamily: 'Poppins', fontWeight: '500' }}>Cantidad de registros</th>
-                                        <th style={{ padding: '16px' }}></th>
+                                        <th style={{ padding: '0px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de creación</th>
+                                        <th style={{ padding: '0px', fontFamily: 'Poppins', fontWeight: '500' }}>Nombre de lista</th>
+                                        <th style={{ padding: '0px', fontFamily: 'Poppins', fontWeight: '500' }}>Fecha de expiración</th>
+                                        <th style={{ padding: '0px', fontFamily: 'Poppins', fontWeight: '500', borderRight: '1px solid #E0E0E0', }}>Cantidad de registros</th>
+                                        <th style={{ padding: '0px' }}></th>
                                     </tr>
                                 ) : (
-                                    <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', width: '100%' }}>
+                                    <tr style={{
+                                        backgroundColor: '#FFFFFF',
+                                        textAlign: 'left', width: '100%'
+                                    }}>
                                         <th colSpan={6} style={{ minWidth: "967px" }}>
 
-                                            <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"18px"} marginLeft={"2px"} marginBottom={"18px"}>
+                                            <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"4px"} marginLeft={"-5px"} marginBottom={"4px"}>
                                                 {/*Checkbox para tablas*/}
                                                 <Checkbox
                                                     checked={isAllSelected}
@@ -1121,8 +1131,8 @@ const BlackList: React.FC = () => {
                                                     icon={
                                                         <Box
                                                             sx={{
-                                                                width: 18,
-                                                                height: 18,
+                                                                width: 24,
+                                                                height: 24,
                                                                 border: '2px solid #8F4E63',
                                                                 borderRadius: '2px',
                                                             }}
@@ -1131,46 +1141,38 @@ const BlackList: React.FC = () => {
                                                     checkedIcon={
                                                         <Box
                                                             sx={{
-                                                                width: 18,
-                                                                height: 18,
-                                                                backgroundColor: '#8F4E63',
-                                                                border: '2px solid #8F4E63',
-                                                                borderRadius: '2px',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                fontSize: 14,
-                                                                color: 'white',
-                                                                fontWeight: 'bold',
-                                                                lineHeight: 1,
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '0px',
+                                                                marginLeft: '0px',
                                                             }}
                                                         >
-                                                            ✓
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
                                                         </Box>
                                                     }
                                                     indeterminateIcon={
                                                         <Box
                                                             sx={{
-                                                                width: 18,
-                                                                height: 18,
-                                                                backgroundColor: '#8F4E63',
-                                                                border: '2px solid #8F4E63',
-                                                                borderRadius: '4px',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '0px',
+                                                                marginLeft: '0px',
                                                             }}
                                                         >
-                                                            <Box
-                                                                sx={{
-                                                                    width: 10,
-                                                                    height: 2,
-                                                                    backgroundColor: 'white',
-                                                                    borderRadius: 1,
-                                                                }}
+                                                            <img
+                                                                src={IconCheckBox2}
+                                                                alt="Indeterminado"
+                                                                style={{ width: '24px', height: '24px' }}
                                                             />
                                                         </Box>
                                                     }
+
                                                 />
                                                 <Tooltip title="Eliminar" arrow placement="top"
                                                     componentsProps={{
@@ -1216,40 +1218,66 @@ const BlackList: React.FC = () => {
 
                             <tbody>
                                 {currentItems.map((black) => (
-                                    <tr key={black.id} style={{ borderTop: '1px solid #E0E0E0' }}>
-                                        <td style={{ padding: '16px' }}>
-                                            <Checkbox
-                                                sx={{
-                                                    color: '#8F4E63',
-                                                    '&.Mui-checked': { color: '#8F4E63' },
-                                                }}
-                                                checked={selectedRows.some(r => r.id === black.id)}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setSelectedRows(prev => [...prev, black]);
-                                                    } else {
-                                                        setSelectedRows(prev => prev.filter(r => r.id !== black.id));
+                                    <tr key={black.id} style={{ borderTop: '1px solid #E0E0E0', }}>
+                                        <td style={{ padding: '0px', width: "50px" }}>
+                                            <Box sx={{ marginLeft: "10px" }}>
+                                                <Checkbox
+                                                    checkedIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '0px',
+                                                                marginLeft: '0px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+                                                        </Box>
                                                     }
-                                                }}
-                                            />
+                                                    sx={{
+                                                        color: '#574861',
+                                                    }}
+                                                    checked={selectedRows.some(r => r.id === black.id)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setSelectedRows(prev => [...prev, black]);
+                                                        } else {
+                                                            setSelectedRows(prev => prev.filter(r => r.id !== black.id));
+                                                        }
+                                                    }}
+                                                />
+                                            </Box>
                                         </td>
-                                        <td style={{ padding: '16px', fontFamily: 'Poppins', }}>{formatDate(black.creationDate)}</td>
-                                        <td style={{ padding: '16px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'Poppins', }}>
+                                        <td style={{
+                                            padding: '0px', fontFamily: 'Poppins',
+                                            color: "#574B4F", fontSize: "13px", width: '210px',
+                                        }}>{formatDate(black.creationDate)}</td>
+
+                                        <td style={{
+                                            padding: '0px', width: '160px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>
                                             {black.name}
                                         </td>
-                                        <td style={{ padding: '16px', fontFamily: 'Poppins', }}>{formatDate(black.expirationDate)}</td>
-                                        <td style={{ padding: '16px', textAlign: 'center', fontFamily: 'Poppins', }}>{black.quantity}</td>
+
+                                        <td style={{ padding: '0px', width: '200px', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px" }}>{formatDate(black.expirationDate)}</td>
+                                        <td style={{ padding: '0px', width: '200px', textAlign: 'left', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px", }}>{black.quantity}</td>
                                         <td style={{
-                                            padding: '16px',
+                                            padding: '0px', width: '50px',
                                             borderLeft: '1px solid #E0E0E0',
                                             textAlign: 'center'
                                         }}>
                                             <IconButton onClick={(e) => {
                                                 setMenuAnchorEl(e.currentTarget);
-                                                setSelectedBlackList(black); // GUÁRDALO DIRECTO
+                                                setSelectedBlackList(black);
                                             }}>
 
-                                                <span style={{ fontSize: '24px', color: '#7B354D' }}>⋮</span>
+                                                <MoreVertIcon sx={{ color: '#7B354D' }} />
                                             </IconButton>
 
                                         </td>
@@ -1324,9 +1352,9 @@ const BlackList: React.FC = () => {
                         height: 'auto',
                         bgcolor: 'background.paper',
                         boxShadow: 24,
-                        pt: 1.5,     // 🔥 Padding top reducido
-                        px: 4,     // Conservamos padding lateral
-                        pb: 2,     // Padding bottom igual
+                        pt: 1.5,
+                        px: 4,
+                        pb: 2,
                         borderRadius: '8px',
                         overflowY: 'hidden',
                         overflowX: 'hidden',
@@ -1499,8 +1527,8 @@ const BlackList: React.FC = () => {
                             <Box
                                 sx={{
                                     display: 'flex',
-                                    flexDirection: 'column', // 🔥 esta línea es clave
-                                    alignItems: 'center',     // Opcional: centra horizontalmente
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
                                     gap: 0,
 
                                 }}
@@ -1512,7 +1540,7 @@ const BlackList: React.FC = () => {
                                     onDragOver={(e) => e.preventDefault()}
                                     onDrop={(e) => {
                                         e.preventDefault();
-                                        if (hasPhoneInput) return; // 🔒 prevenir carga
+                                        if (hasPhoneInput) return; // prevenir carga
                                         const file = e.dataTransfer.files?.[0];
                                         if (file) handleFile(file);
                                     }}
@@ -1699,9 +1727,9 @@ const BlackList: React.FC = () => {
                                             sx={{
                                                 fontWeight: 600,
                                                 fontFamily: "Poppins",
-                                                color: "#330F1B",
-                                                fontSize: '14px',
-                                                opacity: !fileError && !fileSuccess ? 0.6 : 1 // 🔥 esta línea es la clave
+                                                color: "#574B4F",
+                                                fontSize: '12px',
+                                                opacity: !fileError && !fileSuccess ? 0.6 : 1
                                             }}
                                         >
                                             {fileError
@@ -2009,7 +2037,7 @@ const BlackList: React.FC = () => {
                                 sx={{
                                     width: '340px',
                                     height: '54px',
-                                    border: '1px solid #D9B4C3',
+                                    border: '1px solid #574B4F66',
                                     borderRadius: '4px',
                                     padding: '10px 12px',
                                     fontSize: '14px',
@@ -2049,7 +2077,7 @@ const BlackList: React.FC = () => {
 
                         </Box>
 
-                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: -4, mt: 1 }} />
+                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: -3, mt: 1 }} />
 
                         {/* Botones */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
@@ -2349,7 +2377,7 @@ const BlackList: React.FC = () => {
                     <Box
                         sx={{
                             display: 'flex',
-                            justifyContent: 'space-between', // Asegura que se distribuyan
+                            justifyContent: 'space-between',
                             width: '100%',
                             borderBottom: '1px solid #E0E0E0',
                             mb: 2,
@@ -2634,8 +2662,8 @@ const BlackList: React.FC = () => {
                             >                                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins', border: '1px solid #E6E4E4' }}>
                                     <thead>
                                         <tr style={{ backgroundColor: '#ffff', border: '1px solid #E6E4E4' }}>
-                                            <th style={{ padding: '12px', textAlign: 'left' }}>Teléfono</th>
-                                            <th style={{ padding: '12px', textAlign: 'left' }}>Dato</th>
+                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500 }}>Teléfono</th>
+                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500 }}>Dato</th>
                                         </tr>
                                     </thead>
                                     {inspectData
@@ -2818,11 +2846,11 @@ const BlackList: React.FC = () => {
                                         sx={{
                                             fontWeight: 500,
                                             fontFamily: 'Poppins',
-                                            fontSize: '12px',
+                                            fontSize: '14px',
                                             lineHeight: 1,
                                             color: '#8F4D63',
                                             textTransform: 'none',
-                                            marginLeft: "0px",
+                                            marginLeft: "6px",
                                             marginTop: "7px"
                                         }}
                                     >
@@ -2893,11 +2921,11 @@ const BlackList: React.FC = () => {
                                         sx={{
                                             fontWeight: 500,
                                             fontFamily: 'Poppins',
-                                            fontSize: '12px',
+                                            fontSize: '14px',
                                             lineHeight: 1,
                                             color: '#8F4D63',
                                             textTransform: 'none',
-                                            marginLeft: "7px",
+                                            marginLeft: "3px",
                                             marginTop: "6px"
                                         }}
                                     >
@@ -2968,11 +2996,11 @@ const BlackList: React.FC = () => {
                                         sx={{
                                             fontWeight: 500,
                                             fontFamily: 'Poppins',
-                                            fontSize: '12px',
+                                            fontSize: '14px',
                                             lineHeight: 1,
                                             color: '#8F4D63',
                                             textTransform: 'none',
-                                            marginLeft: "0px",
+                                            marginLeft: "-2px",
                                             marginTop: "6px"
                                         }}
                                     >
@@ -4594,10 +4622,11 @@ const BlackList: React.FC = () => {
                     <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 2, mb: 1 }} />
 
                     <Box sx={{
-                        px: 3,
+                        px: 2.5,
                         py: 1,
                         display: 'flex',
                         justifyContent: 'space-between',
+                        marginBottom: "6px"
 
                     }}>
                         <SecondaryButton onClick={() => setIsManageModalOpen(false)} text='Cancelar'
@@ -4644,12 +4673,12 @@ const BlackList: React.FC = () => {
                         fontFamily: 'Poppins',
                         fontSize: '14px',
                         '&:hover': {
-                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                            backgroundColor: '#F2EBED'
                         }
                     }}
                 >
-                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
-                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#583B43" }}>
 
                         Editar
                     </Typography>
@@ -4668,12 +4697,12 @@ const BlackList: React.FC = () => {
                         fontFamily: 'Poppins',
                         fontSize: '14px',
                         '&:hover': {
-                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                            backgroundColor: '#F2EBED'
                         }
                     }}
                 >
-                    <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
-                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                    <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
                         Inspeccionar
                     </Typography>
                 </MenuItem>
@@ -4691,8 +4720,8 @@ const BlackList: React.FC = () => {
                         }
                     }}
                 >
-                    <ListIcon fontSize="small" sx={{ mr: 1, color: '#7B354D', width: 24, height: 24 }} />
-                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>Gestionar registros</Typography>
+                    <ListIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>Gestionar registros</Typography>
                 </MenuItem>
                 <MenuItem
                     onClick={() => {
@@ -4706,7 +4735,7 @@ const BlackList: React.FC = () => {
                         fontFamily: 'Poppins',
                         fontSize: '14px',
                         '&:hover': {
-                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                            backgroundColor: '#F2EBED'
                         }
                     }}
                 >
@@ -4714,9 +4743,9 @@ const BlackList: React.FC = () => {
                         <img
                             src={Thrashicon}
                             alt="Eliminar"
-                            style={{ width: 24, height: 24 }}
+                            style={{ width: 24, height: 24, color: '#5F5064' }}
                         />
-                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
                             Eliminar
                         </Typography>
                     </Box>

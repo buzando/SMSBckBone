@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import MainIcon from '../components/commons/MainButtonIcon';
 import seachicon from '../assets/icon-lupa.svg';
 import iconclose from "../assets/icon-close.svg";
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import IconCheckBox2 from "../assets/IconCheckBox2.svg";
 import BoxEmpty from '../assets/Nousers.svg';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
@@ -21,7 +23,7 @@ import SmsIcon from '@mui/icons-material/Sms';
 import Emptybox from '../assets/NoResultados.svg';
 import MainModal from "../components/commons/MainModal"
 import ChipBar from "../components/commons/ChipBar";
-
+import Thrashicon from '../assets/Icon-trash-Card.svg'
 import backarrow from '../assets/MoveTable.svg';
 import backarrowD from '../assets/MoveTabledesactivated.svg';
 
@@ -421,7 +423,7 @@ const Templates = () => {
     };
 
 
-const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensaje.trim();
+    const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensaje.trim();
 
 
 
@@ -533,72 +535,73 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                 <Box sx={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', marginTop: '-46px',
                 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, marginLeft: "10px" }}>
                         <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
                             {startItem}–{endItem} de {totalItems}
                         </Typography>
+                        <Box sx={{ marginLeft: "-25px" }}>
+                            {/* Ir al inicio */}
+                            <IconButton
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22 }}
+                                    alt="Primera página"
+                                />
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
+                                    alt=""
+                                />
+                            </IconButton>
 
-                        {/* Ir al inicio */}
-                        <IconButton
-                            onClick={() => setCurrentPage(1)}
-                            disabled={currentPage === 1}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22 }}
-                                alt="Primera página"
-                            />
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }}
-                                alt=""
-                            />
-                        </IconButton>
+                            {/* Anterior */}
+                            <IconButton
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === 1 ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(0deg)', width: 22 }}
+                                    alt="Anterior"
+                                />
+                            </IconButton>
 
-                        {/* Anterior */}
-                        <IconButton
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === 1 ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(0deg)', width: 22 }}
-                                alt="Anterior"
-                            />
-                        </IconButton>
+                            {/* Siguiente */}
+                            <IconButton
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22 }}
+                                    alt="Siguiente"
+                                />
+                            </IconButton>
 
-                        {/* Siguiente */}
-                        <IconButton
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22 }}
-                                alt="Siguiente"
-                            />
-                        </IconButton>
-
-                        {/* Ir al final */}
-                        <IconButton
-                            onClick={() => setCurrentPage(totalPages)}
-                            disabled={currentPage === totalPages}
-                            sx={{ p: 0 }}
-                        >
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22 }}
-                                alt="Última página"
-                            />
-                            <img
-                                src={currentPage === totalPages ? backarrowD : backarrow}
-                                style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
-                                alt=""
-                            />
-                        </IconButton>
+                            {/* Ir al final */}
+                            <IconButton
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                                sx={{ p: 0 }}
+                            >
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22 }}
+                                    alt="Última página"
+                                />
+                                <img
+                                    src={currentPage === totalPages ? backarrowD : backarrow}
+                                    style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }}
+                                    alt=""
+                                />
+                            </IconButton>
+                        </Box>
                     </Box>
                 </Box>
             )}
@@ -610,7 +613,7 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                         backgroundColor: '#FFFFFF',
                         borderRadius: '8px',
                         padding: '60px 0',
-                        height: '634px',
+                        height: '625px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -619,7 +622,9 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                         mt: 3,
                     }}
                 >
-                    <img src={BoxEmpty} alt="Caja vacía" style={{ width: '220px', marginBottom: '16px' }} />
+                    <img src={BoxEmpty}
+                        alt="Caja vacía"
+                        style={{ width: '263px', marginBottom: '16px' }} />
                     <Typography
                         sx={{
                             fontFamily: 'Poppins',
@@ -636,47 +641,28 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                     sx={{
                         backgroundColor: '#fff',
                         borderRadius: '8px',
-                        boxShadow: '0px 2px 6px rgba(0,0,0,0.05)',
-                        overflow: 'hidden',
-                        height: "246%",
-                        mt: 3
+                        boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                        overflowX: 'auto',
+                        height: "450px",
+                        mt: 3.6
                     }}
                 >
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins', }}>
+                    <table style={{
+                        width: '100%', minWidth: '1080px',
+                        borderCollapse: 'collapse',
+                        fontFamily: 'Poppins',
+                    }}>
                         <thead>
                             {selectedTemplates.length === 0 ? (
-                                <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', borderBottom: '1px solid #E6E4E4', }}>
-                                    <th style={{ padding: '12px 16px' }}>
-                                        <Checkbox
-                                            checked={selectedTemplates.length === templates.length && templates.length > 0}
-                                            indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
-                                            onChange={handleSelectAllTemplates}
-                                            sx={{
-                                                color: '#7B354D',
-                                                '&.Mui-checked': {
-                                                    color: '#7B354D'
-                                                },
-                                                '&.MuiCheckbox-indeterminate': {
-                                                    color: '#7B354D'
-                                                }
-                                            }}
-                                        />
-                                    </th><th style={{ padding: '12px 16px', fontWeight: 500 }}>Fecha de creación</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}>Nombre</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}>Contenido</th>
-                                    <th style={{ padding: '12px 16px', fontWeight: 500 }}></th>
-                                </tr>
-                            ) : (
-                                <tr style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E6E4E4', }}>
-                                    <th colSpan={5}>
-                                        <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"12px"} marginLeft={"-2px"} marginBottom={"10px"}>
-                                            {/*Checkbox para tablas*/}
+                                <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', }}>
+                                    <th style={{ padding: '5px' }}>
+                                        <Box sx={{ marginLeft: "6px" }}>
                                             <Checkbox
-                                                checked={selectedTemplates.length === templates.length}
+                                                checked={selectedTemplates.length === templates.length && templates.length > 0}
                                                 indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
                                                 onChange={handleSelectAllTemplates}
                                                 sx={{
-                                                    color: '#7B354D',
+                                                    color: '#574861',
                                                     '&.Mui-checked': {
                                                         color: '#7B354D'
                                                     },
@@ -685,7 +671,72 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                                                     }
                                                 }}
                                             />
-                                            <Tooltip title="Eliminar Seleccionados" arrow placement="top"
+                                        </Box>
+                                    </th><th style={{ padding: '00px', fontWeight: 500 }}>Fecha de creación</th>
+                                    <th style={{ padding: '0px', fontWeight: 500 }}>Nombre</th>
+                                    <th style={{ padding: '0px', fontWeight: 500, borderRight: "1px solid #E6E4E4" }}>Contenido</th>
+                                    <th style={{ padding: '0px', fontWeight: 500 }}></th>
+                                </tr>
+                            ) : (
+                                <tr style={{
+                                    backgroundColor: '#FFFFFF',
+                                    textAlign: 'left', width: '100%'
+                                }}>
+                                    <th colSpan={6} style={{ minWidth: "967px" }}>
+
+                                        <Box display="flex" alignItems="center" gap={1} pl={2} marginTop={"6px"} marginLeft={"-7px"} marginBottom={"8px"}>
+                                            {/*Checkbox para tablas*/}
+                                            <Box sx={{ marginBottom: "0px", marginTop: "2px" }}>
+                                                <Checkbox
+                                                    checked={selectedTemplates.length === templates.length}
+                                                    indeterminate={selectedTemplates.length > 0 && selectedTemplates.length < templates.length}
+                                                    onChange={handleSelectAllTemplates}
+                                                    icon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                            }}
+                                                        />
+                                                    }
+                                                    checkedIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '1px',
+                                                                marginLeft: '10px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+                                                        </Box>
+                                                    }
+                                                    indeterminateIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                position: 'relative',
+                                                                marginTop: '1px',
+                                                                marginLeft: '10px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={IconCheckBox2}
+                                                                alt="Indeterminado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+                                                        </Box>
+                                                    }
+                                                    sx={{ padding: 0 }}
+                                                />
+                                            </Box>
+                                            <Tooltip title="Eliminar" arrow placement="top"
                                                 componentsProps={{
                                                     tooltip: {
                                                         sx: {
@@ -724,8 +775,6 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                                 </tr>
                             )}
                         </thead>
-
-
 
                         <tbody>
                             {filteredTemplates.length === 0 ? (
@@ -766,30 +815,50 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                                 </Box>
                             ) : (
                                 currentItems.map((template) => (
-                                    <tr key={template.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>
-                                            <Checkbox
-                                                checked={selectedTemplates.some((t) => t.id === template.id)}
-                                                onChange={() => handleSelectTemplate(template)}
-                                                sx={{
-                                                    color: '#7B354D',
-                                                    '&.Mui-checked': {
-                                                        color: '#7B354D'
-                                                    },
-                                                    '&.MuiCheckbox-indeterminate': {
-                                                        color: '#7B354D'
+                                    <tr key={template.id} style={{ borderTop: '1px solid #E0E0E0' }}>
+                                        <td style={{ padding: '0px', width: "60px" }}>
+                                            <Box sx={{ marginLeft: "10px" }}>
+                                                <Checkbox
+                                                    checked={selectedTemplates.some((t) => t.id === template.id)}
+                                                    onChange={() => handleSelectTemplate(template)}
+                                                    checkedIcon={
+                                                        <Box
+                                                            sx={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+                                                        </Box>
                                                     }
-                                                }}
-                                            />
+                                                    sx={{
+                                                        color: '#574861',
+                                                        '&.MuiCheckbox-indeterminate': {
+                                                            color: '#7B354D'
+                                                        }
+                                                    }}
+                                                />
+                                            </Box>
                                         </td>
 
                                         {/* Fecha */}
-                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>
+                                        <td style={{
+                                            padding: '0px', width: '200px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', textAlign: "left",
+                                            fontSize: '13px', color: "#574B4F", fontFamily: 'Poppins',
+                                        }}>
                                             {new Date(template.creationDate).toLocaleDateString('es-MX')}
                                         </td>
 
                                         {/* Nombre con Tooltip */}
-                                        <td style={{ padding: '12px 16px', fontSize: '14px', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <td style={{
+                                            padding: '0px', width: '160px', whiteSpace: 'nowrap', overflow: 'hidden', textAlign: "left",
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>
                                             {template.name.length > 15 ? (
                                                 <Tooltip title={template.name} arrow>
                                                     <span>{template.name.slice(0, 15) + '...'}</span>
@@ -800,15 +869,17 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                                         </td>
 
                                         {/* Contenido */}
-                                        <td style={{ padding: '12px 16px', fontSize: '14px' }}>{template.message}</td>
+                                        <td style={{
+                                            padding: '0px', width: '480px', whiteSpace: 'nowrap', overflow: 'hidden', textAlign: "left",
+                                            textOverflow: 'ellipsis', fontSize: '13px', color: "#574B4F", fontFamily: 'Poppins'
+                                        }}>{template.message}</td>
 
                                         {/* Menú de acciones */}
                                         <td
                                             style={{
-                                                width: "75px",
-                                                padding: '12px 16px',
-                                                textAlign: 'right',
-                                                borderLeft: '1px solid #D9D9D9',
+                                                padding: '0px', width: '50px',
+                                                borderLeft: '1px solid #E0E0E0',
+                                                textAlign: 'center',
                                             }}
                                         >
                                             <IconButton onClick={(e) => handleMenuClick(e, template)}>
@@ -842,22 +913,23 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
 
                     }}
                 >
-                    <Typography variant="h6" fontWeight={600} fontFamily="Poppins" color='#574B4F' marginTop="-5px">
+                    <Typography variant="h6" fontWeight={600} fontFamily="Poppins"
+                        color='#574B4F' marginTop="0px">
                         Añadir plantilla
                     </Typography>
 
-                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-44px", marginLeft: '506px' }}>
+                    <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-48px", marginLeft: '506px' }}>
                         <CloseIcon />
                     </IconButton>
 
-                    <Divider sx={{ width: 'calc(100% + 58px)', marginLeft: '-28px', mb: 2, mt: 2 }} />
+                    <Divider sx={{ width: 'calc(100% + 58px)', marginLeft: '-28px', mb: 2, mt: 3 }} />
 
                     <Typography
-                        mt={2}
+                        mt={2} mb={1}
                         fontWeight={500}
-                        fontSize={16}
+                        fontSize={"16px"}
                         fontFamily="Poppins"
-                        sx={{ color: isTemplateNameInvalid ? '#D01247' : '#574B4F' }}
+                        sx={{ color: isTemplateNameInvalid ? '#D01247' : '#330F1B' }}
                     >
                         Nombre
                         <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
@@ -885,6 +957,7 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                                 }
                             }}
                             sx={{
+                                width: "340px", height: "54px",
                                 fontFamily: 'Poppins',
                                 '& input': {
                                     fontFamily: 'Poppins',
@@ -900,8 +973,8 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                                         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                                         padding: "8px 12px",
                                         fontFamily: "Poppins",
-                                        fontSize: "12px",
-                                        color: "#000000",
+                                        fontSize: "14px",
+                                        color: "#574B4F",
                                         whiteSpace: "pre-line",
                                         transform: "translate(-10px, -22px)",
                                         borderColor: "#00131F3D",
@@ -929,7 +1002,7 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                         >
                             <IconButton
                                 size="small"
-                                sx={{ position: 'absolute', marginLeft: "-45px", marginTop: "11px" }}
+                                sx={{ position: 'absolute', marginLeft: "-50px", marginTop: "11px" }}
                             >
                                 <img
                                     src={isTemplateNameInvalid ? infoiconerror : infoicon}
@@ -940,7 +1013,7 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                         </Tooltip>
                     </Box>
 
-                    <Typography mt={3} fontWeight={500} fontSize={16} fontFamily="Poppins" mb={3}>
+                    <Typography mt={4.5} fontWeight={500} fontSize={'16px'} fontFamily="Poppins" mb={1.5} color={'#330F1B'}>
                         Mensaje
                         <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
                     </Typography>
@@ -1054,58 +1127,70 @@ const isAcceptDisabled = !templateName.trim() || isTemplateNameInvalid || !mensa
                     elevation: 3,
                     sx: {
                         borderRadius: 2,
-                        mt: -1,
-                        ml: -12,
+                        mt: 0,
+                        ml: -15,
                         minWidth: 160,
                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                         '& .MuiMenuItem-root': {
                             fontFamily: 'Poppins',
                             fontSize: '14px',
                             color: '#333',
-                            '&:hover': { backgroundColor: '#F6F6F6' }
+                            '&:hover': { backgroundColor: '#F2EBED' }
                         }
                     }
                 }}
             >
-                <MenuItem disabled={hasAssignedCampaigns} onClick={() => !hasAssignedCampaigns && handleOpenEditTemplate(selectedTemplate!)}>
+                <MenuItem disabled={hasAssignedCampaigns} onClick={() => !hasAssignedCampaigns && handleOpenEditTemplate(selectedTemplate!)}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'
+                        }
+                    }}
+                >
                     <ListItemIcon>
-                        <EditIcon sx={{ color: hasAssignedCampaigns ? '#B0A8A8' : '#7B354D' }} />
+                        <EditIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
                     </ListItemIcon>
-                    <ListItemText
-                        primary="Editar"
-                        primaryTypographyProps={{
-                            fontFamily: 'Poppins',
-                            color: hasAssignedCampaigns ? '#B0A8A8' : 'inherit'
-                        }}
-                    />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
+
+                        Editar
+                    </Typography>
                 </MenuItem>
 
 
 
                 <MenuItem onClick={() => { handleMenuClose(); handleInspectTemplate(selectedTemplate!); }}
-                    sx={{}}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'
+                        }
+                    }}
                 >
                     <ListItemIcon>
-                        <VisibilityIcon fontSize="small" sx={{ color: '#7B354D' }} />
+                        <VisibilityIcon fontSize="small" sx={{ mr: 1, color: '5F5064', width: 24, height: 24 }} />
                     </ListItemIcon>
-                    <ListItemText>Inspeccionar</ListItemText>
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
+                        Inspeccionar
+                    </Typography>
                 </MenuItem>
                 <MenuItem
                     onClick={() => { handleMenuClose(); handleOpenDeleteModal(selectedTemplate!); }}
                     disabled={hasAssignedCampaigns}
 
                 >
-                    <ListItemIcon>
-                        <img src={DeleteIcon} alt="Borrar"
-                            style={{
-                                width: 24,
-                                height: 24,
-                                display: 'block',
-                                opacity: hasAssignedCampaigns ? 0.5 : 1 // 🔥 Se pone más clarito si está deshabilitado
-                            }}
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <img
+                            src={Thrashicon}
+                            alt="Eliminar"
+                            style={{ width: 24, height: 24, color: "#5F5064" }}
                         />
-                    </ListItemIcon>
-                    <ListItemText>Eliminar</ListItemText>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F", marginLeft: "4px" }}>
+                            Eliminar
+                        </Typography>
+                    </Box>
                 </MenuItem>
             </Menu>
 

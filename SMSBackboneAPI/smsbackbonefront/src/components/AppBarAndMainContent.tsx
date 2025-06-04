@@ -1822,17 +1822,19 @@ const NavBarAndDrawer: React.FC<Props> = props => {
             </Drawer >
             <Container
 
-                maxWidth={false} // 🔥 Permite que se expanda a todo el ancho
-                disableGutters // 🔥 Elimina el padding interno del contenedor
+                maxWidth={false}
+                disableGutters
                 sx={{
                     width: '81.7%',
                     height: '100%',
                     overflowX: 'hidden',
+                    overflowY: 'hidden',
+                    overflow: 'hidden',
                     margin: 0,
                     marginLeft: "277px",
                     marginTop: "70px",
                     padding: 0,
-                    backgroundColor: '#F2F2F2', // 🔥 Asegura que todo el fondo sea gris
+                    backgroundColor: '#F2F2F2',
                     display: 'flex',
                     flexDirection: 'column',
                 }}
