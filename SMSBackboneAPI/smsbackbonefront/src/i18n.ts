@@ -9,7 +9,7 @@ i18n
     fallbackLng: "es",
     debug: true,
     backend: {
-      loadPath: "/SMS/locales/{{lng}}/translation.json" // 🔥 carga las traducciones de la carpeta locales
+      loadPath: "/RedQuantum/locales/{{lng}}/translation.json" // 🔥 carga las traducciones de la carpeta locales
     },
     interpolation: {
       escapeValue: false,

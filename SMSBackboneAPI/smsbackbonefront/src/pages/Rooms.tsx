@@ -27,6 +27,9 @@ import ClearIcon from "@mui/icons-material/Clear";
 import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 import NoResult from '../assets/NoResultados.svg'
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
+import { useNavigate } from "react-router-dom";
+
 type Room = {
     id: string | number;
     name: string;
@@ -39,6 +42,7 @@ type Room = {
 };
 
 const Rooms: React.FC = () => {
+    const navigate = useNavigate();
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -101,7 +105,7 @@ const Rooms: React.FC = () => {
                     setTimeout(() => setShowDeleteChipBar(false), 3000);
                     GetRooms(); // Refresca la lista de salas
                 }
-            } catch  {
+            } catch {
                 handleOpenErrorModal("Error al eliminar sala");
             } finally {
                 setLoading(false);
@@ -123,7 +127,7 @@ const Rooms: React.FC = () => {
             if (response.status === 200) {
                 setRooms(response.data);
             }
-        } catch  {
+        } catch {
             handleOpenErrorModal("Error al traer las salas");
         } finally {
             setLoading(false);
@@ -192,7 +196,7 @@ const Rooms: React.FC = () => {
                 // Refresca la lista de salas después de la actualización
                 GetRooms();
             }
-        } catch  {
+        } catch {
             handleOpenErrorModal("Error al actualizar sala");
         } finally {
             setLoading(false); // Detén el loader
@@ -235,11 +239,11 @@ const Rooms: React.FC = () => {
             console.log(`Response: ${response}`);
             if (response.status === 200) {
                 setShowChipBar(true); // Mostrar ChipBar
-                setTimeout(() => setShowChipBar(false), 3000); 
+                setTimeout(() => setShowChipBar(false), 3000);
                 setLoading(false);
 
             }
-        } catch  {
+        } catch {
             handleOpenErrorModal("Error al crear sala");
         }
         // Logic to create a new room
@@ -274,17 +278,29 @@ const Rooms: React.FC = () => {
     };
 
     return (
-        <Box p={4} sx={{ 
-            position: "sticky",
-            top: 0,
-            backgroundColor: "#F2F2F2",
-            zIndex: 10,
-            paddingBottom: "16px" ,
-            marginLeft: "50px",
-            }}>
-            <Typography variant="h4" sx={{ fontWeight: "500", mb: 2, fontFamily: "Poppins" }}>
-                Salas
-            </Typography>
+        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <IconButton
+                    onClick={() => navigate('/')}
+                    sx={{ color: "#5A2836", mr: 1 }}
+                >
+                    <img
+                        src={ArrowBackIosNewIcon}
+                        alt="Regresar"
+                        style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
+                    />
+                </IconButton>
+
+                <Typography
+                    variant="h4"
+                    fontFamily="Poppins"
+                    sx={{ color: "#5A2836", fontWeight: "bold" }}
+                >
+                    Salas
+                </Typography>
+            </Box>
+
             <Divider sx={{ mb: 3 }} />
             <Box display="flex" alignItems="center" justifyContent="flex-start" mb={2}>
                 {/* Botón de Añadir Sala */}
@@ -356,164 +372,164 @@ const Rooms: React.FC = () => {
                         columnGap: '24px',    // Espacio horizontal (entre columnas)
                         gridTemplateColumns: '500px 500px',
                     }}
-                    >
-                        {rooms.filter((room) => {
-                            const term = searchTerm.toLowerCase();
-                            const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
-                            return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
-                        }).length === 0 ? (
-                                <Grid item xs={12}>
+                >
+                    {rooms.filter((room) => {
+                        const term = searchTerm.toLowerCase();
+                        const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
+                        return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
+                    }).length === 0 ? (
+                        <Grid item xs={12}>
+                            <Box
+                                display="flex"
+                                flexDirection="column"
+                                alignItems="center"
+                                justifyContent="center"
+                                mt={3}
+
+                            >
+                                <img
+                                    src={NoResult}
+                                    alt="No hay resultados"
+                                    style={{
+                                        width: "150px", // Tamaño ajustable
+                                        height: "150px", // Tamaño ajustable
+                                        marginBottom: "16px", // Espacio debajo de la imagen
+                                    }}
+                                />
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        textAlign: "center",
+                                        color: "#833A53",
+                                        fontWeight: "bold",
+                                        fontSize: "16px",
+                                    }}
+                                >
+                                    No se encontraron resultados.
+                                </Typography>
+                            </Box>
+                        </Grid>
+
+                    ) : (
+                        rooms
+                            .filter((room) => {
+                                const term = searchTerm.toLowerCase();
+                                const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
+                                return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
+                            })
+                            .map((room) => (
+                                <Grid item xs={12} sm={6} md={6} display="flex" justifyContent="flex-start"
+                                >
                                     <Box
-                                        display="flex"
-                                        flexDirection="column"
-                                        alignItems="center"
-                                        justifyContent="center"
-                                        mt={3}
-                                        
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            backgroundColor: '#FFFFFF',
+                                            borderRadius: '8px',
+                                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                            padding: '16px',
+                                            width: '100%',
+                                            height: '108|px',
+                                            maxWidth: 600, // << Cambia este valor para ajustar el tamaño
+                                        }}
                                     >
-                                        <img
-                                            src={NoResult}
-                                            alt="No hay resultados"
-                                            style={{
-                                                width: "150px", // Tamaño ajustable
-                                                height: "150px", // Tamaño ajustable
-                                                marginBottom: "16px", // Espacio debajo de la imagen
-                                            }}
-                                        />
-                                        <Typography
-                                            variant="body1"
-                                            sx={{
-                                                textAlign: "center",
-                                                color: "#833A53",
-                                                fontWeight: "bold",
-                                                fontSize: "16px",
-                                            }}
-                                        >
-                                            No se encontraron resultados.
-                                        </Typography>
-                                    </Box>
-                                </Grid>
-
-                        ) : (
-                            rooms
-                                .filter((room) => {
-                                    const term = searchTerm.toLowerCase();
-                                    const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
-                                    return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
-                                })
-                                .map((room) => (
-                                    <Grid item xs={12} sm={6} md={6} display="flex" justifyContent="flex-start"
-                                    >
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                backgroundColor: '#FFFFFF',
-                                                borderRadius: '8px',
-                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                                                padding: '16px',
-                                                width: '100%',
-                                                height: '108|px',
-                                                maxWidth: 600, // << Cambia este valor para ajustar el tamaño
-                                            }}
-                                        >
-                                            {/* Left Section: Icon and Room Details */}
-                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                <HomeIcon
-                                                    sx={{
-                                                        backgroundColor: '#796E71',
-                                                        borderRadius: '50%',
-                                                        padding: '8px',
-                                                        fontSize: 40,
-                                                        color: 'white',
-                                                        width: "46px",
-                                                        height: "46px",
-                                                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                                                        marginRight: '16px',
-                                                    }}
-                                                />
-                                                <Box>
-                                                    <Typography
-                                                        variant="h6"
-                                                        sx={{ fontWeight: '500', fontSize: '16px', color: '#574B4F', fontFamily: "Poppins", }}
-                                                    >
-                                                        {room.name}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{ fontSize: '14px', color: '#574B4F', fontFamily: "Poppins", }}
-                                                    >
-                                                        Cliente: {room.cliente}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-
-                                            {/* Right Section: Metrics and Button */}
-                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                <Box sx={{ textAlign: 'right', marginRight: '16px' }}>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            fontSize: '14px',
-                                                            color: '#8D4B62',
-                                                            fontWeight: '500',
-                                                        }}
-                                                    >
-                                                        SMS cortos: {room.short_sms.toLocaleString()}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            fontSize: '14px',
-                                                            color: '#8D4B62',
-                                                            fontWeight: '500',
-                                                        }}
-                                                    >
-                                                        SMS largos: {room.long_sms.toLocaleString()}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            fontSize: '14px',
-                                                            color: '#8D4B62',
-                                                            fontWeight: '500',
-                                                        }}
-                                                    >
-                                                        Llamada: {room.calls.toLocaleString()}
-                                                    </Typography>
-                                                </Box>
-                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                    <IconButton onClick={(event) => handleMenuOpen(event, room)}>
-                                                        <MoreVertIcon />
-                                                    </IconButton>
-                                                    <Menu
-                                                        anchorEl={menuAnchorEl}
-                                                        open={Boolean(menuAnchorEl)}
-                                                        onClose={handleMenuClose}
-                                                        PaperProps={{
-                                                            sx: {
-                                                                borderRadius: '8px',
-                                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                            },
-                                                        }}
-                                                    >
-                                                        <MenuItem onClick={handleOpenEditModal}>
-                                                            <EditIcon sx={{ marginRight: 1, color: '#A05B71' }} />
-                                                            <Typography>Editar</Typography>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleOpenDeleteModal(room)}>
-                                                            <DeleteIcon sx={{ marginRight: 1, color: '#A05B71' }} />
-                                                            <Typography>Eliminar</Typography>
-                                                        </MenuItem>
-                                                    </Menu>
-                                                </Box>
+                                        {/* Left Section: Icon and Room Details */}
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <HomeIcon
+                                                sx={{
+                                                    backgroundColor: '#796E71',
+                                                    borderRadius: '50%',
+                                                    padding: '8px',
+                                                    fontSize: 40,
+                                                    color: 'white',
+                                                    width: "46px",
+                                                    height: "46px",
+                                                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                                                    marginRight: '16px',
+                                                }}
+                                            />
+                                            <Box>
+                                                <Typography
+                                                    variant="h6"
+                                                    sx={{ fontWeight: '500', fontSize: '16px', color: '#574B4F', fontFamily: "Poppins", }}
+                                                >
+                                                    {room.name}
+                                                </Typography>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{ fontSize: '14px', color: '#574B4F', fontFamily: "Poppins", }}
+                                                >
+                                                    Cliente: {room.cliente}
+                                                </Typography>
                                             </Box>
                                         </Box>
-                                    </Grid> //Cerración del GRID items
-                                ))
-                        )}
-                    </Box> 
+
+                                        {/* Right Section: Metrics and Button */}
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Box sx={{ textAlign: 'right', marginRight: '16px' }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        fontSize: '14px',
+                                                        color: '#8D4B62',
+                                                        fontWeight: '500',
+                                                    }}
+                                                >
+                                                    SMS cortos: {room.short_sms.toLocaleString()}
+                                                </Typography>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        fontSize: '14px',
+                                                        color: '#8D4B62',
+                                                        fontWeight: '500',
+                                                    }}
+                                                >
+                                                    SMS largos: {room.long_sms.toLocaleString()}
+                                                </Typography>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        fontSize: '14px',
+                                                        color: '#8D4B62',
+                                                        fontWeight: '500',
+                                                    }}
+                                                >
+                                                    Llamada: {room.calls.toLocaleString()}
+                                                </Typography>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <IconButton onClick={(event) => handleMenuOpen(event, room)}>
+                                                    <MoreVertIcon />
+                                                </IconButton>
+                                                <Menu
+                                                    anchorEl={menuAnchorEl}
+                                                    open={Boolean(menuAnchorEl)}
+                                                    onClose={handleMenuClose}
+                                                    PaperProps={{
+                                                        sx: {
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                        },
+                                                    }}
+                                                >
+                                                    <MenuItem onClick={handleOpenEditModal}>
+                                                        <EditIcon sx={{ marginRight: 1, color: '#A05B71' }} />
+                                                        <Typography>Editar</Typography>
+                                                    </MenuItem>
+                                                    <MenuItem onClick={() => handleOpenDeleteModal(room)}>
+                                                        <DeleteIcon sx={{ marginRight: 1, color: '#A05B71' }} />
+                                                        <Typography>Eliminar</Typography>
+                                                    </MenuItem>
+                                                </Menu>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </Grid> //Cerración del GRID items
+                            ))
+                    )}
+                </Box>
 
             )}
 

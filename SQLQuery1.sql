@@ -303,3 +303,20 @@ CREATE TABLE IFTLadas (
 
 
 Alter table CampaignContactScheduleSend add State nvarchar(50)
+
+CREATE TABLE CreditRechargeOpenPay (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    idopenpay NVARCHAR(140) NOT NULL,
+    IdCreditRecharge INT NULL,
+    ChargeId NVARCHAR(200) NOT NULL,
+    BankAuthorization NVARCHAR(200) NULL,
+    Amount DECIMAL(10,2) NOT NULL,
+    Status NVARCHAR(100) NOT NULL,
+    CreationDate DATETIME NOT NULL,
+    CardId NVARCHAR(200) NULL,
+    CustomerId NVARCHAR(200) NULL,
+    Conciliated BIT NOT NULL,
+    Description NVARCHAR(600) NULL
+);
+select * from [dbo].[CreditRecharge]
+alter table creditrecharge add EstatusError nvarchar(100) null -

@@ -451,15 +451,13 @@ const ManageAccounts: React.FC = () => {
                 formData.password === formData.confirmPassword // Contraseñas coinciden
             ))
         );
-
-        console.log("isFormValid:", isValid, formData);  // 🔴 Log para depurar
         return isValid;
     };
 
 
 
     return (
-        <Box p={3} sx={{ marginTop: "-80px", width: '90%' }}>
+        <Box p={3} sx={{ marginTop: "-80px", width: '90%',  minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -490,8 +488,8 @@ const ManageAccounts: React.FC = () => {
                 </Typography>
             </Box>
 
-            {/* Contenido principal más a la derecha (título + línea) */}
-            <Box sx={{ pl: 5 }}> {/* Puedes ajustar a pl: 4, 5, 6 según tu diseño */}
+     
+            <Box sx={{ pl: 5 }}> 
                 <Box sx={{ maxWidth: "68%", mx: "auto", mb: 3 }}>
                     <Divider
                         sx={{
