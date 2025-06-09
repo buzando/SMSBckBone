@@ -26,9 +26,12 @@ import ChipBar from "../components/commons/ChipBar";
 import Thrashicon from '../assets/Icon-trash-Card.svg'
 import backarrow from '../assets/MoveTable.svg';
 import backarrowD from '../assets/MoveTabledesactivated.svg';
-
+import IconSMS from '../assets/IconSMS.svg';
 import infoiconerror from '../assets/Icon-infoerror.svg';
-
+interface CampañaAsignada {
+    chanel: string;
+    campainName: string;
+}
 export interface Template {
     id: number;
     name: string;
@@ -67,6 +70,10 @@ const Templates = () => {
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
     const [templateToEdit, setTemplateToEdit] = useState<Template | null>(null);
 
+
+    const [campaignPage, setCampaignPage] = useState(1);
+    const [campaignSearch, setCampaignSearch] = useState('');
+    const [campaignData, setCampaignData] = useState<string[]>([]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 50;
@@ -145,7 +152,7 @@ const Templates = () => {
                 setMessageErrorModal('Alguna o todas las plantillas seleccionadas se encuentran asignadas a una campaña que está en curso. No es posible eliminarla(s).');
                 setIsErrorModalOpen(true);
             } else {
-                setOpenMassiveDeleteModal(true); // ✅ Modal de confirmación
+                setOpenMassiveDeleteModal(true);
             }
         } catch (err) {
             console.error('Error verificando campañas asignadas:', err);
@@ -266,11 +273,11 @@ const Templates = () => {
                 },
             });
 
-            setAssignedCampaigns(response.data);
+            setCampaignData(response.data);
             setHasAssignedCampaigns(response.data.length > 0);
         } catch (error) {
             console.error('Error cargando campañas para validar eliminar:', error);
-            setAssignedCampaigns([]);
+            setCampaignData([]);
             setHasAssignedCampaigns(false);
         }
     };
@@ -297,7 +304,7 @@ const Templates = () => {
                 },
             });
 
-            setAssignedCampaigns(response.data);
+            setCampaignData(response.data);
         } catch (error) {
             console.error('Error cargando campañas asignadas:', error);
             setTitleErrorModal('Error al inspeccionar plantilla');
@@ -613,7 +620,7 @@ const Templates = () => {
                         backgroundColor: '#FFFFFF',
                         borderRadius: '8px',
                         padding: '60px 0',
-                        height: '625px',
+                        height: '450px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -624,7 +631,7 @@ const Templates = () => {
                 >
                     <img src={BoxEmpty}
                         alt="Caja vacía"
-                        style={{ width: '263px', marginBottom: '16px' }} />
+                        style={{ width: '176px', height: "149px", marginBottom: '16px' }} />
                     <Typography
                         sx={{
                             fontFamily: 'Poppins',
@@ -815,7 +822,7 @@ const Templates = () => {
                                 </Box>
                             ) : (
                                 currentItems.map((template) => (
-                                    <tr key={template.id} style={{ borderTop: '1px solid #E0E0E0' }}>
+                                    <tr key={template.id} style={{ borderTop: '1px solid #E0E0E0', borderBottom: '1px solid #E0E0E0' }}>
                                         <td style={{ padding: '0px', width: "60px" }}>
                                             <Box sx={{ marginLeft: "10px" }}>
                                                 <Checkbox
@@ -908,7 +915,7 @@ const Templates = () => {
                         borderRadius: 2,
                         p: 3,
                         mx: 'auto',
-                        my: '5%',
+                        my: '3%',
                         outline: 'none',
 
                     }}
@@ -922,7 +929,7 @@ const Templates = () => {
                         <CloseIcon />
                     </IconButton>
 
-                    <Divider sx={{ width: 'calc(100% + 58px)', marginLeft: '-28px', mb: 2, mt: 3 }} />
+                    <Divider sx={{ width: 'calc(100% + 49px)', marginLeft: '-24px', mb: 2, mt: 3 }} />
 
                     <Typography
                         mt={2} mb={1}
@@ -1064,7 +1071,7 @@ const Templates = () => {
 
                     </Box>
 
-                    <Divider sx={{ width: 'calc(100% + 54px)', marginLeft: '-26px', mb: 2, mt: 3 }} />
+                    <Divider sx={{ width: 'calc(100% + 49px)', marginLeft: '-24px', mb: 2, mt: 3 }} />
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <SecondaryButton text='Cancelar' onClick={handleCloseModal} />
@@ -1127,8 +1134,8 @@ const Templates = () => {
                     elevation: 3,
                     sx: {
                         borderRadius: 2,
-                        mt: 0,
-                        ml: -15,
+                        mt: -1,
+                        ml: -13.5,
                         minWidth: 160,
                         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                         '& .MuiMenuItem-root': {
@@ -1195,51 +1202,147 @@ const Templates = () => {
             </Menu>
 
             <Modal open={isInspectModalOpen} onClose={() => setIsInspectModalOpen(false)}>
+
                 <Box sx={{
-                    width: '448px',
-                    backgroundColor: 'white',
-                    borderRadius: '12px',
-                    p: 3,
-                    m: 'auto',
-                    mt: '10%',
-                    outline: 'none',
-                    height: "409px",
+                    position: 'absolute',
+                    marginTop: '60px',
+                    marginLeft: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '546px',
+                    height: '667px',
+                    maxHeight: 'calc(100vh - 100px)',
+                    bgcolor: 'white',
+                    borderRadius: '8px',
+                    p: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
                 }}>
-                    <Typography variant="h6" sx={{ fontFamily: 'Poppins', fontWeight: 500, mb: 2 }}>
-                        Inspeccionar plantilla
-                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '20px', fontWeight: 600, color: '#330F1B', mt: -1.2, ml: -0.4 }}>
+                            Inspeccionar plantilla
+                        </Typography>
+                        <IconButton onClick={() => setIsInspectModalOpen(false)}>
+                            <CloseIcon sx={{ color: '#A6A6A6', marginTop: '-34px', marginRight: '-24px' }} />
+                        </IconButton>
+                    </Box>
 
-                    <Typography variant="subtitle1" sx={{ fontFamily: 'Poppins', fontWeight: 500, mb: 1, }}>
-                        Campañas asignadas
-                    </Typography>
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 1, mt: 1 }} />
 
-                    {assignedCampaigns.length > 0 ? (
-                        assignedCampaigns.map((campaignName, index) => (
-                            <Box
-                                key={index}
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1,
-                                    p: 1,
-                                    borderBottom: '1px solid #eee',
-                                    fontFamily: 'Poppins',
-                                    fontSize: '14px',
-                                    color: '#333'
-                                }}
-                            >
-                                <SmsIcon sx={{ color: '#7B354D' }} />
-                                {campaignName}
+                    {/* Tabs */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            mb: 2,
+                        }}
+                    >
+                        <Typography
+                            sx={{
+                                fontFamily: 'Poppins',
+                                fontWeight: 600,
+                                fontSize: '12px',
+                                color: '#8F4E63',
+                                width: '100%',
+                                textAlign: 'left',
+                                pb: 1,
+                                cursor: 'default',
+                                letterSpacing: "0.96px",
+                                textTransform: "uppercase",
+                                mb: 0.9,
+                                mt: 0.5
+                            }}
+                        >
+                            CAMPAÑAS ASIGNADAS
+                        </Typography>
+                    </Box>
+
+
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 3, mt: -2.3 }} />
+
+                    <Box sx={{ border: '1px solid #E6E4E4', borderRadius: '6px' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '490px', height: '70px', gap: 4, ml: -0.1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, ml: 3 }}>
+                                <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '80px' }}>
+                                    {Math.min(campaignPage * 50 - 49, campaignData.length)}–{Math.min(campaignPage * 50, campaignData.length)} de {campaignData.length}
+                                </Typography>
+
+                                {/* Flechas */}
+                                <IconButton onClick={() => setCampaignPage(1)} disabled={campaignPage === 1} sx={{ p: 0 }}>
+                                    <img src={campaignPage === 1 ? backarrowD : backarrow} style={{ transform: 'rotate(0deg)', width: 22 }} />
+                                    <img src={campaignPage === 1 ? backarrowD : backarrow} style={{ transform: 'rotate(0deg)', width: 22, marginLeft: '-16px' }} />
+                                </IconButton>
+
+                                <IconButton onClick={() => setCampaignPage(prev => Math.max(prev - 1, 1))} disabled={campaignPage === 1} sx={{ p: 0 }}>
+                                    <img src={campaignPage === 1 ? backarrowD : backarrow} style={{ transform: 'rotate(0deg)', width: 22 }} />
+                                </IconButton>
+
+                                <IconButton onClick={() => setCampaignPage(prev => prev + 1)} disabled={campaignPage * 50 >= campaignData.length} sx={{ p: 0 }}>
+                                    <img src={campaignPage * 50 >= campaignData.length ? backarrowD : backarrow} style={{ transform: 'rotate(180deg)', width: 22 }} />
+                                </IconButton>
+
+                                <IconButton onClick={() => setCampaignPage(Math.ceil(campaignData.length / 50))} disabled={campaignPage * 50 >= campaignData.length} sx={{ p: 0 }}>
+                                    <img src={campaignData.length === 0 || campaignPage * 50 >= campaignData.length ? backarrowD : backarrow} style={{ transform: 'rotate(180deg)', width: 22 }} />
+                                    <img src={campaignData.length === 0 || campaignPage * 50 >= campaignData.length ? backarrowD : backarrow} style={{ transform: 'rotate(180deg)', width: 22, marginLeft: '-16px' }} />
+                                </IconButton>
                             </Box>
-                        ))
-                    ) : (
-                        <Box sx={{ height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                            <img src={Emptybox} alt="No campaigns" style={{ width: '220px', marginBottom: '16px' }} />
-                            <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', mt: 1, color: '#999' }}>
-                                No hay campañas asignadas.
-                            </Typography>
+
+                            <Box display="flex" alignItems="center" sx={{ backgroundColor: '#FFFFFF', border: campaignSearch ? '1px solid #7B354D' : '1px solid #9B9295', borderRadius: '4px', padding: '6px 10px', width: '220px', height: '40px' }}>
+                                <img src={seachicon} alt="Buscar" style={{ marginRight: '8px', width: '24px', height: '24px', filter: campaignSearch ? 'invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)' : 'none' }} />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar"
+                                    value={campaignSearch}
+                                    onChange={(e) => setCampaignSearch(e.target.value)}
+                                    style={{
+                                        border: 'none', outline: 'none', width: '100%',
+                                        fontSize: '14px', fontFamily: 'Poppins, sans-serif',
+                                        color: campaignSearch ? '#7B354D' : '#9B9295', backgroundColor: 'transparent'
+                                    }}
+                                />
+                                {campaignSearch && (
+                                    <img
+                                        src={iconclose}
+                                        alt="Limpiar búsqueda"
+                                        style={{ marginLeft: '8px', width: '24px', height: '24px', cursor: 'pointer' }}
+                                        onClick={() => setCampaignSearch('')}
+                                    />
+                                )}
+                            </Box>
                         </Box>
-                    )}
+
+                        <Box sx={{ flex: 1, overflowY: 'auto' }}>
+                            {campaignData.filter(c => c.toLowerCase().includes(campaignSearch.toLowerCase())).slice((campaignPage - 1) * 50, campaignPage * 50).length === 0 ? (
+                                <Box sx={{ width: '100%', height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src={Emptybox} alt="No results" style={{ width: '242px', marginBottom: '16px', position: 'absolute', marginLeft: '0px' }} />
+                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#7B354D', fontWeight: 500, mt: '220px', position: 'absolute', marginBottom: '0px' }}>
+                                        No se encontraron resultados.
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins', borderTop: '1px solid #E6E4E4' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E6E4E4' }}>
+                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500, color: '#330F1B', fontSize: '13px' }}>Canal</th>
+                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500, color: '#330F1B', fontSize: '13px' }}>Ícono</th>
+                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500, color: '#330F1B', fontSize: '13px' }}>Campaña</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {campaignData.filter(c => c.toLowerCase().includes(campaignSearch.toLowerCase())).slice((campaignPage - 1) * 50, campaignPage * 50).map((row, index) => (
+                                            <tr key={index} style={{ borderBottom: '1px solid #E0E0E0' }}>
+                                                <td style={{ padding: '10px', color: '#574B4F', fontSize: '13px' }}>SMS</td>
+                                                <td style={{ padding: '10px' }}>
+                                                    <img alt="IconSMS" src={IconSMS} style={{ width: 22, height: 22 }} />
+                                                </td>
+                                                <td style={{ padding: '10px', color: '#574B4F', fontSize: '13px' }}>{row}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </Box>
+                    </Box>
                 </Box>
             </Modal>
 

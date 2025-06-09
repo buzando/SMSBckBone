@@ -796,6 +796,7 @@ const BlackList: React.FC = () => {
         }
     };
 
+
     const handleOpenDeleteModal = (blackList: BlackList) => {
         setRowToDelete(blackList);
         setOpenDeleteModal(true);
@@ -937,16 +938,16 @@ const BlackList: React.FC = () => {
                         <input
                             type="text"
                             placeholder="Buscar"
-                            value={searchTerm} // Variable de estado para el valor del input
-                            onChange={handleSearch} // Función que maneja el cambio en el input
+                            value={searchTerm}
+                            onChange={handleSearch}
                             style={{
-                                border: "none", // Sin borde
-                                outline: "none", // Sin borde al enfocar
-                                width: "100%", // Ocupa todo el espacio restante
-                                fontSize: "16px", // Tamaño de la fuente
-                                fontFamily: "Poppins, sans-serif", // Fuente según especificación
-                                color: searchTerm ? "#7B354D" : "#9B9295", // Cambia el color del texto si hay texto
-                                backgroundColor: "transparent", // Fondo transparente para evitar interferencias
+                                border: "none",
+                                outline: "none",
+                                width: "100%",
+                                fontSize: "16px",
+                                fontFamily: "Poppins, sans-serif",
+                                color: searchTerm ? "#7B354D" : "#9B9295",
+                                backgroundColor: "transparent",
                             }}
                         />
                         {/* Ícono de cerrar cuando hay texto */}
@@ -1218,7 +1219,7 @@ const BlackList: React.FC = () => {
 
                             <tbody>
                                 {currentItems.map((black) => (
-                                    <tr key={black.id} style={{ borderTop: '1px solid #E0E0E0', }}>
+                                    <tr key={black.id} style={{ borderTop: '1px solid #E0E0E0', borderBottom: '1px solid #E0E0E0', }}>
                                         <td style={{ padding: '0px', width: "50px" }}>
                                             <Box sx={{ marginLeft: "10px" }}>
                                                 <Checkbox
@@ -1344,7 +1345,7 @@ const BlackList: React.FC = () => {
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: '15%',
+                        top: '5%',
                         left: '35%',
                         transform: 'none',
                         width: '580px',
@@ -1727,9 +1728,9 @@ const BlackList: React.FC = () => {
                                             sx={{
                                                 fontWeight: 600,
                                                 fontFamily: "Poppins",
-                                                color: "#574B4F",
+                                                color: "#330F1B",
                                                 fontSize: '12px',
-                                                opacity: !fileError && !fileSuccess ? 0.6 : 1
+                                                opacity: !fileError && !fileSuccess ? 0.9 : 1
                                             }}
                                         >
                                             {fileError
@@ -1744,10 +1745,11 @@ const BlackList: React.FC = () => {
                                                 fontFamily: 'Poppins',
                                                 fontSize: '10px',
                                                 color: '#574B4F',
-                                                opacity: 0.7,
+                                                opacity: 1,
                                                 textAlign: 'center',
-                                                wordBreak: 'break-word', // para dividir texto largo
-                                                maxWidth: '142px' // asegúrate de limitar ancho si el nombre del archivo es largo
+                                                wordBreak: 'break-word',
+                                                maxWidth: '142px',
+                                                mt: '1px'
                                             }}
                                         >
                                             {fileSuccess && uploadedFile
@@ -1760,9 +1762,9 @@ const BlackList: React.FC = () => {
                                                     fontFamily: 'Poppins',
                                                     fontSize: '10px',
                                                     color: '#574B4F',
-                                                    opacity: 0.7,
+                                                    opacity: 1,
                                                     textAlign: 'center',
-                                                    mt: '4px'
+                                                    mt: '1px'
                                                 }}
                                             >
                                                 Total de registros:
@@ -1849,9 +1851,9 @@ const BlackList: React.FC = () => {
 
                                 <Box
                                     sx={{
-                                        maxHeight: '150px', // ajusta según tu modal
+                                        maxHeight: '150px',
                                         overflowY: 'auto',
-                                        pr: 1, // para evitar que el scroll tape el contenido
+                                        pr: 1,
                                         display: 'flex',
                                         flexDirection: 'column',
                                         gap: 1,
@@ -2109,8 +2111,8 @@ const BlackList: React.FC = () => {
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: '180px',
-                        left: '750px',
+                        marginTop: '10%',
+                        marginLeft: '35%',
                         width: '580px',
                         height: '409px',
                         bgcolor: 'background.paper',
@@ -2325,12 +2327,16 @@ const BlackList: React.FC = () => {
 
                     </Box>
 
-                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mt: 3, mb: -2 }} />
+                    <Divider sx={{
+                        width: 'calc(100% + 64px)', marginLeft: '-32px',
+                        mt: 4.0, mb: -4
+                    }} />
 
                     {/* Botones */}
                     <Box sx={{
+                        mt: -1.3,
                         px: -2,
-                        py: 4,
+                        py: 5.5,
                         display: 'flex',
                         justifyContent: 'space-between',
 
@@ -2350,7 +2356,7 @@ const BlackList: React.FC = () => {
             <Modal open={isInspectModalOpen} onClose={() => setIsInspectModalOpen(false)}>
                 <Box sx={{
                     position: 'absolute',
-                    marginTop: '150px',
+                    marginTop: '60px',
                     marginLeft: '50%',
                     transform: 'translateX(-50%)',
                     width: '546px',
@@ -2362,8 +2368,14 @@ const BlackList: React.FC = () => {
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '20px', fontWeight: 600, color: '#330F1B' }}>
+                    <Box sx={{
+                        display: 'flex', justifyContent: 'space-between',
+                        alignItems: 'center', mb: 2,
+                    }}>
+                        <Typography sx={{
+                            fontFamily: 'Poppins', fontSize: '20px', fontWeight: 600,
+                            color: '#330F1B', mt: -1.2, ml: -0.4
+                        }}>
                             Inspeccionar lista negra
                         </Typography>
                         <IconButton onClick={() => setIsInspectModalOpen(false)}>
@@ -2377,24 +2389,23 @@ const BlackList: React.FC = () => {
                     <Box
                         sx={{
                             display: 'flex',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            borderBottom: '1px solid #E0E0E0',
-                            mb: 2,
+                            justifyContent: 'flex-start',
+                            width: '60%',
+                            mb: 2, mt: 0.5
                         }}
                     >
                         <Typography
                             onClick={() => setInspectTab('registros')}
                             sx={{
-                                fontFamily: 'Poppins',
-                                fontWeight: 500,
-                                fontSize: '14px',
-                                width: '100%',
+                                fontFamily: 'Poppins', ml: -4,
+                                fontWeight: 600, letterSpacing: "0.96px",
+                                fontSize: '12px',
+                                width: '60%',
                                 textAlign: 'center',
                                 borderBottom: inspectTab === 'registros' ? '2px solid #7B354D' : 'none',
-                                color: inspectTab === 'registros' ? '#7B354D' : '#9B9295',
+                                color: inspectTab === 'registros' ? '#8F4E63' : '#9B9295',
                                 cursor: 'pointer',
-                                pb: 1
+                                pb: 1.5
                             }}
                         >
                             REGISTROS
@@ -2403,14 +2414,14 @@ const BlackList: React.FC = () => {
                             onClick={() => setInspectTab('campañas')}
                             sx={{
                                 fontFamily: 'Poppins',
-                                fontWeight: 500,
-                                fontSize: '14px',
+                                fontWeight: 600, letterSpacing: "0.96px",
+                                fontSize: '12px',
                                 width: '100%',
                                 textAlign: 'center',
                                 borderBottom: inspectTab === 'campañas' ? '2px solid #7B354D' : 'none',
-                                color: inspectTab === 'campañas' ? '#7B354D' : '#9B9295',
+                                color: inspectTab === 'campañas' ? '#8F4E63' : '#9B9295',
                                 cursor: 'pointer',
-                                pb: 1
+                                pb: 1.5
                             }}
                         >
                             CAMPAÑAS ASIGNADAS
@@ -2419,17 +2430,17 @@ const BlackList: React.FC = () => {
 
                     <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 3, mt: -2.3 }} />
                     {inspectTab === 'campañas' && (
-                        <>
-                            {/* Header: paginación + buscador */}
+                        <Box
+                            sx={{ border: "1px solid #E6E4E4", borderRadius: "6px" }}
+                        >
                             <Box sx={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'space-between',
-                                mb: 2,
-                                mt: '-10px'
+                                justifyContent: 'flex-start',
+                                width: "490px", height: "70px", gap: 4, ml: -0.1,
                             }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, ml: 3 }}>
+                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '80px' }}>
                                         {Math.min(campaignPage * 50 - 49, campaignData.length)}–{Math.min(campaignPage * 50, campaignData.length)} de {campaignData.length}
                                     </Typography>
 
@@ -2453,7 +2464,6 @@ const BlackList: React.FC = () => {
                                     </IconButton>
                                 </Box>
 
-                                {/* Buscador */}
                                 <Box
                                     display="flex"
                                     alignItems="center"
@@ -2463,18 +2473,24 @@ const BlackList: React.FC = () => {
                                         borderRadius: "4px",
                                         padding: "6px 10px",
                                         width: "220px",
-                                        height: "38px",
+                                        height: "40px",
                                     }}
                                 >
-                                    <img src={seachicon} alt="Buscar" style={{
-                                        marginRight: "8px",
-                                        width: "16px",
-                                        height: "16px",
-                                        filter: campaignSearch ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none"
-                                    }} />
+                                    <img
+                                        src={seachicon}
+                                        alt="Buscar"
+                                        style={{
+                                            marginRight: "8px",
+                                            width: "24px",
+                                            height: "24px",
+                                            filter: campaignSearch
+                                                ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)"
+                                                : "none",
+                                        }}
+                                    />
                                     <input
                                         type="text"
-                                        placeholder="Buscar campaña"
+                                        placeholder="Buscar"
                                         value={campaignSearch}
                                         onChange={(e) => setCampaignSearch(e.target.value)}
                                         style={{
@@ -2487,29 +2503,77 @@ const BlackList: React.FC = () => {
                                             backgroundColor: "transparent",
                                         }}
                                     />
+                                    {campaignSearch && (
+                                        <img
+                                            src={iconclose}
+                                            alt="Limpiar búsqueda"
+                                            style={{
+                                                marginLeft: "8px",
+                                                width: "24px",
+                                                height: "24px",
+                                                cursor: "pointer",
+                                            }}
+                                            onClick={() => setCampaignSearch('')}
+                                        />
+                                    )}
                                 </Box>
+
                             </Box>
 
                             {/* Tabla o mensaje vacío */}
                             <Box sx={{ flex: 1, overflowY: 'auto' }}>
                                 {campaignData.filter(c => c.campainName.toLowerCase().includes(campaignSearch.toLowerCase()))
                                     .slice((campaignPage - 1) * 50, campaignPage * 50).length === 0 ? (
-                                    <Box sx={{ height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img src={Emptybox} alt="No campaigns" style={{ width: '242px', marginBottom: '16px', marginTop: '100px' }} />
-                                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#7B354D', fontWeight: 500 }}>
+                                    <Box
+                                        sx={{
+                                            width: '100%',
+                                            height: '300px',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <img src={Emptybox} alt="No results" style={{
+                                            width: '242px',
+                                            marginBottom: '16px',
+                                            position: 'absolute',
+                                            marginLeft: '0px'
+                                        }}
+                                        />
+                                        <Typography
+                                            sx={{
+                                                fontFamily: 'Poppins',
+                                                fontSize: '14px',
+                                                color: '#7B354D',
+                                                fontWeight: 500,
+                                                mt: "220px",
+                                                position: "absolute",
+                                                marginBottom: '0px'
+                                            }}
+                                        >
                                             No se encontraron resultados.
                                         </Typography>
                                     </Box>
                                 ) : (
                                     <table style={{
                                         width: '100%', borderCollapse: 'collapse',
-                                        fontFamily: 'Poppins', border: '1px solid #E6E4E4'
+                                        fontFamily: 'Poppins', borderTop: '1px solid #E6E4E4'
                                     }}>
                                         <thead>
-                                            <tr style={{ backgroundColor: '#FFFFFF', border: '1px solid #E6E4E4' }}>
-                                                <th style={{ padding: '12px', textAlign: 'left' }}>Canal</th>
-                                                <th style={{ padding: '12px', textAlign: 'left' }}>Ícono</th>
-                                                <th style={{ padding: '12px', textAlign: 'left' }}>Campaña</th>
+                                            <tr style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E6E4E4' }}>
+                                                <th style={{
+                                                    padding: '12px', textAlign: 'left',
+                                                    fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                                }}>Canal</th>
+                                                <th style={{
+                                                    padding: '12px', textAlign: 'left',
+                                                    fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                                }}>Ícono</th>
+                                                <th style={{
+                                                    padding: '12px', textAlign: 'left',
+                                                    fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                                }}>Campaña</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -2517,33 +2581,35 @@ const BlackList: React.FC = () => {
                                                 .filter(c => c.campainName.toLowerCase().includes(campaignSearch.toLowerCase()))
                                                 .slice((campaignPage - 1) * 50, campaignPage * 50)
                                                 .map((row, index) => (
-                                                    <tr key={index} style={{ borderTop: '1px solid #E0E0E0' }}>
-                                                        <td style={{ padding: '12px', color: "#574B4F", fontSize: "13px" }}>{row.chanel}</td>
-                                                        <td style={{ padding: '12px' }}><img alt="IconSMS" src={IconSMS}
-                                                            style={{ width: 22, height: 22, }}
-                                                        />
+                                                    <tr key={index} style={{ borderBottom: '1px solid #E0E0E0', }}>
+                                                        <td style={{ padding: '10px', color: "#574B4F", fontSize: "13px" }}>{row.chanel}</td>
+                                                        <td style={{ padding: '10px', color: "#574B4F" }}>
+                                                            <img alt="IconSMS" src={IconSMS}
+                                                                style={{ width: 22, height: 22, color: "#60293C" }}
+                                                            />
                                                         </td>
-                                                        <td style={{ padding: '12px', color: "#574B4F", fontSize: "13px" }}>{row.campainName}</td>
+                                                        <td style={{ padding: '10px', color: "#574B4F", fontSize: "13px" }}>{row.campainName}</td>
                                                     </tr>
                                                 ))}
                                         </tbody>
                                     </table>
                                 )}
                             </Box>
-                        </>
+                        </Box>
                     )}
 
                     {inspectTab === 'registros' && (
-                        <>
+                        <Box
+                            sx={{ border: "1px solid #E6E4E4", borderRadius: "6px" }}
+                        >
                             <Box sx={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'space-between',
-                                marginBottom: '20px',
-                                marginTop: '-10px',
+                                justifyContent: 'flex-start',
+                                width: "490px", height: "70px", gap: 4, ml: -0.1,
                             }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '120px' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, ml: 3 }}>
+                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#574B4F', minWidth: '80px' }}>
                                         {Math.min(inspectPage * 50 - 49, inspectData.length)}–{Math.min(inspectPage * 50, inspectData.length)} de {inspectData.length}
                                     </Typography>
 
@@ -2615,9 +2681,9 @@ const BlackList: React.FC = () => {
                                         backgroundColor: "#FFFFFF",
                                         border: inspectSearch ? "1px solid #7B354D" : "1px solid #9B9295",
                                         borderRadius: "4px",
-                                        padding: "6px 10px",
+                                        padding: "0px 10px",
                                         width: "220px",
-                                        height: "38px",
+                                        height: "40px",
                                         boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.1)",
                                     }}
                                 >
@@ -2626,8 +2692,8 @@ const BlackList: React.FC = () => {
                                         alt="Buscar"
                                         style={{
                                             marginRight: "8px",
-                                            width: "16px",
-                                            height: "16px",
+                                            width: "24px",
+                                            height: "24px",
                                             filter: inspectSearch
                                                 ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)"
                                                 : "none",
@@ -2635,7 +2701,7 @@ const BlackList: React.FC = () => {
                                     />
                                     <input
                                         type="text"
-                                        placeholder="Buscar teléfono"
+                                        placeholder="Buscar"
                                         value={inspectSearch}
                                         onChange={(e) => setInspectSearch(e.target.value)}
                                         style={{
@@ -2648,7 +2714,22 @@ const BlackList: React.FC = () => {
                                             backgroundColor: "transparent",
                                         }}
                                     />
+                                    {/* Icono para limpiar */}
+                                    {inspectSearch && (
+                                        <img
+                                            src={iconclose}
+                                            alt="Limpiar búsqueda"
+                                            style={{
+                                                marginLeft: "8px",
+                                                width: "24px",
+                                                height: "24px",
+                                                cursor: "pointer",
+                                            }}
+                                            onClick={() => setInspectSearch('')}
+                                        />
+                                    )}
                                 </Box>
+
 
                             </Box>
 
@@ -2657,50 +2738,64 @@ const BlackList: React.FC = () => {
                                 sx={{
                                     flex: 1,
                                     overflowY: 'auto',
-                                    border: '1px solid transparent' // opcional para testeo visual
+                                    border: '1px solid transparent'
                                 }}
-                            >                                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins', border: '1px solid #E6E4E4' }}>
-                                    <thead>
-                                        <tr style={{ backgroundColor: '#ffff', border: '1px solid #E6E4E4' }}>
-                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500 }}>Teléfono</th>
-                                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: 500 }}>Dato</th>
-                                        </tr>
-                                    </thead>
-                                    {inspectData
-                                        .filter((d) => d.phone.includes(inspectSearch))
-                                        .slice((inspectPage - 1) * 50, inspectPage * 50).length === 0 ? (
-                                        <Box
+                            >
+                                {inspectData
+                                    .filter((d) => d.phone.includes(inspectSearch))
+                                    .slice((inspectPage - 1) * 50, inspectPage * 50).length === 0 ? (
+                                    <Box
+                                        sx={{
+                                            width: '100%',
+                                            height: '300px',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <img src={Emptybox} alt="No results" style={{
+                                            width: '242px',
+                                            marginBottom: '16px',
+                                            position: 'absolute',
+                                            marginLeft: '0px'
+                                        }}
+                                        />
+                                        <Typography
                                             sx={{
-                                                width: '100%',
-                                                height: '300px',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
+                                                fontFamily: 'Poppins',
+                                                fontSize: '14px',
+                                                color: '#7B354D',
+                                                fontWeight: 500,
+                                                mt: "220px",
+                                                position: "absolute",
+                                                marginLeft: '0px'
                                             }}
                                         >
-                                            <img src={Emptybox} alt="No results" style={{
-                                                width: '242px',
-                                                marginBottom: '16px',
-                                                position: 'absolute',
-                                                marginLeft: '200px'
-                                            }}
-                                            />
-                                            <Typography
-                                                sx={{
-                                                    fontFamily: 'Poppins',
-                                                    fontSize: '14px',
-                                                    color: '#7B354D',
-                                                    fontWeight: 500,
-                                                    mt: "220px",
-                                                    position: "absolute",
-                                                    marginLeft: '200px'
-                                                }}
-                                            >
-                                                No se encontraron resultados.
-                                            </Typography>
-                                        </Box>
-                                    ) : (
+                                            No se encontraron resultados.
+                                        </Typography>
+                                    </Box>
+                                ) : (
+                                    <table style={{
+                                        width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins',
+                                        borderBottom: '1px solid #E6E4E4'
+                                    }}>
+                                        <thead>
+                                            <tr style={{
+                                                backgroundColor: '#ffff', borderBottom: '1px solid #E6E4E4',
+                                                borderTop: '1px solid #E6E4E4'
+                                            }}>
+                                                <th style={{
+                                                    padding: '12px', textAlign: 'left',
+                                                    fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                                }}>Teléfono</th>
+                                                <th style={{
+                                                    padding: '12px', textAlign: 'left',
+                                                    fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                                }}>Dato</th>
+                                            </tr>
+                                        </thead>
+
                                         <tbody>
                                             {inspectData
                                                 .filter((d) => d.phone.includes(inspectSearch))
@@ -2712,10 +2807,11 @@ const BlackList: React.FC = () => {
                                                     </tr>
                                                 ))}
                                         </tbody>
-                                    )}
-                                </table>
+
+                                    </table>
+                                )}
                             </Box>
-                        </>
+                        </Box>
                     )}
 
 
@@ -2729,7 +2825,7 @@ const BlackList: React.FC = () => {
                     bgcolor: 'white',
                     borderRadius: '10px',
                     mx: 'auto',
-                    mt: '5%',
+                    mt: '3.5%',
                     display: 'flex',
                     flexDirection: 'column',
                     fontFamily: 'Poppins',
@@ -3071,7 +3167,7 @@ const BlackList: React.FC = () => {
                                 <>
                                     {manageOperation === 'agregar' && (
                                         <Box display="flex" alignItems="flex-start" gap={3} mt={2} flexWrap="wrap">
-                                            {/* Subir archivo en gestión de registros - Cargar*/}
+
                                             <Box
                                                 marginBottom={'0px'}
                                                 onClick={() => !hasPhoneInput && fileInputRef.current?.click()}
@@ -3273,7 +3369,7 @@ const BlackList: React.FC = () => {
                                                             fontFamily: "Poppins",
                                                             color: "#330F1B",
                                                             fontSize: '14px',
-                                                            opacity: !fileError && !fileSuccess ? 0.6 : 1 // 🔥 esta línea es la clave
+                                                            opacity: !fileError && !fileSuccess ? 0.9 : 1
                                                         }}
                                                     >
                                                         {fileError
@@ -3624,7 +3720,7 @@ const BlackList: React.FC = () => {
                                     )}
                                     {manageOperation === 'eliminar' && (
                                         <Box sx={{ display: 'flex', gap: 2, mt: 2, alignItems: 'flex-start' }}>
-                                            {/* Subir archivo en gestión de registros - Cargar*/}
+
                                             <Box
                                                 marginBottom={'0px'}
                                                 onClick={() => !hasPhoneInput && fileInputRef.current?.click()}
@@ -3826,7 +3922,7 @@ const BlackList: React.FC = () => {
                                                             fontFamily: "Poppins",
                                                             color: "#330F1B",
                                                             fontSize: '14px',
-                                                            opacity: !fileError && !fileSuccess ? 0.6 : 1 // 🔥 esta línea es la clave
+                                                            opacity: !fileError && !fileSuccess ? 0.9 : 1
                                                         }}
                                                     >
                                                         {fileError
@@ -4043,7 +4139,7 @@ const BlackList: React.FC = () => {
                                     )}
                                     {manageOperation === 'actualizar' && (
                                         <Box display="flex" alignItems="flex-start" gap={3} mt={2} flexWrap="wrap">
-                                            {/* Subir archivo en gestión de registros - Cargar*/}
+
                                             <Box
                                                 marginBottom={'0px'}
                                                 onClick={() => !hasPhoneInput && fileInputRef.current?.click()}
@@ -4245,7 +4341,7 @@ const BlackList: React.FC = () => {
                                                             fontFamily: "Poppins",
                                                             color: "#330F1B",
                                                             fontSize: '14px',
-                                                            opacity: !fileError && !fileSuccess ? 0.6 : 1 // 🔥 esta línea es la clave
+                                                            opacity: !fileError && !fileSuccess ? 0.9 : 1
                                                         }}
                                                     >
                                                         {fileError
