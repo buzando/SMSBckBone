@@ -442,7 +442,7 @@ const Templates = () => {
                     sx={{
                         p: 0,
                         mr: 1,
-                        ml: '-28px', // para que flote más a la izquierda si quieres
+                        ml: '-28px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

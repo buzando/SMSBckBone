@@ -1087,31 +1087,31 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             <IconButton
                                 sx={{
                                     background: '#FFFFFF 0% 0% no-repeat padding-box',
-                                    boxShadow: '2px 2px 2px #6C64741A', // Sombra según especificaciones
-                                    border: '1px solid #C6BFC299', // Borde con el color exacto
-                                    borderRadius: '8px', // Bordes redondeados pero no circulares
-                                    padding: '10px', // Ajuste de espacio interno
+                                    boxShadow: '2px 2px 2px #6C64741A',
+                                    border: '1px solid #C6BFC299',
+                                    borderRadius: '8px',
+                                    padding: '10px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    width: '44px', // Tamaño cuadrado acorde a la referencia
-                                    height: '44px', // Misma altura para mantener la proporción
-                                    opacity: 1, // Asegura visibilidad
+                                    width: '44px',
+                                    height: '44px',
+                                    opacity: 1,
                                     '&:hover': {
-                                        background: '#EBE5E7 0% 0% no-repeat padding-box',
+                                        background: '#BE93A066 0% 0% no-repeat padding-box',
                                         boxShadow: '2px 2px 2px #6C64741A',
                                         border: '1px solid #D9C5CB',
                                         opacity: 1,
                                     },
                                     '&:active': {
-                                        background: '#EBD9DF 0% 0% no-repeat padding-box',
-                                        boxShadow: '2px 2px 2px #6C64741A',
+                                        background: '#312D2E 0% 0% no-repeat padding-box',
+                                        boxShadow: '0px 8px 16px #837C7C7A',
                                         border: '1px solid #BE93A066',
                                         opacity: 1,
                                     },
                                 }}
                             >
-                                <Tooltip title="Comprar números"
+                                <Tooltip title="Mis números"
                                     placement="top"
                                     arrow
 
@@ -1120,7 +1120,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             {
                                                 name: 'arrow',
                                                 options: {
-                                                    padding: 8, // Ajusta si es necesario
+                                                    padding: 8,
                                                 },
                                             },
                                         ],
@@ -1129,8 +1129,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         tooltip: {
                                             sx: {
                                                 fontFamily: 'Poppins',
-                                                backgroundColor: '#322D2E', // Fondo negro
-                                                color: '#FFFFFF', // Texto blanco para contraste
+                                                backgroundColor: '#322D2E',
+                                                color: '#DEDADA',
                                                 fontSize: '12px',
                                                 borderRadius: '4px',
                                                 padding: '6px 10px',
@@ -1138,7 +1138,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         },
                                         arrow: {
                                             sx: {
-                                                color: '#322D2E', // Flecha con color negro también
+                                                color: '#322D2E',
                                             },
                                         },
                                     }}
@@ -1148,7 +1148,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     <img
                                         src={rentaNumerosUrl}
                                         alt="Renta Números"
-                                        style={{ width: '30px', height: 'auto' }}
+                                        style={{ width: '39px', height: '38px', }}
                                         onClick={() => navigate('/MyNumbers')}
 
                                     />
@@ -1162,11 +1162,11 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     boxShadow: '2px 2px 2px #6C64741A',
                                     border: '1px solid #C6BFC299',
                                     borderRadius: '8px',
-                                    padding: '6px', // Espacio más pequeño
+                                    padding: '6px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    width: '32px', // Tamaño más pequeño que el de arriba
+                                    width: '32px',
                                     height: '32px',
                                     opacity: 1,
                                     marginTop: '20px',

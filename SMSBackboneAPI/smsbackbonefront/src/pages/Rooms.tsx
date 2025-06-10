@@ -263,7 +263,7 @@ const Rooms: React.FC = () => {
     };
 
     const validateInput = (value: string) => {
-        return /^[a-zA-ZÀ-ÿ\s]*$/.test(value);
+        return /^[a-zA-ZÀ-ÿ0-9\s]*$/.test(value);
     };
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, room: Room) => {
@@ -552,8 +552,8 @@ const Rooms: React.FC = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            width: 500, // Más ancho
-                            height: 430, // Más alto
+                            width: 500,
+                            height: 430,
                             bgcolor: "background.paper",
                             fontFamily: "Poppins",
                             boxShadow: 24,
@@ -573,7 +573,7 @@ const Rooms: React.FC = () => {
                                 color: "#574B4F",
                                 opacity: 1,
                                 fontSize: "28px",
-                                marginBottom: "16px", // Separación con el contenido siguiente
+                                marginBottom: "16px",
                             }}
                         >
                             Añadir sala
@@ -587,7 +587,7 @@ const Rooms: React.FC = () => {
                                 color: "#330F1B",
                                 opacity: 1,
                                 fontSize: "22px",
-                                marginBottom: "8px", // Separación del texto y el input
+                                marginBottom: "8px",
                             }}
                         >
                             Nombre de la sala
@@ -597,7 +597,7 @@ const Rooms: React.FC = () => {
                             variant="outlined"
                             value={newRoom.name}
                             error={errors.name}
-                            helperText={errors.name ? "Nombre inválido, solo caracteres alfabéticos." : ""}
+                            helperText={errors.name ? "Nombre inválido, solo letras y números." : ""}
                             onChange={(e) => {
                                 const value = e.target.value;
                                 setNewRoom((prev) => ({ ...prev, name: value }));
@@ -605,7 +605,7 @@ const Rooms: React.FC = () => {
                             }}
                             InputProps={{
                                 endAdornment: (
-                                    <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
+                                    <Tooltip title="Solo letras y números. Longitud máxima de 40 caracteres">
                                         <img
                                             src={errors.name ? infoiconerror : infoicon}
                                             alt="Info"
@@ -618,9 +618,23 @@ const Rooms: React.FC = () => {
                                     </Tooltip>
                                 ),
                             }}
-                            inputProps={{ maxLength: 40 }}
-                            sx={{ mb: 2 }}
+                            inputProps={{
+                                maxLength: 40,
+                                style: {
+                                    fontFamily: 'Poppins, sans-serif'
+                                }
+                            }}
+                            sx={{
+                                mb: 2,
+                                '& .MuiInputBase-input': {
+                                    fontFamily: 'Poppins, sans-serif',
+                                },
+                                '& .MuiFormHelperText-root': {
+                                    fontFamily: 'Poppins, sans-serif',
+                                }
+                            }}
                         />
+
                         <Typography
                             sx={{
                                 textAlign: "left",
@@ -661,7 +675,15 @@ const Rooms: React.FC = () => {
                                 ),
                             }}
                             inputProps={{ maxLength: 40 }}
-                            sx={{ mb: 2 }}
+                            sx={{
+                                mb: 2,
+                                '& .MuiInputBase-input': {
+                                    fontFamily: 'Poppins, sans-serif',
+                                },
+                                '& .MuiFormHelperText-root': {
+                                    fontFamily: 'Poppins, sans-serif',
+                                }
+                            }}
                         />
                         <Divider sx={{ mt: 2, mb: 2 }} />
                         <Box display="flex" justifyContent="space-between">

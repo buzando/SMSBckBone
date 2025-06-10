@@ -2,7 +2,7 @@
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
-import { TextField, InputAdornment, MenuItem, Box, Select, Menu, Modal, Button, Typography, ListItemText, Checkbox, Grid, IconButton, Divider } from '@mui/material';
+import { TextField, InputAdornment, MenuItem, Box, Select, Menu, Modal, Button, Typography, ListItemText, Checkbox, Grid, IconButton, Divider, FormControl } from '@mui/material';
 import HelpIco from '../assets/Icono_ayuda.svg';
 import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 import Tooltip from '@mui/material/Tooltip';
@@ -16,6 +16,11 @@ import seachicon from '../assets/icon-lupa.svg'
 import iconclose from "../assets/icon-close.svg"
 import icontrash from "../assets/Icon-trashmynumbers.svg"
 import Snackbar from "../components/commons/ChipBar"
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import IconCheckBox2 from "../assets/IconCheckBox2.svg";
+import IconResta from "../assets/IconResta.svg";
+import IconSuma from "../assets/IconSuma.svg";
 interface CreditCard {
     id: number;
     user_id: number;
@@ -1879,18 +1884,18 @@ const MyNumbers: React.FC = () => {
 
     const applySearchFilter = (term: string) => {
         const value = term.toLowerCase();
-      
+
         if (value.trim() === '') {
-          setFilteredData(numbersData);
+            setFilteredData(numbersData);
         } else {
-          const filtered = numbersData.filter((item) =>
-            item.number.toLowerCase().includes(value) ||
-            item.state.toLowerCase().includes(value) ||
-            item.municipality.toLowerCase().includes(value)
-          );
-          setFilteredData(filtered);
+            const filtered = numbersData.filter((item) =>
+                item.number.toLowerCase().includes(value) ||
+                item.state.toLowerCase().includes(value) ||
+                item.municipality.toLowerCase().includes(value)
+            );
+            setFilteredData(filtered);
         }
-      };
+    };
 
 
     const GetNumbers = async () => {
@@ -2229,18 +2234,18 @@ const MyNumbers: React.FC = () => {
         const value = event.target.value.toLowerCase();
         setSearchTerm(value);
         applySearchFilter(value);
-      
+
         if (value.trim() === '') {
-          setFilteredData(numbersData); // Restaurar todos los datos
+            setFilteredData(numbersData); // Restaurar todos los datos
         } else {
-          const filtered = numbersData.filter((item) =>
-            item.number.toLowerCase().includes(value) ||
-            item.state.toLowerCase().includes(value) ||
-            item.municipality.toLowerCase().includes(value)
-          );
-          setFilteredData(filtered);
+            const filtered = numbersData.filter((item) =>
+                item.number.toLowerCase().includes(value) ||
+                item.state.toLowerCase().includes(value) ||
+                item.municipality.toLowerCase().includes(value)
+            );
+            setFilteredData(filtered);
         }
-      };
+    };
 
     const handleSearch2 = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value.toLowerCase();
@@ -2290,39 +2295,51 @@ const MyNumbers: React.FC = () => {
                     <CircularProgress />
                 </Box>
             ) : (
-                <div style={{ 
-                    padding: '20px', 
-                    fontFamily: 'Arial, sans-serif', 
-                    backgroundColor: '#F2F2F2', 
-                    width: '83vw',  //  Asegura que ocupe todo el ancho de la pantalla
-                    height: '90vh', //  Asegura que ocupe todo el alto de la pantalla
-                    display: 'flex', 
-                    flexDirection: 'column',
-                    marginTop: '-80px',
-                    overflow: 'hidden', // Evita barras de desplazamiento innecesarias
+                <div style={{
+                    padding: '20px', marginTop: '-70px', marginLeft: '40px', maxWidth: '1140px'
                 }}>
-                    <Typography
-                        sx={{
-                            textAlign: "left",
-                            fontFamily: "Poppins",
-                            fontWeight: 500,  // “medium”
-                            fontSize: "26px",
-                            lineHeight: "55px",
-                            letterSpacing: "0px",
-                            color: "#330F1B",
-                            opacity: 1, 
-                            marginBottom: "20px",
-                            // textTransform: "none" // Omitido por completo
-                        }}
-                    >
-                        Mis números
-                    </Typography>
-                    <hr style={{
-                        border: 'none',
-                        height: '1px',
-                        backgroundColor: '#dcdcdc',
-                        marginBottom: '20px'
-                    }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <IconButton
+                            onClick={() => navigate('/')}
+                            sx={{
+                                p: 0,
+                                mr: 1,
+                                ml: '-28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <img
+                                src={ArrowBackIosNewIcon}
+                                alt="Regresar"
+                                style={{
+                                    width: 24,
+                                    height: 24,
+                                    transform: 'rotate(270deg)',
+                                    display: 'block'
+                                }}
+                            />
+                        </IconButton>
+                        <Typography
+                            sx={{
+                                textAlign: "left",
+                                fontFamily: "Poppins",
+                                fontWeight: 500,
+                                fontSize: "26px",
+                                lineHeight: "55px",
+                                letterSpacing: "0px",
+                                color: "#330F1B",
+                                opacity: 1,
+                                marginBottom: "0px",
+                                // textTransform: "none"
+                            }}
+                        >
+                            Mis números
+                        </Typography>
+                    </Box>
+                    <Divider sx={{ marginBottom: '17px', marginTop: '10px' }} />
+
                     {/* Filtros */}
                     <div style={{ marginBottom: '20px' }}>
                         {/* Fila superior con Estado, Municipio, Buscador y Rentar Números */}
@@ -2348,7 +2365,7 @@ const MyNumbers: React.FC = () => {
                                                             height: "40px",
                                                             display: "flex",
                                                             alignItems: "center",
-                                                            justifyContent: "center",
+                                                            justifyContent: "center", color: "#330F1B", fontFamily: "Poppins"
                                                         }}
                                                     >
                                                         ESTADO
@@ -2391,7 +2408,7 @@ const MyNumbers: React.FC = () => {
                                                         top: 0,
                                                         zIndex: 10,
                                                         backgroundColor: "#FFFFFF",
-                                                        padding: "8px 12px",
+                                                        padding: "8px 12px", mb: 0.5
                                                     }}
                                                 >
                                                     <TextField
@@ -2468,25 +2485,39 @@ const MyNumbers: React.FC = () => {
                                                             height: "700px",
                                                         },
                                                         "&::-webkit-scrollbar-thumb": {
-                                                            background: "#C6BFC2", // Color de la barra
-                                                            borderRadius: "4px", // Bordes redondeados
+                                                            background: "#C6BFC2",
+                                                            borderRadius: "4px",
                                                             minHeight: "50px",
                                                         }
                                                     }}
                                                 >
                                                     {filteredStates.map((state) => (
-                                                        <MenuItem key={state.state} value={state.state} onClick={() => handleStateToggle(state.state)}>
+                                                        <MenuItem key={state.state} value={state.state} onClick={() => handleStateToggle(state.state)}
+                                                            sx={{ mt: -1.5, mb: -1.5 }}
+                                                        >
                                                             <Checkbox checked={selectedStates2.includes(state.state)}
                                                                 onChange={() => handleStateToggle(state.state)}
                                                                 sx={{
-                                                                    color: '#6C3A52',
+                                                                    color: '#786E71',
                                                                     '&.Mui-checked': { color: '#6C3A52' },
                                                                     marginLeft: '-5px',
 
-                                                                }} />
+                                                                }}
+                                                                checkedIcon={
+                                                                    <Box
+                                                                        sx={{
+                                                                            marginBottom: '-6.1px',
+                                                                        }}>
+                                                                        <img
+                                                                            src={IconCheckBox1}
+                                                                            alt="Seleccionado"
+                                                                            style={{ width: '24px', height: '24px' }}
+                                                                        />
+                                                                    </Box>
+                                                                }
+                                                            />
                                                             <ListItemText primary={state.state} sx={{
                                                                 textAlign: "left",
-                                                                fontFamily: "Poppins, sans-serif",
                                                                 fontSize: "16px",
                                                                 lineHeight: "20px",
                                                                 letterSpacing: "0px",
@@ -2496,6 +2527,9 @@ const MyNumbers: React.FC = () => {
                                                                 "& .MuiListItemText-root": {
                                                                     margin: "0",
                                                                 },
+                                                                "& .MuiTypography-root": {
+                                                                    fontFamily: "Poppins, sans-serif",
+                                                                }
                                                             }} />
 
                                                         </MenuItem>
@@ -2524,7 +2558,7 @@ const MyNumbers: React.FC = () => {
                                                             width: '116px',
                                                             height: '36px',
                                                             color: "#833A53",
-                                                            borderColor: "#833A53",
+                                                            borderColor: "#CCCFD2",
                                                             fontFamily: "Poppins, sans-serif",
                                                             fontSize: "14px",
                                                             fontWeight: 600,
@@ -2872,16 +2906,16 @@ const MyNumbers: React.FC = () => {
                                         <input
                                             type="text"
                                             placeholder="Buscar"
-                                            value={searchTerm} // Variable de estado para el valor del input
-                                            onChange={handleSearch} // Función que maneja el cambio en el input
+                                            value={searchTerm}
+                                            onChange={handleSearch}
                                             style={{
-                                                border: "none", // Sin borde
-                                                outline: "none", // Sin borde al enfocar
-                                                width: "100%", // Ocupa todo el espacio restante
-                                                fontSize: "16px", // Tamaño de la fuente
-                                                fontFamily: "Poppins, sans-serif", // Fuente según especificación
-                                                color: searchTerm ? "#7B354D" : "#9B9295", // Cambia el color del texto si hay texto
-                                                backgroundColor: "transparent", // Fondo transparente para evitar interferencias
+                                                border: "none",
+                                                outline: "none",
+                                                width: "100%",
+                                                fontSize: "16px",
+                                                fontFamily: "Poppins, sans-serif",
+                                                color: searchTerm ? "#7B354D" : "#9B9295",
+                                                backgroundColor: "transparent",
                                             }}
                                         />
                                         {/* Ícono de cerrar cuando hay texto */}
@@ -2898,7 +2932,7 @@ const MyNumbers: React.FC = () => {
                                                 onClick={() => {
                                                     setSearchTerm('');
                                                     applySearchFilter('');
-                                                  }}
+                                                }}
                                             />
                                         )}
                                     </Box>
@@ -2988,12 +3022,12 @@ const MyNumbers: React.FC = () => {
                                     </IconButton>
                                     {/* Botón para ir a la última página */}
                                     <IconButton
-                                        onClick={() => setCurrentPage(totalPages)} // Acción para ir a la última página
+                                        onClick={() => setCurrentPage(totalPages)}
                                         disabled={currentPage === totalPages}
                                         sx={{
-                                            p: 0, // Sin padding en el botón
-                                            display: 'flex', // Asegúrate de alinear las imágenes
-                                            gap: 0, // Sin espacio entre elementos
+                                            p: 0,
+                                            display: 'flex',
+                                            gap: 0,
                                         }}
                                     >
                                         <Box display="flex" alignItems="center" gap={0}>
@@ -3072,10 +3106,16 @@ const MyNumbers: React.FC = () => {
 
 
                     {/* Tabla */}
-                    <div style={{ border: '1px solid #dcdcdc', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
+                    <div style={{
+                        boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                        borderRadius: '8px',
+                        overflowX: 'auto',
+                        backgroundColor: '#FFFFFF',
+                        height: "360px",
+                    }}>
                         {currentItems.length === 0 ? (
                             <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" p={2}>
-                                <img src={NoResult} alt="No results" style={{ width: '150px', marginBottom: '16px' }} />
+                                <img src={NoResult} alt="No results" style={{ width: '176px', height: "149px", marginBottom: '16px', marginTop: "80px", }} />
                                 <Typography
                                     style={{
                                         textAlign: 'center',
@@ -3090,302 +3130,324 @@ const MyNumbers: React.FC = () => {
                                     No se encontraron resultados
                                 </Typography>
                             </Box>
-                            ) : (
-                                    <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '5px' }}>
+                        ) : (
+                            <div style={{ maxHeight: '400px', overflowY: 'auto', borderRadius: '5px' }}>
 
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                <thead style={{ backgroundColor: '#f9f9f9', color: '#6a6a6a' }}>
-                                    {isAnyRowSelected ? (
-                                        <tr>
-                                            <th style={{
-                                                position: 'relative',
-                                                padding: '8px 16px',
-                                                backgroundColor: 'white',
-                                                right: '10px',
-                                                minWidth: '50px',
-                                                width: '60px',
-                                                textAlign: 'left',
-                                            }}>
-                                                <Box
-                                                    sx={{
+                                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1080px', }}>
+                                    <thead style={{ backgroundColor: '#f9f9f9', color: '#6a6a6a' }}>
+                                        {isAnyRowSelected ? (
+                                            <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', borderBottom: '1px solid #dcdcdc', }}>
+                                                <th style={{ padding: '0px', }}>
+                                                    <Box sx={{
                                                         display: 'flex',
-                                                        alignItems: 'center',
                                                         justifyContent: 'space-between',
+                                                        alignItems: 'center',
                                                         width: '100%',
-                                                        position: 'relative',
-                                                        
-                                                    }}
-                                                >
+                                                    }}>
+                                                        <Checkbox
+                                                            indeterminate={isIndeterminate}
+                                                            checked={isAllSelected}
+                                                            onChange={handleSelectAll}
+                                                            checkedIcon={
+                                                                <img
+                                                                    src={IconCheckBox1}
+                                                                    alt="Seleccionado"
+                                                                    style={{ width: '24px', height: '24px' }}
+                                                                />
+                                                            }
+                                                            indeterminateIcon={
+                                                                <Box
+                                                                    sx={{
+                                                                        width: '24px',
+                                                                        height: '24px',
+                                                                        position: 'relative',
+                                                                    }}
+                                                                >
+                                                                    <img
+                                                                        src={IconCheckBox2}
+                                                                        alt="Indeterminado"
+                                                                        style={{ width: '24px', height: '24px' }}
+                                                                    />
+                                                                </Box>
+                                                            }
+                                                            sx={{
+
+                                                            }}
+
+                                                        />
+                                                        <Box sx={{
+                                                            marginLefteft: '200px',
+                                                            backgroundColor: 'white',
+                                                            padding: '4px',
+                                                        }}>
+                                                            <Tooltip title="Dar de baja" placement="top">
+                                                                <IconButton onClick={() => handleOpenAcceptModal('eliminar')}>
+                                                                    <img
+                                                                        src={icontrash}
+                                                                        alt="Eliminar"
+                                                                        style={{ width: '20px', height: '20px' }}
+                                                                    />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    </Box>
+                                                </th>
+                                            </tr>
+                                        ) : (
+                                            <tr>
+                                                <th style={{ width: '30px', padding: '10px 10px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #dcdcdc' }}>
                                                     <Checkbox
                                                         indeterminate={isIndeterminate}
                                                         checked={isAllSelected}
                                                         onChange={handleSelectAll}
+                                                        sx={{ padding: 0 }}
+                                                    />
+                                                </th>
+                                                <th
+                                                    style={{
+                                                        width: '140px',
+                                                        textAlign: 'left',
+                                                        padding: '0px',
+                                                        fontFamily: "Poppins",
+                                                        fontWeight: "500",
+                                                        letterSpacing: '0px',
+                                                        color: '#330F1B',
+                                                        opacity: 1,
+                                                        fontSize: '13px',
+                                                        backgroundColor: '#FFFFFF',
+                                                        borderBottom: '1px solid #dcdcdc'
+                                                    }}
+                                                >
+                                                    Número
+                                                </th>
+                                                <th
+                                                    style={{
+                                                        width: '115px',
+                                                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                        padding: '0px', textAlign: "left",
+                                                        fontFamily: "Poppins",
+                                                        fontWeight: "500",
+                                                        letterSpacing: '0px',
+                                                        color: '#330F1B',
+                                                        opacity: 1,
+                                                        fontSize: '13px',
+                                                        backgroundColor: '#FFFFFF',
+                                                        borderBottom: '1px solid #dcdcdc'
+                                                    }}
+                                                >
+                                                    Tipo
+                                                </th>
+                                                <th
+                                                    style={{
+                                                        width: '120px',
+                                                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                        padding: '0px', textAlign: "left",
+                                                        paddingRight: '0px',
+                                                        fontFamily: "Poppins",
+                                                        fontWeight: "500",
+                                                        letterSpacing: '0px',
+                                                        color: '#330F1B',
+                                                        opacity: 1,
+                                                        fontSize: '13px',
+                                                        backgroundColor: '#FFFFFF',
+                                                        borderBottom: '1px solid #dcdcdc'
+                                                    }}
+                                                >
+                                                    Servicio
+                                                </th>
+                                                <th
+                                                    style={{
+                                                        width: '100px',
+                                                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                        padding: '0px', textAlign: "left",
+                                                        fontFamily: "Poppins",
+                                                        fontWeight: "500",
+                                                        letterSpacing: '0px',
+                                                        color: '#330F1B',
+                                                        opacity: 1,
+                                                        fontSize: '13px',
+                                                        backgroundColor: '#FFFFFF',
+                                                        borderBottom: '1px solid #dcdcdc'
+                                                    }}
+                                                >
+                                                    Costo
+                                                </th>
+                                                <th
+                                                    style={{
+                                                        width: '300px',
+                                                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                        padding: '0px', textAlign: "left",
+                                                        borderRight: '1px solid #dcdcdc',
+                                                        fontFamily: "Poppins",
+                                                        fontWeight: "500",
+                                                        letterSpacing: '0px',
+                                                        color: '#330F1B',
+                                                        opacity: 1,
+                                                        fontSize: '13px',
+                                                        backgroundColor: '#FFFFFF',
+                                                        borderBottom: '1px solid #dcdcdc',
+                                                        borderRight: '1px solid #FFFFFF',
+                                                    }}
+                                                >
+                                                    Fecha del próx. pago
+                                                </th>
+                                                <th
+                                                    style={{
+                                                        width: '350px',
+                                                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                        padding: '0px', textAlign: "left",
+                                                        borderRight: '1px solid #dcdcdc',
+                                                        fontFamily: "Poppins",
+                                                        fontWeight: "500",
+                                                        letterSpacing: '0px',
+                                                        color: '#330F1B',
+                                                        opacity: 1,
+                                                        fontSize: '13px',
+                                                        backgroundColor: '#FFFFFF', // Fondo blanco
+                                                        borderBottom: '1px solid #dcdcdc',
+                                                        borderRight: '1px solid #FFFFFF',
+
+                                                    }}
+                                                >
+                                                    Estado
+                                                </th>
+                                                <th
+                                                    style={{
+                                                        width: '150px',
+                                                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                        padding: '0px', textAlign: "left",
+                                                        borderRight: '1px solid #dcdcdc',
+                                                        fontFamily: "Poppins",
+                                                        fontWeight: "500",
+                                                        letterSpacing: '0px',
+                                                        color: '#330F1B',
+                                                        opacity: 1,
+                                                        fontSize: '13px',
+                                                        backgroundColor: '#FFFFFF',
+                                                        borderBottom: '1px solid #dcdcdc',
+                                                        borderRight: '1px solid #dcdcdc',
+                                                    }}
+                                                >
+                                                    Municipio
+                                                </th>
+                                                <th
+                                                    style={{ width: '20px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #dcdcdc', padding: "0px" }}>
+                                                </th>
+                                            </tr>
+                                        )}
+
+                                    </thead>
+                                    <tbody>
+                                        {currentItems.map((number) => (
+                                            <tr key={number.id} style={{ borderBottom: '1px solid #dcdcdc', fontFamily: 'Poppins', fontWeight: "500", fontSize: "15px", color: "#787878" }}>
+                                                <td style={{ textAlign: 'left', padding: '0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>
+                                                    <Checkbox
+                                                        checked={selectedRows.includes(number.id)}
+                                                        onChange={() => handleRowSelection(number.id)}
                                                         sx={{
                                                             color: '#6C3A52',
                                                             '&.Mui-checked': { color: '#6C3A52' },
-                                                            marginLeft: '-5px',
 
                                                         }}
+                                                        checkedIcon={
+
+                                                            <img
+                                                                src={IconCheckBox1}
+                                                                alt="Seleccionado"
+                                                                style={{ width: '24px', height: '24px' }}
+                                                            />
+
+                                                        }
                                                     />
-                                                    <Box sx={{
-                                                        position: 'absolute',
-                                                        left: '40px', // Mantiene el botón alineado a la derecha
-                                                        top: '50%',
-                                                        transform: 'translateY(-50%)',
-                                                        display: 'flex',
-                                                        gap: '8px',
-                                                        backgroundColor: 'white',
-                                                        padding: '4px',
-                                                    }}>
-                                                        <Tooltip title="Dar de baja" placement="top">
-                                                            <IconButton onClick={() => handleOpenAcceptModal('eliminar')}>
+                                                </td>
+                                                <td style={{
+                                                    padding: '0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
+                                                    fontSize: "13px", width: "140px"
+                                                }}>{number.number}</td>
+
+                                                <td style={{
+                                                    padding: '0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
+                                                    fontSize: "13px", width: "115px"
+                                                }}>{number.type}</td>
+
+                                                <td style={{
+                                                    padding: '0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
+                                                    fontSize: "13px", width: "120px"
+                                                }}>{number.service}</td>
+
+                                                <td style={{
+                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
+                                                    fontSize: "13px", width: "100px",
+                                                    backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                }}>${number.cost}</td>
+
+                                                <td style={{
+                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
+                                                    fontSize: "13px", width: "300px",
+                                                    backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                }}
+                                                >{formatDate(number.nextPaymentDate)}</td>
+
+                                                <td style={{
+                                                    width: '350px',
+                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
+                                                    fontSize: "13px",
+                                                    backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                }}
+                                                >{number.state}</td>
+
+                                                <td style={{
+                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
+                                                    fontSize: "13px", width: "150px",
+                                                    borderRight: '1px solid #dcdcdc',
+                                                    backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                }}
+                                                >{number.municipality}</td>
+
+                                                <td style={{ textAlign: 'center', padding: '5px' }}>
+                                                    <IconButton
+                                                        aria-label="more"
+                                                        aria-controls="long-menu"
+                                                        aria-haspopup="true"
+                                                        onClick={handleOpenMenu}
+                                                    >
+                                                        <MoreVertIcon />
+                                                    </IconButton>
+                                                    <Menu
+                                                        anchorEl={anchorEl}
+                                                        open={Boolean(anchorEl)}
+                                                        onClose={handleCloseMenu}
+                                                    >
+                                                        <MenuItem onClick={() => handleOpenAcceptModal('darDeBaja')} style={{ width: '198px', height: '56px', }}  >
+                                                            <span style={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '5px',
+                                                                textAlign: 'left',
+                                                                fontFamily: 'Poppins, sans-serif',
+                                                                fontSize: '14px',
+                                                                lineHeight: '54px',
+                                                                letterSpacing: '0px',
+                                                                color: '#574B4F',
+                                                                opacity: 1
+                                                            }}>
                                                                 <img
                                                                     src={icontrash}
                                                                     alt="Eliminar"
                                                                     style={{ width: '20px', height: '20px' }}
                                                                 />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </Box>
-                                                </Box>
-                                            </th>
-                                        </tr>
-                                    ) : (
-                                        <tr>
-                                            <th style={{ width: '50px', textAlign: 'left', padding: '10px 10px 10px 0px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #dcdcdc' }}>
-                                                <Checkbox
-                                                    indeterminate={isIndeterminate}
-                                                    checked={isAllSelected}
-                                                    onChange={handleSelectAll}
-                                                    sx={{
-                                                        color: '#6C3A52',
-                                                        '&.Mui-checked': { color: '#6C3A52' },
-                                                        marginLeft: '-5px',
-
-                                                    }}
-                                                />
-
-                                            </th>
-                                            <th
-                                                style={{
-                                                    width: '180px',
-                                                    textAlign: 'left',
-                                                    padding: '10px',
-                                                    fontFamily: "Poppins",
-                                                    fontWeight: "500",
-                                                    letterSpacing: '0px',
-                                                    color: '#330F1B',
-                                                    opacity: 1,
-                                                    fontSize: '15px',
-                                                    backgroundColor: '#FFFFFF', // Fondo blanco
-                                                    borderBottom: '1px solid #dcdcdc'
-                                                }}
-                                            >
-                                                Número
-                                            </th>
-                                            <th
-                                                style={{
-                                                    width: '280px',
-                                                    textAlign: 'left',
-                                                    padding: '10px',
-                                                    fontFamily: "Poppins",
-                                                    fontWeight: "500",
-                                                    letterSpacing: '0px',
-                                                    color: '#330F1B',
-                                                    opacity: 1,
-                                                    fontSize: '15px',
-                                                    backgroundColor: '#FFFFFF', // Fondo blanco
-                                                    borderBottom: '1px solid #dcdcdc'
-                                                }}
-                                            >
-                                                Tipo
-                                            </th>
-                                            <th
-                                                style={{
-                                                    width: '50px',
-                                                    textAlign: 'left',
-                                                    paddingRight: '10px',
-                                                    fontFamily: "Poppins",
-                                                    fontWeight: "500",
-                                                    letterSpacing: '0px',
-                                                    color: '#330F1B',
-                                                    opacity: 1,
-                                                    fontSize: '15px',
-                                                    backgroundColor: '#FFFFFF', // Fondo blanco
-                                                    borderBottom: '1px solid #dcdcdc'
-                                                }}
-                                            >
-                                                Servicio
-                                            </th>
-                                            <th
-                                                style={{
-                                                    width: '200px',
-                                                    textAlign: 'center',
-                                                    paddingRight: '0px',
-                                                    fontFamily: "Poppins",
-                                                    fontWeight: "500",
-                                                    letterSpacing: '0px',
-                                                    color: '#330F1B',
-                                                    opacity: 1,
-                                                    fontSize: '15px',
-                                                    backgroundColor: '#FFFFFF', // Fondo blanco
-                                                    borderBottom: '1px solid #dcdcdc'
-                                                }}
-                                            >
-                                                Costo
-                                            </th>
-                                            <th
-                                                style={{
-                                                    width: '350px',
-                                                    textAlign: 'right',
-                                                    paddingRight: '65px',
-                                                    borderRight: '1px solid #dcdcdc',
-                                                    fontFamily: "Poppins",
-                                                    fontWeight: "500",
-                                                    letterSpacing: '0px',
-                                                    color: '#330F1B',
-                                                    opacity: 1,
-                                                    fontSize: '15px',
-                                                    backgroundColor: '#FFFFFF', // Fondo blanco
-                                                    borderBottom: '1px solid #dcdcdc',
-                                                    borderRight: '1px solid #FFFFFF',
-                                                }}
-                                            >
-                                                Fecha del próx. pago
-                                            </th>
-                                            <th
-                                                style={{
-                                                    width: '350px',
-                                                    textAlign: 'center',
-                                                    paddingRight: '30px',
-                                                    borderRight: '1px solid #dcdcdc',
-                                                    fontFamily: "Poppins",
-                                                    fontWeight: "500",
-                                                    letterSpacing: '0px',
-                                                    color: '#330F1B',
-                                                    opacity: 1,
-                                                    fontSize: '15px',
-                                                    backgroundColor: '#FFFFFF', // Fondo blanco
-                                                    borderBottom: '1px solid #dcdcdc',
-                                                    borderRight: '1px solid #FFFFFF',
-                                                    
-                                                }}
-                                            >
-                                                    Estado
-                                            </th>
-                                            <th
-                                                style={{
-                                                    width: '350px',
-                                                    textAlign: 'center',
-                                                    paddingRight: '25px',
-                                                    borderRight: '1px solid #dcdcdc',
-                                                    fontFamily: "Poppins",
-                                                    fontWeight: "500",
-                                                    letterSpacing: '0px',
-                                                    color: '#330F1B',
-                                                    opacity: 1,
-                                                    fontSize: '15px',
-                                                    backgroundColor: '#FFFFFF', // Fondo blanco
-                                                    borderBottom: '1px solid #dcdcdc',
-                                                    borderRight: '1px solid #dcdcdc',
-                                                }}
-                                            >
-                                                            Municipio
-                                            </th>
-                                            <th
-                                                style={{ width: '50px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #dcdcdc', }}>
-                                            </th>
-                                        </tr>
-                                    )}
-
-                                </thead>
-                                <tbody>
-                                    {currentItems.map((number) => (
-                                        <tr key={number.id} style={{ borderBottom: '1px solid #dcdcdc', fontFamily: 'Poppins', fontWeight: "500", fontSize: "15px", color: "#787878"}}>
-                                            <td style={{ textAlign: 'left', padding: '10px 10px 10px 0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>
-                                                <Checkbox
-                                                    checked={selectedRows.includes(number.id)}
-                                                    onChange={() => handleRowSelection(number.id)}
-                                                    sx={{
-                                                        color: '#6C3A52',
-                                                        '&.Mui-checked': { color: '#6C3A52' },
-                                                        marginLeft: '-5px',
-
-
-                                                    }}
-                                                />
-                                            </td>
-                                            <td style={{ padding: '10px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>{number.number}</td>
-                                            <td style={{ padding: '10px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>{number.type}</td>
-                                            <td style={{ padding: '10px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>{number.service}</td>
-                                            <td style={{
-                                                width: '100px',
-                                                textAlign: 'center', padding: '10px',
-                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
-                                            }}>${number.cost}</td>
-                                            <td style={{
-                                                width: '350px',
-                                                textAlign: 'center',
-                                                paddingRight: '30px',
-                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
-                                            }}
-                                            >{formatDate(number.nextPaymentDate)}</td>
-                                            <td style={{
-                                                width: '350px',
-                                                textAlign: 'center',
-                                                paddingRight: '30px',
-                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
-                                            }}
-                                            >{number.state}</td>
-                                            <td style={{
-                                                width: '350px',
-                                                textAlign: 'center',
-                                                paddingRight: '30px',
-                                                borderRight: '1px solid #dcdcdc',
-                                                backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
-                                            }}
-                                            >{number.municipality}</td>
-                                            <td style={{ textAlign: 'center', padding: '10px' }}>
-                                                <IconButton
-                                                    aria-label="more"
-                                                    aria-controls="long-menu"
-                                                    aria-haspopup="true"
-                                                    onClick={handleOpenMenu}
-                                                >
-                                                    <MoreVertIcon />
-                                                </IconButton>
-                                                <Menu
-                                                    anchorEl={anchorEl}
-                                                    open={Boolean(anchorEl)}
-                                                    onClose={handleCloseMenu}
-                                                >
-                                                    <MenuItem onClick={() => handleOpenAcceptModal('darDeBaja')} style={{ width: '198px', height: '56px' }}  >
-                                                        <span style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '5px',
-                                                            textAlign: 'left',
-                                                            fontFamily: 'Poppins, sans-serif',
-                                                            fontSize: '14px',
-                                                            lineHeight: '54px',
-                                                            letterSpacing: '0px',
-                                                            color: '#574B4F',
-                                                            opacity: 1
-                                                        }}>
-                                                            <img
-                                                                src={icontrash}
-                                                                alt="Eliminar"
-                                                                style={{ width: '20px', height: '20px' }}
-                                                            />
-                                                            Dar de baja
-                                                        </span>
-                                                    </MenuItem>
-                                                </Menu>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                                    </table>
+                                                                Dar de baja
+                                                            </span>
+                                                        </MenuItem>
+                                                    </Menu>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
@@ -3408,247 +3470,541 @@ const MyNumbers: React.FC = () => {
                             <div
                                 style={{
                                     backgroundColor: '#fff',
+                                    marginTop: 0, marginLeft: 0,
                                     padding: '20px',
                                     borderRadius: '8px',
-                                    width: '500px',
-                                    maxHeight: '70vh', // Límite para altura del modal
-                                    overflowY: 'auto', // Habilita scroll en todo el modal
+                                    width: '556px',
+                                    height: '600px',
+                                    overflowY: 'auto', overflowX: "hidden",
                                     boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                                 }}
                             >
                                 {currentStep === 1 && (
                                     <>
-                                        <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', color: '#4a4a4a' }}>Renta de números</h2>
+                                        <Box sx={{ mt: 0.5 }}>
+                                            <Typography variant="h6" fontWeight={600} fontFamily="Poppins"
+                                                color='#574B4F' marginTop="0px">
+                                                Renta de números
+                                            </Typography>
 
-                                        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                                            <button
-                                                onClick={() => setIsLongNumber(false)}
-                                                style={{
-                                                    padding: '10px 20px',
-                                                    borderRadius: '4px',
-                                                    border: isLongNumber ? '1px solid #dcdcdc' : '1px solid #8d406d',
-                                                    backgroundColor: isLongNumber ? '#fff' : '#8d406d',
-                                                    color: isLongNumber ? '#8d406d' : '#fff',
-                                                    cursor: 'pointer',
-                                                    fontWeight: 'bold',
-                                                }}
-                                            >
-                                                Número corto
-                                            </button>
-                                            <button
-                                                onClick={() => setIsLongNumber(true)}
-                                                style={{
-                                                    padding: '10px 20px',
-                                                    borderRadius: '4px',
-                                                    border: isLongNumber ? '1px solid #8d406d' : '1px solid #dcdcdc',
-                                                    backgroundColor: isLongNumber ? '#8d406d' : '#fff',
-                                                    color: isLongNumber ? '#fff' : '#8d406d',
-                                                    cursor: 'pointer',
-                                                    fontWeight: 'bold',
-                                                }}
-                                            >
-                                                Número largo
-                                            </button>
-                                        </div>
+                                            <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-49px", marginLeft: '487px' }}>
+                                                <CloseIcon />
+                                            </IconButton>
+                                        </Box>
+                                        <Divider sx={{ width: 'calc(100% + 49px)', marginLeft: '-24px', mb: 3, mt: 2.5 }} />
 
+                                        <Box sx={{ justifyContent: 'center', marginLeft: "110px" }}>
+                                            <Box style={{
+                                                display: 'flex', gap: '10px', padding: '3px 4px',
+                                                width: "302px", height: "48px", border: "1px solid #D9B5C04D",
+                                                backgroundColor: "#F4E9EC", borderRadius: "8px"
 
-                                        <p style={{ fontSize: '0.9rem', color: '#6a6a6a', marginBottom: '20px' }}>
-                                            {isLongNumber
-                                                ? "Nota: Los números largos son dedicados. Tienen un costo inicial y mensual. El tiempo de espera para la implementación es de 4 semanas."
-                                                : "Nota: La renta de los números dedicados toma de 2 a 4 semanas."}
-                                        </p>
+                                            }}>
+                                                <button
+                                                    onClick={() => setIsLongNumber(false)}
+                                                    style={{
+                                                        padding: '6px 10px',
+                                                        borderRadius: '6px',
+                                                        border: isLongNumber ? '2px solid #F4E9EC' : '2px solid #A0536D',
+                                                        backgroundColor: isLongNumber ? '#F4E9EC' : '#A0536D',
+                                                        color: isLongNumber ? '#A0536D' : '#fff',
+                                                        cursor: 'pointer',
+                                                        fontWeight: 500,
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: "16px",
+                                                        textTransform: 'none',
+                                                        width: "143px", height: "40px"
+                                                    }}
+                                                >
+                                                    Número corto
+                                                </button>
+                                                <button
+                                                    onClick={() => setIsLongNumber(true)}
+                                                    style={{
+                                                        padding: '6px 10px',
+                                                        borderRadius: '6px',
+                                                        border: isLongNumber ? '2px solid #A0536D' : '2px solid #F4E9EC',
+                                                        backgroundColor: isLongNumber ? '#A0536D' : '#F4E9EC',
+                                                        color: isLongNumber ? '#fff' : '#A0536D',
+                                                        cursor: 'pointer',
+                                                        fontWeight: 500,
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: "16px",
+                                                        textTransform: 'none',
+                                                        width: "143px", height: "40px"
+                                                    }}
+                                                >
+                                                    Número largo
+                                                </button>
+                                            </Box>
+                                        </Box>
+                                        <Box sx={{ justifyContent: 'center', marginLeft: "127px" }}>
+                                            <p style={{
+                                                fontSize: '12px', color: '#84797D', marginBottom: '20px',
+                                                fontFamily: "Poppins", width: "268px", minHeight: "35px"
+                                            }}>
+                                                {isLongNumber
+                                                    ? "Nota: Los números largos son dedicados. Tienen un costo inicial y mensual. El tiempo de espera para la implementación es de 4 semanas."
+                                                    : "Nota: La renta de los números dedicados toma de 2 a 4 semanas."}
+                                            </p>
+                                        </Box>
 
-
-                                        <hr style={{ margin: '20px 0', borderColor: '#dcdcdc' }} />
+                                        <hr style={{ width: "282px", border: '1px solid #F2F2F2' }} />
 
                                         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                                            <h3 style={{ marginBottom: '10px', color: '#4a4a4a' }}>Elegir cantidad de números</h3>
+                                            <h3 style={{
+                                                marginBottom: '10px', color: '#330F1B',
+                                                fontSize: "16px", fontFamily: "Poppins", fontWeight: 500
+                                            }}>Elegir cantidad de números</h3>
                                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
                                                 <button
                                                     onClick={() => handleQuantityChange('decrement')}
                                                     style={{
-                                                        padding: '5px 10px',
-                                                        border: '1px solid #dcdcdc',
-                                                        borderRadius: '4px',
+                                                        padding: "8px 12px",
+                                                        width: "32px",
+                                                        height: "32px",
+                                                        border: '1px solid #9B9295CC',
+                                                        borderRadius: '30px',
                                                         backgroundColor: '#fff',
                                                         cursor: 'pointer',
-                                                        fontWeight: 'bold',
-                                                        fontSize: '1rem',
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
                                                     }}
                                                 >
-                                                    −
+                                                    <img
+                                                        src={IconResta}
+                                                        alt="IconMinus"
+                                                        style={{ width: '24px', height: '24px' }}
+                                                    />
                                                 </button>
+
                                                 <input
                                                     type="text"
                                                     value={numberQuantity}
                                                     readOnly
                                                     style={{
-                                                        width: '50px',
+                                                        width: '56px', height: "56px",
                                                         textAlign: 'center',
                                                         padding: '5px',
-                                                        border: '1px solid #dcdcdc',
+                                                        border: '1px solid #9B9295CC',
                                                         borderRadius: '4px',
-                                                        fontSize: '1rem',
+                                                        fontFamily: "Poppins", color: "#796E71", fontSize: "16px"
                                                     }}
                                                 />
                                                 <button
                                                     onClick={() => handleQuantityChange('increment')}
                                                     style={{
-                                                        padding: '5px 10px',
-                                                        border: '1px solid #dcdcdc',
-                                                        borderRadius: '4px',
+                                                        padding: "8px 12px",
+                                                        width: "32px",
+                                                        height: "32px",
+                                                        border: '1px solid #9B9295CC',
+                                                        borderRadius: '30px',
                                                         backgroundColor: '#fff',
                                                         cursor: 'pointer',
-                                                        fontWeight: 'bold',
-                                                        fontSize: '1rem',
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
                                                     }}
                                                 >
-                                                    +
+                                                    <img
+                                                        src={IconSuma}
+                                                        alt="IconPlus"
+                                                        style={{ width: '24px', height: '24px' }}
+                                                    />
                                                 </button>
                                             </div>
                                         </div>
                                         {!isLongNumber && (
-                                            <div style={{ marginBottom: '20px', color: '#4a4a4a', fontSize: '1rem' }}>
-                                                <p><strong>Costo por setup (único):</strong> ${costSetup.toFixed(2)}</p>
-                                                <p><strong>Costo mensual:</strong> ${monthlyCost.toFixed(2)}</p>
-                                            </div>
-                                        )}
-                                        {isLongNumber && (
-                                            <div
+                                            <Box
                                                 style={{
-                                                    maxHeight: '50vh', // Límite de altura para forzar scroll si el contenido excede
-                                                    overflowY: 'auto', // Activa el scroll vertical si el contenido es mayor al `maxHeight`
-                                                    paddingRight: '10px',
-                                                    boxSizing: 'border-box', // Asegura que los paddings no excedan el área total
+                                                    marginBottom: '20px',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
                                                 }}
                                             >
-                                                <TextField
-                                                    label="Estado"
-                                                    value={selectedState}
-                                                    onClick={handleStateMenuOpen}
-                                                    fullWidth
-                                                    margin="normal"
-                                                    InputProps={{
-                                                        endAdornment: (
-                                                            <InputAdornment position="end">
-                                                                <SearchIcon />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                />
-                                                <Menu
-                                                    anchorEl={anchorElState}
-                                                    open={Boolean(anchorElState)}
-                                                    onClose={handleStateMenuClose}
-                                                    PaperProps={{
-                                                        style: { maxHeight: '300px', width: anchorElState ? anchorElState.clientWidth : undefined },
+                                                <Typography
+                                                    sx={{
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: '16px',
+                                                        color: "#330F1B",
+                                                        width: '100%',
+                                                        maxWidth: '220px',
+                                                        textAlign: 'left',
                                                     }}
                                                 >
-                                                    <div style={{ padding: '8px' }}>
-                                                        <TextField
-                                                            placeholder="Buscar estado"
-                                                            variant="outlined"
-                                                            fullWidth
-                                                            value={stateSearch}
-                                                            onChange={handleStateSearchChange}
-                                                            InputProps={{
-                                                                startAdornment: (
-                                                                    <InputAdornment position="start">
-                                                                        <SearchIcon />
-                                                                    </InputAdornment>
-                                                                ),
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    {filteredStates.map((state) => (
-                                                        <MenuItem key={state.state} onClick={() => handleStateChange(state.state)}>
-                                                            {state.state}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Menu>
+                                                    Costo por setup (único)
+                                                </Typography>
 
-                                                <TextField
-                                                    label="Municipio"
-                                                    value={selectedMunicipality}
-                                                    onClick={handleMunicipalityMenuOpen}
-                                                    fullWidth
-                                                    margin="normal"
-                                                    InputProps={{
-                                                        endAdornment: (
-                                                            <InputAdornment position="end">
-                                                                <SearchIcon />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                    disabled={!municipalities.length}
-                                                />
-                                                <Menu
-                                                    anchorEl={anchorElMunicipality}
-                                                    open={Boolean(anchorElMunicipality)}
-                                                    onClose={handleMunicipalityMenuClose}
-                                                    PaperProps={{
-                                                        style: { maxHeight: '300px', width: anchorElMunicipality ? anchorElMunicipality.clientWidth : undefined },
+                                                <Box
+                                                    sx={{
+                                                        backgroundColor: "#E5E4E4",
+                                                        border: "1px solid #9B9295",
+                                                        width: "220px",
+                                                        height: "54px",
+                                                        display: 'flex',
+                                                        justifyContent: 'flex-start',
+                                                        alignItems: 'center',
+                                                        borderRadius: "4px",
+                                                        mt: 1
                                                     }}
                                                 >
-                                                    <div style={{ padding: '8px' }}>
-                                                        <TextField
-                                                            placeholder="Buscar municipio"
-                                                            variant="outlined"
-                                                            fullWidth
-                                                            value={municipalitySearch}
-                                                            onChange={handleMunicipalitySearchChange}
-                                                            InputProps={{
-                                                                startAdornment: (
-                                                                    <InputAdornment position="start">
-                                                                        <SearchIcon />
-                                                                    </InputAdornment>
-                                                                ),
+                                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F", ml: 2 }}>
+                                                        ${costSetup.toFixed(2)}
+                                                    </Typography>
+                                                </Box>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: '16px',
+                                                        color: "#330F1B",
+                                                        mt: 2,
+                                                        width: '100%',
+                                                        maxWidth: '220px',
+                                                        textAlign: 'left',
+                                                    }}
+                                                >
+                                                    Costo mensual
+                                                </Typography>
+
+                                                <Box
+                                                    sx={{
+                                                        backgroundColor: "#E5E4E4",
+                                                        border: "1px solid #9B9295",
+                                                        width: "220px",
+                                                        height: "54px",
+                                                        display: 'flex',
+                                                        justifyContent: 'flex-start',
+                                                        alignItems: 'center',
+                                                        borderRadius: "4px",
+                                                        mt: 1, mb: 3
+                                                    }}
+                                                >
+                                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F", ml: 2 }}>
+                                                        ${monthlyCost.toFixed(2)}
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
+
+                                        )}
+
+                                        {isLongNumber && (
+                                            <Box
+                                                style={{
+                                                    minHeight: '50vh',
+                                                    overflowY: 'hidden',
+                                                    paddingRight: '10px',
+                                                    boxSizing: 'border-box',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',   // apilados verticalmente
+                                                    alignItems: 'center',
+                                                    justifyContent: 'flex-start',
+                                                }}
+                                            >
+                                                <Box>
+                                                    <Typography
+                                                        sx={{
+                                                            fontFamily: 'Poppins',
+                                                            fontSize: '16px',
+                                                            color: "#330F1B",
+                                                            mt: -0.5,
+                                                            textAlign: "left", ml: 3.5
+                                                        }}
+                                                    >
+                                                        Estado
+                                                    </Typography>
+                                                    <FormControl fullWidth sx={{ marginTop: "10px", width: "279px", marginLeft: "25px", marginBottom: "10px" }}>
+                                                        <Select
+                                                            value={selectedState}
+                                                            onChange={(e) => setSelectedState(e.target.value)}
+                                                            displayEmpty
+                                                            size="small"
+                                                            renderValue={(selected) =>
+                                                                selected ? selected : <span style={{ fontStyle: "normal", color: "#645E60" }}>Seleccionar estado</span>
+                                                            }
+                                                            sx={{
+                                                                textAlign: "left",
+                                                                fontFamily: "Poppins, sans-serif",
+                                                                letterSpacing: "0px",
+                                                                color: "#645E60",
+                                                                opacity: 1,
+                                                                fontSize: "12px",
                                                             }}
-                                                        />
-                                                    </div>
-                                                    {filteredMunicipalities.map((municipality) => (
-                                                        <MenuItem
-                                                            key={municipality.name}
-                                                            onClick={() => handleMunicipalityChange(municipality)}
+                                                            MenuProps={{
+                                                                PaperProps: {
+                                                                    sx: {
+                                                                        borderColor: "#9B9295",
+                                                                        borderBottomLeftRadius: "14px",
+                                                                        borderBottomRightRadius: "14px",
+                                                                        maxHeight: 300,
+                                                                    },
+                                                                },
+                                                            }}
                                                         >
-                                                            {municipality.name}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Menu>
-                                                <TextField
-                                                    label="LADA"
-                                                    value={selectedLada}
-                                                    fullWidth
-                                                    margin="normal"
-                                                    InputProps={{
-                                                        readOnly: true,
-                                                    }}
-                                                />
+                                                            <MenuItem disabled>
+                                                                <TextField
+                                                                    placeholder="Buscar estado"
+                                                                    value={stateSearch}
+                                                                    onChange={(e) => setStateSearch(e.target.value)}
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    InputProps={{
+                                                                        startAdornment: (
+                                                                            <InputAdornment position="start">
+                                                                                <SearchIcon />
+                                                                            </InputAdornment>
+                                                                        ),
+                                                                    }}
+                                                                    sx={{
+                                                                        marginX: 1,
+                                                                        marginY: 1,
+                                                                        '& .MuiInputBase-input': {
+                                                                            fontFamily: "Poppins, sans-serif",
+                                                                            fontSize: "12px",
+                                                                        },
+                                                                    }}
+                                                                />
+                                                            </MenuItem>
+                                                            {statesOfMexico
+                                                                .filter((s) => s.state.toLowerCase().includes(stateSearch.toLowerCase()))
+                                                                .map((s, index) => (
 
-                                                <TextField
-                                                    label="Costo inicial"
-                                                    value={`$${monthlyCost.toFixed(2)}`}
-                                                    fullWidth
-                                                    margin="normal"
-                                                    InputProps={{
-                                                        readOnly: true,
-                                                    }}
-                                                />
+                                                                    <MenuItem key={index} value={s.state}>
+                                                                        {s.state}
+                                                                    </MenuItem>
+                                                                ))}
+                                                        </Select>
+                                                    </FormControl>
 
-                                                <TextField
-                                                    label="Costo mensual"
-                                                    value={`$${monthlyCost.toFixed(2)}`}
-                                                    fullWidth
-                                                    margin="normal"
-                                                    InputProps={{
-                                                        readOnly: true,
-                                                    }}
-                                                />
-                                            </div>
+                                                    <Menu
+                                                        anchorEl={anchorElState}
+                                                        open={Boolean(anchorElState)}
+                                                        onClose={handleStateMenuClose}
+                                                        PaperProps={{
+                                                            style: { maxHeight: '300px', width: anchorElState ? anchorElState.clientWidth : undefined },
+                                                        }}
+                                                    >
+
+                                                        <div style={{ padding: '8px' }}>
+
+                                                            <TextField
+                                                                placeholder="Buscar estado"
+                                                                variant="outlined"
+                                                                fullWidth
+                                                                value={stateSearch}
+                                                                onChange={handleStateSearchChange}
+                                                                InputProps={{
+                                                                    startAdornment: (
+                                                                        <InputAdornment position="start">
+                                                                            <SearchIcon />
+                                                                        </InputAdornment>
+                                                                    ),
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        {filteredStates.map((state) => (
+                                                            <MenuItem key={state.state} onClick={() => handleStateChange(state.state)}>
+                                                                {state.state}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Menu>
+                                                </Box>
+
+                                                <Box
+                                                    sx={{}}>
+                                                    <FormControl
+                                                        fullWidth
+                                                        disabled={!municipalities.length}
+                                                        sx={{
+                                                            marginTop: "10px",
+                                                            width: "279px",
+                                                            marginLeft: "25px",
+                                                            marginBottom: "10px"
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            sx={{
+                                                                fontFamily: 'Poppins',
+                                                                fontSize: '16px',
+                                                                color: "#330F1B",
+                                                                mt: -0.5,
+                                                                textAlign: "left", ml: 0.5
+                                                            }}
+                                                        >
+                                                            Municipio
+                                                        </Typography>
+                                                        <Select
+                                                            value={selectedMunicipality}
+                                                            onChange={(e) => setSelectedMunicipality(e.target.value)}
+                                                            displayEmpty
+                                                            size="small"
+                                                            renderValue={(selected) =>
+                                                                selected ? selected : <span style={{ fontStyle: "normal", color: "#645E60" }}>Seleccionar municipio</span>
+                                                            }
+                                                            sx={{
+                                                                fontFamily: "Poppins, sans-serif",
+                                                                fontSize: "12px",
+                                                                textAlign: "left",
+                                                                color: "#645E60",
+                                                                opacity: 1
+                                                            }}
+                                                            MenuProps={{
+                                                                PaperProps: {
+                                                                    sx: {
+                                                                        borderColor: "#9B9295",
+                                                                        borderBottomLeftRadius: "14px",
+                                                                        borderBottomRightRadius: "14px",
+                                                                        maxHeight: 300,
+                                                                    }
+                                                                }
+                                                            }}
+                                                        >
+                                                            <MenuItem disabled>
+                                                                <TextField
+                                                                    placeholder="Buscar municipio"
+                                                                    value={municipalitySearch}
+                                                                    onChange={handleMunicipalitySearchChange}
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    InputProps={{
+                                                                        startAdornment: (
+                                                                            <InputAdornment position="start">
+                                                                                <SearchIcon />
+                                                                            </InputAdornment>
+                                                                        ),
+                                                                    }}
+                                                                    sx={{
+                                                                        marginX: 1,
+                                                                        marginY: 1,
+                                                                        '& .MuiInputBase-input': {
+                                                                            fontFamily: "Poppins, sans-serif",
+                                                                            fontSize: "12px",
+                                                                        },
+                                                                    }}
+                                                                />
+                                                            </MenuItem>
+                                                            {filteredMunicipalities.map((municipality) => (
+                                                                <MenuItem key={municipality.name} value={municipality.name} onClick={() => handleMunicipalityChange(municipality)}>
+                                                                    {municipality.name}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Box>
+                                                <Box sx={{ mt: 2 }}>
+                                                    <Typography
+                                                        sx={{
+                                                            fontFamily: 'Poppins',
+                                                            fontSize: '16px',
+                                                            color: "#330F1B",
+                                                            mb: 1,
+                                                        }}
+                                                    >
+                                                        LADA
+                                                    </Typography>
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#E5E4E4",
+                                                            border: "1px solid #9B9295",
+                                                            width: "220px",
+                                                            height: "54px",
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            borderRadius: "4px",
+                                                            paddingX: 2,
+                                                            fontFamily: "Poppins",
+                                                            fontSize: "16px",
+                                                            color: "#330F1B"
+                                                        }}
+                                                    >
+                                                        {selectedLada || ''}
+                                                    </Box>
+                                                </Box>
+
+                                                <Box sx={{}}>
+                                                    <Typography
+                                                        sx={{
+                                                            fontFamily: 'Poppins',
+                                                            fontSize: '16px',
+                                                            color: "#330F1B",
+                                                            width: '100%',
+                                                            maxWidth: '220px',
+                                                            textAlign: 'left',
+                                                        }}
+                                                    >
+                                                        Costo inicial
+                                                    </Typography>
+
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#E5E4E4",
+                                                            border: "1px solid #9B9295",
+                                                            width: "220px",
+                                                            height: "54px",
+                                                            display: 'flex',
+                                                            justifyContent: 'flex-start',
+                                                            alignItems: 'center',
+                                                            borderRadius: "4px",
+                                                            mt: 1
+                                                        }}
+                                                    >
+                                                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F", ml: 2 }}>
+                                                            ${monthlyCost.toFixed(2)}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+
+                                                <Box sx={{}}>
+                                                    <Typography
+                                                        sx={{
+                                                            fontFamily: 'Poppins',
+                                                            fontSize: '16px',
+                                                            color: "#330F1B",
+                                                            width: '100%',
+                                                            maxWidth: '220px',
+                                                            textAlign: 'left',
+                                                        }}
+                                                    >
+                                                        Costo mensual
+                                                    </Typography>
+
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#E5E4E4",
+                                                            border: "1px solid #9B9295",
+                                                            width: "220px",
+                                                            height: "54px",
+                                                            display: 'flex',
+                                                            justifyContent: 'flex-start',
+                                                            alignItems: 'center',
+                                                            borderRadius: "4px",
+                                                            mt: 1
+                                                        }}
+                                                    >
+                                                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '16px', color: "#574B4F", ml: 2 }}>
+                                                            ${monthlyCost.toFixed(2)}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
                                         )}
 
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <div
+
+                                            style={{
+                                                position: 'sticky',
+                                                bottom: -15,
+                                                backgroundColor: '#fff',
+                                                padding: '8px',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                            }}
+                                        >
+                                            <Divider sx={{ width: 'calc(100% + 49px)', marginLeft: '-24px', mt: -1.5, position: "absolute" }} />
+
                                             <button
                                                 onClick={handleCloseModal}
                                                 style={{
@@ -3678,6 +4034,7 @@ const MyNumbers: React.FC = () => {
                                                 Siguiente
                                             </button>
                                         </div>
+
                                     </>
                                 )}
                                 {currentStep === 2 && (
