@@ -247,8 +247,9 @@ namespace Business
 
         }
 
-        public bool TransferRoom(acountmanagment room)
+        public List<rooms> TransferRoom(acountmanagment room)
         {
+            var lista = new List<rooms>();
             try
             {
                 using (var ctx = new Entities())
@@ -269,20 +270,29 @@ namespace Business
 
                     }
                     ctx.SaveChanges();
-
+                    lista.Add(oldroomdb);
                     var newRoom = (from r in ctx.Rooms
                                    join rbu in ctx.roomsbyuser on r.id equals rbu.idRoom
                                    where r.name == room.newRoom && rbu.idUser == room.idUser
                                    select r).FirstOrDefault();
                     newRoom.credits = newRoom.credits + room.transfer;
-                    ctx.SaveChanges();
+                    if (room.Channel == "SMS Cortos")
+                    {
+                        newRoom.short_sms = newRoom.short_sms + room.transfer;
+                    }
+                    if (room.Channel == "SMS Largos")
+                    {
+                        newRoom.long_sms = newRoom.long_sms + room.transfer;
 
+                    }
+                    ctx.SaveChanges();
+                    lista.Add(newRoom);
                 }
-                return true;
+                return lista;
             }
             catch (Exception e)
             {
-                return false;
+                return lista;
             }
         }
     }

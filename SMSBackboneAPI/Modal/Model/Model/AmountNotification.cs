@@ -26,5 +26,7 @@ namespace Modal.Model.Model
         public decimal? AutoRechargeAmount { get; set; }
 
         public int? IdCreditCard { get; set; }
+
+        public int? IdRoom { get; set; }
     }
 }

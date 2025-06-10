@@ -38,7 +38,8 @@ import {
     Button,
     TextField,
     MenuList,
-    Popper
+    Popper,
+    Fab,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import DropDownIcon from '../assets/icon-punta-flecha-bottom.svg';
@@ -59,6 +60,7 @@ import facturicone from '../assets/facturicone.svg';
 import Iconhelpu from '../assets/Iconhelpu.svg';
 import logorq from '../assets/Logo-RQ_2.svg';
 import PrivacityIcon from '../assets/Icon_privacidad.svg'
+import api from '../assets/api.svg'
 const drawerWidth = 278;
 
 type Page = {
@@ -98,7 +100,7 @@ const pages: Page[] = [
     },
     { id: 4, title: 'Reportes', path: '/Reports', icon: <img src={Iconreports} alt="Reportes" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 5, title: 'SMS', path: '/numbers',    icon: <img src={Iconmesage} alt="SMS" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: true, subMenus: [
+        id: 5, title: 'SMS', path: '/numbers', icon: <img src={Iconmesage} alt="SMS" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: true, subMenus: [
             { id: 1, title: 'Configuración SMS', path: '/sms', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
         ]
     },
@@ -220,19 +222,15 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const [searchTerm2, setSearchTerm2] = useState('');
     const navigate = useNavigate();
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-    const [openSubMenuBilling, setOpenSubMenuBilling] = useState(false);
-    const [openSubMenuNumbers, setOpenSubMenuNumbers] = useState(false);
     const { contextState, setContextState } = useContext(AppContext)
     const { user } = contextState
-    const [openSubMenu, setOpenSubMenu] = useState(false); // Submenú de administración
     const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
-
+    const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
     const [selectedLink, setSelectedLink] = useState<string | null>(null);
 
     const handleSelection = (link: string) => {
         setSelectedLink(link); // Cambia el enlace seleccionado
     };
-
 
 
     const closeHelpModal = () => setHelpModalIsOpen(false);
@@ -246,34 +244,57 @@ const NavBarAndDrawer: React.FC<Props> = props => {
         // Redirigir al login
         navigate('/login');
     };
+    useEffect(() => {
+        const loadSelectedRoom = () => {
+            const currentRoom = localStorage.getItem('selectedRoom');
+            if (currentRoom) {
+                try {
+                    const room = JSON.parse(currentRoom);
+                    setSelectedRoom(room);
+                } catch (error) {
+                    console.error('Error al parsear la sala seleccionada desde localStorage', error);
+                }
+            }
+        };
+
+        loadSelectedRoom();
+
+        const handleStorageUpdate = () => {
+            loadSelectedRoom();
+        };
+
+        window.addEventListener('storageUpdate', handleStorageUpdate);
+
+        return () => {
+            window.removeEventListener('storageUpdate', handleStorageUpdate);
+        };
+    }, []);
+
+    useEffect(() => {
+        const updateRooms = () => {
+            const storedRooms = localStorage.getItem('ListRooms');
+            if (storedRooms) {
+                try {
+                    const parsedRooms = JSON.parse(storedRooms);
+                    if (Array.isArray(parsedRooms)) {
+                        setRooms(parsedRooms);
+                    }
+                } catch (error) {
+                    console.error("Error actualizando rooms desde localStorage", error);
+                }
+            }
+        };
+
+        window.addEventListener('roomsUpdate', updateRooms);
+
+        return () => {
+            window.removeEventListener('roomsUpdate', updateRooms);
+        };
+    }, []);
 
 
     useEffect(() => {
-        // Cargar datos desde localStorage
-        const storedRooms = localStorage.getItem('ListRooms');
 
-        const currentRoom = localStorage.getItem('selectedRoom');
-
-        if (storedRooms) {
-            try {
-                const parsedRooms = JSON.parse(storedRooms);
-                if (Array.isArray(parsedRooms)) {
-                    setRooms(parsedRooms);
-                } else {
-                    console.error('Los datos de las salas no están en el formato correcto.');
-                }
-            } catch (error) {
-                console.error('Error al parsear las salas desde localStorage', error);
-            }
-        }
-        if (currentRoom) {
-            try {
-                const room = JSON.parse(currentRoom);
-                setSelectedRoom(room);  // Esto debería ser un solo objeto Room, no un array
-            } catch (error) {
-                console.error('Error al parsear la sala seleccionada desde localStorage', error);
-            }
-        }
         setFilteredPages([]);
 
         // Actualizar los resultados de búsqueda
@@ -304,7 +325,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
             });
 
         setFilteredPages(results);
-    }, [searchTerm, openSubMenuBilling, openSubMenuNumbers]);
+    }, [searchTerm]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         if (anchorEl) {
@@ -357,10 +378,20 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     };
 
 
-    const handleSubMenuToggle = () => {
-        setOpenSubMenu(!openSubMenu);
+    const toggleSubMenu = (menu: string) => {
+        setActiveSubMenu((prev) => (prev === menu ? null : menu));
     };
 
+    const handleDownload = async () => {
+        const response = await fetch("/RedQuantum/Files/Documentacion_API_RedQuantum.pdf");
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Documentacion_API_RedQuantum.pdf";
+        a.click();
+        window.URL.revokeObjectURL(url);
+    };
 
     return (
         <>
@@ -1247,7 +1278,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     <List component="nav">
                         {/* Menú de Administración */}
                         <ListItem disablePadding>
-                            <ListItemButton onClick={handleSubMenuToggle} sx={{ borderRadius: '8px' }}>
+                            <ListItemButton onClick={() => toggleSubMenu('administracion')} sx={{ borderRadius: '8px' }}>
                                 <ListItemIcon sx={{ color: '#FFFFFF' }}>
                                     <img alt="Iconpeople" src={Iconpeople} style={{ width: 35, height: 20, filter: "brightness(0) invert(1)" }} />
                                 </ListItemIcon>
@@ -1260,10 +1291,10 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         marginLeft: "-15px"
                                     }}
                                 />
-                                {openSubMenu ? <ExpandLess /> : <ExpandMore />}
+                                {activeSubMenu === 'administracion' ? <ExpandLess /> : <ExpandMore />}
                             </ListItemButton>
                         </ListItem>
-                        <Collapse in={openSubMenu} timeout="auto" unmountOnExit>
+                        <Collapse in={activeSubMenu === 'administracion'} timeout="auto">
                             <List component="div" disablePadding>
                                 {/* Usuarios */}
                                 <Link to="/UserAdministration" style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -1365,7 +1396,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
                         {/* Menú de SMS */}
                         <ListItem disablePadding>
-                            <ListItemButton onClick={() => setOpenSubMenuNumbers(!openSubMenuNumbers)} sx={{ borderRadius: '8px' }}>
+                            <ListItemButton onClick={() => toggleSubMenu('sms')} sx={{ borderRadius: '8px' }}>
                                 <img alt="Iconmesage" src={Iconmesage} style={{ width: 35, height: 20 }} />
                                 <ListItemText
                                     primary="SMS"
@@ -1376,10 +1407,9 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         color: '#FFFFFF',
                                     }}
                                 />
-                                {openSubMenuNumbers ? <ExpandLess /> : <ExpandMore />}
-                            </ListItemButton>
+                                {activeSubMenu === 'sms' ? <ExpandLess /> : <ExpandMore />}                            </ListItemButton>
                         </ListItem>
-                        <Collapse in={openSubMenuNumbers} timeout="auto">
+                        <Collapse in={activeSubMenu === 'sms'} timeout="auto">
                             {/* Campañas */}
                             <Link to="/Campains" style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <ListItemButton
@@ -1590,7 +1620,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
                         {/* Menú de Facturación */}
                         <ListItem disablePadding>
-                            <ListItemButton onClick={() => setOpenSubMenuBilling(!openSubMenuBilling)} sx={{ borderRadius: '8px' }}>
+                            <ListItemButton onClick={() => toggleSubMenu('facturacion')} sx={{ borderRadius: '8px' }}>
                                 <img alt="facturicone" src={facturicone} style={{ width: 35, height: 20 }} />
                                 <ListItemText
                                     primary="Facturación"
@@ -1601,10 +1631,10 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                         color: '#FFFFFF',
                                     }}
                                 />
-                                {openSubMenuBilling ? <ExpandLess /> : <ExpandMore />}
+                                {activeSubMenu === 'facturacion' ? <ExpandLess /> : <ExpandMore />}
                             </ListItemButton>
                         </ListItem>
-                        <Collapse in={openSubMenuBilling} timeout="auto">
+                        <Collapse in={activeSubMenu === 'facturacion'} timeout="auto">
                             {/* Historial de pagos */}
                             <Link to="/Paymenthistoric" style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <ListItemButton
@@ -1863,8 +1893,59 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         {' Nuxiba. Todos los derechos reservados. Se prohíbe el uso no autorizado.'}
                     </Typography>
                     <img src={nuxiba_svg} alt="Nuxiba Logo" width="80" />
+                    <Fab
+                        aria-label="help"
+                        onClick={handleDownload}
+                        sx={{
+                            position: "fixed",
+                            bottom: 70,
+                            right: 30,
+                            zIndex: 1500,
+                            width: "60px", // Tamaño personalizado
+                            height: "60px", // Tamaño personalizado
+                            backgroundColor: "#FFFFFF", // Fondo blanco
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Sombra normal
+                            border: "1px solid #D9C5CB", // Borde del botón
+                            "&:hover": {
+                                background: "#EBE5E7 0% 0% no-repeat padding-box",
+                                boxShadow: "0px 8px 16px #00131F14", // Sombra en hover
+                                border: "1px solid #D9C5CB", // Borde en hover
+                            },
+                        }}
+                    >
+
+                        <Tooltip
+                            title="Descargar API"
+                            arrow
+                            placement="top"
+                            sx={{
+                                "& .MuiTooltip-tooltip": {
+                                    backgroundColor: "#330F1B", // Fondo del tooltip
+                                    color: "#FFFFFF", // Texto blanco
+                                    fontSize: "12px", // Tamaño de fuente
+                                    fontFamily: "Poppins, sans-serif", // Fuente personalizada
+                                    fontWeight: "medium", // Peso de texto
+                                },
+                                "& .MuiTooltip-arrow": {
+                                    color: "#330F1B", // Color de la flecha del tooltip
+                                },
+                            }}
+                        >
+                            <img
+                                src={api}
+                                alt="Ícono de api"
+                                style={{
+                                    width: "80px",
+                                    height: "80px",
+                                    transform: "scale(1.1)",
+                                }}
+                            />
+                        </Tooltip>
+                    </Fab>
 
                 </Box>
+
+
             </footer>
             {/* Modal de ayuda */}
             <Modal

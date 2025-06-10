@@ -318,5 +318,16 @@ CREATE TABLE CreditRechargeOpenPay (
     Conciliated BIT NOT NULL,
     Description NVARCHAR(600) NULL
 );
-select * from [dbo].[CreditRecharge]
-alter table creditrecharge add EstatusError nvarchar(100) null -
+
+alter table creditrecharge add EstatusError nvarchar(100) null 
+
+
+-- 1. Agregar la nueva columna
+ALTER TABLE AmountNotification
+ADD IdRoom INT;
+
+-- 2. Crear la relación foránea
+ALTER TABLE AmountNotification
+ADD CONSTRAINT FK_AmountNotification_Rooms
+FOREIGN KEY (IdRoom)
+REFERENCES Rooms(id);

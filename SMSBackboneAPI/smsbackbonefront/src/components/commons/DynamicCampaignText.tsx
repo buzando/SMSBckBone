@@ -1,6 +1,8 @@
+
 import React, { useRef, useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+
 interface Props {
   variables: string[];
   value: string;
@@ -14,12 +16,16 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
     if (editorRef.current) {
       editorRef.current.innerHTML = '';
 
+      const cleanedValue = value
+        .replace(/[{]+/g, '{')
+        .replace(/[}]+/g, '}');
+
       const variableRegex = /\{(.*?)\}/g;
       let lastIndex = 0;
       let match;
 
-      while ((match = variableRegex.exec(value)) !== null) {
-        const textBefore = value.slice(lastIndex, match.index);
+      while ((match = variableRegex.exec(cleanedValue)) !== null) {
+        const textBefore = cleanedValue.slice(lastIndex, match.index);
         if (textBefore) {
           editorRef.current.appendChild(document.createTextNode(textBefore));
         }
@@ -36,9 +42,9 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
         span.style.fontFamily = 'Poppins';
         span.style.fontSize = '14px';
 
-        const textNode = document.createElement('span');
-        textNode.textContent = match[1];
-        span.appendChild(textNode);
+        const labelNode = document.createElement('span');
+        labelNode.textContent = match[1];
+        span.appendChild(labelNode);
 
         const closeButton = document.createElement('span');
         closeButton.innerHTML = '&times;';
@@ -51,23 +57,46 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
         span.appendChild(closeButton);
 
         editorRef.current.appendChild(span);
+        editorRef.current.appendChild(document.createTextNode('\u00A0'));
 
         lastIndex = match.index + match[0].length;
       }
 
-      if (lastIndex < value.length) {
-        editorRef.current.appendChild(document.createTextNode(value.slice(lastIndex)));
+      if (lastIndex < cleanedValue.length) {
+        editorRef.current.appendChild(
+          document.createTextNode(cleanedValue.slice(lastIndex))
+        );
       }
 
       const range = document.createRange();
       range.selectNodeContents(editorRef.current);
       range.collapse(false);
-
       const sel = window.getSelection();
       sel?.removeAllRanges();
       sel?.addRange(range);
     }
   }, [value]);
+
+  const updateRawText = () => {
+    if (!editorRef.current) return;
+
+    let result = '';
+    editorRef.current.childNodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        result += node.textContent;
+      } else if (
+        node.nodeType === Node.ELEMENT_NODE &&
+        (node as HTMLElement).getAttribute('contenteditable') === 'false'
+      ) {
+        const label = Array.from(node.childNodes).find(
+          (n) => n.nodeType === Node.ELEMENT_NODE && (n as HTMLElement).tagName === 'SPAN'
+        )?.textContent?.trim() || '';
+        result += `{${label}}`;
+      }
+    });
+
+    onChange(result);
+  };
 
   const handleInsertVariable = (variable: string) => {
     const span = document.createElement('span');
@@ -101,34 +130,19 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
 
     const range = selection.getRangeAt(0);
     range.deleteContents();
-    range.insertNode(span);
-    range.collapse(false);
 
-    const space = document.createTextNode(' ');
-    range.insertNode(space);
-    range.setStartAfter(space);
-    range.setEndAfter(space);
+    const wrapper = document.createElement('span');
+    wrapper.appendChild(span);
+    wrapper.appendChild(document.createTextNode('\u00A0'));
+
+    range.insertNode(wrapper);
+    range.setStartAfter(wrapper);
+    range.setEndAfter(wrapper);
+
     selection.removeAllRanges();
     selection.addRange(range);
 
     updateRawText();
-  };
-
-  const updateRawText = () => {
-    if (!editorRef.current) return;
-    const spans = editorRef.current.querySelectorAll('span[contenteditable="false"]');
-    let htmlText = editorRef.current.innerHTML;
-
-    spans.forEach(span => {
-      const label = span.childNodes[0]?.textContent || '';
-      htmlText = htmlText.replace(span.outerHTML, `{${label}}`);
-    });
-
-    const div = document.createElement('div');
-    div.innerHTML = htmlText;
-    const cleanText = div.innerText;
-
-    onChange(cleanText);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -143,7 +157,6 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2, width: "770px" }}>
-      {/* Título principal */}
       <Typography
         sx={{
           fontFamily: 'Poppins',
@@ -155,9 +168,7 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
         Escribir mensaje y agregar variables según se requiera.
       </Typography>
 
-      {/* Contenedor horizontal que divide Mensaje y Variables */}
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4, width: "770px" }}>
-        {/* Mensaje: título, editor y contador */}
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography
             sx={{
@@ -171,7 +182,6 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
             Mensaje
           </Typography>
 
-          {/* Caja de creación de mensaje */}
           <Box sx={{ position: 'relative', marginLeft: '5px', width: "520px" }}>
             {value.trim() === '' && (
               <Typography
@@ -204,8 +214,9 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
                 fontSize: '14px',
                 minHeight: '140px',
                 backgroundColor: '#fff',
-                overflowY: 'hidden',
+                overflowY: 'auto',
                 whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
                 direction: 'ltr',
                 unicodeBidi: 'plaintext',
                 textAlign: 'left',
@@ -225,7 +236,6 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
           </Typography>
         </Box>
 
-        {/* Variables: título y botones */}
         <Box
           sx={{
             width: "150px", mt: 1,
@@ -248,10 +258,7 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
             Variables
           </Typography>
 
-
-          <Box sx={{
-            display: 'flex', flexDirection: 'column', gap: 1,
-          }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {variables.map((variable, i) => (
               <Button
                 key={i}
@@ -296,11 +303,9 @@ const DynamicCampaignText: React.FC<Props> = ({ variables, value, onChange }) =>
               </Button>
             ))}
           </Box>
-
         </Box>
       </Box>
     </Box>
-
   );
 };
 

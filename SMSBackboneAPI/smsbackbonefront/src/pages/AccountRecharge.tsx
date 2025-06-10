@@ -19,6 +19,9 @@ import openpay from '../assets/OpenPayLogoColor.jpg';
 import spei from '../assets/spei.png'
 import ModalError from "../components/commons/ModalError"
 import { useLocation } from 'react-router-dom';
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
+import { useNavigate } from "react-router-dom";
+
 interface CreditCard {
     id: number;
     user_id: number;
@@ -100,6 +103,7 @@ const AccountRecharge: React.FC = () => {
     const [showChipBarAdd, setshowChipBarAdd] = useState(false);
     const [showChipBarCard, setshowChipBarCard] = useState(false);
     const [showChipBarDelete, setshowChipBarDelete] = useState(false);
+    const navigate = useNavigate();
 
     const useQuery = () => {
         return new URLSearchParams(useLocation().search);
@@ -114,6 +118,17 @@ const AccountRecharge: React.FC = () => {
                 if (response.data.success) {
                     setshowChipBarAdd(true);
                     setTimeout(() => setshowChipBarAdd(false), 10000);
+                    const storedRoom = localStorage.getItem('selectedRoom');
+                    const request = localStorage.getItem('request');
+                    if (storedRoom) {
+                        const room = JSON.parse(storedRoom);
+                        const amountParsed = JSON.parse(request);
+                        if (amountParsed.Chanel === 'long_sms') {
+                            room.long_sms = (parseFloat(room.long_sms) || 0) + amountParsed.QuantityCredits;
+                        } else {
+                            room.short_sms = (parseFloat(room.short_sms) || 0) + amountParsed.QuantityCredits;
+                        }
+                    }
                 } else {
                     setTitleErrorModa("Error en recarga");
                     setMessageErrorModa(response.data.message || "Hubo un problema al validar la recarga.");
@@ -126,6 +141,21 @@ const AccountRecharge: React.FC = () => {
         finally {
             setshowChipBarAdd(true);
             setTimeout(() => setshowChipBarAdd(false), 10000);
+            const storedRoom = localStorage.getItem('selectedRoom');
+            const request = localStorage.getItem('request');
+            if (storedRoom && request) {
+                const room = JSON.parse(storedRoom);
+                const amountParsed = JSON.parse(request);
+                if (amountParsed.Chanel === 'long_sms') {
+                    room.long_sms = (parseFloat(room.long_sms) || 0) + (parseFloat(amountParsed.QuantityCredits));
+                } else {
+                    room.short_sms = (parseFloat(room.short_sms) || 0) + (parseFloat(amountParsed.QuantityCredits));
+                }
+                room.credits = (parseFloat(room.credits) || 0) + (parseFloat(amountParsed.QuantityCredits));
+                localStorage.setItem('selectedRoom', JSON.stringify(room));
+                window.dispatchEvent(new Event('storageUpdate'));
+                localStorage.removeItem('request');
+            }
         }
     };
 
@@ -230,7 +260,8 @@ const AccountRecharge: React.FC = () => {
         }
 
         try {
-
+            const storedRoom = localStorage.getItem('selectedRoom');
+            const room = JSON.parse(storedRoom);
             const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_RECHARGE}`;
             const payload = {
                 IdCreditCard: selectedCard?.id,
@@ -238,8 +269,10 @@ const AccountRecharge: React.FC = () => {
                 Chanel: selectedChannel,
                 QuantityCredits: creditAmount,
                 QuantityMoney: rechargeAmount,
-                AutomaticInvoice: generateInvoice
+                AutomaticInvoice: generateInvoice,
+                room: room.name,
             };
+            localStorage.setItem('request', JSON.stringify(payload));
 
             const response = await axios.post(requestUrl, payload);
 
@@ -249,7 +282,7 @@ const AccountRecharge: React.FC = () => {
                 return;
 
             }
-        } catch(error) {
+        } catch (error) {
             console.log(error);
             setTitleErrorModa("Error en la recarga de saldo");
             setMessageErrorModa("Error de pago, comuniquese con su banco e inténtelo de nuevo.");
@@ -487,15 +520,18 @@ const AccountRecharge: React.FC = () => {
 
 
     return (
-        <div style={{
-            position: 'relative',
-            maxWidth: '800px',
-            margin: '-60px 0 0 30px',
-            height: '840px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#4a4a4a',
-
-        }}>
+        <Box
+            sx={{
+                marginTop: "-50px",
+                width: "100%",
+                minHeight: "100vh",
+                overflowY: "auto",
+                backgroundColor: "#F2F2F2", // opcional para que se vea más claro
+                px: 4,
+                pb: 8, // aire abajo para que los botones no queden pegados o escondidos
+                boxSizing: "border-box",
+            }}
+        >
             {/* Modal de confirmación para eliminar */}
             {isDeleteModalOpen && (
                 <div style={{
@@ -664,437 +700,448 @@ const AccountRecharge: React.FC = () => {
                 </Box>
             </Modal>
 
-            <Typography
-                sx={{
-                    textAlign: "left",
-                    fontFamily: "Poppins",
-                    fontWeight: 500,  // “medium”
-                    fontSize: "26px",
-                    lineHeight: "55px",
-                    letterSpacing: "0px",
-                    color: "#330F1B",
-                    opacity: 1,
-                    // textTransform: "none" // Omitido por completo
-                }}
-            >
-                Recarga de Créditos
-            </Typography>
-            <div style={{
-                width: '100%',
-                height: '1px',
-                backgroundColor: '#330F1B',
-                margin: '5px 0 20px 0'
-            }}></div>
+            <Box sx={{ display: 'flex', alignItems: 'center', pl: '0px', mb: 1, marginLeft: '25px' }}>
+                <IconButton
+                    onClick={() => navigate('/')} // ← O ajusta la ruta a donde quieras volver
+                    sx={{
+                        ml: '-20px',
+                        p: 0,
+                        mr: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <img
+                        src={ArrowBackIosNewIcon}
+                        alt="Regresar"
+                        style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
+                    />
+                </IconButton>
 
-            <form onSubmit={(e) => e.preventDefault()}>
-                <div style={{ marginBottom: '20px', width: '60%' }}> {/* Hacemos más estrecho el recuadro */}
-                    <Typography
-                        sx={{
-                            textAlign: 'left',
+                <Typography
+                    variant="h4"
+                    sx={{
+                        color: '#5A2836',
+                        fontFamily: 'Poppins',
+                        fontSize: '26px',
+                    }}
+                >
+                    Recarga de credito
+                </Typography>
+            </Box>
+            <Box sx={{ pl: 5 }}>
+                <Divider sx={{ mb: 3 }} />
+
+                <form onSubmit={(e) => e.preventDefault()}>
+                    <div style={{ marginBottom: '20px', width: '60%' }}> {/* Hacemos más estrecho el recuadro */}
+                        <Typography
+                            sx={{
+                                textAlign: 'left',
+                                fontFamily: "Poppins",
+                                letterSpacing: '0px',
+                                color: '#330F1B',
+                                opacity: 1,
+                                display: 'block',
+                                marginBottom: '5px',
+                                fontSize: '18px',
+                            }}>
+                            Canal
+                        </Typography>
+
+                        <Select
+                            id="channel"
+                            value={selectedChannel}
+                            onChange={handleChannelChange}
+                            displayEmpty
+                            renderValue={(selected) => {
+                                if (!selected) {
+                                    return (
+                                        <span
+                                            style={{
+                                                textAlign: "left",
+                                                fontFamily: "Poppins, sans-serif",
+                                                fontSize: "12px",
+                                                lineHeight: "40px",
+                                                letterSpacing: "0px",
+                                                color: "#786E71",
+                                                opacity: 1,
+                                            }}
+                                        >
+                                            Seleccionar canal
+                                        </span>
+                                    );
+                                }
+                                return selected === "short_sms" ? "SMS, números cortos" : "SMS, números largos";
+                            }}
+                            sx={{
+                                width: "208px",
+                                height: "40px",
+                                border: "1px solid #dcdcdc",
+                                borderRadius: "5px",
+                                fontSize: "1rem",
+                                fontFamily: "Poppins, sans-serif",
+                                "& .MuiSelect-select": {
+                                    textAlign: "left",
+                                    padding: "10px 14px",
+                                    height: "40px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                },
+                            }}
+                        >
+                            <MenuItem value="short_sms">SMS, números cortos</MenuItem>
+                            <MenuItem value="long_sms">SMS, números largos</MenuItem>
+                        </Select>
+
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', width: '60%' }}> {/* Ajustamos ancho aquí también */}
+                        <div style={{ flex: 1 }}>
+                            <Typography style={{
+                                fontSize: '18px',
+                                fontFamily: "Poppins",
+                                display: 'block',
+                                marginBottom: '5px',
+                                color: '#330F1B',
+                            }}>Cantidad de créditos</Typography>
+
+                            <TextField
+                                id="credits"
+                                type="number"
+                                value={creditAmount}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    setCreditAmount(value);
+                                    calculateCredits(value); // 🔥 Calcula en tiempo real
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                InputProps={{
+                                    sx: {
+                                        textAlign: "left",
+                                        fontFamily: "Poppins, sans-serif",
+                                        fontSize: "16px",
+                                        fontWeight: 500, // medium
+                                        lineHeight: "54px",
+                                        letterSpacing: "0.03px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        height: "54px", // Altura fija según la imagen
+                                        backgroundColor: "#FFFFFF", // Asegurar fondo blanco
+                                    },
+                                }}
+                                sx={{
+                                    width: "210px", // Ancho según la imagen
+                                    "& .MuiOutlinedInput-root": {
+                                        borderRadius: "5px",
+                                        border: "1px solid #dcdcdc",
+                                        "& fieldset": {
+                                            borderColor: "#dcdcdc",
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "#b8b8b8", // Cambio de color al pasar el mouse
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#574B4F", // Color al seleccionar
+                                        },
+                                    },
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ flex: 1 }}>
+                            <Typography style={{
+                                fontSize: '18px',
+                                fontFamily: "Poppins",
+                                display: 'block',
+                                marginBottom: '5px',
+                                color: '#330F1B',
+                            }}>Monto a recargar</Typography>
+                            <TextField
+                                id="amount"
+                                type="text"
+                                disabled
+                                value={`${rechargeAmount}`}
+                                onChange={handleRechargeChange}
+                                variant="outlined"
+                                fullWidth
+                                InputProps={{
+                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                    sx: {
+                                        textAlign: "left",
+                                        fontFamily: "Poppins, sans-serif",
+                                        fontSize: "16px",
+                                        fontWeight: 500, // medium
+                                        lineHeight: "54px",
+                                        letterSpacing: "0.03px",
+                                        color: "#574B4F",
+                                        opacity: 1,
+                                        height: "54px", // Mantener altura uniforme
+                                        backgroundColor: "#f5f5f5", // Gris de fondo para indicar que está deshabilitado
+                                    },
+                                }}
+                                sx={{
+                                    width: "210px", // Ancho según la imagen
+                                    "& .MuiOutlinedInput-root": {
+                                        borderRadius: "5px",
+                                        border: "1px solid #dcdcdc",
+                                        "& fieldset": {
+                                            borderColor: "#dcdcdc",
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "#b8b8b8", // Cambio de color al pasar el mouse
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#574B4F", // Color al seleccionar
+                                        },
+                                    },
+                                }}
+                            />
+
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '20px', width: '60%' }}> {/* Texto del método de pago */}
+                        <Typography style={{
+                            fontSize: '18px',
                             fontFamily: "Poppins",
-                            letterSpacing: '0px',
-                            color: '#330F1B',
-                            opacity: 1,
                             display: 'block',
                             marginBottom: '5px',
-                            fontSize: '18px',
-                        }}>
-                        Canal
+                            color: '#330F1B',
+                        }}>Seleccione el método de pago</Typography>
+                    </div>
+                    <Typography style={{
+                        fontSize: '14px',
+                        fontFamily: "Poppins",
+                        marginBottom: '10px',
+                        color: '#786E71',
+                    }}>
+                        Métodos disponibles
                     </Typography>
 
-                    <Select
-                        id="channel"
-                        value={selectedChannel}
-                        onChange={handleChannelChange}
-                        displayEmpty
-                        renderValue={(selected) => {
-                            if (!selected) {
-                                return (
-                                    <span
-                                        style={{
-                                            textAlign: "left",
-                                            fontFamily: "Poppins, sans-serif",
-                                            fontSize: "12px",
-                                            lineHeight: "40px",
-                                            letterSpacing: "0px",
-                                            color: "#786E71",
-                                            opacity: 1,
-                                        }}
-                                    >
-                                        Seleccionar canal
-                                    </span>
-                                );
-                            }
-                            return selected === "short_sms" ? "SMS, números cortos" : "SMS, números largos";
-                        }}
-                        sx={{
-                            width: "208px",
-                            height: "40px",
-                            border: "1px solid #dcdcdc",
-                            borderRadius: "5px",
-                            fontSize: "1rem",
-                            fontFamily: "Poppins, sans-serif",
-                            "& .MuiSelect-select": {
-                                textAlign: "left",
-                                padding: "10px 14px",
-                                height: "40px",
-                                display: "flex",
-                                alignItems: "center",
-                            },
-                        }}
-                    >
-                        <MenuItem value="short_sms">SMS, números cortos</MenuItem>
-                        <MenuItem value="long_sms">SMS, números largos</MenuItem>
-                    </Select>
 
-                </div>
-
-                <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', width: '60%' }}> {/* Ajustamos ancho aquí también */}
-                    <div style={{ flex: 1 }}>
-                        <Typography style={{
-                            fontSize: '18px',
-                            fontFamily: "Poppins",
-                            display: 'block',
-                            marginBottom: '5px',
-                            color: '#330F1B',
-                        }}>Cantidad de créditos</Typography>
-
-                        <TextField
-                            id="credits"
-                            type="number"
-                            value={creditAmount}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                setCreditAmount(value);
-                                calculateCredits(value); // 🔥 Calcula en tiempo real
-                            }}
-                            variant="outlined"
-                            fullWidth
-                            InputProps={{
-                                sx: {
-                                    textAlign: "left",
-                                    fontFamily: "Poppins, sans-serif",
-                                    fontSize: "16px",
-                                    fontWeight: 500, // medium
-                                    lineHeight: "54px",
-                                    letterSpacing: "0.03px",
-                                    color: "#574B4F",
-                                    opacity: 1,
-                                    height: "54px", // Altura fija según la imagen
-                                    backgroundColor: "#FFFFFF", // Asegurar fondo blanco
-                                },
-                            }}
-                            sx={{
-                                width: "210px", // Ancho según la imagen
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "5px",
-                                    border: "1px solid #dcdcdc",
-                                    "& fieldset": {
-                                        borderColor: "#dcdcdc",
-                                    },
-                                    "&:hover fieldset": {
-                                        borderColor: "#b8b8b8", // Cambio de color al pasar el mouse
-                                    },
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: "#574B4F", // Color al seleccionar
-                                    },
-                                },
-                            }}
-                        />
-                    </div>
-
-                    <div style={{ flex: 1 }}>
-                        <Typography style={{
-                            fontSize: '18px',
-                            fontFamily: "Poppins",
-                            display: 'block',
-                            marginBottom: '5px',
-                            color: '#330F1B',
-                        }}>Monto a recargar</Typography>
-                        <TextField
-                            id="amount"
-                            type="text"
-                            disabled
-                            value={`${rechargeAmount}`}
-                            onChange={handleRechargeChange}
-                            variant="outlined"
-                            fullWidth
-                            InputProps={{
-                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                sx: {
-                                    textAlign: "left",
-                                    fontFamily: "Poppins, sans-serif",
-                                    fontSize: "16px",
-                                    fontWeight: 500, // medium
-                                    lineHeight: "54px",
-                                    letterSpacing: "0.03px",
-                                    color: "#574B4F",
-                                    opacity: 1,
-                                    height: "54px", // Mantener altura uniforme
-                                    backgroundColor: "#f5f5f5", // Gris de fondo para indicar que está deshabilitado
-                                },
-                            }}
-                            sx={{
-                                width: "210px", // Ancho según la imagen
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "5px",
-                                    border: "1px solid #dcdcdc",
-                                    "& fieldset": {
-                                        borderColor: "#dcdcdc",
-                                    },
-                                    "&:hover fieldset": {
-                                        borderColor: "#b8b8b8", // Cambio de color al pasar el mouse
-                                    },
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: "#574B4F", // Color al seleccionar
-                                    },
-                                },
-                            }}
-                        />
-
-                    </div>
-                </div>
-
-                <div style={{ marginBottom: '20px', width: '60%' }}> {/* Texto del método de pago */}
-                    <Typography style={{
-                        fontSize: '18px',
-                        fontFamily: "Poppins",
-                        display: 'block',
-                        marginBottom: '5px',
-                        color: '#330F1B',
-                    }}>Seleccione el método de pago</Typography>
-                </div>
-                <Typography style={{
-                    fontSize: '14px',
-                    fontFamily: "Poppins",
-                    marginBottom: '10px',
-                    color: '#786E71',
-                }}>
-                    Métodos disponibles
-                </Typography>
-
-
-                <Box sx={{ display: 'flex', gap: 2, marginBottom: 3 }}>
-                    {[visa, mastercard, amex, spei].map((imgSrc, index) => (
-                        <Box
-                            key={index}
-                            sx={{
-                                border: '1px solid #E1E1E1',
-                                borderRadius: '8px',
-                                padding: '10px',
-                                backgroundColor: '#FFFFFF',
-                                width: '80px',
-                                height: '50px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <img
-                                src={imgSrc}
-                                alt={`Método ${index}`}
-                                style={{ maxHeight: '24px', objectFit: 'contain' }}
-                            />
-                        </Box>
-                    ))}
-                </Box>
-
-                <MainButtonIcon onClick={handleOpenModal} text='Agregar Tarjeta' width='210px' />
-
-
-                <div style={{
-                    display: 'flex',
-                    gap: '20px',
-                    overflowX: 'auto', // Habilita el scroll horizontal
-                    whiteSpace: 'nowrap',
-                    marginTop: '20px',
-                    paddingBottom: '10px',
-                }}>
-                    {creditCards.map((card) => (
-                        <div
-                            key={card.id}
-                            style={{
-                                border: selectedCard?.id === card.id ? '2px solid #8d406d' : '1px solid #dcdcdc',
-                                borderRadius: '8px',
-                                padding: '15px',
-                                width: '360px', // Ancho del contenedor
-                                height: '172px', // Alto del contenedor
-                                position: 'relative',
-                                backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
-                                display: 'inline-block',
-                                whiteSpace: 'normal',
-                            }}
-                        >
-                            {/* Barra lateral de color */}
-                            {selectedCard?.id === card.id && (
-                                <div style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    top: 0,
-                                    height: '100%',
-                                    width: '8px',
-                                    backgroundColor: '#8F4D63',
-                                    borderTopLeftRadius: '8px',
-                                    borderBottomLeftRadius: '8px',
-                                }}></div>
-                            )}
-
-                            {/* Marca de la tarjeta */}
-                            <div style={{
-                                marginBottom: '10px',
-                                fontWeight: 'bold',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                textAlign: "left",
-                                fontFamily: "Poppins",
-                                letterSpacing: "0px",
-                                color: "#330F1B",
-                                opacity: 1,
-                                fontSize: "14px"
-                            }}>
-                                <div>
-                                    {card.type}
-                                </div>
-                            </div>
-
-                            {/* Detalles */}
-
-                            <div
-                                style={{
-                                    fontSize: '14px',
-                                    fontFamily: "Poppins",
-                                    display: 'flex',
-                                    flexDirection: 'column', // Distribución en filas
-                                    gap: '5px', // Espacio entre filas
-                                    lineHeight: '1.2', // Compacta las líneas ligeramente
-                                }}
-                            >
-                                <span style={{ margin: '0', padding: '0' }}>{card.card_name}</span>
-                                <span style={{ margin: '0', padding: '0' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
-                                <span style={{ margin: '0', padding: '0' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
-                            </div>
-
-                            {/* Radio para seleccionar */}
-                            <label
-                                style={{
+                    <Box sx={{ display: 'flex', gap: 2, marginBottom: 3 }}>
+                        {[visa, mastercard, amex, spei].map((imgSrc, index) => (
+                            <Box
+                                key={index}
+                                sx={{
+                                    border: '1px solid #E1E1E1',
+                                    borderRadius: '8px',
+                                    padding: '10px',
+                                    backgroundColor: '#FFFFFF',
+                                    width: '80px',
+                                    height: '50px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '5px',
-                                    marginBottom: '10px',
-                                    marginTop: '15px',
-                                    cursor: 'pointer',
-                                    marginLeft: '-10px',
+                                    justifyContent: 'center',
                                 }}
-                                onClick={() => handleSelectCard(card)}
                             >
-                                <Radio
-                                    checked={selectedCard?.id === card.id}
-                                    readOnly
-                                    sx={{
-                                        color: '#8F4D63',
-                                        '&.Mui-checked': { color: '#8F4D63' },
-                                    }}
+                                <img
+                                    src={imgSrc}
+                                    alt={`Método ${index}`}
+                                    style={{ maxHeight: '24px', objectFit: 'contain' }}
                                 />
-                                <span style={{
+                            </Box>
+                        ))}
+                    </Box>
+
+                    <MainButtonIcon onClick={handleOpenModal} text='Agregar Tarjeta' width='210px' />
+
+
+                    <div style={{
+                        display: 'flex',
+                        gap: '20px',
+                        overflowX: 'auto', // Habilita el scroll horizontal
+                        whiteSpace: 'nowrap',
+                        marginTop: '20px',
+                        paddingBottom: '10px',
+                    }}>
+                        {creditCards.map((card) => (
+                            <div
+                                key={card.id}
+                                style={{
+                                    border: selectedCard?.id === card.id ? '2px solid #8d406d' : '1px solid #dcdcdc',
+                                    borderRadius: '8px',
+                                    padding: '15px',
+                                    width: '360px', // Ancho del contenedor
+                                    height: '172px', // Alto del contenedor
+                                    position: 'relative',
+                                    backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
+                                    display: 'inline-block',
+                                    whiteSpace: 'normal',
+                                }}
+                            >
+                                {/* Barra lateral de color */}
+                                {selectedCard?.id === card.id && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: 0,
+                                        height: '100%',
+                                        width: '8px',
+                                        backgroundColor: '#8F4D63',
+                                        borderTopLeftRadius: '8px',
+                                        borderBottomLeftRadius: '8px',
+                                    }}></div>
+                                )}
+
+                                {/* Marca de la tarjeta */}
+                                <div style={{
+                                    marginBottom: '10px',
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
                                     textAlign: "left",
                                     fontFamily: "Poppins",
                                     letterSpacing: "0px",
-                                    color: "#8F4D63",
+                                    color: "#330F1B",
                                     opacity: 1,
-                                    fontSize: "14px",
-                                }}>{selectedCard?.id === card.id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}</span>
+                                    fontSize: "14px"
+                                }}>
+                                    <div>
+                                        {card.type}
+                                    </div>
+                                </div>
 
-                            </label>
+                                {/* Detalles */}
 
-                            {/* Botón para eliminar */}
-                            <Tooltip title="Eliminar tarjeta" arrow>
-                                <button
-                                    onClick={() => openDeleteModal(card)}
+                                <div
                                     style={{
-                                        position: 'absolute',
-                                        top: '10px',
-                                        right: '10px',
-                                        backgroundColor: 'transparent',
-                                        border: 'none',
-                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        fontFamily: "Poppins",
+                                        display: 'flex',
+                                        flexDirection: 'column', // Distribución en filas
+                                        gap: '5px', // Espacio entre filas
+                                        lineHeight: '1.2', // Compacta las líneas ligeramente
                                     }}
                                 >
-                                    <img src={trash} width='24px' height='24px' />
-                                </button>
-                            </Tooltip>
-                        </div>
-                    ))}
-                </div>
+                                    <span style={{ margin: '0', padding: '0' }}>{card.card_name}</span>
+                                    <span style={{ margin: '0', padding: '0' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
+                                    <span style={{ margin: '0', padding: '0' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
+                                </div>
 
-                <Box sx={{ width: '100%', marginTop: '24px' }}>
-                    {/* Checkbox */}
-                    <Box sx={{ marginBottom: '4px' }}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={generateInvoice}
-                                    onChange={(e) => setGenerateInvoice(e.target.checked)}
-                                    sx={{ color: '#8F4D63' }}
-                                />
-                            }
-                            label={
+                                {/* Radio para seleccionar */}
+                                <label
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '5px',
+                                        marginBottom: '10px',
+                                        marginTop: '15px',
+                                        cursor: 'pointer',
+                                        marginLeft: '-10px',
+                                    }}
+                                    onClick={() => handleSelectCard(card)}
+                                >
+                                    <Radio
+                                        checked={selectedCard?.id === card.id}
+                                        readOnly
+                                        sx={{
+                                            color: '#8F4D63',
+                                            '&.Mui-checked': { color: '#8F4D63' },
+                                        }}
+                                    />
+                                    <span style={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#8F4D63",
+                                        opacity: 1,
+                                        fontSize: "14px",
+                                    }}>{selectedCard?.id === card.id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}</span>
+
+                                </label>
+
+                                {/* Botón para eliminar */}
+                                <Tooltip title="Eliminar tarjeta" arrow>
+                                    <button
+                                        onClick={() => openDeleteModal(card)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '10px',
+                                            right: '10px',
+                                            backgroundColor: 'transparent',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        <img src={trash} width='24px' height='24px' />
+                                    </button>
+                                </Tooltip>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Box sx={{ width: '100%', marginTop: '24px' }}>
+                        {/* Checkbox */}
+                        <Box sx={{ marginBottom: '4px' }}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={generateInvoice}
+                                        onChange={(e) => setGenerateInvoice(e.target.checked)}
+                                        sx={{ color: '#8F4D63' }}
+                                    />
+                                }
+                                label={
+                                    <Typography
+                                        sx={{
+                                            fontFamily: 'Poppins',
+                                            fontSize: '14px',
+                                            color: '#786E71',
+                                        }}
+                                    >
+                                        Generar factura automáticamente
+                                    </Typography>
+                                }
+                            />
+                        </Box>
+
+                        {/* Openpay + Botones */}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                width: '100%',
+                                padding: '8px 0',
+                            }}
+                        >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Typography
                                     sx={{
                                         fontFamily: 'Poppins',
                                         fontSize: '14px',
-                                        color: '#786E71',
+                                        color: '#574B4F',
+                                        fontWeight: 500,
                                     }}
                                 >
-                                    Generar factura automáticamente
+                                    Pagos procesados de forma segura con
                                 </Typography>
-                            }
-                        />
-                    </Box>
+                                <Box
+                                    component="img"
+                                    src={openpay}
+                                    alt="Openpay"
+                                    sx={{ height: '20px', objectFit: 'contain' }}
+                                />
+                            </Box>
 
-                    {/* Openpay + Botones */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            width: '100%',
-                            padding: '8px 0',
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography
-                                sx={{
-                                    fontFamily: 'Poppins',
-                                    fontSize: '14px',
-                                    color: '#574B4F',
-                                    fontWeight: 500,
-                                }}
-                            >
-                                Pagos procesados de forma segura con
-                            </Typography>
-                            <Box
-                                component="img"
-                                src={openpay}
-                                alt="Openpay"
-                                sx={{ height: '20px', objectFit: 'contain' }}
-                            />
-                        </Box>
-
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <SecondaryButton text="Cancelar" onClick={resetForm} />
-                            <MainButton
-                                text="Recargar"
-                                onClick={handleRecharge}
-                                disabled={isRechargeButtonDisabled()}
-                                isLoading={Loading}
-                            />
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <SecondaryButton text="Cancelar" onClick={resetForm} />
+                                <MainButton
+                                    text="Recargar"
+                                    onClick={handleRecharge}
+                                    disabled={isRechargeButtonDisabled()}
+                                    isLoading={Loading}
+                                />
+                            </Box>
                         </Box>
                     </Box>
-                </Box>
 
-            </form>
-
+                </form>
+            </Box>
             <Modal
                 open={isModalOpen}
                 onClose={handleCloseModal}
@@ -1661,7 +1708,7 @@ const AccountRecharge: React.FC = () => {
                     onClose={() => setshowChipBarAdd(false)}
                 />
             )}
-        </div>
+        </Box>
     );
 };
 

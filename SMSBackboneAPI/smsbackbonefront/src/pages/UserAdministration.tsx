@@ -457,7 +457,7 @@ const ManageAccounts: React.FC = () => {
 
 
     return (
-        <Box p={3} sx={{ marginTop: "-80px", width: '90%',  minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -482,14 +482,13 @@ const ManageAccounts: React.FC = () => {
                 <Typography
                     variant="h4"
                     fontFamily="Poppins"
-                    sx={{ color: "#5A2836", fontWeight: "bold" }}
-                >
+                    sx={{ color: "#5A2836",fontSize: '26px', }}                >
                     Usuarios
                 </Typography>
             </Box>
 
-     
-            <Box sx={{ pl: 5 }}> 
+
+            <Box sx={{ pl: 5 }}>
                 <Box sx={{ maxWidth: "68%", mx: "auto", mb: 3 }}>
                     <Divider
                         sx={{

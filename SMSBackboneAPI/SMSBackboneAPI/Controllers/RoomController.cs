@@ -150,7 +150,7 @@ namespace SMSBackboneAPI.Controllers
             //}
             var RoomManager = new Business.roomsManager();
             var responseDto = RoomManager.TransferRoom(rooms);
-            if (!responseDto)
+            if (responseDto.Count() == 0)
             {
 
 
@@ -161,7 +161,7 @@ namespace SMSBackboneAPI.Controllers
             }
             else
             {
-                var response = Ok();
+                var response = Ok(responseDto);
                 return response;
             }
         }

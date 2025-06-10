@@ -18,6 +18,7 @@ namespace Contract.Request
 
         public decimal QuantityMoney { get; set; }
         public bool AutomaticInvoice { get; set; }
+        public string room { get; set; }
 
     }
 }

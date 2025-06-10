@@ -1016,7 +1016,7 @@ const Reports: React.FC = () => {
 
 
     return (
-        <Box p={4} sx={{ padding: '10px', marginLeft: "35px" }}>
+        <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop:'-50px' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', pl: '0px', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')} // ← O ajusta la ruta a donde quieras volver
@@ -1039,7 +1039,6 @@ const Reports: React.FC = () => {
                 <Typography
                     variant="h4"
                     sx={{
-                        fontWeight: 'bold',
                         color: '#5A2836',
                         fontFamily: 'Poppins',
                         fontSize: '26px',

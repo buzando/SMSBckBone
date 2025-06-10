@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Checkbox, TextField, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Backdrop, CircularProgress } from '@mui/material';
+import { Checkbox, TextField, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Backdrop, CircularProgress, Typography, FormControlLabel } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ModalError from "../components/commons/ModalError"
@@ -24,7 +24,12 @@ import MainButton from '../components/commons/MainButton'
 import trash from '../assets/Icon-trash-Card.svg'
 import MainModal from "../components/commons/MainModal"
 import ChipBar from "../components/commons/ChipBar";
-
+import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
+import visa from '../assets/visa.png';
+import mastercard from '../assets/masterCard.png';
+import amex from '../assets/americanExpress.png';
+import openpay from '../assets/OpenPayLogoColor.jpg';
+import spei from '../assets/spei.png'
 
 
 type Account = {
@@ -79,7 +84,7 @@ const PaymentSettings: React.FC = () => {
     const [threshold, setThreshold] = useState('');
     const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
     const [Users, setUsers] = useState<Account[]>([]);
-    const [loading, setLoading] = useState(false); 
+    const [loading, setLoading] = useState(false);
     const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
     const [TitleErrorModal, setTitleErrorModal] = useState('');
     const [MessageErrorModal, setMessageErrorModal] = useState('');
@@ -91,6 +96,7 @@ const PaymentSettings: React.FC = () => {
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [showChipBarCard, setshowChipBarCard] = useState(false);
     const [MessageChipBar, setMessageChipBar] = useState('');
+    const [generateInvoice, setGenerateInvoice] = useState('');
     const [formData, setFormData] = useState<FormData>({
         cardNumber: '',
         cardName: '',
@@ -155,7 +161,7 @@ const PaymentSettings: React.FC = () => {
         });
     };
 
-    const handleUserToggle = (userId: number) => { 
+    const handleUserToggle = (userId: number) => {
         setSelectedUsers((prevUsers) => {
             if (prevUsers.includes(userId)) {
                 return prevUsers.filter((id) => id !== userId);
@@ -166,15 +172,26 @@ const PaymentSettings: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchAccounts();
-        fetchCreditCards();
+        const loadData = async () => {
+            await fetchAccounts();
+            await fetchCreditCards();
+        };
+
+        loadData();
     }, []);
+
+    useEffect(() => {
+        if (Users.length > 0 && creditCards.length > 0) {
+            fetchSettings();
+        }
+    }, [Users, creditCards]);
 
     useEffect(() => {
         setIsShortSmsEnabled(selectedChannels.includes("SMS # cortos"));
         setIsLongSmsEnabled(selectedChannels.includes("SMS # largos"));
         setIsCallEnabled(selectedChannels.includes("Llamada"));
     }, [selectedChannels]);
+
 
     const navigate = useNavigate();
     const fetchAccounts = async () => {
@@ -203,6 +220,64 @@ const PaymentSettings: React.FC = () => {
             setTitleErrorModal('Error al traer Usuarios');
             setMessageErrorModal('Algo salió mal. Inténtelo de nuevo o regreso más tarde.');
             setIsErrorModalOpen(true);
+        }
+        finally {
+            setLoading(false); // Desactiva el estado de carga
+        }
+    };
+
+    const fetchSettings = async () => {
+        try {
+            setLoading(true);
+            const selectedRoom = localStorage.getItem("selectedRoom");
+            if (!selectedRoom) {
+                navigate("/login");
+                return;
+            }
+
+            const parsedUserData = JSON.parse(selectedRoom);
+            const selectedRoomid = parsedUserData.id;
+
+            if (!selectedRoomid) {
+                console.error("El id del room no está disponible en los datos del usuario.");
+                return;
+            }
+
+            const request = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GET_AUTORECHARGE + selectedRoomid}`;
+            const response = await axios.get(request);
+            if (response.status === 200) {
+                const config = response.data;
+
+                setIsNotificationEnabled(
+                    config.shortSms || config.longSms || config.call ? true : false
+                );
+
+                const channels: string[] = [];
+                if (config.shortSms) channels.push("SMS # cortos");
+                if (config.longSms) channels.push("SMS # largos");
+                if (config.call) channels.push("Llamada");
+                setSelectedChannels(channels);
+
+                setThreshold(config.amountValue?.toString() || "");
+                setIsAutoRechargeEnabled(!!config.autoRecharge);
+                setthresholdAutomatic(config.autoRechargeAmountNotification?.toString() || "");
+                setRechargeAmount(config.autoRechargeAmount?.toString() || "");
+
+                if (config.idCreditCard && creditCards.length > 0) {
+                    const card = creditCards.find(c => c.id === config.IdCreditCard);
+                    if (card) setSelectedCard(card);
+                }
+
+                if (config.Users && config.Users.length > 0) {
+                    const matchedUserIds = Users
+                        .filter(u => config.Users.includes(u.email))
+                        .map(u => u.id);
+                    setSelectedUsers(matchedUserIds);
+                }
+            }
+
+        } catch {
+        
         }
         finally {
             setLoading(false); // Desactiva el estado de carga
@@ -413,18 +488,23 @@ const PaymentSettings: React.FC = () => {
         }
         const selectedEmails = Users.filter(user => selectedUsers.includes(user.id)).map(user => user.email);
 
+
+        const savedRoom = localStorage.getItem('selectedRoom');
+        const objroom = savedRoom ? JSON.parse(savedRoom) : null;
+
         try {
             const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_AUTORECHARGE}`;
             const payload = {
                 shortSms: isShortSmsEnabled,
-                longSms: isLongSmsEnabled,   
-                call: isCallEnabled,       
-                amountValue: parseFloat(threshold), 
-                autoRecharge: isAutoRechargeEnabled, 
-                autoRechargeAmountNotification: parseFloat(thresholdAutomatic), 
+                longSms: isLongSmsEnabled,
+                call: isCallEnabled,
+                amountValue: parseFloat(threshold),
+                autoRecharge: isAutoRechargeEnabled,
+                autoRechargeAmountNotification: parseFloat(thresholdAutomatic),
                 autoRechargeAmount: parseFloat(rechargeAmount),
-                idCreditCard: selectedCard?.id, 
-                users: selectedEmails  
+                idCreditCard: selectedCard?.id,
+                users: selectedEmails,
+                idRoom: objroom.id,
             };
 
             const response = await axios.post(requestUrl, payload);
@@ -477,7 +557,7 @@ const PaymentSettings: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1000px', marginTop: "-0px", borderRadius: '8px',  marginLeft: "40px" }}>
+        <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop: '-50px' }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -487,18 +567,37 @@ const PaymentSettings: React.FC = () => {
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            <th
-                style={{
-                    textAlign: 'left',
-                    fontFamily: "Poppins",
-                    letterSpacing: '0px',
-                    color: '#330F1B',
-                    opacity: 1,
-                    fontSize: '26px',
-                }}
-            >
-                Ajustes de Pago
-            </th>
+            <Box sx={{ display: 'flex', alignItems: 'center', pl: '0px', mb: 1 }}>
+                <IconButton
+                    onClick={() => navigate('/')} // ← O ajusta la ruta a donde quieras volver
+                    sx={{
+                        ml: '-20px',
+                        p: 0,
+                        mr: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <img
+                        src={ArrowBackIosNewIcon}
+                        alt="Regresar"
+                        style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
+                    />
+                </IconButton>
+
+                <Typography
+                    variant="h4"
+                    sx={{
+                        fontWeight: 'bold',
+                        color: '#5A2836',
+                        fontFamily: 'Poppins',
+                        fontSize: '26px',
+                    }}
+                >
+                    Ajustes de pago
+                </Typography>
+            </Box>
             <hr style={{ width: '100%', border: '1px solid #ccc', margin: '10px 0' }} />
 
             {/* Checkbox para activar alertas */}
@@ -548,7 +647,7 @@ const PaymentSettings: React.FC = () => {
                             <Checkbox
                                 checked={selectedChannels.includes(channel)}
                                 onChange={() => handleChannelToggle(channel)}
-                                disabled={channel === 'Llamada' || !isNotificationEnabled} 
+                                disabled={channel === 'Llamada' || !isNotificationEnabled}
                                 sx={{
                                     color: '#6C3A52',
                                     '&.Mui-checked': { color: '#6C3A52' },
@@ -592,32 +691,29 @@ const PaymentSettings: React.FC = () => {
                     onChange={(e) => setThreshold(e.target.value)}
                     type="number"
                     disabled={!isNotificationEnabled}
-                    InputProps={{
-                                readOnly: true,  // 🔴 Solo lectura para evitar que el usuario lo edite manualmente
-                            }}
-                            sx={{
-                                background: '#FFFFFF',
-                                borderRadius: '4px',
-                                opacity: 1,
-                                width: '100%',
-                                maxWidth: '220px',
-                                height: '54px',
-                                '& .MuiInputBase-input': {
-                                  fontFamily: 'Poppins, sans-serif',
-                                  fontWeight: 500,
-                            
-                                  // 🔽 Remueve las flechas en navegadores
-                                  MozAppearance: 'textfield', // Firefox
-                                  '&::-webkit-outer-spin-button': {
-                                    WebkitAppearance: 'none',
-                                    margin: 0,
-                                  },
-                                  '&::-webkit-inner-spin-button': {
-                                    WebkitAppearance: 'none',
-                                    margin: 0,
-                                  },
-                                }
-                              }}
+                    sx={{
+                        background: '#FFFFFF',
+                        borderRadius: '4px',
+                        opacity: 1,
+                        width: '100%',
+                        maxWidth: '220px',
+                        height: '54px',
+                        '& .MuiInputBase-input': {
+                            fontFamily: 'Poppins, sans-serif',
+                            fontWeight: 500,
+
+                            // 🔽 Remueve las flechas en navegadores
+                            MozAppearance: 'textfield', // Firefox
+                            '&::-webkit-outer-spin-button': {
+                                WebkitAppearance: 'none',
+                                margin: 0,
+                            },
+                            '&::-webkit-inner-spin-button': {
+                                WebkitAppearance: 'none',
+                                margin: 0,
+                            },
+                        }
+                    }}
                 />
 
                 {/* Título de la tabla */}
@@ -688,11 +784,13 @@ const PaymentSettings: React.FC = () => {
                     </Table>
                 </TableContainer>
                 {/* Nueva sección: Activar Autorecarga */}
-             
+
 
             </div>
-            <h3 style={{ textAlign: 'left', fontFamily: "Poppins", letterSpacing: '0px', fontWeight: "500",
-                color: '#330F1B', opacity: 1, fontSize: '18px', marginTop: '20px' }}>
+            <h3 style={{
+                textAlign: 'left', fontFamily: "Poppins", letterSpacing: '0px', fontWeight: "500",
+                color: '#330F1B', opacity: 1, fontSize: '18px', marginTop: '20px'
+            }}>
                 Activar Autorecarga
             </h3>
             <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
@@ -752,21 +850,21 @@ const PaymentSettings: React.FC = () => {
                                 maxWidth: '220px',
                                 height: '54px',
                                 '& .MuiInputBase-input': {
-                                  fontFamily: 'Poppins, sans-serif',
-                                  fontWeight: 500,
-                            
-                                  // 🔽 Remueve las flechas en navegadores
-                                  MozAppearance: 'textfield', // Firefox
-                                  '&::-webkit-outer-spin-button': {
-                                    WebkitAppearance: 'none',
-                                    margin: 0,
-                                  },
-                                  '&::-webkit-inner-spin-button': {
-                                    WebkitAppearance: 'none',
-                                    margin: 0,
-                                  },
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 500,
+
+                                    // 🔽 Remueve las flechas en navegadores
+                                    MozAppearance: 'textfield', // Firefox
+                                    '&::-webkit-outer-spin-button': {
+                                        WebkitAppearance: 'none',
+                                        margin: 0,
+                                    },
+                                    '&::-webkit-inner-spin-button': {
+                                        WebkitAppearance: 'none',
+                                        margin: 0,
+                                    },
                                 }
-                              }}
+                            }}
                         />
 
                     </div>
@@ -796,10 +894,10 @@ const PaymentSettings: React.FC = () => {
                                 maxWidth: '220px',
                                 height: '54px',
                                 '& .MuiInputBase-input': {
-                                  fontFamily: 'Poppins, sans-serif',
-                                  fontWeight: 500
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 500
                                 }
-                              }}
+                            }}
                         />
 
                     </div>
@@ -818,6 +916,30 @@ const PaymentSettings: React.FC = () => {
                 }}>
                     Seleccionar Método de pago
                 </h3>
+                <Box sx={{ display: 'flex', gap: 2, marginBottom: 3 }}>
+                    {[visa, mastercard, amex, spei].map((imgSrc, index) => (
+                        <Box
+                            key={index}
+                            sx={{
+                                border: '1px solid #E1E1E1',
+                                borderRadius: '8px',
+                                padding: '10px',
+                                backgroundColor: '#FFFFFF',
+                                width: '80px',
+                                height: '50px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <img
+                                src={imgSrc}
+                                alt={`Método ${index}`}
+                                style={{ maxHeight: '24px', objectFit: 'contain' }}
+                            />
+                        </Box>
+                    ))}
+                </Box>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
                     <MainIcon
@@ -844,115 +966,168 @@ const PaymentSettings: React.FC = () => {
                     paddingRight: '10px'
                 }}>
                     <div style={{ display: 'flex', gap: '20px', margin: '20px 0', flexWrap: 'wrap' }}>
-                    {creditCards.map((card) => (
-                        <div
-                            key={card.id}
-                            style={{
-                                border: selectedCard?.id === card.id ? '2px solid #8d406d' : '1px solid #dcdcdc',
-                                borderRadius: '8px',
-                                padding: '15px',
-                                width: '360px', // Ancho del contenedor
-                                height: '172px', // Alto del contenedor
-                                position: 'relative',
-                                backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
-                                flex: '0 0 auto' // Para el scroll horizontal
-                            }}
-                        >
-                            {/* Barra lateral de color */}
-                        {selectedCard?.id === card.id && (
-                            <div style={{
-                                position: 'absolute',
-                                left: 0,
-                                top: 0,
-                                height: '100%',
-                                width: '8px',
-                                backgroundColor: '#8F4D63',
-                                borderTopLeftRadius: '8px',
-                                borderBottomLeftRadius: '8px',
-                            }}></div>
-                        )}
-                        {/* Marca de la tarjeta */}
-                            <div style={{
-                                marginBottom: '10px',
-                                fontWeight: 'bold',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                textAlign: "left",
-                                fontFamily: "Poppins",
-                                letterSpacing: "0px",
-                                color: "#330F1B",
-                                opacity: 1,
-                                fontSize: "14px"
-                            }}>
-                                {card.type}
-                            </div>
-
+                        {creditCards.map((card) => (
                             <div
+                                key={card.id}
                                 style={{
-                                    fontSize: '14px',
-                                    fontFamily: "Poppins",
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '5px',
-                                    lineHeight: '1.2',
+                                    border: selectedCard?.id === card.id ? '2px solid #8d406d' : '1px solid #dcdcdc',
+                                    borderRadius: '8px',
+                                    padding: '15px',
+                                    width: '360px', // Ancho del contenedor
+                                    height: '172px', // Alto del contenedor
+                                    position: 'relative',
+                                    backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
+                                    flex: '0 0 auto' // Para el scroll horizontal
                                 }}
                             >
-                                <span style={{ margin: '0', padding: '0' }}>{card.card_name}</span>
-                            <span style={{ margin: '0', padding: '0' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
-                            <span style={{ margin: '0', padding: '0' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
-                            </div>
-
-                            {/* Radio para seleccionar */}
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px', cursor: 'pointer', }} onClick={() => handleSelectCard(card)} >
-                                <Radio
-                                    checked={selectedCard?.id === card.id}
-                                    readOnly
-                                    sx={{
-                                        color: '#8F4D63',
-                                        '&.Mui-checked': { color: '#8F4D63' },
-                                    }}
-                                />
-                                <span style={{
+                                {/* Barra lateral de color */}
+                                {selectedCard?.id === card.id && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: 0,
+                                        height: '100%',
+                                        width: '8px',
+                                        backgroundColor: '#8F4D63',
+                                        borderTopLeftRadius: '8px',
+                                        borderBottomLeftRadius: '8px',
+                                    }}></div>
+                                )}
+                                {/* Marca de la tarjeta */}
+                                <div style={{
+                                    marginBottom: '10px',
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
                                     textAlign: "left",
                                     fontFamily: "Poppins",
                                     letterSpacing: "0px",
-                                    color: "#8F4D63",
+                                    color: "#330F1B",
                                     opacity: 1,
-                                    fontSize: "14px",
+                                    fontSize: "14px"
                                 }}>
-                                    {selectedCard?.id === card.id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}
-                                </span>
-                            </label>
-                            {/* Botón para eliminar */}
-                            <button
-                            onClick={() => openDeleteModal(card)}
-                            style={{
-                                position: 'absolute',
-                                top: '10px',
-                                right: '10px',
-                                backgroundColor: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            <img src={trash} width='24px' height='24px' />
-                        </button>
-                        </div>
-                    ))}
-                </div>
-                </div>
-            </div>
-                <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#F2F2F2', borderRadius: '8px', marginBottom: "50px" }}>
-                    {/* Botones de acción debajo de las tarjetas de crédito */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0px'}}>
-                        <SecondaryButton onClick={() => navigate(-1)} text="Cancelar"  
-                        />
-                        <MainButton text="Aceptar" isLoading={loading} onClick={addRechargeSetting} disabled={isAcceptButtonDisabled} 
-                         
-                        />
+                                    {card.type}
+                                </div>
+
+                                <div
+                                    style={{
+                                        fontSize: '14px',
+                                        fontFamily: "Poppins",
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '5px',
+                                        lineHeight: '1.2',
+                                    }}
+                                >
+                                    <span style={{ margin: '0', padding: '0' }}>{card.card_name}</span>
+                                    <span style={{ margin: '0', padding: '0' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
+                                    <span style={{ margin: '0', padding: '0' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
+                                </div>
+
+                                {/* Radio para seleccionar */}
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px', cursor: 'pointer', }} onClick={() => handleSelectCard(card)} >
+                                    <Radio
+                                        checked={selectedCard?.id === card.id}
+                                        readOnly
+                                        sx={{
+                                            color: '#8F4D63',
+                                            '&.Mui-checked': { color: '#8F4D63' },
+                                        }}
+                                    />
+                                    <span style={{
+                                        textAlign: "left",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#8F4D63",
+                                        opacity: 1,
+                                        fontSize: "14px",
+                                    }}>
+                                        {selectedCard?.id === card.id ? 'Tarjeta seleccionada' : 'Seleccionar tarjeta'}
+                                    </span>
+                                </label>
+                                {/* Botón para eliminar */}
+                                <button
+                                    onClick={() => openDeleteModal(card)}
+                                    style={{
+                                        position: 'absolute',
+                                        top: '10px',
+                                        right: '10px',
+                                        backgroundColor: 'transparent',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <img src={trash} width='24px' height='24px' />
+                                </button>
+                            </div>
+                        ))}
                     </div>
                 </div>
+            </div>
+            <Box sx={{ marginBottom: '4px' }}>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={generateInvoice}
+                            onChange={(e) => setGenerateInvoice(e.target.checked)}
+                            sx={{ color: '#8F4D63' }}
+                        />
+                    }
+                    label={
+                        <Typography
+                            sx={{
+                                fontFamily: 'Poppins',
+                                fontSize: '14px',
+                                color: '#786E71',
+                            }}
+                        >
+                            Generar factura automáticamente
+                        </Typography>
+                    }
+                />
+            </Box>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                    padding: '8px 0',
+                }}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography
+                        sx={{
+                            fontFamily: 'Poppins',
+                            fontSize: '14px',
+                            color: '#574B4F',
+                            fontWeight: 500,
+                        }}
+                    >
+                        Pagos procesados de forma segura con
+                    </Typography>
+                    <Box
+                        component="img"
+                        src={openpay}
+                        alt="Openpay"
+                        sx={{ height: '20px', objectFit: 'contain' }}
+                    />
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: '10px' }}>
+                    <SecondaryButton onClick={() => navigate(-1)} text="Cancelar" />
+                    <MainButton text="Aceptar" isLoading={loading} onClick={addRechargeSetting} disabled={isAcceptButtonDisabled} />
+
+                </Box>
+            </Box>
+
+            <div style={{ padding: '20px', maxWidth: '1000px', marginLeft: '0', backgroundColor: '#F2F2F2', borderRadius: '8px', marginBottom: "50px" }}>
+
+                {/* Botones de acción debajo de las tarjetas de crédito */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0px' }}>
+                </div>
+            </div>
 
 
             <ModalError
@@ -1450,13 +1625,13 @@ const PaymentSettings: React.FC = () => {
                         />
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '16px', width: '100%' }}>
                             <div style={{ gridColumn: '1 / 2', display: 'flex', justifyContent: 'flex-start' }}>
-                                <SecondaryButton onClick={() => handleCloseAddCardModal()} text="Cancel"    
-                                
+                                <SecondaryButton onClick={() => handleCloseAddCardModal()} text="Cancel"
+
                                 />
                             </div>
                             <div style={{ gridColumn: '2 / 3', display: 'flex', justifyContent: 'flex-end' }}>
-                                <MainButton text="Agregar" isLoading={loading} onClick={() => addCreditCard()} disabled={!areRequiredFieldsFilled()} 
-                                
+                                <MainButton text="Agregar" isLoading={loading} onClick={() => addCreditCard()} disabled={!areRequiredFieldsFilled()}
+
                                 />
                             </div>
                         </div>
@@ -1483,7 +1658,7 @@ const PaymentSettings: React.FC = () => {
                     onClose={() => setshowChipBarCard(false)}
                 />
             )}
-        </div>
+        </Box>
     );
 };
 

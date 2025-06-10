@@ -1205,7 +1205,7 @@ const BlackList: React.FC = () => {
                                                         ]
                                                     }}
                                                 >
-                                                    <IconButton onClick={() => handleDeleteSelected} >
+                                                    <IconButton onClick={() => handleDeleteSelected(null)} >
                                                         <img src={Thrashicon} alt="Eliminar" style={{ width: 20, height: 20 }} />
                                                     </IconButton>
                                                 </Tooltip>
@@ -1799,7 +1799,7 @@ const BlackList: React.FC = () => {
                                     }}
                                 >
 
-                                    <a href="/SMS/Files/ArchivomuestraListasNegras.xlsx" download style={{ textDecoration: 'none' }}>
+                                    <a href="/RedQuantum/Files/ArchivomuestraListasNegras.xlsx" download style={{ textDecoration: 'none' }}>
                                         <Button
                                             disableRipple
                                             sx={{

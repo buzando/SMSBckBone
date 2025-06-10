@@ -15,7 +15,7 @@ namespace Contract.Request
         public bool? Call { get; set; }
 
         [Column("AmountNotification", TypeName = "decimal(10,2)")]
-        public decimal AmountValue { get; set; }
+        public decimal? AmountValue { get; set; }
 
         public bool? AutoRecharge { get; set; }
 
@@ -24,5 +24,7 @@ namespace Contract.Request
 
         public int? IdCreditCard { get; set; }
         public List<string> Users { get; set; }
+        public int? IdRoom { get; set; }
+        public int? Id { get; set; }
     }
 }

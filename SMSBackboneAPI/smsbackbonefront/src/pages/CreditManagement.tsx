@@ -34,7 +34,8 @@ import iconclose from "../assets/icon-close.svg"
 import MainButton from "../components/commons/MainButton";
 import SecondaryButton from "../components/commons/SecondaryButton";
 import ErrorModal from '../components/commons/ModalError'
-
+import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "../assets/icon-punta-flecha-bottom.svg";
 type Rooms = {
     id: string | number;
     name: string;
@@ -62,7 +63,7 @@ const CreditManagement: React.FC = () => {
     const [searchTerm3, setSearchTerm3] = useState("");
     const [OpenErrorModal, setOpenErrorModal] = useState(false);
     const [showChipBarAdd, setshowChipBarAdd] = useState(false);
-
+    const navigate = useNavigate();
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
@@ -205,7 +206,23 @@ const CreditManagement: React.FC = () => {
             const response = await axios.post(requestUrl, payload);
 
             if (response.status === 200) {
-                setshowChipBarAdd(true); // Mostrar ChipBar para edición exitosa
+                const currentSelected = localStorage.getItem('selectedRoom');
+                if (currentSelected) {
+                    try {
+                        const parsed = JSON.parse(currentSelected);
+
+                        // Buscar en la lista que regresó el backend si alguna es la seleccionada
+                        const updatedRoom = response.data.find((r: any) => r.id === parsed.id);
+
+                        if (updatedRoom) {
+                            localStorage.setItem('selectedRoom', JSON.stringify(updatedRoom));
+                            window.dispatchEvent(new Event('storageUpdate'));
+                        }
+                    } catch (error) {
+                        console.error("Error actualizando selectedRoom desde localStorage", error);
+                    }
+                }
+                setshowChipBarAdd(true);
                 setTimeout(() => setshowChipBarAdd(false), 3000);
                 GetCredits();
                 handleCloseModal();
@@ -222,292 +239,304 @@ const CreditManagement: React.FC = () => {
 
 
     return (
-        <Box p={4}
-        sx={{ 
-            position: "sticky",
-            top: 0,
-            backgroundColor: "#F2F2F2",
-            zIndex: 10,
-            paddingBottom: "16px" 
-            }}
-        >
-            <Typography variant="h4" sx={{ fontWeight: "500", mb: 2, fontFamily: "Poppins, sans-serif", }}>
-                Gestión
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-            <Box display="flex" alignItems="center" justifyContent="flex-start" mb={2}>
-                <Box
-                    display="flex"
-                    alignItems="center"
-                    sx={{
-                        backgroundColor: "#FFFFFF",
-                        border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295", // Cambia el color del borde si hay texto
-                        borderRadius: "4px",
-                        padding: "8px 12px",
-                        width: "218px",
-                        height: "40px",
-                        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                    }}
-                >
+        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', pl: '16px', mb: 3 }}>
+                <IconButton onClick={() => navigate('/')} sx={{ color: "#5A2836", mr: 1 }}>
                     <img
-                        src={seachicon}
-                        alt="Buscar"
-                        style={{
-                            marginRight: "8px",
-                            width: "16px",
-                            height: "16px",
-                            filter: searchTerm ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none", // Ajusta el color si hay texto
-                        }}
+                        src={ArrowBackIcon}
+                        alt="Regresar"
+                        style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
                     />
-                    <input
-                        type="text"
-                        placeholder="Buscar"
-                        value={searchTerm} // Variable de estado para el valor del input
-                        onChange={handleSearch} // Función que maneja el cambio en el input
-                        style={{
-                            border: "none", // Sin borde
-                            outline: "none", // Sin borde al enfocar
-                            width: "100%", // Ocupa todo el espacio restante
-                            fontSize: "16px", // Tamaño de la fuente
-                            fontFamily: "Poppins, sans-serif", // Fuente según especificación
-                            color: searchTerm ? "#7B354D" : "#9B9295", // Cambia el color del texto si hay texto
-                            backgroundColor: "transparent", // Fondo transparente para evitar interferencias
-                        }}
-                    />
-                    {/* Ícono de cerrar cuando hay texto */}
-                    {searchTerm && (
-                        <img
-                            src={iconclose}
-                            alt="Limpiar búsqueda"
-                            style={{
-                                marginLeft: "8px",
-                                width: "16px",
-                                height: "16px",
-                                cursor: "pointer",
-                            }}
-                            onClick={() => setSearchTerm("")} // Borra el texto al hacer clic
-                        />
-                    )}
-                </Box>
-
-            </Box>
-
-            {loading ? (
-                <Box display="flex" justifyContent="center" mt={5}>
-                    <CircularProgress />
-                </Box>
-            ) : (
-                <Box
+                </IconButton>
+                <Typography
+                    variant="h4"
                     sx={{
-                        display: 'grid', // Cambiamos el diseño a grid
-                        gap: '10px', // Espaciado entre los recuadros
-                        gridTemplateColumns: '430px 430px', // Dos columnas con ancho fijo
-                        columnGap: '10px', // Espacio horizontal entre columnas
+                        fontWeight: "500",
+                        fontFamily: "Poppins, sans-serif",
+                        color: "#5A2836",
+                        fontSize: '26px',
                     }}
                 >
-                    {rooms.filter((rooms) => {
-                        const term = searchTerm.toLowerCase();
-                        const nameWords = rooms.name.toLowerCase().split(" ");
-                        return nameWords.some((word) => word.startsWith(term));
-                    }).length === 0 ? (
-                        <Grid item xs={12}>
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "flex-end",    
-                                            justifyContent: "center",  
-                                            height: "300px",          
-                                            marginLeft: "50px",
-                                        }}
-                                    >
-                                        <img
-                                            src={NoResult}
-                                            alt="Sin resultados"
-                                            style={{
-                                                // Ajusta el tamaño a tu gusto
-                                                width: "300px",
-                                                marginBottom: "16px",
-                                            }}
-                                        />
-                                <Typography
-                                    variant="body1"
+                    Gestión
+                </Typography>
+            </Box>
+            <Box sx={{ pl: 5 }}>
+                <Box>
+
+                    <Divider sx={{ mb: 3 }} />
+                    <Box display="flex" alignItems="center" justifyContent="flex-start" mb={2}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            sx={{
+                                backgroundColor: "#FFFFFF",
+                                border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295", // Cambia el color del borde si hay texto
+                                borderRadius: "4px",
+                                padding: "8px 12px",
+                                width: "218px",
+                                height: "40px",
+                                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                            }}
+                        >
+                            <img
+                                src={seachicon}
+                                alt="Buscar"
+                                style={{
+                                    marginRight: "8px",
+                                    width: "16px",
+                                    height: "16px",
+                                    filter: searchTerm ? "invert(19%) sepia(34%) saturate(329%) hue-rotate(312deg) brightness(91%) contrast(85%)" : "none", // Ajusta el color si hay texto
+                                }}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Buscar"
+                                value={searchTerm} // Variable de estado para el valor del input
+                                onChange={handleSearch} // Función que maneja el cambio en el input
+                                style={{
+                                    border: "none", // Sin borde
+                                    outline: "none", // Sin borde al enfocar
+                                    width: "100%", // Ocupa todo el espacio restante
+                                    fontSize: "16px", // Tamaño de la fuente
+                                    fontFamily: "Poppins, sans-serif", // Fuente según especificación
+                                    color: searchTerm ? "#7B354D" : "#9B9295", // Cambia el color del texto si hay texto
+                                    backgroundColor: "transparent", // Fondo transparente para evitar interferencias
+                                }}
+                            />
+                            {/* Ícono de cerrar cuando hay texto */}
+                            {searchTerm && (
+                                <img
+                                    src={iconclose}
+                                    alt="Limpiar búsqueda"
+                                    style={{
+                                        marginLeft: "8px",
+                                        width: "16px",
+                                        height: "16px",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => setSearchTerm("")} // Borra el texto al hacer clic
+                                />
+                            )}
+                        </Box>
+
+                    </Box>
+                </Box>
+                {loading ? (
+                    <Box display="flex" justifyContent="center" mt={5}>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            display: 'grid', // Cambiamos el diseño a grid
+                            gap: '10px', // Espaciado entre los recuadros
+                            gridTemplateColumns: '430px 430px', // Dos columnas con ancho fijo
+                            columnGap: '10px', // Espacio horizontal entre columnas
+                        }}
+                    >
+                        {rooms.filter((rooms) => {
+                            const term = searchTerm.toLowerCase();
+                            const nameWords = rooms.name.toLowerCase().split(" ");
+                            return nameWords.some((word) => word.startsWith(term));
+                        }).length === 0 ? (
+                            <Grid item xs={12}>
+                                <Box
                                     sx={{
-                                        textAlign: "center",
-                                        color: "#833A53",
-                                        fontSize: "16px",
-                                        fontFamily: "Poppins, sans-serif",
-                                        fontWeight: "medium",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "flex-end",
+                                        justifyContent: "center",
+                                        height: "300px",
+                                        marginLeft: "50px",
                                     }}
                                 >
-                                    No se encontraron resultados.
-                                </Typography>
-                            </Box>
-                        </Grid>
-                    ) : (
-                        rooms
-                            .filter((rooms) => {
-                                const term = searchTerm.toLowerCase();
-                                const nameWords = rooms.name.toLowerCase().split(" ");
-                                return nameWords.some((word) => word.startsWith(term));
-                            })
-                            .map((room) => (
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sm={6}
-                                    md={4}
-                                    key={room.id}
-                                >
-                                    <Box
+                                    <img
+                                        src={NoResult}
+                                        alt="Sin resultados"
+                                        style={{
+                                            // Ajusta el tamaño a tu gusto
+                                            width: "300px",
+                                            marginBottom: "16px",
+                                        }}
+                                    />
+                                    <Typography
+                                        variant="body1"
                                         sx={{
-                                            width: '430px', // Ancho especificado
-                                            height: '101px', // Alto especificado
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            backgroundColor: '#FFFFFF',
-                                            borderRadius: '8px',
-                                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                                            padding: '16px',
+                                            textAlign: "center",
+                                            color: "#833A53",
+                                            fontSize: "16px",
+                                            fontFamily: "Poppins, sans-serif",
+                                            fontWeight: "medium",
                                         }}
                                     >
-                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                            <img
-                                                src={HouseIcon}
-                                                alt="Rooms Icon"
-                                                style={{
-                                                    width: '46px', // Ajustado al tamaño del icono anterior
-                                                    height: '46px',
-                                                    marginRight: '16px',
-                                                }}
-                                            />
-                                            <Box>
-                                                <Typography
-                                                    variant="h6"
-                                                    sx={{
-                                                        textAlign: 'left',
-                                                        fontFamily: "Poppins, sans-serif",
-                                                        letterSpacing: '0px',
-                                                        color: '#574B4F',
-                                                        opacity: 1,
-                                                        fontSize: '16px',
-                                                        whiteSpace: 'nowrap', // Evita el salto de línea
-                                                        overflow: 'hidden', // Oculta el texto si es muy largo
+                                        No se encontraron resultados.
+                                    </Typography>
+                                </Box>
+                            </Grid>
+                        ) : (
+                            rooms
+                                .filter((rooms) => {
+                                    const term = searchTerm.toLowerCase();
+                                    const nameWords = rooms.name.toLowerCase().split(" ");
+                                    return nameWords.some((word) => word.startsWith(term));
+                                })
+                                .map((room) => (
+                                    <Grid
+                                        item
+                                        xs={12}
+                                        sm={6}
+                                        md={4}
+                                        key={room.id}
+                                    >
+                                        <Box
+                                            sx={{
+                                                width: '430px', // Ancho especificado
+                                                height: '101px', // Alto especificado
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                backgroundColor: '#FFFFFF',
+                                                borderRadius: '8px',
+                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                                padding: '16px',
+                                            }}
+                                        >
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <img
+                                                    src={HouseIcon}
+                                                    alt="Rooms Icon"
+                                                    style={{
+                                                        width: '46px', // Ajustado al tamaño del icono anterior
+                                                        height: '46px',
+                                                        marginRight: '16px',
                                                     }}
-                                                >
-                                                    {room.name}
-                                                </Typography>
+                                                />
+                                                <Box>
+                                                    <Typography
+                                                        variant="h6"
+                                                        sx={{
+                                                            textAlign: 'left',
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            letterSpacing: '0px',
+                                                            color: '#574B4F',
+                                                            opacity: 1,
+                                                            fontSize: '16px',
+                                                            whiteSpace: 'nowrap', // Evita el salto de línea
+                                                            overflow: 'hidden', // Oculta el texto si es muy largo
+                                                        }}
+                                                    >
+                                                        {room.name}
+                                                    </Typography>
 
-                                                <Typography
-                                                    variant="body2"
-                                                    sx={{
-                                                        textAlign: 'left',
-                                                        fontFamily: "Poppins, sans-serif",
-                                                        letterSpacing: '0px',
-                                                        color: '#574B4F',
-                                                        opacity: 1,
-                                                        fontSize: '14px',
-                                                        whiteSpace: 'nowrap',
-                                                        maxWidth: '90%',
-                                                    }}
-                                                >
-                                                    {room.description}
-                                                </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            textAlign: 'left',
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            letterSpacing: '0px',
+                                                            color: '#574B4F',
+                                                            opacity: 1,
+                                                            fontSize: '14px',
+                                                            whiteSpace: 'nowrap',
+                                                            maxWidth: '90%',
+                                                        }}
+                                                    >
+                                                        {room.description}
+                                                    </Typography>
 
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                            <Box sx={{ textAlign: 'right', marginRight: '16px' }}>
-                                                <Typography
-                                                    variant="body2"
-                                                    sx={{
-                                                        textAlign: 'right',
-                                                        fontFamily: "Poppins, sans-serif",
-                                                        letterSpacing: '0px',
-                                                        color: '#8D4B62',
-                                                        opacity: 1,
-                                                        fontSize: '12px',
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Box sx={{ textAlign: 'right', marginRight: '16px' }}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            textAlign: 'right',
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            letterSpacing: '0px',
+                                                            color: '#8D4B62',
+                                                            opacity: 1,
+                                                            fontSize: '12px',
+                                                        }}
+                                                    >
+                                                        SMS # Cortos: {room.short_sms.toLocaleString()}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            textAlign: 'right',
+                                                            fontFamily: "Poppins, sans-serif",
+                                                            letterSpacing: '0px',
+                                                            color: '#8D4B62',
+                                                            opacity: 1,
+                                                            fontSize: '12px',
+                                                        }}
+                                                    >
+                                                        SMS # Largos: {room.long_sms.toLocaleString()}
+                                                    </Typography>
+                                                </Box>
+                                                <IconButton onClick={(event) => handleMenuOpen(event, room)}>
+                                                    <MoreVertIcon />
+                                                </IconButton>
+                                                <Menu
+                                                    anchorEl={menuAnchorEl}
+                                                    open={Boolean(menuAnchorEl)}
+                                                    onClose={handleMenuClose}
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'left',
+                                                    }}
+                                                    transformOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                    PaperProps={{
+                                                        sx: {
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                        },
                                                     }}
                                                 >
-                                                    SMS # Cortos: {room.short_sms.toLocaleString()}
-                                                </Typography>
-                                                <Typography
-                                                    variant="body2"
-                                                    sx={{
-                                                        textAlign: 'right',
-                                                        fontFamily: "Poppins, sans-serif",
-                                                        letterSpacing: '0px',
-                                                        color: '#8D4B62',
-                                                        opacity: 1,
-                                                        fontSize: '12px',
-                                                    }}
-                                                >
-                                                    SMS # Largos: {room.long_sms.toLocaleString()}
-                                                </Typography>
-                                            </Box>
-                                            <IconButton onClick={(event) => handleMenuOpen(event, room)}>
-                                                <MoreVertIcon />
-                                            </IconButton>
-                                            <Menu
-                                                anchorEl={menuAnchorEl}
-                                                open={Boolean(menuAnchorEl)}
-                                                onClose={handleMenuClose}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'left',
-                                                }}
-                                                transformOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                                PaperProps={{
-                                                    sx: {
+                                                    <MenuItem onClick={handleOpenModal} sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        padding: '10px 16px',
                                                         borderRadius: '8px',
-                                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                    },
-                                                }}
-                                            >
-                                                <MenuItem onClick={handleOpenModal} sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    padding: '10px 16px',
-                                                    borderRadius: '8px',
-                                                    '&:hover': {
-                                                        background: '#F2EBED 0% 0% no-repeat padding-box',
-                                                        opacity: 1,
-                                                    },
-                                                }}>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                        <img
-                                                            src={TrashIcon}
-                                                            alt="Distribución de créditos"
-                                                            width="24"
-                                                            height="24"
-                                                            style={{ marginRight: "8px" }}
-                                                        />
-                                                        <Typography
-                                                            sx={{
-                                                                fontSize: '14px',
-                                                                fontWeight: 'medium',
-                                                                textAlign: 'left',
-                                                            }}
-                                                        >
-                                                            Distribución de créditos
-                                                        </Typography>
-                                                    </Box>
-                                                </MenuItem>
-                                            </Menu>
+                                                        '&:hover': {
+                                                            background: '#F2EBED 0% 0% no-repeat padding-box',
+                                                            opacity: 1,
+                                                        },
+                                                    }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                            <img
+                                                                src={TrashIcon}
+                                                                alt="Distribución de créditos"
+                                                                width="24"
+                                                                height="24"
+                                                                style={{ marginRight: "8px" }}
+                                                            />
+                                                            <Typography
+                                                                sx={{
+                                                                    fontSize: '14px',
+                                                                    fontWeight: 'medium',
+                                                                    textAlign: 'left',
+                                                                }}
+                                                            >
+                                                                Distribución de créditos
+                                                            </Typography>
+                                                        </Box>
+                                                    </MenuItem>
+                                                </Menu>
+                                            </Box>
                                         </Box>
-                                    </Box>
-                                </Grid>
-                            ))
+                                    </Grid>
+                                ))
 
-                    )}
-                </Box>
-            )}
-
+                        )}
+                    </Box>
+                )}
+            </Box>
             {/* Modal */}
             <Modal
                 open={modalOpen}
@@ -682,7 +711,7 @@ const CreditManagement: React.FC = () => {
                                                 )}
                                             </Box>
                                             <Divider sx={{ my: 0 }} />
-                                            <List sx={{ p: 0}}>
+                                            <List sx={{ p: 0 }}>
                                                 {filteredRooms2.length > 0 ? (
                                                     filteredRooms2.map((room) => (
                                                         <ListItem
@@ -717,9 +746,9 @@ const CreditManagement: React.FC = () => {
                                                                     color: "#786E71",
                                                                     opacity: 1,
                                                                     fontSize: "12px",
-                                                                    lineHeight: "1.2", 
+                                                                    lineHeight: "1.2",
                                                                 },
-                                                            
+
                                                             }}
                                                         >
                                                             <ListItemText

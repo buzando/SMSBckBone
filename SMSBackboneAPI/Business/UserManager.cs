@@ -22,6 +22,7 @@ using Contract;
 using Contract.Other;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Azure.Core.Pipeline;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 
 namespace Business
 {
@@ -867,6 +868,27 @@ namespace Business
 
                     ctx.CreditRechargeOpenPay.Add(openpayRecord);
                     ctx.SaveChanges();
+
+                    var room = (from r in ctx.Rooms
+                                join rbu in ctx.roomsbyuser on r.id equals rbu.idRoom
+                                where r.name == credit.room && rbu.idUser == credit.IdUser
+                                select r).FirstOrDefault();
+
+                    if (room != null)
+                    {
+                        if (credit.Chanel.ToLower() == "short_sms")
+                        {
+                            room.short_sms = room.short_sms + credit.QuantityCredits;
+                            room.credits = room.credits + credit.QuantityCredits;
+                        }
+                        else
+                        {
+                            room.long_sms = room.long_sms + credit.QuantityCredits;
+                            room.credits = room.credits + credit.QuantityCredits;
+
+                        }
+                        ctx.SaveChanges();
+                    }
                 }
                 return charge.PaymentMethod.Url;
             }
@@ -980,30 +1002,100 @@ namespace Business
             var recharge = new AmountNotification();
             try
             {
-                recharge.AmountValue = Amount.AmountValue;
-                recharge.short_sms = Amount.ShortSms;
-                recharge.long_sms = Amount.LongSms;
-                recharge.call = Amount.Call;
-                recharge.AutoRecharge = Amount.AutoRecharge;
-                recharge.AutoRechargeAmountNotification = Amount.AutoRechargeAmountNotification;
-                recharge.AutoRechargeAmount = Amount.AutoRechargeAmount;
                 using (var ctx = new Entities())
                 {
-                    ctx.AmountNotification.Add(recharge);
-                    ctx.SaveChanges();
-                    foreach (var item in Amount.Users)
+                    var existe = ctx.AmountNotification.Where(x => x.IdRoom == Amount.IdRoom).FirstOrDefault();
+                    if (existe == null)
                     {
-                        var byuser = new AmountNotificationUser();
-                        byuser.NotificationId = recharge.id;
-                        byuser.UserId = ctx.Users.Where(x => x.email == item).Select(x => x.Id).FirstOrDefault();
-                        ctx.AmountNotificationUser.Add(byuser);
+                        recharge.AmountValue = Amount.AmountValue ?? 0;
+                        recharge.short_sms = Amount.ShortSms;
+                        recharge.long_sms = Amount.LongSms;
+                        recharge.call = Amount.Call;
+                        recharge.AutoRecharge = Amount.AutoRecharge;
+                        recharge.AutoRechargeAmountNotification = Amount.AutoRechargeAmountNotification;
+                        recharge.AutoRechargeAmount = Amount.AutoRechargeAmount;
+                        recharge.IdRoom = Amount.IdRoom;
+                        recharge.IdCreditCard = Amount.IdCreditCard;
+                        ctx.AmountNotification.Add(recharge);
+                        ctx.SaveChanges();
+                        foreach (var item in Amount.Users)
+                        {
+                            var byuser = new AmountNotificationUser();
+                            byuser.NotificationId = recharge.id;
+                            byuser.UserId = ctx.Users.Where(x => x.email == item).Select(x => x.Id).FirstOrDefault();
+                            ctx.AmountNotificationUser.Add(byuser);
+                        }
+
+                    }
+                    else
+                    {
+                        existe.AmountValue = Amount.AmountValue ?? 0;
+                        existe.short_sms = Amount.ShortSms;
+                        existe.long_sms = Amount.LongSms;
+                        existe.call = Amount.Call;
+                        existe.AutoRecharge = Amount.AutoRecharge;
+                        existe.AutoRechargeAmountNotification = Amount.AutoRechargeAmountNotification;
+                        existe.AutoRechargeAmount = Amount.AutoRechargeAmount;
+                        existe.IdRoom = Amount.IdRoom;
+                        existe.IdCreditCard = Amount.IdCreditCard;
+                        ctx.SaveChanges();
+                        foreach (var item in Amount.Users)
+                        {
+                            var byuser = new AmountNotificationUser();
+                            byuser.NotificationId = existe.id;
+                            byuser.UserId = ctx.Users.Where(x => x.email == item).Select(x => x.Id).FirstOrDefault();
+
+                            var existeuser = ctx.AmountNotificationUser.Where(x => x.NotificationId == recharge.id && x.UserId == byuser.Id).FirstOrDefault();
+                            if (existeuser == null)
+                            {
+
+                                ctx.AmountNotificationUser.Add(byuser);
+                            }
+                            ctx.SaveChanges();
+                        }
                     }
                 }
+
                 return true;
             }
             catch (Exception e)
             {
                 return false;
+            }
+        }
+
+        public AmountNotificationRequest GetRecharge(int IDRoom)
+        {
+            var recharge = new AmountNotificationRequest();
+            try
+            {
+
+                using (var ctx = new Entities())
+                {
+                    recharge = ctx.AmountNotification.Where(x => x.IdRoom == IDRoom).Select(x => new AmountNotificationRequest
+                    {
+                        IdRoom = x.IdRoom,
+                        AmountValue = x.AmountValue,
+                        AutoRecharge = x.AutoRecharge,
+                        AutoRechargeAmount = x.AutoRechargeAmount,
+                        AutoRechargeAmountNotification = x.AutoRechargeAmountNotification,
+                        Call = x.call,
+                        IdCreditCard = x.IdCreditCard,
+                        LongSms = x.long_sms,
+                        ShortSms = x.short_sms,
+                        Id = x.id
+                    }).FirstOrDefault();
+                    if (recharge != null)
+                    {
+
+                        recharge.Users = ctx.AmountNotificationUser.Where(x => x.Id == recharge.Id).Select(x => x.UserId.ToString()).ToList();
+                    }
+                }
+                return recharge;
+            }
+            catch (Exception e)
+            {
+                return null;
             }
         }
         #endregion
