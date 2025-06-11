@@ -61,6 +61,7 @@ import Iconhelpu from '../assets/Iconhelpu.svg';
 import logorq from '../assets/Logo-RQ_2.svg';
 import PrivacityIcon from '../assets/Icon_privacidad.svg'
 import api from '../assets/api.svg'
+import apihover from '../assets/apihover.svg'
 const drawerWidth = 278;
 
 type Page = {
@@ -227,6 +228,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const [helpModalIsOpen, setHelpModalIsOpen] = useState(false);
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
     const [selectedLink, setSelectedLink] = useState<string | null>(null);
+    const [isHoveringApi, setIsHoveringApi] = useState(false);
 
     const handleSelection = (link: string) => {
         setSelectedLink(link); // Cambia el enlace seleccionado
@@ -244,6 +246,27 @@ const NavBarAndDrawer: React.FC<Props> = props => {
         // Redirigir al login
         navigate('/login');
     };
+
+    const fetchRoomsAndDispatch = async () => {
+        const usuario = localStorage.getItem("userData");
+        const obj = usuario ? JSON.parse(usuario) : null;
+
+        if (!obj?.email) return;
+
+        try {
+            const request = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_GetRooms}?email=${obj.email}`;
+            const response = await fetch(request);
+
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem("ListRooms", JSON.stringify(data));
+                window.dispatchEvent(new Event("roomsUpdate"));
+            }
+        } catch (error) {
+            console.error("Error al obtener salas desde layout:", error);
+        }
+    };
+
     useEffect(() => {
         const loadSelectedRoom = () => {
             const currentRoom = localStorage.getItem('selectedRoom');
@@ -268,6 +291,10 @@ const NavBarAndDrawer: React.FC<Props> = props => {
         return () => {
             window.removeEventListener('storageUpdate', handleStorageUpdate);
         };
+    }, []);
+
+    useEffect(() => {
+        fetchRoomsAndDispatch();
     }, []);
 
     useEffect(() => {
@@ -1893,55 +1920,79 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         {' Nuxiba. Todos los derechos reservados. Se prohíbe el uso no autorizado.'}
                     </Typography>
                     <img src={nuxiba_svg} alt="Nuxiba Logo" width="80" />
-                    <Fab
-                        aria-label="help"
-                        onClick={handleDownload}
+
+                    <Tooltip
+                        title="Descargar API"
+                        arrow
+                        placement="top"
                         sx={{
-                            position: "fixed",
-                            bottom: 70,
-                            right: 30,
-                            zIndex: 1500,
-                            width: "60px", // Tamaño personalizado
-                            height: "60px", // Tamaño personalizado
-                            backgroundColor: "#FFFFFF", // Fondo blanco
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Sombra normal
-                            border: "1px solid #D9C5CB", // Borde del botón
-                            "&:hover": {
-                                background: "#EBE5E7 0% 0% no-repeat padding-box",
-                                boxShadow: "0px 8px 16px #00131F14", // Sombra en hover
-                                border: "1px solid #D9C5CB", // Borde en hover
+                            "& .MuiTooltip-tooltip": {
+                                backgroundColor: "#330F1B",
+                                color: "#FFFFFF",
+                                fontSize: "12px",
+                                fontFamily: "Poppins, sans-serif",
+                                fontWeight: "medium",
+                            },
+                            "& .MuiTooltip-arrow": {
+                                color: "#330F1B",
                             },
                         }}
                     >
-
-                        <Tooltip
-                            title="Descargar API"
-                            arrow
-                            placement="top"
-                            sx={{
-                                "& .MuiTooltip-tooltip": {
-                                    backgroundColor: "#330F1B", // Fondo del tooltip
-                                    color: "#FFFFFF", // Texto blanco
-                                    fontSize: "12px", // Tamaño de fuente
-                                    fontFamily: "Poppins, sans-serif", // Fuente personalizada
-                                    fontWeight: "medium", // Peso de texto
-                                },
-                                "& .MuiTooltip-arrow": {
-                                    color: "#330F1B", // Color de la flecha del tooltip
-                                },
+                        <div
+                            onClick={handleDownload}
+                            onMouseEnter={() => setIsHoveringApi(true)}
+                            onMouseLeave={() => setIsHoveringApi(false)}
+                            style={{
+                                position: "fixed",
+                                bottom: "70px",
+                                right: "30px",
+                                width: "80px",
+                                height: "80px",
+                                cursor: "pointer",
+                                zIndex: 1500,
                             }}
                         >
+                            {/* Imagen base */}
                             <img
                                 src={api}
                                 alt="Ícono de api"
                                 style={{
-                                    width: "80px",
-                                    height: "80px",
-                                    transform: "scale(1.1)",
+                                    width: "100px",
+                                    height: "100px",
+                                    borderRadius: "50%",
+                                    objectFit: "contain",
+                                    display: "block",
                                 }}
                             />
-                        </Tooltip>
-                    </Fab>
+
+                            {/* Overlay rosita */}
+                            {isHoveringApi && (
+                                <div
+                                    style={{
+                                        marginTop:"15px",
+                                        marginLeft:"18px",
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        width: "58px",
+                                        height: "60px",
+                                        borderRadius: "50%",
+                                        backgroundColor: "#D9C5CB",
+                                        opacity: 0.5,
+                                        pointerEvents: "none",
+                                    }}
+                                />
+                            )}
+
+                        </div>
+
+
+
+
+
+                    </Tooltip>
+
+
 
                 </Box>
 
