@@ -1,9 +1,10 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import { TextField, InputAdornment, MenuItem, Box, Select, Menu, Modal, Button, Typography, ListItemText, Checkbox, Grid, IconButton, Divider, FormControl } from '@mui/material';
 import HelpIco from '../assets/Icono_ayuda.svg';
+import IconTrash from "../assets/IconTrash.svg";
 import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 import Tooltip from '@mui/material/Tooltip';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -4039,9 +4040,22 @@ const MyNumbers: React.FC = () => {
                                 )}
                                 {currentStep === 2 && (
                                     <>
-                                        <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', color: '#4a4a4a' }}>Renta de números</h2>
+                                        <Box sx={{ mt: 0.5 }}>
+                                            <Typography style={{
+                                                fontSize: '20px', marginBottom: '20px', color: '#574B4F',
+                                                fontWeight: 600, textTransform: "none", fontFamily: "Poppins"
+                                            }}>Renta de números
+                                            </Typography>
+                                            <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-66px", marginLeft: '480px' }}>
+                                                <CloseIcon />
+                                            </IconButton>
+                                        </Box>
+
+                                        <Divider sx={{ width: 'calc(100% + 49px)', marginLeft: '-24px', mb: 3, mt: 2.5 }} />
+
                                         {isLongNumber ? (
                                             <>
+
                                                 <p style={{ margin: '5px 0' }}><strong>Números:</strong> {numberQuantity}</p>
                                                 <p style={{ margin: '5px 0' }}><strong>Estado:</strong> {selectedState || 'No seleccionado'}</p>
                                                 <p style={{ margin: '5px 0' }}><strong>Municipio:</strong> {selectedMunicipality || 'No seleccionado'}</p>
@@ -4051,16 +4065,41 @@ const MyNumbers: React.FC = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <div style={{ marginBottom: '20px', padding: '10px', border: '1px solid #dcdcdc', borderRadius: '8px' }}>
-                                                    <p style={{ margin: '5px 0' }}>Números: {numberQuantity}</p>
-                                                    <p style={{ margin: '5px 0' }}>Costo por setup: ${costSetup.toFixed(2)}</p>
-                                                    <p style={{ margin: '5px 0' }}>Costo mensual: ${monthlyCost.toFixed(2)}</p>
-                                                </div>
+                                                <Box style={{
+                                                    marginBottom: '20px', padding: '10px', border: '1px solid #E6E4E4', borderRadius: '8px',
+                                                    backgroundColor: "#E6E4E466", maxHeight: "206px", width: "407px", marginLeft: "55px"
+                                                }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                        <Typography sx={{ fontFamily: "Poppins", color: '#330F1BB3', fontSize: "16px", fontWeight: 600 }}
+                                                        >Números:</Typography>
+                                                        <p style={{ margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3', fontSize: "16px", fontWeight: 500 }}> {numberQuantity}</p>
+                                                    </Box>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                        <Typography sx={{ fontFamily: "Poppins", color: '#330F1BB3', fontSize: "16px", fontWeight: 600 }}
+                                                        >Costo por setup:</Typography>
+                                                        <p style={{ margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3', fontSize: "16px", fontWeight: 500 }}> ${costSetup.toFixed(2)}</p>
+                                                    </Box>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                        <Typography sx={{ fontFamily: "Poppins", color: '#330F1BB3', fontSize: "16px", fontWeight: 600 }}
+                                                        >Costo mensual:</Typography>
+                                                        <p style={{ margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3', fontSize: "16px", fontWeight: 500 }}> ${monthlyCost.toFixed(2)}</p>
+                                                    </Box>
+                                                </Box>
+                                                <p style={{
+                                                    fontSize: '12px', color: '#84797D', marginBottom: '20px',
+                                                    fontFamily: "Poppins", width: "382px", minHeight: "35px",
+                                                    textAlign: "center", marginLeft: "64px"
+                                                }}>
+                                                    Nota: Al realizar el pago del número el cobro será recurrente.
+                                                </p>
                                             </>
                                         )}
 
-                                        <h3 style={{ fontSize: '1.2rem', marginBottom: '10px', color: '#4a4a4a' }}>Seleccionar método de pago</h3>
-                                        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginBottom: '20px' }}>
+                                        <h3 style={{
+                                            fontWeight: 500, marginBottom: '10px', color: '#330F1B',
+                                            fontSize: '16px', textAlign: "left", marginLeft: "55px", fontFamily: "Poppins"
+                                        }}>Seleccionar método de pago</h3>
+                                        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginBottom: '20px', }}>
                                             {creditCards.map((card) => (
                                                 <div
                                                     key={card.id}
@@ -4070,8 +4109,8 @@ const MyNumbers: React.FC = () => {
                                                         padding: '15px',
                                                         width: '250px',
                                                         backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
-                                                        position: 'relative', // Para posicionar los elementos
-                                                        cursor: 'pointer',
+                                                        position: 'relative',
+                                                        cursor: 'pointer', marginLeft: "52px", fontFamily: "Poppins"
                                                     }}
                                                 >
                                                     {/* Botón de eliminar */}
@@ -4082,14 +4121,14 @@ const MyNumbers: React.FC = () => {
                                                         }}
                                                         style={{
                                                             position: 'absolute',
-                                                            top: '10px',
-                                                            right: '10px',
+                                                            top: '5px',
+                                                            right: '0px',
                                                             backgroundColor: 'transparent',
                                                             border: 'none',
                                                             cursor: 'pointer',
                                                         }}
                                                     >
-                                                        🗑️
+                                                        <img src={IconTrash} alt="IconTrahs" style={{ width: 24, height: 24 }} />
                                                     </button>
 
                                                     {/* Tipo de tarjeta */}
@@ -4136,8 +4175,22 @@ const MyNumbers: React.FC = () => {
                                             ))}
                                         </div>
 
-                                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                                            <input type="checkbox" style={{ cursor: 'pointer' }} />
+                                        <label style={{
+                                            display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px',
+                                            color: "#786E71", fontFamily: "Poppins", fontSize: "18px"
+                                        }}>
+                                            <Checkbox
+                                                sx={{ marginLeft: "45px" }}
+                                                checkedIcon={
+
+                                                    <img
+                                                        src={IconCheckBox1}
+                                                        alt="Seleccionado"
+                                                        style={{ width: '24px', height: '24px' }}
+                                                    />
+
+                                                }
+                                            />
                                             Generar factura automáticamente
                                         </label>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -4172,27 +4225,102 @@ const MyNumbers: React.FC = () => {
                                 )}
                                 {currentStep === 3 && (
                                     <div>
-                                        <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', color: '#4a4a4a' }}>
-                                            Datos de facturación
-                                        </h2>
-
+                                        <Box sx={{ mt: 0 }}>
+                                            <Typography style={{
+                                                fontSize: '20px', marginBottom: '20px', color: '#574B4F',
+                                                fontWeight: 600, textTransform: "none", marginLeft: "10px", fontFamily: "Poppins"
+                                            }}>Renta de números
+                                            </Typography>
+                                            <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-66px", marginLeft: '480px' }}>
+                                                <CloseIcon />
+                                            </IconButton>
+                                        </Box>
+                                        <Divider sx={{ width: 'calc(100% + 49px)', marginLeft: '-24px', mb: 3, mt: 2.5 }} />
+                                        <Box sx={{ mt: -0.5, marginLeft: "4px" }}>
+                                            <Typography style={{
+                                                fontSize: '16px', marginBottom: '20px', color: '#330F1B',
+                                                fontWeight: 500, textTransform: "none", fontFamily: "Poppins"
+                                            }}>Datos de facturación
+                                            </Typography>
+                                        </Box>
                                         <div style={{
-                                            backgroundColor: '#f9f9f9',
+                                            backgroundColor: '#F5F4F4', border: "1px solid #F5F4F4",
                                             padding: '20px',
                                             borderRadius: '8px',
                                             marginBottom: '20px',
-                                            fontSize: '0.9rem',
-                                            color: '#4a4a4a',
                                         }}>
-                                            <p><strong>Nombre o razón social:</strong> Nuxiba</p>
-                                            <p><strong>RFC:</strong> VECJ880326</p>
-                                            <p><strong>Código postal:</strong> 45678</p>
-                                            <p><strong>Régimen fiscal:</strong> Régimen ejemplo</p>
-                                            <p><strong>Descripción de los bienes o servicios:</strong> Régimen ejemplo</p>
-                                            <p><strong>Créditos:</strong> {numberQuantity.toLocaleString()}</p>
-                                            <p><strong>Precio unitario:</strong> ${costSetup.toFixed(2)}</p>
-                                            <p><strong>Costo total:</strong> ${monthlyCost.toFixed(2)}</p>
-                                            <p><strong>Método de pago:</strong> {selectedCard?.type} **{selectedCard?.card_number.slice(-4)}, {selectedCard?.card_name}</p>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >Nombre o razón social:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}> Nuxiba</p>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >RFC:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}> VECJ880326</p>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >Código postal:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}> 45678</p>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >Régimen fiscal:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}> Régimen ejemplo</p>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >Descripción de los bienes o servicios:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}> Régimen ejemplo</p>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >Créditos:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}> {numberQuantity.toLocaleString()}</p>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >Precio unitario:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}>${costSetup.toFixed(2)}</p>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >Costo total:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}>${monthlyCost.toFixed(2)}</p>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', }}>
+                                                <Typography sx={{ fontFamily: "Poppins", color: '#240F17', fontSize: "16px", fontWeight: 500 }}
+                                                >Método de pago:</Typography>
+                                                <p style={{
+                                                    margin: '5px 0', fontFamily: "Poppins", color: '#330F1BB3',
+                                                    fontSize: "16px", fontWeight: 500
+                                                }}>{selectedCard?.type} **{selectedCard?.card_number.slice(-4)}, {selectedCard?.card_name}</p>
+                                            </Box>
                                         </div>
 
                                         {/* Botones de navegación */}
