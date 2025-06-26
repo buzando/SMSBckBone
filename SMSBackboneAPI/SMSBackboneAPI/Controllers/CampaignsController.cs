@@ -92,7 +92,7 @@ namespace SMSBackboneAPI.Controllers
         {
             var manager = new CampaignManager();
 
-            var respuesta = manager.FullResponseCampaignByRoom(IdRoom);
+            var respuesta = manager.GetCampaignFullResponseByRoom(IdRoom);
 
             if (respuesta == null)
                 return BadRequest(new { code = "ErrorGettingCampaigns", description = "Error al traer registros de campañas." });

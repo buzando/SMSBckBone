@@ -331,3 +331,299 @@ ALTER TABLE AmountNotification
 ADD CONSTRAINT FK_AmountNotification_Rooms
 FOREIGN KEY (IdRoom)
 REFERENCES Rooms(id);
+
+ALTER TABLE MyNumbers
+DROP CONSTRAINT FK__MyNumbers__idUse__4AB81AF0;
+
+EXEC sp_rename 'MyNumbers.idUser', 'idClient', 'COLUMN';
+
+ALTER TABLE MyNumbers
+ADD CONSTRAINT FK_MyNumbers_idClient
+FOREIGN KEY (idClient)
+REFERENCES clients(id);
+
+-- Paso 1: Eliminar la FK actual
+ALTER TABLE MyNumbers
+DROP CONSTRAINT FK_MyNumbers_idClient;
+
+-- Paso 2: Asegurarte que la columna acepte NULLs
+ALTER TABLE MyNumbers
+ALTER COLUMN idClient INT NULL;
+
+-- Paso 3: Volver a crear la FK
+ALTER TABLE MyNumbers
+ADD CONSTRAINT FK_MyNumbers_idClient
+FOREIGN KEY (idClient)
+REFERENCES clients(id);
+
+
+alter table clients add CreationDate datetime not null default GETDATE()
+alter table clients add RateForShort decimal (10,2) null
+alter table clients add RateForLong decimal (10,2) null
+alter table clients add Estatus tinyint 
+
+sp_help CreditRecharge
+select * from clients
+
+ALTER TABLE CreditRecharge
+DROP CONSTRAINT FK__CreditRec__idCre__5812160E;
+
+ALTER TABLE CreditRecharge
+ALTER COLUMN idCreditCard INT NULL;
+
+ALTER TABLE CreditRecharge
+ADD CONSTRAINT FK_CreditRecharge_idCreditCard
+FOREIGN KEY (idCreditCard) REFERENCES creditcards(id);
+
+USE [SMS_WEB_API]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetCampaignsByRoom]    Script Date: 6/23/2025 12:24:24 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+Create PROCEDURE [dbo].[sp_GetCampaignsByRoom]
+    @RoomId INT,
+	 @SmsType NVARCHAR(10) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	  DECLARE @TypeNumber INT = NULL;
+
+    -- Convertimos el tipo de SMS a número si aplica
+    SET @TypeNumber = CASE 
+                        WHEN @SmsType = 'short' THEN 1
+                        WHEN @SmsType = 'long' THEN 2
+                        ELSE NULL
+                      END;
+    -- Resultset 1: Info general de la campaña
+    SELECT 
+        c.Id,
+        c.Name,
+        c.Message,
+        c.UseTemplate,
+        c.TemplateId,
+        c.AutoStart,
+        c.FlashMessage,
+        c.CustomANI,
+        c.RecycleRecords,
+        c.NumberType,
+        c.CreatedDate,
+        c.StartDate,
+		0 AS BlockedRecords,
+		0 AS DeliveryFailRate,
+		0 AS OutOfScheduleRecords,
+0 AS NoReceptionRate,
+0 AS WaitRate,
+0 AS RejectionRate,
+0 AS NoSendRate,
+0 AS ExceptionRate,
+0 AS ReceptionRate,
+        (SELECT COUNT(*) FROM CampaignContacts cc WHERE cc.CampaignId = c.Id) AS ContactCount,
+        (SELECT COUNT(*) FROM CampaignSchedules s WHERE s.CampaignId = c.Id AND s.OperationMode = 2 AND s.EndDateTime <= GETDATE()) AS RecycleCount,
+        (SELECT COUNT(*) FROM CampaignContactScheduleSend s WHERE s.CampaignId = c.Id) AS numeroActual,
+
+        (SELECT COUNT(*) FROM CampaignContactScheduleSend s WHERE s.CampaignId = c.Id AND s.ResponseMessage IS NOT NULL) AS RespondedRecords,
+
+        (SELECT COUNT(*) FROM CampaignContactScheduleSend s WHERE s.CampaignId = c.Id AND s.Status = '0') AS InProcessCount,
+        (SELECT COUNT(*) FROM CampaignContactScheduleSend s WHERE s.CampaignId = c.Id AND s.Status = '1') AS DeliveredCount,
+        (SELECT COUNT(*) FROM CampaignContactScheduleSend s WHERE s.CampaignId = c.Id AND s.Status = '2') AS NotDeliveredCount,
+        (SELECT COUNT(*) FROM CampaignContactScheduleSend s WHERE s.CampaignId = c.Id AND s.Status = '3') AS NotSentCount,
+        (SELECT COUNT(*) FROM CampaignContactScheduleSend s WHERE s.CampaignId = c.Id AND s.Status = '4') AS FailedCount,
+        (SELECT COUNT(*) FROM CampaignContactScheduleSend s WHERE s.CampaignId = c.Id AND s.Status = '5') AS ExceptionCount,
+
+        -- númeroInicial según regla de duplicados
+        (
+            CASE 
+                WHEN (SELECT COUNT(*) FROM CampaignSchedules s WHERE s.CampaignId = c.Id AND s.OperationMode = 2 AND s.EndDateTime <= GETDATE()) > 1
+                THEN (SELECT COUNT(*) FROM CampaignContacts cc WHERE cc.CampaignId = c.Id) *
+                     (SELECT COUNT(*) FROM CampaignSchedules s WHERE s.CampaignId = c.Id AND s.OperationMode = 2 AND s.EndDateTime <= GETDATE())
+                ELSE (SELECT COUNT(*) FROM CampaignContacts cc WHERE cc.CampaignId = c.Id)
+            END
+        ) AS numeroInicial
+
+    FROM Campaigns c
+    WHERE c.RoomId = @RoomId
+	 AND (@TypeNumber IS NULL OR c.NumberType = @TypeNumber);
+    -- Resultset 2: Schedules
+    SELECT 
+        s.CampaignId,
+        s.StartDateTime,
+        s.EndDateTime,
+        s.OperationMode,
+        s.[Order]
+    FROM CampaignSchedules s
+    INNER JOIN Campaigns c ON c.Id = s.CampaignId
+    WHERE c.RoomId = @RoomId;
+
+    -- Resultset 3: RecycleSetting
+    SELECT 
+        r.CampaignId,
+        r.TypeOfRecords,
+        r.IncludeNotContacted,
+        r.NumberOfRecycles
+    FROM CampaignRecycleSettings r
+    INNER JOIN Campaigns c ON c.Id = r.CampaignId
+    WHERE c.RoomId = @RoomId;
+
+    -- Resultset 4: Contacts
+    SELECT 
+        cc.CampaignId,
+        cc.PhoneNumber,
+        cc.Dato,
+        cc.DatoId,
+        cc.Misc01,
+        cc.Misc02
+    FROM CampaignContacts cc
+    INNER JOIN Campaigns c ON c.Id = cc.CampaignId
+    WHERE c.RoomId = @RoomId;
+
+    -- Resultset 5: ContactScheduleSend
+    SELECT 
+        s.Id,
+        s.CampaignId,
+        s.ContactId,
+        s.ScheduleId,
+        s.SentAt,
+        s.Status,
+        s.ResponseMessage,
+        s.State
+    FROM CampaignContactScheduleSend s
+    INNER JOIN Campaigns c ON c.Id = s.CampaignId
+    WHERE c.RoomId = @RoomId;
+
+END
+
+CREATE OR ALTER PROCEDURE sp_getGlobalReport
+    @StartDate DATETIME,
+    @EndDate DATETIME,
+    @RoomId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        cc.SentAt AS [Date],
+        cct.PhoneNumber AS Phone,
+        r.name AS Room,
+        cp.Name AS Campaign,
+        cp.Id AS CampaignId,
+        u.userName AS [User],
+        cc.Id AS MessageId,
+        ISNULL(cp.Message, t.Message) AS Message,
+        cc.Status,
+        cc.SentAt AS ReceivedAt,
+        FORMAT(
+            CASE 
+                WHEN mn.Type = 'long' THEN cl.RateForLong
+                ELSE cl.RateForShort
+            END, 'C', 'es-MX'
+        ) AS Cost,
+        CASE 
+            WHEN cp.NumberType = 1 THEN 'Número corto'
+            WHEN cp.NumberType = 2 THEN 'Número largo'
+            ELSE 'Desconocido'
+        END AS Type
+    FROM Campaigns cp
+    INNER JOIN CampaignContacts cct ON cp.Id = cct.CampaignId
+    INNER JOIN CampaignContactScheduleSend cc ON cc.ContactId = cct.Id
+    LEFT JOIN Template t ON cp.TemplateId = t.Id
+    INNER JOIN rooms r ON cp.RoomId = r.id
+    LEFT JOIN roomsbyuser ru ON ru.idRoom = r.id
+    LEFT JOIN users u ON ru.idUser = u.id
+    LEFT JOIN clients cl ON u.idCliente = cl.id
+    LEFT JOIN MyNumbers mn ON mn.Number = cct.PhoneNumber AND mn.idClient = cl.id
+    WHERE cp.RoomId = @RoomId
+      AND cc.SentAt BETWEEN @StartDate AND @EndDate
+    ORDER BY cc.SentAt DESC;
+END
+
+
+
+DECLARE @StartDate DATETIME = '2024-07-01 00:00:00';
+DECLARE @EndDate DATETIME = '2025-07-31 23:59:59';
+DECLARE @RoomId INT = 1;
+
+CREATE or ALTER PROCEDURE sp_getSmsDeliveryReport
+    @StartDate DATETIME,
+    @EndDate DATETIME,
+    @RoomId INT,
+    @ReportType NVARCHAR(20), -- 'entrantes', 'enviados', 'noenviados', 'rechazados'
+    @UserIds NVARCHAR(MAX) = NULL,
+    @CampaignIds NVARCHAR(MAX) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Convertir listas separadas por comas a tablas
+    DECLARE @UserIdTable TABLE (Id INT);
+    DECLARE @CampaignIdTable TABLE (Id INT);
+
+    IF @UserIds IS NOT NULL AND @UserIds <> ''
+    BEGIN
+        INSERT INTO @UserIdTable (Id)
+        SELECT CAST(value AS INT)
+        FROM STRING_SPLIT(@UserIds, ',')
+        WHERE TRY_CAST(value AS INT) IS NOT NULL;
+    END
+
+    IF @CampaignIds IS NOT NULL AND @CampaignIds <> ''
+    BEGIN
+        INSERT INTO @CampaignIdTable (Id)
+        SELECT CAST(value AS INT)
+        FROM STRING_SPLIT(@CampaignIds, ',')
+        WHERE TRY_CAST(value AS INT) IS NOT NULL;
+    END
+
+    SELECT 
+        ccs.Id AS MessageId,
+        c.Message,
+        c.Name AS CampaignName,
+        c.Id AS CampaignId,
+		u.id as UserId
+        u.userName AS UserName,
+        r.name AS RoomName,
+        cc.PhoneNumber,
+        ccs.Status,
+        ccs.ResponseMessage,
+        ccs.SentAt
+    FROM CampaignContactScheduleSend ccs
+    INNER JOIN Campaigns c ON c.Id = ccs.CampaignId
+    INNER JOIN Rooms r ON r.Id = c.RoomId
+    INNER JOIN CampaignContacts cc ON cc.Id = ccs.ContactId
+    INNER JOIN Roomsbyuser ru ON ru.idRoom = r.Id
+    INNER JOIN Users u ON u.id = ru.idUser
+    WHERE 
+        c.RoomId = @RoomId
+        AND ccs.SentAt BETWEEN @StartDate AND @EndDate
+        AND (
+            @UserIds IS NULL OR u.id IN (SELECT Id FROM @UserIdTable)
+        )
+        AND (
+            @CampaignIds IS NULL OR c.Id IN (SELECT Id FROM @CampaignIdTable)
+        )
+        AND (
+            (@ReportType = 'entrantes' AND ccs.ResponseMessage IS NOT NULL)
+            OR (@ReportType = 'enviados' AND ccs.Status = '0')
+            OR (@ReportType = 'noenviados' AND ccs.Status = '3')
+            OR (@ReportType = 'rechazados' AND ccs.Status IN ('2','4','5'))
+        )
+    ORDER BY ccs.SentAt DESC;
+END
+
+DECLARE @StartDate DATETIME = '2024-07-01 00:00:00';
+DECLARE @EndDate DATETIME = '2025-07-31 23:59:59';
+DECLARE @RoomId INT = 1;
+DECLARE @ReportType NVARCHAR(20) = 'enviados'; -- puedes probar con 'entrantes', 'enviados', 'noenviados', 'rechazados'
+DECLARE @UserIds NVARCHAR(MAX) = NULL;
+DECLARE @CampaignIds NVARCHAR(MAX) = NULL;
+
+
+EXEC sp_getSmsDeliveryReport
+    @StartDate,
+    @EndDate,
+    @RoomId,
+    @ReportType,
+    @UserIds,
+    @CampaignIds;

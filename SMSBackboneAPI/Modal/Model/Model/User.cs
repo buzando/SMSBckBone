@@ -37,6 +37,7 @@ namespace Modal.Model.Model
 
         public string SecondaryEmail { get; set; }
         public bool? futurerooms { get; set; }
+        public int? extension { get; set; }
 
         //[ForeignKey("IdRole")]
         //public virtual Roles Role { get; set; }

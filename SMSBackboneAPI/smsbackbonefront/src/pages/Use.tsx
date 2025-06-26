@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { IconButton,Button, Typography, Divider, Box, Popper, Paper, RadioGroup, FormControlLabel, Radio, MenuItem, Checkbox, ListItemText, TextField, InputAdornment } from '@mui/material';
+﻿import React, { useState, useEffect } from 'react';
+import { IconButton, Button, Typography, Divider, Box, Popper, Paper, RadioGroup, FormControlLabel, Radio, MenuItem, Checkbox, ListItemText, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BoxEmpty from '../assets/Nousers.svg';
 import MainButton from '../components/commons/MainButton'
@@ -12,6 +12,19 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContai
 import ClearIcon from '@mui/icons-material/Clear';
 import IconLeft from '../assets/icon-punta-flecha-bottom.svg'
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+
+interface UseResponse {
+    creditsUsed: number;
+    messagesSent: number;
+    totalRecharges: number;
+    lastRecharge: {
+        credits: number;
+        date: string;
+    };
+    chartData: { date: string; value: number }[];
+}
+
 
 const Use: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -37,15 +50,19 @@ const Use: React.FC = () => {
     };
     const [campaignMenuOpen, setCampaignMenuOpen] = useState(false);
     const [anchorElC, setAnchorElC] = useState<HTMLElement | null>(null);
-    const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
+    const [selectedCampaigns, setSelectedCampaigns] = useState<{ id: number; name: string }[]>([]);
     const [campaignSearch, setCampaignSearch] = useState('');
     const [campaignData, setCampaignData] = useState<string[]>([]);
 
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
-    const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+    const [selectedUsers, setSelectedUsers] = useState<{ id: number; name: string }[]>([]);
     const [userSearch, setUserSearch] = useState('');
-
+    const [detalleResumen, setDetalleResumen] = useState<{ title: string; value: string }[]>([]);
+    const [dataChart, setdataChart] = useState<{ date: string; value: number }[]>([]);
+    const [users, setUsers] = useState<{ id: number; name: string }[]>([]);
+    const [campaigns, setCampaigns] = useState<{ id: number; name: string }[]>([]);
+    const [shouldFetch, setShouldFetch] = useState(false);
     const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (userMenuOpen) {
             setUserMenuOpen(false);     // Cierra si ya está abierto
@@ -61,27 +78,24 @@ const Use: React.FC = () => {
         setUserSearch(event.target.value.toLowerCase());
     };
 
-    const handleUserSelection = (user: string) => {
-        setSelectedUsers((prevSelected) =>
-            prevSelected.includes(user)
-                ? prevSelected.filter((u) => u !== user)
-                : [...prevSelected, user]
-        );
+    const handleUserSelection = (user: { id: number; name: string }) => {
+        const exists = selectedUsers.some((u) => u.id === user.id);
+        setSelectedUsers(exists ? selectedUsers.filter((u) => u.id !== user.id) : [...selectedUsers, user]);
     };
 
     const handleSelectAllUsers = () => {
         if (selectedUsers.length === users.length) {
             setSelectedUsers([]);
         } else {
-            setSelectedUsers(users.map((user) => user));
+            setSelectedUsers(users);
         }
     };
+
 
     const handleClearUserSelection = () => {
         setSelectedUsers([]);
     };
 
-    const users = ['Usuario 1', 'Usuario 2', 'Usuario 3', 'Usuario 4'];
 
 
     const handleCampaignClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -94,17 +108,17 @@ const Use: React.FC = () => {
         }
     };
 
-    const handleCampaignSelection = (campaign: string) => {
-        setSelectedCampaigns((prev) =>
-            prev.includes(campaign) ? prev.filter((item) => item !== campaign) : [...prev, campaign]
-        );
+    const handleCampaignSelection = (campaign: { id: number; name: string }) => {
+        const exists = selectedCampaigns.some((c) => c.id === campaign.id);
+        setSelectedCampaigns(exists ? selectedCampaigns.filter((c) => c.id !== campaign.id) : [...selectedCampaigns, campaign]);
     };
-    const campaigns = ['Campaña 1', 'Campaña 2', 'Campaña 3', 'Campaña 4'];
+
+
     const handleSelectAllCampaigns = () => {
         if (selectedCampaigns.length === campaigns.length) {
-            setSelectedCampaigns([]); // Si todo estaba seleccionado, deseleccionar todo
+            setSelectedCampaigns([]);
         } else {
-            setSelectedCampaigns([...campaigns]); // Si no, seleccionar todas las campañas
+            setSelectedCampaigns(campaigns);
         }
     };
 
@@ -115,7 +129,7 @@ const Use: React.FC = () => {
 
     const handleApplySelection = () => {
         setCampaignMenuOpen(false);
-        setCampaignData([...selectedCampaigns]); // Actualiza los datos de la selección
+        setCampaignData(selectedCampaigns.map(c => c.name));
     };
 
     const handleApply = () => {
@@ -129,43 +143,96 @@ const Use: React.FC = () => {
     };
 
     const handleDateSelectionApply = (start: Date, end: Date, startHour: number, startMinute: number, endHour: number, endMinute: number) => {
-        setSelectedDates({ start, end, startHour, startMinute, endHour, endMinute });
+        const newDates = { start, end, startHour, startMinute, endHour, endMinute };
+        setSelectedDates(newDates);
         setDatePickerOpen(false);
         setAnchorEl(null);
-        setSearchingData(false); // Cambia la bandera para que desaparezca la imagen de vacío
+        setSearchingData(false);
         setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            setData(true);
-        }, 2000);
+        fetchData(); 
     };
 
+
     const formatDateRange = () => {
-        if (!selectedDates) return 'FECHA'; // Muestra "FECHA" si no hay fechas seleccionadas
+        if (!selectedDates) return 'FECHA';
         return `${format(selectedDates.start, "dd MMM", { locale: es })}, ${String(selectedDates.startHour).padStart(2, '0')}:${String(selectedDates.startMinute).padStart(2, '0')} - ${format(selectedDates.end, "d MMM", { locale: es })} ${String(selectedDates.endHour).padStart(2, '0')}:${String(selectedDates.endMinute).padStart(2, '0')}`;
     };
 
     const open = Boolean(anchorEl);
     const id = open ? 'sms-popper' : undefined;
 
+    const fetchData = async () => {
+        if (!selectedDates) return;
 
-    const dataChart = [
-        { date: '14 may', value: 10 },
-        { date: '15 may', value: 20 },
-        { date: '16 may', value: 20 },
-        { date: '17 may', value: 30 },
-        { date: '18 may', value: 40 },
-        { date: '19 may', value: 60 },
-        { date: '20 may', value: 70 },
-        { date: '21 may', value: 50 },
-        { date: '22 may', value: 65 },
-        { date: '23 may', value: 80 },
-        { date: '24 may', value: 90 },
-        { date: '25 may', value: 100 },
-        { date: '26 may', value: 85 },
-        { date: '27 may', value: 80 },
-        { date: '28 may', value: 78 }
-    ];
+        setLoading(true);
+        try {
+            const request = `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_USE}`;
+            const selectedRoom = localStorage.getItem("selectedRoom");
+            const roomId = selectedRoom ? JSON.parse(selectedRoom).id : null;
+            const response = await axios.post(request, {
+                "RoomId": roomId,
+                "SmsType": selectedOption,
+                "StartDate": selectedDates.start,
+                "EndDate": selectedDates.end,
+                "campaignIds": selectedCampaigns.map(c => c.id),
+                "userIds": selectedUsers.map(u => u.id),
+            });
+
+            const result = response.data;
+
+            setDetalleResumen([
+                { title: "Total de créditos gastados:", value: result.creditsUsed.toLocaleString() },
+                { title: "Total de mensajes enviados:", value: result.messagesSent.toLocaleString() },
+                { title: "Total de recargas realizadas:", value: result.totalRecharges.toString() },
+                {
+                    title: "Última recarga realizada:",
+                    value: `Créditos ${result.lastRecharge.credits.toLocaleString()}\nFecha ${result.lastRecharge.date}`,
+                },
+            ]);
+
+            setdataChart(result.chartData);
+            setData(true);
+        } catch (error) {
+            console.error("Error al cargar datos de uso:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    useEffect(() => {
+        const selectedRoom = localStorage.getItem("selectedRoom");
+        if (!selectedRoom) return;
+
+        const roomId = JSON.parse(selectedRoom).id;
+        const smsType = selectedOption === "largo" ? 2 : 1; // 1 = corto, 2 = largo
+
+        const fetchCampaigns = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_CAMPAIGNSUSE}`, {
+                    params: { roomId, smsType }
+                });
+                setCampaigns(response.data || []);
+            } catch (error) {
+                console.error("Error al obtener campañas:", error);
+            }
+        };
+
+        const fetchUsers = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_USERSUSE}`, {
+                    params: { roomId }
+                });
+                setUsers(response.data || []);
+            } catch (error) {
+                console.error("Error al obtener usuarios:", error);
+            }
+        };
+
+        fetchCampaigns();
+        fetchUsers();
+    }, [selectedOption]); // si el tipo de SMS cambia, vuelve a cargar campañas
+
 
 
     return (
@@ -268,7 +335,7 @@ const Use: React.FC = () => {
                     CAMPAÑA
                 </Button>
                 <Popper open={campaignMenuOpen} anchorEl={anchorElC} placement="bottom-start">
-                <Paper sx={{ width: '250px', padding: '10px' }}>
+                    <Paper sx={{ width: '250px', padding: '10px' }}>
                         <TextField
                             placeholder="Buscar campaña"
                             variant="outlined"
@@ -293,59 +360,62 @@ const Use: React.FC = () => {
                             {/* Checkbox de "Seleccionar todo" */}
                             <MenuItem onClick={handleSelectAllCampaigns}>
                                 <Checkbox checked={selectedCampaigns.length === campaigns.length}
-                                sx={{
-                                    color: '#6C3A52',
-                                    '&.Mui-checked': { color: '#6C3A52' },
-                                
-                                }} />
-                                
+                                    sx={{
+                                        color: '#6C3A52',
+                                        '&.Mui-checked': { color: '#6C3A52' },
+
+                                    }} />
+
                                 <ListItemText primary="Seleccionar todo" />
                             </MenuItem>
 
                             {/* Lista de campañas */}
-                            {campaigns.filter((campaign) => campaign.toLowerCase().includes(campaignSearch)).map((campaign) => (
-                                <MenuItem key={campaign} value={campaign} onClick={() => handleCampaignSelection(campaign)}>
+                            {campaigns.filter((campaign) => campaign.name.toLowerCase().includes(campaignSearch)).map((campaign) => (
+                                <MenuItem key={campaign.id} value={campaign.id} onClick={() => handleCampaignSelection(campaign)}>
                                     <Checkbox checked={selectedCampaigns.includes(campaign)}
-                                    sx={{
-                                        color: '#6C3A52',
-                                        '&.Mui-checked': { color: '#6C3A52' },
-                                    
-                                    }} />
-                                    <ListItemText primary={campaign} />
+                                        sx={{
+                                            color: '#6C3A52',
+                                            '&.Mui-checked': { color: '#6C3A52' },
+
+                                        }} />
+                                    <ListItemText primary={campaign.name} />
                                 </MenuItem>
                             ))}
 
                             {/* Mostrar mensaje si no hay resultados */}
-                            {campaigns.filter((campaign) => campaign.toLowerCase().includes(campaignSearch)).length === 0 && (
+                            {campaigns.filter((campaign) => campaign.name.toLowerCase().includes(campaignSearch)).length === 0 && (
                                 <Box sx={{ textAlign: 'center', padding: '10px', color: '#833A53', fontSize: '14px', fontWeight: '500' }}>
                                     No se encontraron resultados.
                                 </Box>
                             )}
                         </Box>
 
-                    <Box
-                        p={1}
-                        display="flex"
-                        justifyContent="space-between"
-                        sx={{ borderTop: '1px solid #e0e0e0', backgroundColor: '#fff' }}
-                    >
-                        <Button
-                            variant="outlined"
-                            onClick={handleClearSelection}
-                            style={{ color: '#8d406d', borderColor: '#8d406d' }}
+                        <Box
+                            p={1}
+                            display="flex"
+                            justifyContent="space-between"
+                            sx={{ borderTop: '1px solid #e0e0e0', backgroundColor: '#fff' }}
                         >
-                            LIMPIAR
-                        </Button>
-                        <Button
-                            variant="contained"
-                            onClick={handleApplySelection}
-                            style={{ backgroundColor: '#8d406d', color: '#fff' }}
-                        >
-                            APLICAR
-                        </Button>
-                    </Box>
-                </Paper>
-            </Popper>
+                            <Button
+                                variant="outlined"
+                                onClick={handleClearSelection}
+                                style={{ color: '#8d406d', borderColor: '#8d406d' }}
+                            >
+                                LIMPIAR
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={() => {
+                                    handleApplySelection();
+                                    fetchData();
+                                }}
+                                style={{ backgroundColor: '#8d406d', color: '#fff' }}
+                            >
+                                APLICAR
+                            </Button>
+                        </Box>
+                    </Paper>
+                </Popper>
                 <Button variant="outlined" sx={buttonStyle} onClick={handleUserClick}>USUARIO</Button>
                 {/* Popper de Usuarios */}
                 <Popper open={userMenuOpen} anchorEl={userAnchorEl} placement="bottom-start">
@@ -372,25 +442,25 @@ const Use: React.FC = () => {
                         <Box sx={{ maxHeight: '200px', overflowY: 'auto' }}>
                             <MenuItem onClick={handleSelectAllUsers}>
                                 <Checkbox checked={selectedUsers.length === users.length}
-                                sx={{
-                                    color: '#6C3A52',
-                                    '&.Mui-checked': { color: '#6C3A52' },
-                                
-                                }} />
-                                <ListItemText primary="Seleccionar todo" />
-                            </MenuItem>
-                            {users.filter((user) => user.toLowerCase().includes(userSearch)).map((user) => (
-                                <MenuItem key={user} value={user} onClick={() => handleUserSelection(user)}>
-                                    <Checkbox checked={selectedUsers.includes(user)}
                                     sx={{
                                         color: '#6C3A52',
                                         '&.Mui-checked': { color: '#6C3A52' },
-                                    
+
                                     }} />
-                                    <ListItemText primary={user} />
+                                <ListItemText primary="Seleccionar todo" />
+                            </MenuItem>
+                            {users.filter((user) => user.name.toLowerCase().includes(userSearch)).map((user) => (
+                                <MenuItem key={user.id} value={user.id} onClick={() => handleUserSelection(user)}>
+                                    <Checkbox checked={selectedUsers.includes(user)}
+                                        sx={{
+                                            color: '#6C3A52',
+                                            '&.Mui-checked': { color: '#6C3A52' },
+
+                                        }} />
+                                    <ListItemText primary={user.name} />
                                 </MenuItem>
                             ))}
-                            {users.filter((user) => user.toLowerCase().includes(userSearch)).length === 0 && (
+                            {users.filter((user) => user.name.toLowerCase().includes(userSearch)).length === 0 && (
                                 <Typography sx={{ textAlign: 'center', marginTop: '10px', color: '#8d406d' }}>
                                     No se encontraron resultados.
                                 </Typography>
@@ -410,7 +480,14 @@ const Use: React.FC = () => {
                             <Button variant="outlined" onClick={handleClearUserSelection} style={{ color: '#8d406d', borderColor: '#8d406d' }}>
                                 LIMPIAR
                             </Button>
-                            <Button variant="contained" style={{ backgroundColor: '#8d406d', color: '#fff' }}>
+                            <Button
+                                variant="contained"
+                                onClick={() => {
+                                    handleApplySelection();
+                                    fetchData();
+                                }}
+                                style={{ backgroundColor: '#8d406d', color: '#fff' }}
+                            >
                                 APLICAR
                             </Button>
                         </Box>
@@ -449,12 +526,7 @@ const Use: React.FC = () => {
                         </Typography>
 
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: '15px' }}>
-                            {[
-                                { title: "Total de créditos gastados:", value: "100,000" },
-                                { title: "Total de mensajes enviados:", value: "80,000" },
-                                { title: "Total de recargas realizadas:", value: "22" },
-                                { title: "Última recarga realizada:", value: "Créditos 1,000\nFecha 11/09/24" }
-                            ].map((item, index) => (
+                            {detalleResumen.map((item, index) => (
                                 <Box key={index} sx={boxStyle}>
                                     <Typography sx={titleBoxStyle}>{item.title}</Typography>
                                     <Typography sx={valueBoxStyle}>{item.value}</Typography>
@@ -501,13 +573,13 @@ const Use: React.FC = () => {
             {/* Imagen de vacío y mensaje */}
             {searchingData && (
                 <Box sx={emptyContainerStyle}>
-                    <Box component="img" src={BoxEmpty} alt="Caja Vacía" 
-                    sx={{ width: '150px', height: 'auto' }} />
-                    
+                    <Box component="img" src={BoxEmpty} alt="Caja Vacía"
+                        sx={{ width: '150px', height: 'auto' }} />
+
                     <Typography sx={{ marginTop: '10px', color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins' }}>
                         Seleccione un rango para comenzar.
                     </Typography>
-                
+
                 </Box>
             )}
         </Box>

@@ -62,6 +62,8 @@ import logorq from '../assets/Logo-RQ_2.svg';
 import PrivacityIcon from '../assets/Icon_privacidad.svg'
 import api from '../assets/api.svg'
 import apihover from '../assets/apihover.svg'
+import { useLocation } from 'react-router-dom';
+
 const drawerWidth = 278;
 
 type Page = {
@@ -86,8 +88,7 @@ const pages: Page[] = [
     { id: 1, title: 'Usuarios', path: '/UserAdministration', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     {
         id: 2, title: 'Administración', path: '', icon: <img src={Iconpeople} alt="Administración" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: true, subMenus: [
-            { id: 1, title: 'Usuarios', path: '/users', icon: <PeopleAltIcon sx={{ color: 'white' }} /> },
-            { id: 2, title: 'Salas', path: '/rooms', icon: <HomeIcon sx={{ color: 'white' }} /> },
+            { id: 1, title: 'Salas', path: '/rooms', icon: <HomeIcon sx={{ color: 'white' }} /> },
         ]
     },
     {
@@ -101,8 +102,17 @@ const pages: Page[] = [
     },
     { id: 4, title: 'Reportes', path: '/Reports', icon: <img src={Iconreports} alt="Reportes" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: false, subMenus: [] },
     {
-        id: 5, title: 'SMS', path: '/numbers', icon: <img src={Iconmesage} alt="SMS" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: true, subMenus: [
-            { id: 1, title: 'Configuración SMS', path: '/sms', icon: <ChecklistRtlIcon sx={{ color: 'white' }} /> },
+        id: 5,
+        title: 'SMS',
+        path: '/numbers',
+        icon: <img src={Iconmesage} alt="SMS" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />,
+        hasSubMenus: true,
+        subMenus: [
+            { id: 1, title: 'Campañas', path: '/campains',icon: undefined },
+            { id: 2, title: 'Plantillas', path: '/templates',icon: undefined },
+            { id: 3, title: 'Prueba SMS', path: '/sms-test' ,icon: undefined},
+            { id: 4, title: 'Listas Negras', path: '/blacklists',icon: undefined },
+            { id: 5, title: 'Configuración SMS', path: '/sms',icon: undefined }
         ]
     },
     { id: 6, title: 'Ayuda', path: '/help', icon: <img src={Iconhelpu} alt="Ayuda" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: false, subMenus: [] },
@@ -111,7 +121,6 @@ const pages: Page[] = [
     { id: 7, title: 'Editar cuenta', path: '/ManageAccount', icon: <EditIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 8, title: 'Administrar cuentas', path: '/UserAdministration', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 9, title: 'Cerrar sesión', path: '', icon: <Avatar sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
-    { id: 10, title: 'Salas', path: '/rooms', icon: <Avatar sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
 ];
 
 type Room = {
@@ -123,6 +132,14 @@ type Room = {
     long_sms: number;
     calls: number;
     short_sms: number;
+};
+type FlattenedPage = {
+    id: string | number;
+    title: string;
+    path: string;
+    icon: React.ReactNode;
+    hasSubMenus: boolean;
+    subMenus: SubMenu[];
 };
 
 type Props = {
@@ -229,6 +246,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
     const [selectedLink, setSelectedLink] = useState<string | null>(null);
     const [isHoveringApi, setIsHoveringApi] = useState(false);
+    const location = useLocation();
 
     const handleSelection = (link: string) => {
         setSelectedLink(link); // Cambia el enlace seleccionado
@@ -321,17 +339,21 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
 
     useEffect(() => {
-
-        setFilteredPages([]);
-
-        // Actualizar los resultados de búsqueda
         const results: Page[] = pages
-            .flatMap((page) =>
-                // Solo considerar páginas que no tengan submenús
-                !page.hasSubMenus
-                    ? [page]
-                    : [] // No agregamos las páginas con submenús
-            )
+            .flatMap((page) => {
+                if (!page.hasSubMenus) {
+                    return [page];
+                } else {
+                    return page.subMenus.map((sub, index) => ({
+                        id: Number(`${page.id}${index}`), // ID numérico único
+                        title: sub.title,
+                        path: sub.path,
+                        icon: sub.icon || page.icon,
+                        hasSubMenus: false,
+                        subMenus: [], // necesario para cumplir el tipo Page
+                    }));
+                }
+            })
             .filter((item) =>
                 searchTerm && item.title.toLowerCase().includes(searchTerm.toLowerCase())
             )
@@ -343,16 +365,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                 const aStartsWith = aTitle.startsWith(search);
                 const bStartsWith = bTitle.startsWith(search);
 
-                // Priorizar los resultados que comienzan con el término buscado
                 if (aStartsWith && !bStartsWith) return -1;
                 if (!aStartsWith && bStartsWith) return 1;
 
-                // Ordenar alfabéticamente los demás resultados
                 return aTitle.localeCompare(bTitle);
             });
 
         setFilteredPages(results);
     }, [searchTerm]);
+
+
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         if (anchorEl) {
@@ -1921,77 +1943,79 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     </Typography>
                     <img src={nuxiba_svg} alt="Nuxiba Logo" width="80" />
 
-                    <Tooltip
-                        title="Descargar API"
-                        arrow
-                        placement="top"
-                        sx={{
-                            "& .MuiTooltip-tooltip": {
-                                backgroundColor: "#330F1B",
-                                color: "#FFFFFF",
-                                fontSize: "12px",
-                                fontFamily: "Poppins, sans-serif",
-                                fontWeight: "medium",
-                            },
-                            "& .MuiTooltip-arrow": {
-                                color: "#330F1B",
-                            },
-                        }}
-                    >
-                        <div
-                            onClick={handleDownload}
-                            onMouseEnter={() => setIsHoveringApi(true)}
-                            onMouseLeave={() => setIsHoveringApi(false)}
-                            style={{
-                                position: "fixed",
-                                bottom: "70px",
-                                right: "30px",
-                                width: "80px",
-                                height: "80px",
-                                cursor: "pointer",
-                                zIndex: 1500,
+                    {location.pathname === '/' && (
+                        <Tooltip
+                            title="Descargar API"
+                            arrow
+                            placement="top"
+                            sx={{
+                                "& .MuiTooltip-tooltip": {
+                                    backgroundColor: "#330F1B",
+                                    color: "#FFFFFF",
+                                    fontSize: "12px",
+                                    fontFamily: "Poppins, sans-serif",
+                                    fontWeight: "medium",
+                                },
+                                "& .MuiTooltip-arrow": {
+                                    color: "#330F1B",
+                                },
                             }}
                         >
-                            {/* Imagen base */}
-                            <img
-                                src={api}
-                                alt="Ícono de api"
-                                style={{
-                                    width: "100px",
-                                    height: "100px",
-                                    borderRadius: "50%",
-                                    objectFit: "contain",
-                                    display: "block",
-                                }}
-                            />
 
-                            {/* Overlay rosita */}
-                            {isHoveringApi && (
-                                <div
+                            <div
+                                onClick={handleDownload}
+                                onMouseEnter={() => setIsHoveringApi(true)}
+                                onMouseLeave={() => setIsHoveringApi(false)}
+                                style={{
+                                    position: "fixed",
+                                    bottom: "70px",
+                                    right: "30px",
+                                    width: "80px",
+                                    height: "80px",
+                                    cursor: "pointer",
+                                    zIndex: 1500,
+                                }}
+                            >
+                                {/* Imagen base */}
+                                <img
+                                    src={api}
+                                    alt="Ícono de api"
                                     style={{
-                                        marginTop:"15px",
-                                        marginLeft:"18px",
-                                        position: "absolute",
-                                        top: 0,
-                                        left: 0,
-                                        width: "58px",
-                                        height: "60px",
+                                        width: "100px",
+                                        height: "100px",
                                         borderRadius: "50%",
-                                        backgroundColor: "#D9C5CB",
-                                        opacity: 0.5,
-                                        pointerEvents: "none",
+                                        objectFit: "contain",
+                                        display: "block",
                                     }}
                                 />
-                            )}
 
-                        </div>
+                                {/* Overlay rosita */}
+                                {isHoveringApi && (
+                                    <div
+                                        style={{
+                                            marginTop: "15px",
+                                            marginLeft: "18px",
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
+                                            width: "58px",
+                                            height: "60px",
+                                            borderRadius: "50%",
+                                            backgroundColor: "#D9C5CB",
+                                            opacity: 0.5,
+                                            pointerEvents: "none",
+                                        }}
+                                    />
+                                )}
+
+                            </div>
 
 
 
 
 
-                    </Tooltip>
-
+                        </Tooltip>
+                    )}
 
 
                 </Box>

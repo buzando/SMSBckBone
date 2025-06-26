@@ -23,7 +23,11 @@ using Contract.Other;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Azure.Core.Pipeline;
 using DocumentFormat.OpenXml.Office2010.PowerPoint;
-
+using DocumentFormat.OpenXml.Math;
+using BCrypt;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using Azure;
 namespace Business
 {
     public class UserManager
@@ -628,9 +632,16 @@ namespace Business
                             userId = iduser.Id,
                             BusinessName = billing.BusinessName,
                             Cfdi = billing.Cfdi,
-                            PostalCode = billing.Cfdi,
+                            PostalCode = billing.PostalCode,
                             TaxId = billing.TaxId,
                             TaxRegime = billing.TaxRegime,
+                            PersonType = billing.PersonType,
+                            Street = billing.Street,
+                            ExtNumber = billing.ExtNumber,
+                            IntNumber = billing.IntNumber,
+                            Colony = billing.Colony,
+                            City = billing.City,
+                            State = billing.State,
                             CreatedAt = DateTime.Now
                         };
                         ctx.BillingInformation.Add(newbilling);
@@ -642,6 +653,13 @@ namespace Business
                         exist.BusinessName = billing.BusinessName;
                         exist.Cfdi = billing.Cfdi;
                         exist.PostalCode = billing.PostalCode;
+                        exist.PersonType = billing.PersonType;
+                        exist.Street = billing.Street;
+                        exist.ExtNumber = billing.ExtNumber;
+                        exist.IntNumber = billing.IntNumber;
+                        exist.Colony = billing.Colony;
+                        exist.City = billing.City;
+                        exist.State = billing.State;
                         exist.UpdatedAt = DateTime.Now;
                     }
 
@@ -667,7 +685,15 @@ namespace Business
                     BillingInformation.BusinessName = billing.BusinessName;
                     BillingInformation.Cfdi = billing.Cfdi;
                     BillingInformation.PostalCode = billing.PostalCode;
+                    BillingInformation.PersonType = billing.PersonType;
+                    BillingInformation.Street = billing.Street;
+                    BillingInformation.ExtNumber = billing.ExtNumber;
+                    BillingInformation.IntNumber = billing.IntNumber;
+                    BillingInformation.Colony = billing.Colony;
+                    BillingInformation.City = billing.City;
+                    BillingInformation.State = billing.State;
                     BillingInformation.UpdatedAt = DateTime.Now;
+
                     ctx.SaveChanges();
                 }
 
@@ -694,7 +720,14 @@ namespace Business
                         Cfdi = x.Cfdi,
                         PostalCode = x.PostalCode,
                         TaxId = x.TaxId,
-                        TaxRegime = x.TaxRegime
+                        TaxRegime = x.TaxRegime,
+                        PersonType = x.PersonType,
+                        Street = x.Street,
+                        ExtNumber = x.ExtNumber,
+                        IntNumber = x.IntNumber,
+                        Colony = x.Colony,
+                        City = x.City,
+                        State = x.State
                     }).FirstOrDefault();
                 }
                 return billing;
@@ -1099,5 +1132,372 @@ namespace Business
             }
         }
         #endregion
+
+        public CampaignKPIResponse GetCampaignKPIByRoom(CampaignKPIRequest request)
+        {
+            try
+            {
+                using (var ctx = new Entities())
+                {
+                    var today = DateTime.Today;
+
+                    string smsTypeString = request.SmsType == 1 ? "short" :
+                                           request.SmsType == 2 ? "long" : null;
+
+                    var campaigns = ctx.CampaignFullResponse
+                        .FromSqlRaw("EXEC sp_GetCampaignsByRoom @RoomId = {0}, @SmsType = {1}", request.RoomId, smsTypeString)
+                        .ToList();
+
+                    var campaignIds = campaigns.Select(c => c.Id).ToList();
+                    int activeCampaigns = campaignIds.Count;
+
+                    int sentToday = ctx.CampaignContactScheduleSend
+                        .Count(s => campaignIds.Contains(s.CampaignId) && s.SentAt.HasValue && s.SentAt.Value.Date == today);
+
+                    int totalSent = ctx.CampaignContactScheduleSend
+                        .Count(s => campaignIds.Contains(s.CampaignId));
+
+                    DateTime? firstSentDate = ctx.CampaignContactScheduleSend
+                        .Where(s => campaignIds.Contains(s.CampaignId) && s.SentAt.HasValue)
+                        .Select(s => s.SentAt.Value.Date)
+                        .OrderBy(d => d)
+                        .FirstOrDefault();
+
+                    int daysSinceFirstSend = firstSentDate.HasValue
+                        ? (DateTime.Today - firstSentDate.Value).Days + 1
+                        : 0;
+
+                    int averagePerDay = daysSinceFirstSend > 0
+                        ? (int)Math.Round((double)totalSent / daysSinceFirstSend)
+                        : 0;
+
+                    var userIds = ctx.roomsbyuser
+                        .Where(r => r.idRoom == request.RoomId)
+                        .Select(r => r.idUser)
+                        .Distinct()
+                        .ToList();
+
+                    decimal creditConsumption = 0;
+                    var smsChannel = request.SmsType == 1 ? "short_sms" :
+                                     request.SmsType == 2 ? "long_sms" : null;
+
+                    if (smsChannel != null)
+                    {
+                        decimal totalRecharge = ctx.CreditRecharge
+                            .Where(cr => userIds.Contains(cr.idUser) && cr.Chanel == smsChannel)
+                            .Sum(cr => (decimal?)cr.quantityCredits) ?? 0;
+
+                        var roomIds = ctx.roomsbyuser
+                            .Where(r => userIds.Contains(r.idUser))
+                            .Select(r => r.idRoom)
+                            .Distinct()
+                            .ToList();
+
+                        decimal remainingCredits = smsChannel == "short_sms"
+                            ? ctx.Rooms.Where(r => roomIds.Contains(r.id)).Sum(r => (decimal?)r.short_sms) ?? 0
+                            : ctx.Rooms.Where(r => roomIds.Contains(r.id)).Sum(r => (decimal?)r.long_sms) ?? 0;
+
+                        creditConsumption = totalRecharge - remainingCredits;
+                    }
+
+                    // 🎯 Sumar métricas para las gráficas
+                    int delivered = campaigns.Sum(c => c.DeliveredCount);
+                    int responded = campaigns.Sum(c => c.RespondedRecords);
+                    int notDelivered = campaigns.Sum(c => c.NotDeliveredCount);
+                    int waiting = campaigns.Sum(c => c.InProcessCount);
+                    int failed = campaigns.Sum(c => c.FailedCount);
+                    int rejected = campaigns.Sum(c => c.BlockedRecords);
+                    int notSent = campaigns.Sum(c => c.NotSentCount);
+                    int exception = campaigns.Sum(c => c.ExceptionCount);
+
+                    int total = delivered + responded + notDelivered + waiting + failed + rejected + notSent + exception;
+                    int receptionRate = total > 0 ? (int)Math.Round((double)responded * 100 / total) : 0;
+
+                    return new CampaignKPIResponse
+                    {
+                        ActiveCampaigns = activeCampaigns,
+                        SentToday = sentToday,
+                        AveragePerDay = averagePerDay,
+                        CreditConsumption = creditConsumption,
+                        Campaigns = campaigns,
+
+                        DeliveredCount = delivered,
+                        RespondedRecords = responded,
+                        NotDeliveredCount = notDelivered,
+                        WaitingCount = waiting,
+                        FailedCount = failed,
+                        RejectedCount = rejected,
+                        NotSentCount = notSent,
+                        ExceptionCount = exception,
+                        TotalStatusCount = total,
+                        ReceptionRate = receptionRate
+                    };
+                }
+            }
+            catch
+            {
+                return new CampaignKPIResponse();
+            }
+        }
+        public UseResponse GetUsageByRoom(UseRequest request)
+        {
+            using (var ctx = new Entities())
+            {
+                int numberType = request.SmsType == "corto" ? 1 :
+                                 request.SmsType == "largo" ? 2 : 0;
+
+                string smsChannel = request.SmsType == "corto" ? "short_sms" :
+                                    request.SmsType == "largo" ? "long_sms" : null;
+
+                // Usuarios del room
+                var userIds = ctx.roomsbyuser
+                    .Where(r => r.idRoom == request.RoomId)
+                    .Select(r => r.idUser)
+                    .Distinct()
+                    .ToList();
+
+                // Si el filtro trae usuarios específicos, se usa ese
+                if (request.UserIds != null && request.UserIds.Any())
+                {
+                    userIds = userIds.Where(u => request.UserIds.Contains(u)).ToList();
+                }
+
+                // Campañas del room según el tipo de número
+                var campaignIds = ctx.Campaigns
+                    .Where(c => c.RoomId == request.RoomId && c.NumberType == numberType)
+                    .Select(c => c.Id)
+                    .ToList();
+
+                // Si el filtro trae campañas específicas, se usa ese
+                if (request.CampaignIds != null && request.CampaignIds.Any())
+                {
+                    campaignIds = campaignIds.Where(c => request.CampaignIds.Contains(c)).ToList();
+                }
+
+                // Mensajes enviados con filtros
+                var sentQuery = ctx.CampaignContactScheduleSend
+                    .Where(s => campaignIds.Contains(s.CampaignId) && s.SentAt.HasValue);
+
+                if (request.StartDate.HasValue)
+                    sentQuery = sentQuery.Where(s => s.SentAt >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    sentQuery = sentQuery.Where(s => s.SentAt <= request.EndDate.Value);
+
+                int messagesSent = sentQuery.Count();
+                decimal creditsUsed = messagesSent;
+
+                // Recargas con filtros
+                var rechargeQuery = ctx.CreditRecharge
+                    .Where(cr => userIds.Contains(cr.idUser) && cr.Chanel == smsChannel);
+
+                if (request.StartDate.HasValue)
+                    rechargeQuery = rechargeQuery.Where(cr => cr.RechargeDate >= request.StartDate.Value);
+
+                if (request.EndDate.HasValue)
+                    rechargeQuery = rechargeQuery.Where(cr => cr.RechargeDate <= request.EndDate.Value);
+
+                decimal totalRecharges = rechargeQuery.Sum(cr => (decimal?)cr.quantityCredits) ?? 0;
+
+                var lastRecharge = rechargeQuery
+                    .OrderByDescending(cr => cr.RechargeDate)
+                    .FirstOrDefault();
+
+                var lastRechargeInfo = lastRecharge != null
+                    ? new LastRechargeInfo
+                    {
+                        Credits = lastRecharge.quantityCredits,
+                        Date = lastRecharge.RechargeDate.ToString("yyyy-MM-dd HH:mm:ss")
+                    }
+                    : null;
+
+                var twentyDaysAgo = DateTime.Now.Date.AddDays(-19);
+
+                var dailyCounts = sentQuery
+                    .Where(s => s.SentAt.Value.Date >= twentyDaysAgo)
+                    .GroupBy(s => s.SentAt.Value.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToList();
+
+                int totalSentLast20Days = dailyCounts.Sum(d => d.Count);
+
+                // Generar los 20 días para que incluso si no hay datos un día, el gráfico lo incluya
+                var chartData = Enumerable.Range(0, 20)
+                    .Select(i => twentyDaysAgo.AddDays(i))
+                    .Select(date =>
+                    {
+                        var dayData = dailyCounts.FirstOrDefault(d => d.Date == date);
+                        var count = dayData?.Count ?? 0;
+                        var percent = totalSentLast20Days > 0
+                            ? Math.Round((decimal)count / totalSentLast20Days * 100, 2)
+                            : 0;
+
+                        return new ChartDataPoint
+                        {
+                            Date = date.ToString("yyyy-MM-dd"),
+                            Value = percent
+                        };
+                    })
+                    .ToList();
+
+
+
+                return new UseResponse
+                {
+                    CreditsUsed = creditsUsed,
+                    MessagesSent = messagesSent,
+                    TotalRecharges = totalRecharges,
+                    LastRecharge = lastRechargeInfo,
+                    ChartData = chartData
+                };
+            }
+        }
+
+
+        public List<CampaignItemResponse> GetCampaignsByRoom(int roomId, int smsType)
+        {
+            using (var ctx = new Entities())
+            {
+                return ctx.Campaigns
+                    .Where(c => c.RoomId == roomId && c.NumberType == smsType)
+                    .Select(c => new CampaignItemResponse
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    })
+                    .ToList();
+            }
+        }
+        public List<CampaignItemResponse> GetallCampaignsByRoom(int roomId)
+        {
+            using (var ctx = new Entities())
+            {
+                return ctx.Campaigns
+                    .Where(c => c.RoomId == roomId)
+                    .Select(c => new CampaignItemResponse
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    })
+                    .ToList();
+            }
+        }
+
+
+        public List<UserItemResponse> GetUsersByRoom(int roomId)
+        {
+            using (var ctx = new Entities())
+            {
+                return (from ru in ctx.roomsbyuser
+                        join u in ctx.Users on ru.idUser equals u.Id
+                        where ru.idRoom == roomId
+                        select new UserItemResponse
+                        {
+                            Id = u.Id,
+                            Name = u.firstName
+                        }).ToList();
+            }
+        }
+        public List<ReportGlobalResponse> GetSmsReport(ReportRequest request)
+        {
+            var results = new List<ReportGlobalResponse>();
+
+            using (var ctx = new Entities())
+            {
+                var dbConnection = ctx.Database.GetDbConnection();
+                using (var connection = new SqlConnection(dbConnection.ConnectionString))
+                {
+                    using (var command = new SqlCommand("sp_getGlobalReport", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        command.Parameters.AddWithValue("@RoomId", request.RoomId);
+                        command.Parameters.AddWithValue("@StartDate", request.StartDate ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@EndDate", request.EndDate ?? (object)DBNull.Value);
+
+                        connection.Open();
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                results.Add(new ReportGlobalResponse
+                                {
+                                    Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                    Phone = reader.GetString(reader.GetOrdinal("Phone")),
+                                    Room = reader.GetString(reader.GetOrdinal("Room")),
+                                    Campaign = reader.GetString(reader.GetOrdinal("Campaign")),
+                                    CampaignId = reader.GetInt32(reader.GetOrdinal("CampaignId")),
+                                    User = reader.GetString(reader.GetOrdinal("User")), 
+                                    MessageId = reader.GetInt32(reader.GetOrdinal("MessageId")),
+                                    Message = reader.GetString(reader.GetOrdinal("Message")),
+                                    Status = reader.GetString(reader.GetOrdinal("Status")),
+                                    ReceivedAt = reader.GetDateTime(reader.GetOrdinal("ReceivedAt")), 
+                                    Cost = reader.GetString(reader.GetOrdinal("Cost")), 
+                                    Type = reader.GetString(reader.GetOrdinal("Type")),
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        public List<ReportDeliveryResponse> GetSmsReportSend(ReportRequest request)
+        {
+            var results = new List<ReportDeliveryResponse>();
+
+            using (var ctx = new Entities())
+            {
+                var connection = (SqlConnection)ctx.Database.GetDbConnection();
+
+                using (var command = new SqlCommand("sp_getSmsDeliveryReport", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.AddWithValue("@StartDate", request.StartDate ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@EndDate", request.EndDate ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@RoomId", request.RoomId);
+                    command.Parameters.AddWithValue("@ReportType", request.ReportType ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@UserIds", string.Join(",", request.UserIds ?? new List<int>()));
+                    command.Parameters.AddWithValue("@CampaignIds", string.Join(",", request.CampaignIds ?? new List<int>()));
+
+                    if (connection.State != ConnectionState.Open)
+                        connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            results.Add(new ReportDeliveryResponse
+                            {
+                                MessageId = reader.GetInt32(reader.GetOrdinal("MessageId")),
+                                Message = reader.GetString(reader.GetOrdinal("Message")),
+                                CampaignName = reader.GetString(reader.GetOrdinal("CampaignName")),
+                                CampaignId = reader.GetInt32(reader.GetOrdinal("CampaignId")),
+                                UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                RoomName = reader.GetString(reader.GetOrdinal("RoomName")),
+                                PhoneNumber = reader.GetString(reader.GetOrdinal("PhoneNumber")),
+                                Status = reader.GetString(reader.GetOrdinal("Status")),
+                                ResponseMessage = reader.IsDBNull(reader.GetOrdinal("ResponseMessage")) ? null : reader.GetString(reader.GetOrdinal("ResponseMessage")),
+                                SentAt = reader.IsDBNull(reader.GetOrdinal("SentAt")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("SentAt")),
+                                UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
+                            });
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
+
+
     }
 }

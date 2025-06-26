@@ -45,5 +45,22 @@ namespace Modal
         public DbSet<tpm_CampaignContacts> tpm_CampaignContacts { get; set; }  
         public DbSet<CampaignContactScheduleSend> CampaignContactScheduleSend { get; set; }
         public DbSet<IFTLadas> IFTLadas { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ClientRoomSummaryDTO>().HasNoKey();
+            modelBuilder.Entity<CampaignFullResponse>().HasNoKey();
+            modelBuilder.Entity<CampaignRecycleSettingDto>().HasNoKey(); 
+            modelBuilder.Entity<CampaignScheduleDto>().HasNoKey();
+            modelBuilder.Entity<CampaignContactDto>().HasNoKey();
+            modelBuilder.Entity<CampaignContactScheduleSendDTO>().HasNoKey();
+            modelBuilder.Entity<CampaignFullResponse>().Ignore(c => c.RecycleSetting);
+            base.OnModelCreating(modelBuilder);
+        }
+        public DbSet<ClientRoomSummaryDTO> ClientRoomSummaryDTO { get; set; }
+        public DbSet<CampaignFullResponse> CampaignFullResponse { get; set; }
+
+
+
     }
 }

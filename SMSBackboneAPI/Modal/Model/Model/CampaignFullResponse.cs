@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contract.Response
+namespace Modal.Model.Model
 {
     public class CampaignFullResponse
     {
@@ -27,12 +27,12 @@ namespace Contract.Response
         public int OutOfScheduleRecords { get; set; }
         public int BlockedRecords { get; set; }
         public int RecycleCount { get; set; }
-        public int ReceptionRate { get; set; } 
-        public int NoReceptionRate { get; set; } 
-        public int WaitRate { get; set; } 
-        public int DeliveryFailRate { get; set; } 
-        public int RejectionRate { get; set; } 
-        public int NoSendRate { get; set; } 
+        public int ReceptionRate { get; set; }
+        public int NoReceptionRate { get; set; }
+        public int WaitRate { get; set; }
+        public int DeliveryFailRate { get; set; }
+        public int RejectionRate { get; set; }
+        public int NoSendRate { get; set; }
         public int ExceptionRate { get; set; }
         public int InProcessCount { get; set; }       // Status == "0"
         public int DeliveredCount { get; set; }       // Status == "1"
@@ -43,7 +43,7 @@ namespace Contract.Response
         public List<CampaignScheduleDto> Schedules { get; set; } = new();
         public CampaignRecycleSettingDto? RecycleSetting { get; set; }
         public List<CampaignContactDto> Contacts { get; set; } = new();
-        public List<CampaignContactScheduleSendDTO> CampaignContactScheduleSendDTO { get;set; }
+        public List<CampaignContactScheduleSendDTO> CampaignContactScheduleSendDTO { get; set; }
     }
     public class CampaignScheduleDto
     {

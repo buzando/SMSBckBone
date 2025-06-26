@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using Contract.Request;
 using Contract.Response;
+using Microsoft.EntityFrameworkCore;
 using Modal;
 using Modal.Model.Model;
 
@@ -464,6 +466,144 @@ namespace Business
                 return null;
             }
         }
+
+        public List<CampaignFullResponse> GetCampaignFullResponseByRoom(int idRoom)
+        {
+            var campaigns = new List<CampaignFullResponse>();
+
+            using (var ctx = new Entities())
+            {
+                var connection = ctx.Database.GetDbConnection();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "sp_GetCampaignsByRoom";
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    var param = command.CreateParameter();
+                    param.ParameterName = "@RoomId";
+                    param.Value = idRoom;
+                    command.Parameters.Add(param);
+
+                    if (connection.State != ConnectionState.Open)
+                        connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        // Resultset 1: Campaigns
+                        while (reader.Read())
+                        {
+                            var campaign = new CampaignFullResponse
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Message = reader.IsDBNull(reader.GetOrdinal("Message")) ? null : reader.GetString(reader.GetOrdinal("Message")),
+                                UseTemplate = reader.GetBoolean(reader.GetOrdinal("UseTemplate")),
+                                TemplateId = reader.IsDBNull(reader.GetOrdinal("TemplateId")) ? null : reader.GetInt32(reader.GetOrdinal("TemplateId")),
+                                AutoStart = reader.GetBoolean(reader.GetOrdinal("AutoStart")),
+                                FlashMessage = reader.GetBoolean(reader.GetOrdinal("FlashMessage")),
+                                CustomANI = reader.GetBoolean(reader.GetOrdinal("CustomANI")),
+                                RecycleRecords = reader.GetBoolean(reader.GetOrdinal("RecycleRecords")),
+                                NumberType = reader.GetByte(reader.GetOrdinal("NumberType")),
+                                CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                                StartDate = reader.IsDBNull(reader.GetOrdinal("StartDate")) ? null : reader.GetDateTime(reader.GetOrdinal("StartDate")),
+                                numeroActual = reader.GetInt32(reader.GetOrdinal("numeroActual")),
+                                numeroInicial = reader.GetInt32(reader.GetOrdinal("numeroInicial")),
+                                RespondedRecords = reader.GetInt32(reader.GetOrdinal("RespondedRecords")),
+                                InProcessCount = reader.GetInt32(reader.GetOrdinal("InProcessCount")),
+                                DeliveredCount = reader.GetInt32(reader.GetOrdinal("DeliveredCount")),
+                                NotDeliveredCount = reader.GetInt32(reader.GetOrdinal("NotDeliveredCount")),
+                                NotSentCount = reader.GetInt32(reader.GetOrdinal("NotSentCount")),
+                                FailedCount = reader.GetInt32(reader.GetOrdinal("FailedCount")),
+                                ExceptionCount = reader.GetInt32(reader.GetOrdinal("ExceptionCount")),
+                                BlockedRecords = reader.GetInt32(reader.GetOrdinal("BlockedRecords")),
+                                DeliveryFailRate = reader.GetInt32(reader.GetOrdinal("DeliveryFailRate")),
+                                Schedules = new List<CampaignScheduleDto>(),
+                                Contacts = new List<CampaignContactDto>(),
+                                CampaignContactScheduleSendDTO = new List<CampaignContactScheduleSendDTO>()
+                            };
+
+                            campaigns.Add(campaign);
+                        }
+
+                        // Resultset 2: Schedules
+                        reader.NextResult();
+                        while (reader.Read())
+                        {
+                            int campaignId = reader.GetInt32(reader.GetOrdinal("CampaignId"));
+                            var schedule = new CampaignScheduleDto
+                            {
+                                StartDateTime = reader.GetDateTime(reader.GetOrdinal("StartDateTime")),
+                                EndDateTime = reader.GetDateTime(reader.GetOrdinal("EndDateTime")),
+                                OperationMode = reader.IsDBNull(reader.GetOrdinal("OperationMode")) ? null : reader.GetByte(reader.GetOrdinal("OperationMode")),
+                                Order = reader.GetInt32(reader.GetOrdinal("Order"))
+                            };
+
+                            var campaign = campaigns.FirstOrDefault(c => c.Id == campaignId);
+                            campaign?.Schedules.Add(schedule);
+                        }
+
+                        // Resultset 3: RecycleSetting
+                        reader.NextResult();
+                        while (reader.Read())
+                        {
+                            int campaignId = reader.GetInt32(reader.GetOrdinal("CampaignId"));
+                            var recycle = new CampaignRecycleSettingDto
+                            {
+                                TypeOfRecords = reader.IsDBNull(reader.GetOrdinal("TypeOfRecords")) ? null : reader.GetString(reader.GetOrdinal("TypeOfRecords")),
+                                IncludeNotContacted = reader.GetBoolean(reader.GetOrdinal("IncludeNotContacted")),
+                                NumberOfRecycles = reader.GetInt32(reader.GetOrdinal("NumberOfRecycles"))
+                            };
+
+                            var campaign = campaigns.FirstOrDefault(c => c.Id == campaignId);
+                            if (campaign != null)
+                                campaign.RecycleSetting = recycle;
+                        }
+
+                        // Resultset 4: Contacts
+                        reader.NextResult();
+                        while (reader.Read())
+                        {
+                            int campaignId = reader.GetInt32(reader.GetOrdinal("CampaignId"));
+                            var contact = new CampaignContactDto
+                            {
+                                PhoneNumber = reader.GetString(reader.GetOrdinal("PhoneNumber")),
+                                Dato = reader.IsDBNull(reader.GetOrdinal("Dato")) ? null : reader.GetString(reader.GetOrdinal("Dato")),
+                                DatoId = reader.IsDBNull(reader.GetOrdinal("DatoId")) ? null : reader.GetString(reader.GetOrdinal("DatoId")),
+                                Misc01 = reader.IsDBNull(reader.GetOrdinal("Misc01")) ? null : reader.GetString(reader.GetOrdinal("Misc01")),
+                                Misc02 = reader.IsDBNull(reader.GetOrdinal("Misc02")) ? null : reader.GetString(reader.GetOrdinal("Misc02"))
+                            };
+
+                            var campaign = campaigns.FirstOrDefault(c => c.Id == campaignId);
+                            campaign?.Contacts.Add(contact);
+                        }
+
+                        // Resultset 5: CampaignContactScheduleSendDTO
+                        reader.NextResult();
+                        while (reader.Read())
+                        {
+                            int campaignId = reader.GetInt32(reader.GetOrdinal("CampaignId"));
+                            var sendDto = new CampaignContactScheduleSendDTO
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                CampaignId = campaignId,
+                                ContactId = reader.GetInt32(reader.GetOrdinal("ContactId")),
+                                ScheduleId = reader.GetInt32(reader.GetOrdinal("ScheduleId")),
+                                SentAt = reader.IsDBNull(reader.GetOrdinal("SentAt")) ? null : reader.GetDateTime(reader.GetOrdinal("SentAt")),
+                                Status = reader.GetString(reader.GetOrdinal("Status")),
+                                ResponseMessage = reader.IsDBNull(reader.GetOrdinal("ResponseMessage")) ? null : reader.GetString(reader.GetOrdinal("ResponseMessage")),
+                                State = reader.GetString(reader.GetOrdinal("State"))
+                            };
+
+                            var campaign = campaigns.FirstOrDefault(c => c.Id == campaignId);
+                            campaign?.CampaignContactScheduleSendDTO.Add(sendDto);
+                        }
+                    }
+                }
+            }
+
+            return campaigns;
+        }
+
 
         public CampaignFullResponse FullResponseUpdateCampaignInfo(int IdCampaign)
         {

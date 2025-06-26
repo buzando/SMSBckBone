@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { TextField, InputAdornment, MenuItem, Typography, Paper } from '@mui/material';
+import { TextField, InputAdornment, MenuItem, Typography, Paper, Box } from '@mui/material';
 import SecondaryButton from '../components/commons/SecondaryButton';
 import MainButton from '../components/commons/MainButton';
 import InfoIcon from '@mui/icons-material/Info';
@@ -23,6 +23,13 @@ const BillingInformation: React.FC = () => {
     const [businessNameError, setBusinessNameError] = useState(false);
     const [errorModal, setErrorModal] = useState(false);
     const [Modal, setModal] = useState(false);
+    const [personType, setPersonType] = useState('');
+    const [street, setStreet] = useState('');
+    const [extNumber, setExtNumber] = useState('');
+    const [intNumber, setIntNumber] = useState('');
+    const [colony, setColony] = useState('');
+    const [city, setCity] = useState('');
+    const [state, setState] = useState('');
     const [errors] = useState({
         businessName: false,
         rfc: false,
@@ -43,12 +50,20 @@ const BillingInformation: React.FC = () => {
             const requestUrl = `${import.meta.env.VITE_SMS_API_URL + import.meta.env.VITE_API_ADD_USERS_BILLING}`;
             const Billing = {
                 Email: obj.userName,
+                PersonType: personType,
                 BusinessName: businessName,
-                taxRegime: taxRegime,
                 TaxId: rfc,
+                taxRegime: taxRegime,
                 Cfdi: cfdi,
                 PostalCode: postalCode,
+                Street: street,
+                ExtNumber: extNumber,
+                IntNumber: intNumber,
+                Colony: colony,
+                City: city,
+                State: state
             };
+
 
             const response = await axios.post(requestUrl, Billing);
 
@@ -80,12 +95,20 @@ const BillingInformation: React.FC = () => {
                 // Supongamos que la respuesta tiene la información en response.data
                 const billingData = response.data;
                 if (billingData) {
+                    setPersonType(billingData.personType || "");
                     setBusinessName(billingData.businessName || "");
                     setRfc(billingData.taxId || "");
                     setTaxRegime(billingData.taxRegime || "");
                     setCfdi(billingData.cfdi || "");
                     setPostalCode(billingData.postalCode || "");
+                    setStreet(billingData.street || "");
+                    setExtNumber(billingData.extNumber || "");
+                    setIntNumber(billingData.intNumber || "");
+                    setColony(billingData.colony || "");
+                    setCity(billingData.city || "");
+                    setState(billingData.state || "");
                 }
+
             } catch (error) {
                 console.error("Error al traer los datos de facturación", error);
             }
@@ -145,7 +168,7 @@ const BillingInformation: React.FC = () => {
 
     return (
 
-        <div style={{ padding: '20px', backgroundColor: '#fff' }}>
+        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
             <Typography
                 style={{
                     textAlign: 'left',
@@ -165,7 +188,9 @@ const BillingInformation: React.FC = () => {
                     backgroundColor: '#FFFFFF',
                     padding: '20px',
                     borderRadius: '8px',
-                    maxWidth: '850px'  // Aquí aumentamos la altura del Paper
+                    minWidth: '850px',
+                    maxHeight: '430px',
+                    overflowY: 'auto',
                 }}
             >
                 <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
@@ -362,6 +387,195 @@ const BillingInformation: React.FC = () => {
                         }}
                     />
                 </div>
+                {/* Tipo de persona */}
+                <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', maxWidth: '400px' }}>
+                    <div style={{ flex: 1 }}>
+                        <Typography
+                            style={{
+                                textAlign: 'left',
+                                font: 'normal normal medium 16px/54px Poppins',
+                                color: '#330F1B',
+                                fontSize: '16px',
+                            }}
+                        >
+                            Tipo de persona*
+                        </Typography>
+                        <TextField
+                            select
+                            value={personType}
+                            onChange={(e) => setPersonType(e.target.value)}
+                            fullWidth
+                            SelectProps={{ displayEmpty: true }}
+                            InputProps={{
+                                endAdornment: (
+                                    <Tooltip title="Selecciona física o moral" arrow>
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
+                                ),
+                            }}
+                        >
+                            <MenuItem value="">
+                                <span style={{ fontStyle: "normal", color: "#645E60" }}>Seleccionar</span>
+                            </MenuItem>
+                            <MenuItem value="fisica">Persona Física</MenuItem>
+                            <MenuItem value="moral">Persona Moral</MenuItem>
+                        </TextField>
+                    </div>
+                </div>
+
+                {/* Calle, Número exterior, Número interior */}
+                <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                    <div style={{ flex: 2 }}>
+                        <Typography style={{ textAlign: 'left', font: 'normal normal medium 16px/54px Poppins', color: '#330F1B', fontSize: '16px' }}>
+                            Calle*
+                        </Typography>
+                        <TextField
+                            value={street}
+                            onChange={(e) => setStreet(e.target.value)}
+                            fullWidth
+                            InputProps={{
+                                endAdornment: (
+                                    <Tooltip title="Nombre de la calle" arrow>
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
+                                ),
+                            }}
+                        />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <Typography style={{ textAlign: 'left', font: 'normal normal medium 16px/54px Poppins', color: '#330F1B', fontSize: '16px' }}>
+                            Número exterior*
+                        </Typography>
+                        <TextField
+                            value={extNumber}
+                            onChange={(e) => setExtNumber(e.target.value)}
+                            fullWidth
+                            InputProps={{
+                                endAdornment: (
+                                    <Tooltip title="Número exterior del domicilio" arrow>
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
+                                ),
+                            }}
+                        />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <Typography style={{ textAlign: 'left', font: 'normal normal medium 16px/54px Poppins', color: '#330F1B', fontSize: '16px' }}>
+                            Número interior
+                        </Typography>
+                        <TextField
+                            value={intNumber}
+                            onChange={(e) => setIntNumber(e.target.value)}
+                            fullWidth
+                            InputProps={{
+                                endAdornment: (
+                                    <Tooltip title="Número interior (opcional)" arrow>
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
+                                ),
+                            }}
+                        />
+                    </div>
+                </div>
+
+                {/* Colonia y Ciudad */}
+                <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                    <div style={{ flex: 1 }}>
+                        <Typography style={{ textAlign: 'left', font: 'normal normal medium 16px/54px Poppins', color: '#330F1B', fontSize: '16px' }}>
+                            Colonia*
+                        </Typography>
+                        <TextField
+                            value={colony}
+                            onChange={(e) => setColony(e.target.value)}
+                            fullWidth
+                            InputProps={{
+                                endAdornment: (
+                                    <Tooltip title="Nombre de la colonia" arrow>
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
+                                ),
+                            }}
+                        />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <Typography style={{ textAlign: 'left', font: 'normal normal medium 16px/54px Poppins', color: '#330F1B', fontSize: '16px' }}>
+                            Ciudad*
+                        </Typography>
+                        <TextField
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            fullWidth
+                            InputProps={{
+                                endAdornment: (
+                                    <Tooltip title="Ciudad o municipio" arrow>
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
+                                ),
+                            }}
+                        />
+                    </div>
+                </div>
+
+                {/* Estado */}
+                <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                    <div style={{ flex: 1 }}>
+                        <Typography style={{ textAlign: 'left', font: 'normal normal medium 16px/54px Poppins', color: '#330F1B', fontSize: '16px' }}>
+                            Estado*
+                        </Typography>
+                        <TextField
+                            value={state}
+                            onChange={(e) => setState(e.target.value)}
+                            fullWidth
+                            InputProps={{
+                                endAdornment: (
+                                    <Tooltip title="Estado de la república" arrow>
+                                        <InputAdornment position="end">
+                                            <InfoIcon style={{ color: '#6a6a6a' }} />
+                                        </InputAdornment>
+                                    </Tooltip>
+                                ),
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ width: '128px' }}>
+                        <Typography
+                            style={{
+                                textAlign: 'left',
+                                font: 'normal normal medium 16px/54px Poppins',
+                                color: postalCodeError ? '#D01247' : '#330F1B',
+                                fontSize: '16px',
+                            }}
+                        >
+                            Código postal*
+                        </Typography>
+                        <TextField
+                            value={postalCode}
+                            onChange={handlePostalCodeChange}
+                            error={postalCodeError}
+                            helperText={postalCodeError ? 'Formato inválido' : ''}
+                            fullWidth
+                            InputProps={{
+                                style: { height: '54px' },
+                            }}
+                            inputProps={{
+                                maxLength: 5,
+                            }}
+                        />
+                    </div>
+                </div>
 
                 <Typography
                     style={{
@@ -380,17 +594,22 @@ const BillingInformation: React.FC = () => {
             <div
                 style={{
                     display: 'flex',
+                    justifyContent: 'flex-start',
                     alignItems: 'center',
-                    marginLeft: '600px',
-                    marginTop: '30px'
+                    gap: '16px',
+                    marginTop: '30px',
+                    maxWidth: '850px',
+                    width: '100%',
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    paddingLeft: '20px', // 💥 Alineación con el contenido del Paper
+                    boxSizing: 'border-box',
                 }}
             >
-                <div style={{ position: 'relative', left: '-10px' }}>
-                    <SecondaryButton onClick={() => setModal(true)} text="CANCELAR" />
-                </div>
-
+                <SecondaryButton onClick={() => setModal(true)} text="CANCELAR" />
                 <MainButton onClick={handleSave} text="GUARDAR" />
             </div>
+
             {showChipBarAdd && (
                 <ChipBar
                     message="Los datos de facturación han sido agregados correctamente"
@@ -414,7 +633,7 @@ const BillingInformation: React.FC = () => {
                 onPrimaryClick={handleCancel}
                 onSecondaryClick={() => setModal(false)}
             />
-        </div>
+        </Box>
 
     );
 };

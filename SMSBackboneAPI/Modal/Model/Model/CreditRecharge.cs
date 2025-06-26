@@ -12,7 +12,7 @@ namespace Modal.Model.Model
         [Key]
         public int Id { get; set; }
 
-        public int idCreditCard { get; set; }
+        public int? idCreditCard { get; set; }
         //public virtual creditcards CreditCard { get; set; }
 
         public int idUser { get; set; }
@@ -29,7 +29,7 @@ namespace Modal.Model.Model
         public string Estatus { get; set; }
         public bool AutomaticInvoice { get; set; }
 
-        public string EstatusError { get; set; }
-        public string Invoice { get; set; }
+        public string? EstatusError { get; set; }
+        public string? Invoice { get; set; }
     }
 }

@@ -25,9 +25,13 @@ import Campaigns from './pages/Campains'
 import Use from './pages/Use'
 import Costs from './pages/Costs'
 import Help from './pages/Help'
+import NumbersDids from './pages/NumbersDids'
 import BillingInformation from './pages/BillingInformation'
 import BlackList from './pages/BlackList'
 import TestSMS from './pages/TestSMS'
+import Clients from './pages/Clients'
+import RoomsAdmin from './pages/RoomsAdmin'
+import ReportsAdmin from './pages/ReportsAdmin'
 //import UsersPage from './pages/private/UsersPage';
 import PrivateRoute from './components/PrivateRoute';
 import AutentificationRoute from './components/AutentificationRoute'
@@ -100,6 +104,18 @@ function App() {
                             </Route>
                             <Route element={<PrivateRoute />}>
                                 <Route path='/TermsAndConditions' element={<TermsAndConditions />} />
+                            </Route>
+                              <Route element={<PrivateRoute />}>
+                                <Route path='/Clients' element={<Clients />} />
+                            </Route>
+                             <Route element={<PrivateRoute />}>
+                                <Route path='/RoomsAdmin' element={<RoomsAdmin />} />
+                            </Route>
+                                <Route element={<PrivateRoute />}>
+                                <Route path='/NumbersDids' element={<NumbersDids />} />
+                            </Route>
+                             <Route element={<PrivateRoute />}>
+                                <Route path='/ReportsAdmin' element={<ReportsAdmin />} />
                             </Route>
                              <Route element={<PrivateRoute />}>
                                 <Route path='/PrivacyNotice' element={<PrivacyNotice />} />

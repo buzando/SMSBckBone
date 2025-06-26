@@ -16,6 +16,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using log4net;
 using System.Threading.Tasks;
 using System.Security.Policy;
+using Openpay.Entities.Request;
 
 namespace SMSBackboneAPI.Controllers
 {
@@ -772,7 +773,7 @@ namespace SMSBackboneAPI.Controllers
         }
 
         [HttpGet("GetNumbersByUser")]
-        public async Task<IActionResult> GetNumbersByUser(string email)
+        public async Task<IActionResult> GetNumbersByUser(int id)
         {
             GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
             //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
@@ -781,7 +782,7 @@ namespace SMSBackboneAPI.Controllers
             //    return BadRequest("Sin request valido.");
             //}
             var UserManager = new Business.MyNumbersManager();
-            var responseDto = UserManager.NumbersByUser(email);
+            var responseDto = UserManager.NumbersByUser(id);
             if (responseDto.Count() == 0)
             {
 
@@ -793,7 +794,36 @@ namespace SMSBackboneAPI.Controllers
             }
             else
             {
-                var response = Ok(responseDto);
+                var json = System.Text.Json.JsonSerializer.Serialize(responseDto);
+
+                var response = Ok(json);
+                return response;
+            }
+        }
+
+
+        [HttpGet("GetAllNumbers")]
+        public async Task<IActionResult> GetAllNumbers()
+        {
+            GeneralErrorResponseDto[] errorResponse = new GeneralErrorResponseDto[1];
+            //var login = await ServiceRequest.GetRequest<LoginDto>(Request.Body);
+            //if (login == null)
+            //{
+            //    return BadRequest("Sin request valido.");
+            //}
+            var UserManager = new Business.MyNumbersManager();
+            var responseDto = UserManager.NumbersALL();
+            if (responseDto.Count() == 0)
+            {
+
+
+                return BadRequest(new GeneralErrorResponseDto() { code = "Error", description = "Getting Numbers" });
+
+            }
+            else
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(responseDto);
+                var response = Ok(json);
                 return response;
             }
         }
@@ -1245,5 +1275,63 @@ namespace SMSBackboneAPI.Controllers
                 return BadRequest(new GeneralErrorResponseDto() { code = "TemplateNotFound", description = "No se encontró el template para actualizar." });
         }
         #endregion
+
+        [HttpPost("GetCampaignKPIByRoom")]
+        public IActionResult GetCampaignKPIByRoom(CampaignKPIRequest request)
+        {
+            var result = new UserManager().GetCampaignKPIByRoom(request);
+            return Ok(result);
+        }
+        [HttpPost("GetUseData")]
+        public IActionResult GetUseData(UseRequest request)
+        {
+            var data = new UserManager().GetUsageByRoom(request);
+            return Ok(data);
+        }
+
+        [HttpGet("GetCampaignsByRoom")]
+        public IActionResult GetCampaignsByRoom(int roomId, int smsType)
+        {
+            var data = new UserManager().GetCampaignsByRoom(roomId, smsType);
+            return Ok(data);
+        }
+        [HttpGet("GetAllCampaignsByRoom")]
+        public IActionResult GetAllCampaignsByRoom(int roomId)
+        {
+            var data = new UserManager().GetallCampaignsByRoom(roomId);
+            return Ok(data);
+        }
+
+        [HttpGet("GetUsersByRoom")]
+        public IActionResult GetUsersByRoom(int roomId)
+        {
+            var data = new UserManager().GetUsersByRoom(roomId);
+            return Ok(data);
+        }
+        [HttpPost("GetReport")]
+        public IActionResult GetReport([FromBody] ReportRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.ReportType))
+                return BadRequest("El tipo de reporte es obligatorio.");
+
+            var manager = new UserManager();
+
+            switch (request.ReportType.ToLower())
+            {
+                case "global":
+                    return Ok(manager.GetSmsReport(request));
+                    break;
+                case "entrantes":
+                case "enviados":
+                case "noenviados":
+                case "rechazados":
+                    return Ok(manager.GetSmsReportSend(request));
+
+                default:
+                    return BadRequest("Tipo de reporte no válido. Solo se permiten: global, entrantes, enviados, noenviados, rechazados.");
+            }
+        }
+
+
     }
 }

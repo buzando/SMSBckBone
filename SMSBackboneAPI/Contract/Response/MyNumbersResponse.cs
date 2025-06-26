@@ -10,7 +10,7 @@ namespace Contract.Response
     {
         public int Id { get; set; }
 
-        public int IdUser { get; set; }
+        public int IdClient { get; set; }
 
         public string Number { get; set; }
 
@@ -26,5 +26,7 @@ namespace Contract.Response
 
         public string Municipality { get; set; }
         public string Lada { get; set; }
+        public string service { get; set; }
+        public string? Estatus { get; set; }
     }
 }

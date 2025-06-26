@@ -13,7 +13,7 @@ namespace Modal.Model.Model
         [Key]
         public int Id { get; set; } 
 
-        public int IdUser { get; set; } 
+        public int? idClient { get; set; } 
 
         public string Number { get; set; } 
 
@@ -23,13 +23,14 @@ namespace Modal.Model.Model
 
         public decimal Cost { get; set; }
 
-        public DateTime NextPaymentDate { get; set; } 
+        public DateTime? NextPaymentDate { get; set; } 
 
         public string State { get; set; } 
 
-        public string Municipality { get; set; } 
+        public string Municipality { get; set; }
+        public string? Estatus { get; set; }
         public string Lada { get; set; } 
-        [ForeignKey("IdUser")]
-        public virtual Users User { get; set; }
+        [ForeignKey("idClient")]
+        public virtual clients? Clients { get; set; }
     }
 }

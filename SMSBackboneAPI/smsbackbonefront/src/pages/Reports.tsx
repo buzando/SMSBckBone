@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
     Box,
     Button,
@@ -57,9 +57,54 @@ interface Reports {
     Resultado: string,
 }
 
-// Datos simulados de campañas y usuarios
-const campaigns = ['Campaña 1', 'Campaña 2', 'Campaña 3', 'Campaña 4'];
-const users = ['Usuario 0', 'Usuario 1', 'Usuario 2', 'Usuario 3'];
+interface ReporteGlobal {
+    Date: string;
+    Phone: string;
+    Room: string;
+    Campaign: string;
+    CampaignId: number;
+    User: string;
+    MessageId: number;
+    Message: string;
+    Status: string;
+    ReceivedAt: string;
+    Cost: string;
+    Type: string;
+}
+
+interface ReporteSMS {
+    Date: string;
+    Phone: string;
+    Room: string;
+    Campaign: string;
+    CampaignId: number;
+    User: string;
+    MessageId: number;
+    Message: string;
+    Status?: string;
+    ReceivedAt?: string;
+    Result?: string;
+    Reason?: string;
+}
+
+interface Campaign {
+    id: number;
+    name: string;
+}
+
+interface User {
+    id: number;
+    name: string;
+}
+
+type DateRangeType = {
+    start: Date;
+    end: Date;
+    startHour: number;
+    startMinute: number;
+    endHour: number;
+    endMinute: number;
+};
 
 const Reports: React.FC = () => {
     const [Reports, setReports] = useState<Reports[] | null | undefined>(undefined);
@@ -69,7 +114,7 @@ const Reports: React.FC = () => {
     // Estados para DatePicker
     const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [selectedDates, setSelectedDates] = useState<any>(null);
+    const [selectedDates, setSelectedDates] = useState<DateRangeType | null>(null);
 
     // Estados para el Popper de Campañas
     const [campaignMenuOpen, setCampaignMenuOpen] = useState(false);
@@ -83,7 +128,10 @@ const Reports: React.FC = () => {
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
     const [userSearch, setUserSearch] = useState('');
     const tableRef = React.useRef<HTMLDivElement>(null);
-    const [filteredReports, setFilteredReports] = useState<Reports[] | null>(null);
+    const [filteredReports, setFilteredReports] = useState<ReporteGlobal[] | ReporteSMS[] | null>([]);
+    const [reportData, setReportData] = useState<ReporteGlobal[] | ReporteSMS[] | undefined | null>(undefined);
+    const [users, setUsers] = useState<User[]>([]);
+    const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const navigate = useNavigate();
 
     // Maneja el cambio de tabs (SMS / Llamada)
@@ -124,8 +172,13 @@ const Reports: React.FC = () => {
 
     // Selecciona o deselecciona todas las campañas
     const handleSelectAllCampaigns = () => {
-        setSelectedCampaigns(selectedCampaigns.length === campaigns.length ? [] : [...campaigns]);
+        setSelectedCampaigns(
+            selectedCampaigns.length === campaigns.length
+                ? []
+                : campaigns.map((c) => c.id.toString()) // convierte los ids a string si lo necesitas
+        );
     };
+
 
     // Limpia todas las campañas seleccionadas
     const handleClearCampaignSelection = () => {
@@ -156,8 +209,13 @@ const Reports: React.FC = () => {
 
     // Selecciona o deselecciona todos los usuarios
     const handleSelectAllUsers = () => {
-        setSelectedUsers(selectedUsers.length === users.length ? [] : [...users]);
+        setSelectedUsers(
+            selectedUsers.length === users.length
+                ? []
+                : users.map((u) => u.id.toString()) // o u.userName, si eso estás usando
+        );
     };
+
 
     // Limpia todos los usuarios seleccionados
     const handleClearUserSelection = () => {
@@ -191,556 +249,121 @@ const Reports: React.FC = () => {
     };
 
 
+    const getUsers = async () => {
+        try {
+            const selectedRoom = JSON.parse(localStorage.getItem('selectedRoom') || '{}');
+            const roomId = selectedRoom?.id;
 
+            if (!roomId) return;
 
-
-    const data: Reports[] = [
-        {
-            id: 1,
-            Fecha: new Date('2025-03-25T10:00:00'),
-            Telefono: '3001234567',
-            Sala: 'Atención al Cliente',
-            Campana: 'Campaña Marzo',
-            Idcampana: 101,
-            Usuario: 'jdoe',
-            Idmensaje: 5001,
-            Mensaje: 'Mensaje enviado correctamente',
-            Estado: 'Entregado',
-            Fecharecepcion: new Date('2025-03-25T10:01:00'),
-            Costo: 30,
-            Tipo: 'SMS'
-        },
-        {
-            id: 2,
-            Fecha: new Date('2025-03-25T10:05:00'),
-            Telefono: '3017654321',
-            Sala: 'Soporte Técnico',
-            Campana: 'Campaña Marzo',
-            Idcampana: 101,
-            Usuario: 'asmith',
-            Idmensaje: 5002,
-            Mensaje: 'Tu caso ha sido actualizado',
-            Estado: 'Entregado',
-            Fecharecepcion: new Date('2025-03-25T10:06:00'),
-            Costo: 25,
-            Tipo: 'SMS'
-        },
-        {
-            id: 3,
-            Fecha: new Date('2025-03-25T10:10:00'),
-            Telefono: '3025551234',
-            Sala: 'Ventas',
-            Campana: 'Promoción Primavera',
-            Idcampana: 102,
-            Usuario: 'mjordan',
-            Idmensaje: 5003,
-            Mensaje: 'Nueva oferta disponible',
-            Estado: 'Fallido',
-            Fecharecepcion: new Date('2025-03-25T10:11:00'),
-            Costo: 0,
-            Tipo: 'SMS'
-        },
-        {
-            id: 4,
-            Fecha: new Date('2025-03-25T10:15:00'),
-            Telefono: '3039876543',
-            Sala: 'Cobranza',
-            Campana: 'Recordatorio de Pago',
-            Idcampana: 103,
-            Usuario: 'lrojas',
-            Idmensaje: 5004,
-            Mensaje: 'Tu factura vence mañana',
-            Estado: 'Entregado',
-            Fecharecepcion: new Date('2025-03-25T10:16:00'),
-            Costo: 20,
-            Tipo: 'SMS'
-        },
-        {
-            id: 5,
-            Fecha: new Date('2025-03-25T10:20:00'),
-            Telefono: '3043217890',
-            Sala: 'Marketing',
-            Campana: 'Campaña Abril',
-            Idcampana: 104,
-            Usuario: 'eperez',
-            Idmensaje: 5005,
-            Mensaje: 'No te pierdas nuestras novedades',
-            Estado: 'Entregado',
-            Fecharecepcion: new Date('2025-03-25T10:21:00'),
-            Costo: 28,
-            Tipo: 'SMS'
-        },
-        {
-            id: 6,
-            Fecha: new Date('2025-03-25T10:25:00'),
-            Telefono: '3051237894',
-            Sala: 'Atención al Cliente',
-            Campana: 'Campaña Abril',
-            Idcampana: 104,
-            Usuario: 'lvalencia',
-            Idmensaje: 5006,
-            Mensaje: 'Gracias por contactarnos',
-            Estado: 'Entregado',
-            Fecharecepcion: new Date('2025-03-25T10:26:00'),
-            Costo: 30,
-            Tipo: 'SMS'
-        },
-        {
-            id: 7,
-            Fecha: new Date('2025-03-25T10:30:00'),
-            Telefono: '3069871234',
-            Sala: 'Soporte Técnico',
-            Campana: 'Campaña Especial',
-            Idcampana: 105,
-            Usuario: 'mcastillo',
-            Idmensaje: 5007,
-            Mensaje: 'Se ha creado tu ticket',
-            Estado: 'Entregado',
-            Fecharecepcion: new Date('2025-03-25T10:31:00'),
-            Costo: 32,
-            Tipo: 'SMS'
-        },
-        {
-            id: 8,
-            Fecha: new Date('2025-03-25T10:35:00'),
-            Telefono: '3076543210',
-            Sala: 'Ventas',
-            Campana: 'Promoción de Pascua',
-            Idcampana: 106,
-            Usuario: 'gfernandez',
-            Idmensaje: 5008,
-            Mensaje: 'Oferta válida por 24h',
-            Estado: 'Fallido',
-            Fecharecepcion: new Date('2025-03-25T10:36:00'),
-            Costo: 0,
-            Tipo: 'SMS'
-        },
-        {
-            id: 9,
-            Fecha: new Date('2025-03-25T10:40:00'),
-            Telefono: '3083216547',
-            Sala: 'Cobranza',
-            Campana: 'Alerta de Pago',
-            Idcampana: 107,
-            Usuario: 'nruiz',
-            Idmensaje: 5009,
-            Mensaje: 'Tu saldo está vencido',
-            Estado: 'Entregado',
-            Fecharecepcion: new Date('2025-03-25T10:41:00'),
-            Costo: 27,
-            Tipo: 'SMS'
-        },
-        {
-            id: 10,
-            Fecha: new Date('2025-03-25T10:45:00'),
-            Telefono: '3091122334',
-            Sala: 'Marketing',
-            Campana: 'Campaña Verano',
-            Idcampana: 108,
-            Usuario: 'adominguez',
-            Idmensaje: 5010,
-            Mensaje: '¡Prepárate para el verano!',
-            Estado: 'Entregado',
-            Fecharecepcion: new Date('2025-03-25T10:46:00'),
-            Costo: 30,
-            Tipo: 'SMS'
+            const response = await axios.get(`${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_USERSUSE}`, {
+                params: { roomId }
+            });
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Error al obtener usuarios:", error);
         }
-    ];
+    };
 
-    const dataEntrantes: Reports[] = [
-        {
-            id: 1,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña 2',
-            Idcampana: 1,
-            Usuario: 'Usuario 1',
-            Idmensaje: 11,
-            Mensaje: 'Hola'
-        },
-        {
-            id: 2,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña 1',
-            Idcampana: 2,
-            Usuario: 'Usuario 2',
-            Idmensaje: 13,
-            Mensaje: 'No gracias'
-        },
-        {
-            id: 3,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña 1',
-            Idcampana: 3,
-            Usuario: 'Usuario 3',
-            Idmensaje: 22,
-            Mensaje: 'Probando'
-        },
-        {
-            id: 4,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña 1',
-            Idcampana: 4,
-            Usuario: 'Usuario 4',
-            Idmensaje: 26,
-            Mensaje: 'Ejemplo mensaje muy largo que debe cortarse...'
-        },
-        {
-            id: 5,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña 1',
-            Idcampana: 5,
-            Usuario: 'Usuario 5',
-            Idmensaje: 34,
-            Mensaje: 'Hola'
-        },
-        {
-            id: 6,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña 1',
-            Idcampana: 6,
-            Usuario: 'Usuario 6',
-            Idmensaje: 39,
-            Mensaje: 'Adiós'
-        },
-        {
-            id: 7,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña 1',
-            Idcampana: 7,
-            Usuario: 'Usuario 7',
-            Idmensaje: 45,
-            Mensaje: 'No me interesa'
-        },
-        {
-            id: 8,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña 1',
-            Idcampana: 8,
-            Usuario: 'Usuario 8',
-            Idmensaje: 55,
-            Mensaje: 'Gracias'
+    useEffect(() => {
+        getUsers();
+        getCampaigns();
+    }, []);
+
+    const getCampaigns = async () => {
+        try {
+            const selectedRoom = JSON.parse(localStorage.getItem('selectedRoom') || '{}');
+            const roomId = selectedRoom?.id;
+
+            if (!roomId) return;
+
+            const response = await axios.get(`${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_ALLCAMPAIGNSUSE}`, {
+                params: { roomId }
+            });
+            setCampaigns(response.data);
+        } catch (error) {
+            console.error("Error al obtener campañas:", error);
         }
-    ];
+    };
 
-    const dataEnviados: Reports[] = [
-        {
-            id: 1,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: '',
-            Campana: 'Campaña 1',
-            Idcampana: 1,
-            Usuario: 'Usuario 1',
-            Idmensaje: 23,
-            Mensaje: 'Hola',
-            Resultado: 'Enviado',
-            Fecharecepcion: new Date('2024-07-23T00:00:00')
-        },
-        {
-            id: 2,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: '',
-            Campana: 'Campaña 1',
-            Idcampana: 2,
-            Usuario: 'Usuario 2',
-            Idmensaje: 35,
-            Mensaje: 'Le informamos que su cuenta tal debe equis cantidad',
-            Resultado: 'Enviado',
-            Fecharecepcion: new Date('2024-07-23T00:00:00')
-        },
-        {
-            id: 3,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: '',
-            Campana: 'Campaña 1',
-            Idcampana: 3,
-            Usuario: 'Usuario 3',
-            Idmensaje: 54,
-            Mensaje: 'Probando',
-            Resultado: 'Enviado',
-            Fecharecepcion: new Date('2024-07-23T00:00:00')
-        },
-        {
-            id: 4,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: '',
-            Campana: 'Campaña 1',
-            Idcampana: 4,
-            Usuario: 'Usuario 4',
-            Idmensaje: 65,
-            Mensaje: 'One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.',
-            Resultado: 'Enviado',
-            Fecharecepcion: new Date('2024-07-23T00:00:00')
-        },
-        {
-            id: 5,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: '',
-            Campana: 'Campaña 1',
-            Idcampana: 5,
-            Usuario: 'Usuario 5',
-            Idmensaje: 77,
-            Mensaje: 'Hola',
-            Resultado: 'Enviado',
-            Fecharecepcion: new Date('2024-07-23T00:00:00')
-        },
-        {
-            id: 6,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: '',
-            Campana: 'Campaña 1',
-            Idcampana: 6,
-            Usuario: 'Usuario 6',
-            Idmensaje: 87,
-            Mensaje: 'Adiós',
-            Resultado: 'Enviado',
-            Fecharecepcion: new Date('2024-07-23T00:00:00')
-        },
-        {
-            id: 7,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: '',
-            Campana: 'Campaña 1',
-            Idcampana: 7,
-            Usuario: 'Usuario 7',
-            Idmensaje: 91,
-            Mensaje: 'No me interesa',
-            Resultado: 'Enviado',
-            Fecharecepcion: new Date('2024-07-23T00:00:00')
-        },
-        {
-            id: 8,
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Telefono: '525512121212',
-            Sala: '',
-            Campana: 'Campaña 1',
-            Idcampana: 8,
-            Usuario: 'Usuario 8',
-            Idmensaje: 93,
-            Mensaje: 'Gracias',
-            Resultado: 'Enviado',
-            Fecharecepcion: new Date('2024-07-23T00:00:00')
+
+    const handleReport = async (dates?: DateRangeType) => {
+        const selectedRoom = localStorage.getItem("selectedRoom");
+        if (!selectedRoom) {
+            console.error("No se encontró la sala seleccionada.");
+            return;
         }
-    ];
 
-    const dataNoEnviados = [
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 1',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'No enviado',
-            Razon: 'Carrier no disponible',
-            Idmensaje: 23,
-            Mensaje: 'Hola'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 2',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'No enviado',
-            Razon: 'Carrier no disponible',
-            Idmensaje: 35,
-            Mensaje: 'Le informamos que su cuenta tal debe equis cantidad'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 3',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'No enviado',
-            Razon: 'Carrier no disponible',
-            Idmensaje: 54,
-            Mensaje: 'Probando'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 4',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'No enviado',
-            Razon: 'Carrier no disponible',
-            Idmensaje: 65,
-            Mensaje: 'One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed...'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 5',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'No enviado',
-            Razon: 'Excepción no controlada',
-            Idmensaje: 77,
-            Mensaje: 'Hola'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 6',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'No enviado',
-            Razon: 'Carrier no disponible',
-            Idmensaje: 87,
-            Mensaje: 'Adiós'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 7',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'No enviado',
-            Razon: 'Excepción no controlada',
-            Idmensaje: 91,
-            Mensaje: 'No me interesa'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 8',
-            Sala: 'Sala Tal',
-            Campana: '8Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'No enviado',
-            Razon: 'Carrier no disponible',
-            Idmensaje: 93,
-            Mensaje: 'Gracias'
+        const roomId = JSON.parse(selectedRoom).id;
+
+        setLoading(true);
+        try {
+            const payload = {
+                "ReportType": selectedSmsOption,
+                "SubType": "",
+                "RoomId": roomId,
+                "StartDate": dates?.start || null,
+                "EndDate": dates?.end || null,
+                "CampaignIds": selectedCampaigns.length ? selectedCampaigns : null,
+                "UserIds": selectedUsers.length ? selectedUsers : null,
+            };
+
+            const response = await axios.post(
+                `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_REPORT}`,
+                payload
+            );
+
+            setReportData(transformPascalCase(response.data || null));
+        } catch (error) {
+            console.error("Error al obtener el reporte:", error);
+        } finally {
+            setLoading(false);
         }
-    ];
+    };
 
-    const dataRechazados = [
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 1',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'Rechazado',
-            Razon: 'Rechazo por el usuario',
-            Idmensaje: 23,
-            Mensaje: 'Hola'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 2',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'Rechazado',
-            Razon: 'Rechazo por red del destino',
-            Idmensaje: 35,
-            Mensaje: 'Le informamos que su cuenta tal debe equis cantidad'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 3',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'Rechazado',
-            Razon: 'Rechazo por red del destino',
-            Idmensaje: 54,
-            Mensaje: 'Probando'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 4',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'Rechazado',
-            Razon: 'Rechazo por el usuario',
-            Idmensaje: 65,
-            Mensaje: 'One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed...'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 5',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'Rechazado',
-            Razon: 'Rechazo por red del destino',
-            Idmensaje: 77,
-            Mensaje: 'Hola'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 6',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'Rechazado',
-            Razon: 'Rechazo por el usuario',
-            Idmensaje: 87,
-            Mensaje: 'Adiós'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 7',
-            Sala: 'Sala Tal',
-            Campana: 'Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'Rechazado',
-            Razon: 'Rechazo por el usuario',
-            Idmensaje: 91,
-            Mensaje: 'No me interesa'
-        },
-        {
-            Fecha: new Date('2024-07-23T00:00:00'),
-            Usuario: 'Usuario 8',
-            Sala: 'Sala Tal',
-            Campana: '8Campaña Tal',
-            Telefono: '525512121212',
-            Resultado: 'Rechazado',
-            Razon: 'Rechazo por el usuario',
-            Idmensaje: 93,
-            Mensaje: 'Gracias'
-        }
-    ];
+    const transformPascalCase = (data: any[]) => {
+        return data.map(item => ({
+            Campaign: item.campaign,
+            CampaignId: item.campaignId,
+            Cost: item.cost,
+            Date: item.date,
+            Message: item.message,
+            MessageId: item.messageId,
+            Phone: item.phone,
+            ReceivedAt: item.receivedAt,
+            Room: item.room,
+            Status: item.status,
+            Type: item.type,
+            User: item.user,
+        }));
+    };
 
 
-    const handleDateSelectionApply = async (start: Date, end: Date, startHour: number, startMinute: number, endHour: number, endMinute: number) => {
-        setSelectedDates({ start, end, startHour, startMinute, endHour, endMinute });
+    const handleDateSelectionApply = async (
+        start: Date,
+        end: Date,
+        startHour: number,
+        startMinute: number,
+        endHour: number,
+        endMinute: number
+    ) => {
+        const updatedDates = { start, end, startHour, startMinute, endHour, endMinute };
+        setSelectedDates(updatedDates); // puedes mantener esto si usas selectedDates en la UI
+
         setDatePickerOpen(false);
         setAnchorEl(null);
         setLoading(true);
+
         try {
-            setReports(data);
-        } catch {
+            await handleReport(updatedDates); // pasa las fechas directamente
+        } catch (error) {
+            console.error("Error al cargar reporte:", error);
             setReports(null);
         } finally {
             setLoading(false);
         }
     };
+
 
     {/*Spinner*/ }
     const handleExportClick = (
@@ -824,21 +447,21 @@ const Reports: React.FC = () => {
         const MAX_RECORDS_LOCAL = 100000;
         try {
 
-            if (data.length <= MAX_RECORDS_LOCAL) {
+            if ((reportData!.length ?? 0) <= MAX_RECORDS_LOCAL) {
                 // === LOCAL EXPORT ===
-                const cleanData = data.map(item => ({
-                    Fecha: new Date(item.Fecha).toLocaleString(),
-                    Telefono: item.Telefono,
-                    Sala: item.Sala,
-                    Campana: item.Campana,
-                    Idcampana: item.Idcampana,
-                    Usuario: item.Usuario,
-                    Idmensaje: item.Idmensaje,
-                    Mensaje: item.Mensaje,
-                    Estado: item.Estado,
-                    Fecharecepcion: new Date(item.Fecharecepcion).toLocaleString(),
-                    Costo: item.Costo,
-                    Tipo: item.Tipo
+                const cleanData = reportData!.map(item => ({
+                    Fecha: new Date(item.Date).toLocaleString(),
+                    Telefono: item.Phone,
+                    Sala: item.Room,
+                    Campana: item.Campaign,
+                    Idcampana: item.CampaignId,
+                    Usuario: item.User,
+                    Idmensaje: item.MessageId,
+                    Mensaje: item.Message,
+                    Estado: item.Status,
+                    Fecharecepcion: new Date(item.Date).toLocaleString(),
+                    Costo: 'Cost' in item ? item.Cost : '',
+                    Tipo: 'Type' in item ? item.Type : '',
                 }));
 
                 if (format === 'csv') {
@@ -959,24 +582,24 @@ const Reports: React.FC = () => {
     };
 
     const handleFilter = () => {
-        let baseData: any[] = [];
+        let baseData: ReporteGlobal[] | ReporteSMS[] | undefined | null = [];
 
         // Selecciona el dataset base según la opción actual
         switch (selectedSmsOption) {
             case "Global":
-                baseData = data;
+                baseData = reportData;
                 break;
             case "Mensajes entrantes":
-                baseData = dataEntrantes;
+                baseData = reportData;
                 break;
             case "Mensajes enviados":
-                baseData = dataEnviados;
+                baseData = reportData;
                 break;
             case "Mensajes no enviados":
-                baseData = dataNoEnviados;
+                baseData = reportData;
                 break;
             case "Mensajes rechazados":
-                baseData = dataRechazados;
+                baseData = reportData;
                 break;
             default:
                 baseData = [];
@@ -1000,15 +623,15 @@ const Reports: React.FC = () => {
 
         switch (selectedSmsOption) {
             case "Global":
-                return data.length;
+                return reportData!.length;
             case "Mensajes entrantes":
-                return dataEntrantes.length;
+                return reportData!.length;
             case "Mensajes enviados":
-                return dataEnviados.length;
+                return reportData!.length;
             case "Mensajes no enviados":
-                return dataNoEnviados.length;
+                return reportData!.length;
             case "Mensajes rechazados":
-                return dataRechazados.length;
+                return reportData!.length;
             default:
                 return 0;
         }
@@ -1016,7 +639,7 @@ const Reports: React.FC = () => {
 
 
     return (
-        <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop:'-50px' }}>
+        <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop: '-50px' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', pl: '0px', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')} // ← O ajusta la ruta a donde quieras volver
@@ -1207,27 +830,30 @@ const Reports: React.FC = () => {
                                 primaryTypographyProps={{ fontFamily: 'Poppins', fontWeight: "500" }}
                             />
                         </MenuItem> */}
-                        {campaigns.filter(c => c.toLowerCase().includes(campaignSearch.toLowerCase())).map(c => (
-                            <MenuItem key={c} onClick={() => handleCampaignSelection(c)}>
-                                <Checkbox checked={selectedCampaigns.includes(c)}
-                                    sx={{
-                                        marginBottom: "-10px",
-                                        marginTop: "-10px",
-                                        marginLeft: "-20px",
-                                        color: '#786E71',
-                                        '&.Mui-checked': { color: '#6C3A52' },
+                        {campaigns
+                            .filter(c => c.name.toLowerCase().includes(campaignSearch.toLowerCase()))
+                            .map(c => (
+                                <MenuItem key={c.id} onClick={() => handleCampaignSelection(c.id.toString())}>
+                                    <Checkbox
+                                        checked={selectedCampaigns.includes(c.id.toString())}
+                                        sx={{
+                                            marginBottom: "-10px",
+                                            marginTop: "-10px",
+                                            marginLeft: "-20px",
+                                            color: '#786E71',
+                                            '&.Mui-checked': { color: '#6C3A52' },
+                                        }}
+                                    />
+                                    <ListItemText
+                                        primary={c.name}
+                                        primaryTypographyProps={{
+                                            fontFamily: 'Poppins',
+                                            color: selectedCampaigns.includes(c.id.toString()) ? '#8F4E63' : '#786E71',
+                                        }}
+                                    />
+                                </MenuItem>
+                            ))}
 
-                                    }}
-                                />
-                                <ListItemText
-                                    primary={c}
-                                    primaryTypographyProps={{
-                                        fontFamily: 'Poppins',
-                                        color: selectedCampaigns.includes(c) ? '#8F4E63' : '#786E71',
-                                    }}
-                                />
-                            </MenuItem>
-                        ))}
                     </Box>
 
                     {/* Línea horizontal arriba de los botones */}
@@ -1354,27 +980,30 @@ const Reports: React.FC = () => {
                                 primaryTypographyProps={{ fontFamily: 'Poppins' }}
                             />
                         </MenuItem> */}
-                        {users.filter(u => u.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
-                            <MenuItem key={u} onClick={() => handleUserSelection(u)}>
-                                <Checkbox checked={selectedUsers.includes(u)}
-                                    sx={{
-                                        marginBottom: "-10px",
-                                        marginTop: "-10px",
-                                        marginLeft: "-20px",
-                                        color: '#786E71',
-                                        '&.Mui-checked': { color: '#6C3A52' },
+                        {users
+                            .filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()))
+                            .map(u => (
+                                <MenuItem key={u.id} onClick={() => handleUserSelection(u.id.toString())}>
+                                    <Checkbox
+                                        checked={selectedUsers.includes(u.id.toString())}
+                                        sx={{
+                                            marginBottom: "-10px",
+                                            marginTop: "-10px",
+                                            marginLeft: "-20px",
+                                            color: '#786E71',
+                                            '&.Mui-checked': { color: '#6C3A52' },
+                                        }}
+                                    />
+                                    <ListItemText
+                                        primary={u.name}
+                                        primaryTypographyProps={{
+                                            fontFamily: 'Poppins',
+                                            color: selectedUsers.includes(u.id.toString()) ? '#8F4E63' : '#786E71',
+                                        }}
+                                    />
+                                </MenuItem>
+                            ))}
 
-                                    }}
-                                />
-                                <ListItemText primary={u}
-                                    primary={u}
-                                    primaryTypographyProps={{
-                                        fontFamily: 'Poppins',
-                                        color: selectedUsers.includes(u) ? '#8F4E63' : '#786E71',
-                                    }}
-                                />
-                            </MenuItem>
-                        ))}
                     </Box>
 
                     {/* Línea horizontal arriba de los botones */}
@@ -1488,7 +1117,7 @@ const Reports: React.FC = () => {
                         </IconButton>
 
                         {/* Botones de CSV / Excel y PDF */}
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1140px", gap: 2 }}>
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "100px", gap: 2 }}>
                             <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
                                 onClick={() => handleExportClick('csv', setIsExportingCSV)}
                                 disabled={anyExporting && !isExportingCSV}
@@ -1647,7 +1276,7 @@ const Reports: React.FC = () => {
                 >
                     <CircularProgress sx={{ color: '#7B354D' }} size={60} />
                 </Box>
-            ) : Reports === undefined ? (
+            ) : reportData === undefined ? (
                 // Imagen de caja cerrada cuando NO se ha seleccionado ninguna fecha
                 <Box>
                     {/* Contenido por defecto cuando no hay selección */}
@@ -1660,7 +1289,7 @@ const Reports: React.FC = () => {
                         </CardContent>
                     </Card>
                 </Box>
-            ) : Reports === null ? (
+            ) : reportData === null ? (
                 // Imagen de caja abierta cuando NO se encuentran resultados
                 <Box
                     sx={{
@@ -1700,13 +1329,12 @@ const Reports: React.FC = () => {
                         background: '#FFFFFF',
                         border: '1px solid #E6E4E4',
                         borderRadius: '8px',
-                        width: '1500px', // Limita el ancho
-                        maxWidth: '100%',
+                        maxWidth: '83%', 
                         padding: '20px',
                         marginTop: '5px',
-                        overflowX: 'auto', // Habilita scroll horizontal
-                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
-                        height: '500px',
+                        overflowX: 'auto', 
+                        overflowY: 'auto',
+                        height: '400px',
                         maxHeight: '100%',
 
                     }}
@@ -1873,7 +1501,7 @@ const Reports: React.FC = () => {
 
                         {/* Datos */}
                         <tbody>
-                            {Reports.map((recarga, index) => (
+                            {reportData.map((recarga, index) => (
                                 <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
                                     <td style={{
                                         padding: '10px',
@@ -1887,7 +1515,7 @@ const Reports: React.FC = () => {
                                         textOverflow: 'ellipsis',
 
                                     }}>
-                                        {new Date(recarga.Fecha).toLocaleString()}
+                                        {new Date(recarga.Date).toLocaleString()}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -1900,7 +1528,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Telefono}
+                                        {recarga.Phone}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -1913,7 +1541,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Sala}
+                                        {recarga.Room}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -1926,7 +1554,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Campana}
+                                        {recarga.Campaign}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -1939,7 +1567,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Idcampana}
+                                        {recarga.CampaignId}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -1952,7 +1580,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Usuario}
+                                        {recarga.User}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -1965,7 +1593,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Idmensaje}
+                                        {recarga.MessageId}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -1978,7 +1606,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Mensaje}
+                                        {recarga.Message}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -1991,7 +1619,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Estado}
+                                        {recarga.Status}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -2004,7 +1632,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {new Date(recarga.Fecharecepcion).toLocaleString()}
+                                        {new Date(recarga.Date).toLocaleString()}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -2017,7 +1645,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Costo}
+                                        {recarga.Message}
                                     </td>
                                     <td style={{
                                         padding: '10px',
@@ -2030,7 +1658,7 @@ const Reports: React.FC = () => {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                     }}>
-                                        {recarga.Tipo}
+                                        {recarga.Message}
                                     </td>
 
                                 </tr>
@@ -2158,7 +1786,7 @@ const Reports: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {(filteredReports || dataEntrantes).map((item, index) => (
+                            {(filteredReports || reportData).map((item, index) => (
                                 <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
                                     <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
                                     <td style={cellStyle}>{item.Telefono}</td>

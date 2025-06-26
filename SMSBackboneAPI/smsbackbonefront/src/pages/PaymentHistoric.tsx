@@ -18,6 +18,7 @@ import ModalError from '../components/commons/ModalError'
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import { useNavigate } from "react-router-dom";
 import Snackbar from '../components/commons/ChipBar'
+import billingicon from '../assets/billing.svg'
 interface Historic {
     id: number,
     quantityMoney: number,
@@ -54,7 +55,7 @@ const PaymentHistoric: React.FC = () => {
         if (!selectedDates) return 'FECHA'; // Muestra "FECHA" si no hay fechas seleccionadas
         return `${format(selectedDates.start, "dd MMM", { locale: es })}, ${String(selectedDates.startHour).padStart(2, '0')}:${String(selectedDates.startMinute).padStart(2, '0')} - ${format(selectedDates.end, "d MMM", { locale: es })} ${String(selectedDates.endHour).padStart(2, '0')}:${String(selectedDates.endMinute).padStart(2, '0')}`;
     };
- const navigate = useNavigate();
+    const navigate = useNavigate();
     const handleDateSelectionApply = async (start: Date, end: Date, startHour: number, startMinute: number, endHour: number, endMinute: number) => {
         setSelectedDates({ start, end, startHour, startMinute, endHour, endMinute });
         setDatePickerOpen(false);
@@ -121,7 +122,7 @@ const PaymentHistoric: React.FC = () => {
                 setTitleErrorModal('Error al descargar factura');
                 setBodyErrorModal('La factura que desea descargar no existe.');
             }
-            
+
             setIsErrorModalOpen(true);
         } finally {
             setLoading(false);
@@ -129,40 +130,40 @@ const PaymentHistoric: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '930px', marginTop: '-70px', marginLeft: "35px" }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-  {/* FLECHA flotante */}
-  <IconButton
-    onClick={() => navigate('/')}
-    sx={{
-        p: 0,              // quita el padding interno del botón
-        mr: 1,
-        display: 'flex',
-        ml: '-28px',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-  >
-    <img
-      src={ArrowBackIosNewIcon}
-      alt="Regresar"
-      style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
-    />
-  </IconButton>
+        <div style={{ padding: '20px', maxWidth: '930px', marginTop: '-70px', marginLeft: "35px", minHeight: 'calc(100vh - 64px)' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                {/* FLECHA flotante */}
+                <IconButton
+                    onClick={() => navigate('/')}
+                    sx={{
+                        p: 0,              // quita el padding interno del botón
+                        mr: 1,
+                        display: 'flex',
+                        ml: '-28px',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <img
+                        src={ArrowBackIosNewIcon}
+                        alt="Regresar"
+                        style={{ width: 24, height: 24, transform: 'rotate(270deg)' }}
+                    />
+                </IconButton>
 
-  {/* TÍTULO alineado normal */}
-  <Typography
-  variant="h4"
-  sx={{
-    fontWeight: 'bold',
-    color: '#5A2836',
-    fontFamily: 'Poppins',
-    fontSize: '26px'
-  }}
->
-  Historial de pago
-</Typography>
-</Box>
+                {/* TÍTULO alineado normal */}
+                <Typography
+                    variant="h4"
+                    sx={{
+                        fontWeight: 'bold',
+                        color: '#5A2836',
+                        fontFamily: 'Poppins',
+                        fontSize: '26px'
+                    }}
+                >
+                    Historial de pago
+                </Typography>
+            </Box>
             <Divider sx={{ marginBottom: "17px", marginTop: "16px", backgroundColor: '#E6E4E4' }} />
             <Button
                 variant="outlined"
@@ -172,16 +173,16 @@ const PaymentHistoric: React.FC = () => {
                     height: '36px',
                     minWidth: '90px',
                     ...(selectedDates && {
-                      border: '1px solid #8F4E63',
-                      color: '#8F4E63',
-                      background: '#F2E9EC', // estilo de hover
+                        border: '1px solid #8F4E63',
+                        color: '#8F4E63',
+                        background: '#F2E9EC',
                     }),
                     ...(datePickerOpen && {
-                      border: '1px solid #8F4E63',
-                      color: '#8F4E63',
-                      background: '#E6C2CD', // estilo de active
+                        border: '1px solid #8F4E63',
+                        color: '#8F4E63',
+                        background: '#E6C2CD',
                     }),
-                  }}
+                }}
                 onClick={handleDateClick}
             >
                 {formatDateRange()}
@@ -298,7 +299,7 @@ const PaymentHistoric: React.FC = () => {
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    
+
                                 }}>
                                     Fecha
                                 </th>
@@ -481,13 +482,15 @@ const PaymentHistoric: React.FC = () => {
                             setIsInvoiceModalOpen(true);
                             handleClose();
                         }} >
+                            <img src={billingicon} alt="billing" style={iconStyle} />
+
                             Generar Factura
                         </MenuItem>
-                        <MenuItem onClick={() => { handleAsyncAction('Consultar'); handleClose(); }} style={menuItemStyle}disabled>
-                            <img src={EyeIcon} alt="Consultar" style={iconStyle}/>
+                        <MenuItem onClick={() => { handleAsyncAction('Consultar'); handleClose(); }} style={menuItemStyle} disabled>
+                            <img src={EyeIcon} alt="Consultar" style={iconStyle} />
                             Consultar Factura
                         </MenuItem>
-                        <MenuItem onClick={() => { handleAsyncAction('Descargar'); handleClose(); }} style={menuItemStyle}disabled>
+                        <MenuItem onClick={() => { handleAsyncAction('Descargar'); handleClose(); }} style={menuItemStyle} disabled>
                             <img src={DownloadIcon} alt="Descargar" style={iconStyle} />
                             Descargar Factura
                         </MenuItem>
@@ -578,12 +581,12 @@ const buttonStyle = {
     '&:hover': {
         background: '#F2E9EC',
         border: '1px solid #8F4E63',
-        color: '#8F4E63'  
+        color: '#8F4E63'
     },
     '&:active': {
         background: '#E6C2CD',
         border: '1px solid #8F4E63',
-    color: '#8F4E63'  
+        color: '#8F4E63'
     }
 
 };

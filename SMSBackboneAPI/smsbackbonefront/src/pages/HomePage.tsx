@@ -15,6 +15,15 @@ import smsico from '../assets/Icon-sms.svg'
 import welcome from '../assets/icon-welcome.svg'
 import fast from '../assets/icon-fastsend.svg'
 import Secondarybutton from '../components/commons/SecondaryButton'
+import axios from "axios";
+
+interface CampaignKPIResponse {
+    activeCampaigns: number;
+    sentToday: number;
+    averagePerDay: number;
+    creditConsumption: number;
+}
+
 
 const HomePage: React.FC = () => {
     const [open, setOpen] = useState(false);
@@ -30,7 +39,7 @@ const HomePage: React.FC = () => {
     const phoneRegex = /^[0-9]{10}$/;
     const [showData, setShowData] = useState(false);
     const [openControlModal, setOpenControlModal] = useState(false);
-    const [enableButtons,setenableButtons] = useState (false);
+    const [enableButtons, setenableButtons] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [settings, setSettings] = useState({
         campanasActivas: true,
@@ -41,6 +50,16 @@ const HomePage: React.FC = () => {
         resultadosEnvio: true,
     });
     const [firstname, setFirstname] = useState<string>('');
+    const [kpi, setKpi] = useState<CampaignKPIResponse | null>(null);
+    const [dataOptions, setDataOptions] = useState<
+        { title: string; value: string }[]
+    >([]);
+    const [campaigns, setcampaigns] = useState<
+        { name: string; numeroInicial: number; numeroActual: number }[]
+    >([]);
+    const [data, setdata] = useState<
+        { label: string; value: number; color: string; tooltip: string }[]
+    >([]);
     const hasChanges = settings.listadoCampanas || settings.resultadosEnvio;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,67 +69,112 @@ const HomePage: React.FC = () => {
         });
     };
 
-    const data = [
-        {
-            label: "Tasa de recepción",
-            value: 20,
-            color: "#9370DB",
-            tooltip: "Mensaje entregado.\nEl mensaje ha sido recibido correctamente por el destinatario."
-        },
-        {
-            label: "Tasa de no recepción",
-            value: 20,
-            color: "#FFC107",
-            tooltip: "Mensaje no entregado.\nEsta condición se presenta cuando se ha vencido el tiempo de entrega asignado."
-        },
-        {
-            label: "Tasa de espera",
-            value: 10,
-            color: "#03A9F4",
-            tooltip: "Mensaje en espera.\nEl mensaje ha sido aceptado por la red destino, pero el usuario tiene apagado su teléfono."
-        },
-        {
-            label: "Tasa de entrega-falla",
-            value: 10,
-            color: "#F48FB1",
-            tooltip: "Mensaje fallido.\nLa red destino ha enviado el mensaje al usuario, pero el usuario ha rechazado su entrega."
-        },
-        {
-            label: "Tasa de rechazos",
-            value: 15,
-            color: "#D2691E",
-            tooltip: "Mensaje rechazado.\nEsta condición se presenta cuando la red destino rechaza el mensaje."
-        },
-        {
-            label: "Tasa de no envío",
-            value: 5,
-            color: "#BDBDBD",
-            tooltip: "Mensaje no enviado.\nEl mensaje no pudo ser enviado debido a problemas en la red o configuración."
-        },
-        {
-            label: "Tasa de excepción",
-            value: 20,
-            color: "#4CAF50",
-            tooltip: "Excepción no controlada en el sistema.\nNo se consumieron créditos."
-        },
-    ];
+    const handleApplyFilters = async () => {
+        const selectedRoom = localStorage.getItem("selectedRoom");
+        const roomId = selectedRoom ? JSON.parse(selectedRoom).id : null;
+
+        if (!roomId) return;
+
+        const smsType = selectedOption === 'corto' ? 1 : 2;
+
+        const payload = {
+            roomId,
+            smsType,
+        };
+
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_DASHBOARDINFO}`, payload);
+            const data: CampaignKPIResponse = response.data;
+
+            // Aquí ya no dependes del estado selectedOption
+            setKpi(data);
+            setDataOptions([
+                { title: "Campañas activas", value: (data?.activeCampaigns ?? 0).toString() },
+                { title: "SMS enviados hoy", value: (data?.sentToday ?? 0).toString() },
+                { title: "Promedio SMS por día", value: `${data?.averagePerDay ?? 0}` }, // sin el %
+                { title: "Consumo de créditos", value: `$${(data?.creditConsumption ?? 0).toFixed(2)}` }
+            ]);
+
+            setcampaigns(
+                response.data.campaigns?.map(c => ({
+                    name: c.name,
+                    numeroInicial: c.numeroInicial,
+                    numeroActual: c.numeroActual
+                })) ?? []
+            );
+            const total = response.data.deliveredCount +
+                response.data.notDeliveredCount +
+                response.data.waitingCount +
+                response.data.failedCount +
+                response.data.rejectedCount +
+                response.data.notSentCount +
+                response.data.exceptionCount +
+                response.data.respondedRecords;
+
+            setdata([
+                {
+                    label: "Recepción",
+                    value: total > 0 ? +(response.data.respondedRecords / total * 100).toFixed(1) : 0,
+                    color: "#9C6ADE",
+                    tooltip: `${response.data.respondedRecords} recibidos (${((response.data.respondedRecords / total) * 100).toFixed(1)}%)`
+                },
+                {
+                    label: "Entregados",
+                    value: total > 0 ? +(response.data.deliveredCount / total * 100).toFixed(1) : 0,
+                    color: "#4CAF50",
+                    tooltip: `${response.data.deliveredCount} entregados (${((response.data.deliveredCount / total) * 100).toFixed(1)}%)`
+                },
+                {
+                    label: "No recibidos",
+                    value: total > 0 ? +(response.data.notDeliveredCount / total * 100).toFixed(1) : 0,
+                    color: "#FFD700",
+                    tooltip: `${response.data.notDeliveredCount} no recibidos (${((response.data.notDeliveredCount / total) * 100).toFixed(1)}%)`
+                },
+                {
+                    label: "En espera",
+                    value: total > 0 ? +(response.data.waitingCount / total * 100).toFixed(1) : 0,
+                    color: "#00BFFF",
+                    tooltip: `${response.data.waitingCount} en espera (${((response.data.waitingCount / total) * 100).toFixed(1)}%)`
+                },
+                {
+                    label: "Entregados-Falla",
+                    value: total > 0 ? +(response.data.failedCount / total * 100).toFixed(1) : 0,
+                    color: "#FFB6C1",
+                    tooltip: `${response.data.failedCount} con falla (${((response.data.failedCount / total) * 100).toFixed(1)}%)`
+                },
+                {
+                    label: "Rechazados",
+                    value: total > 0 ? +(response.data.rejectedCount / total * 100).toFixed(1) : 0,
+                    color: "#C75C3B",
+                    tooltip: `${response.data.rejectedCount} rechazados (${((response.data.rejectedCount / total) * 100).toFixed(1)}%)`
+                },
+                {
+                    label: "No enviados",
+                    value: total > 0 ? +(response.data.notSentCount / total * 100).toFixed(1) : 0,
+                    color: "#B0BEC5",
+                    tooltip: `${response.data.notSentCount} no enviados (${((response.data.notSentCount / total) * 100).toFixed(1)}%)`
+                },
+                {
+                    label: "Excepción",
+                    value: total > 0 ? +(response.data.exceptionCount / total * 100).toFixed(1) : 0,
+                    color: "#4CAF50",
+                    tooltip: `${response.data.exceptionCount} con excepción (${((response.data.exceptionCount / total) * 100).toFixed(1)}%)`
+                }
+            ]);
 
 
 
-    const campaigns = [
-        { name: "Nombre de campaña 1", numeroInicial: 8, numeroActual: 8 },
-        { name: "Nombre de campaña 2", numeroInicial: 10, numeroActual: 1 },
-        { name: "Nombre de campaña 3", numeroInicial: 10, numeroActual: 1 },
-        { name: "Nombre de campaña 4", numeroInicial: 10, numeroActual: 5 },
-        { name: "Nombre de campaña 5", numeroInicial: 20, numeroActual: 10 },
-        { name: "Nombre de campaña 6", numeroInicial: 15, numeroActual: 7 },
-    ];
+        } catch (error) {
+            console.error("Error al obtener KPI:", error);
+        }
+    };
 
 
     const handleApply = () => {
         setShowData(true);
         setAnchorEl(null);
         setenableButtons(true);
+        handleApplyFilters();
     };
     const handleClear = () => {
         setSelectedOption('');
@@ -123,20 +187,7 @@ const HomePage: React.FC = () => {
     const isPopperOpen = Boolean(anchorEl);
     const id = isPopperOpen ? 'popper-id' : undefined;
 
-    const dataOptions = {
-        corto: [
-            { title: "Campañas activas", value: "100" },
-            { title: "SMS enviados hoy", value: "333" },
-            { title: "Promedio SMS por día", value: "4%" },
-            { title: "Consumo de créditos", value: "$1,000.00" }
-        ],
-        largo: [
-            { title: "Mensajes enviados hoy", value: "120" },
-            { title: "Promedio por día", value: "8%" },
-            { title: "Créditos consumidos", value: "$1,500.00" },
-            { title: "Consumo de créditos", value: "$2,000.00" }
-        ],
-    };
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (anchorEl) {
             setAnchorEl(null);
@@ -202,18 +253,18 @@ const HomePage: React.FC = () => {
         <Tooltip {...props} classes={{ popper: className }} arrow placement="bottom" />
     ))(() => ({
         [`& .${tooltipClasses.tooltip}`]: {
-            backgroundColor: '#FFFFFF !important',  
-            color: '#574B4F !important',           
+            backgroundColor: '#FFFFFF !important',
+            color: '#574B4F !important',
             fontSize: '12px !important',
-            border: '1px solid #E0E0E0 !important', 
+            border: '1px solid #E0E0E0 !important',
             borderRadius: '4px !important',
             padding: '8px !important',
-            maxWidth: '250px !important',           
-            whiteSpace: 'pre-line !important',      
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1) !important', 
+            maxWidth: '250px !important',
+            whiteSpace: 'pre-line !important',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1) !important',
         },
         [`& .${tooltipClasses.arrow}`]: {
-            color: '#E0E0E0 !important',            
+            color: '#E0E0E0 !important',
         },
     }));
 
@@ -230,15 +281,8 @@ const HomePage: React.FC = () => {
     }, []);
 
     return (
-        <div style={{ padding: '30px', 
-            width: '100vw',  // Asegura que ocupe el ancho total de la pantalla
-            height: '100%', // Asegura que ocupe el alto total de la pantalla
-            backgroundColor: '#F2F2F2',  // Aplica el color de fondo
-            display: 'flex',
-            flexDirection: 'column',
-            marginTop: "-70px"
-            }}>
-                
+        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+
             {/* Header con título */}
             <Typography variant="h4" component="h1" style={{ textAlign: 'left', color: '#330F1B', fontFamily: "Poppins", fontSize: "26px", opacity: 1, marginTop: "-10px" }}>
                 {firstname ? `¡Bienvenido de vuelta, ${firstname}!` : '¡Bienvenido!'}
@@ -255,7 +299,7 @@ const HomePage: React.FC = () => {
                     sx={buttonStyle}
                     onClick={handleClick}
                     aria-describedby={id}
-                    
+
                 >
                     {selectedOption ? `SMS # ${selectedOption.toUpperCase()}` : "Canal"}
                 </Button>
@@ -267,12 +311,12 @@ const HomePage: React.FC = () => {
                         padding: '10px',
                         borderRadius: '8px',
                         boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)'
-                        
+
                     }}>
                         <RadioGroup
                             value={selectedOption}
                             onChange={(e) => setSelectedOption(e.target.value)}
-                            
+
                         >
                             <FormControlLabel
                                 value="corto"
@@ -290,10 +334,10 @@ const HomePage: React.FC = () => {
                                         }}
                                     />
                                 }
-                                
+
                                 label="SMS # cortos"
                                 sx={{
-                                    
+
                                     color: selectedOption === "corto" ? "#8F4D63" : "#000000",
                                     fontWeight: selectedOption === "corto" ? "bold" : "normal",
                                     fontFamily: "Poppins, sans-serif",
@@ -305,7 +349,7 @@ const HomePage: React.FC = () => {
                                 control={
                                     <Radio
                                         sx={{
-                                            
+
                                             color: "#000000",
                                             "&.Mui-checked": {
                                                 color: "#8F4D63",
@@ -317,9 +361,9 @@ const HomePage: React.FC = () => {
                                     />
                                 }
                                 label="SMS # largos"
-                                
+
                                 sx={{
-                                    
+
                                     color: selectedOption === "largo" ? "#8F4D63" : "#000000",
                                     fontWeight: selectedOption === "largo" ? "bold" : "normal",
                                     fontFamily: "Poppins, sans-serif",
@@ -329,80 +373,54 @@ const HomePage: React.FC = () => {
                         <Divider sx={{ margin: '10px 0' }} />
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
                             <SecondaryButton text='Limpiar' onClick={handleClear} />
-                            <MainButton text='Aplicar' onClick={handleApply}  />
+                            <MainButton text='Aplicar' onClick={handleApply} />
                         </Box>
                     </Paper>
                 </Popper>
                 {/* Botones de la derecha alineados */}
-                {!!enableButtons &&(
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-start', transform: 'translateX(-330px)' }}>
-                    
-                    <Button
-                        onClick={() => navigate('/Use')}
-                        
-                        variant="outlined"
-                        style={{
-                            border: '1px solid #CCCFD2',
-                            borderRadius: '8px',
-                            padding: '6px 12px',
-                            fontWeight: 'bold',
-                            color: '#8F4D63',
-                            background: activeButton === 'uso' ? '#E6C2CD' : 'transparent',
-                            borderColor: activeButton === 'uso' ? '#BE93A0' : '#C6BFC2',
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.background = '#F2E9EC';
-                            
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.background = activeButton === 'uso' ? '#E6C2CD' : 'transparent';
-                            e.currentTarget.style.border = activeButton === 'uso' ? '1px solid #BE93A0' : '1px solid #CCCFD2';
-                        }}
-                        onMouseDown={() => setActiveButton('uso')}
-                        onMouseUp={() => setActiveButton(null)}
-                        
-                    >
-                        USO
-                    </Button>
+                {!!enableButtons && (
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-start', transform: 'translateX(-330px)' }}>
 
-                    <IconButton
-                    
-                        style={{
-                            border: '1px solid #CCCFD2',
-                            borderRadius: '8px',
-                            color: '#8F4D63',
-                            background: activeButton === 'chat' ? '#E6C2CD' : 'transparent',
-                            borderColor: activeButton === 'chat' ? '#BE93A0' : '#CCCFD2',
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.background = '#F2E9EC';
-                            
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.background = activeButton === 'chat' ? '#E6C2CD' : 'transparent';
-                            e.currentTarget.style.border = activeButton === 'chat' ? '1px solid #BE93A0' : '1px solid #CCCFD2';
-                        }}
-                        onMouseDown={() => setActiveButton('chat')}
-                        onMouseUp={() => setActiveButton(null)}
-                        onClick={handleOpen}
-                    >
-                        <img src={fast} alt="Welcome" style={{ width: '24px', height: '24px' }} />
-                    </IconButton>
+                        <Button
+                            onClick={() => navigate('/Use')}
 
-                    
-                    <Tooltip title="Editar información" arrow placement="top">
+                            variant="outlined"
+                            style={{
+                                border: '1px solid #CCCFD2',
+                                borderRadius: '8px',
+                                padding: '6px 12px',
+                                fontWeight: 'bold',
+                                color: '#8F4D63',
+                                background: activeButton === 'uso' ? '#E6C2CD' : 'transparent',
+                                borderColor: activeButton === 'uso' ? '#BE93A0' : '#C6BFC2',
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.background = '#F2E9EC';
+
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.background = activeButton === 'uso' ? '#E6C2CD' : 'transparent';
+                                e.currentTarget.style.border = activeButton === 'uso' ? '1px solid #BE93A0' : '1px solid #CCCFD2';
+                            }}
+                            onMouseDown={() => setActiveButton('uso')}
+                            onMouseUp={() => setActiveButton(null)}
+
+                        >
+                            USO
+                        </Button>
+
                         <IconButton
-                        
+
                             style={{
                                 border: '1px solid #CCCFD2',
                                 borderRadius: '8px',
                                 color: '#8F4D63',
                                 background: activeButton === 'chat' ? '#E6C2CD' : 'transparent',
-                                borderColor: activeButton === 'chat' ? '#BE93A0' : '#C6BFC2',
+                                borderColor: activeButton === 'chat' ? '#BE93A0' : '#CCCFD2',
                             }}
                             onMouseOver={(e) => {
                                 e.currentTarget.style.background = '#F2E9EC';
-                                
+
                             }}
                             onMouseOut={(e) => {
                                 e.currentTarget.style.background = activeButton === 'chat' ? '#E6C2CD' : 'transparent';
@@ -410,13 +428,39 @@ const HomePage: React.FC = () => {
                             }}
                             onMouseDown={() => setActiveButton('chat')}
                             onMouseUp={() => setActiveButton(null)}
-                            onClick={() => setOpenControlModal(true)}
+                            onClick={handleOpen}
                         >
-                            <img src={welcome} alt="Welcome" style={{ width: '24px', height: '24px' }} />
+                            <img src={fast} alt="Welcome" style={{ width: '24px', height: '24px' }} />
                         </IconButton>
-                    </Tooltip>
-                    
-                </div>
+
+
+                        <Tooltip title="Editar información" arrow placement="top">
+                            <IconButton
+
+                                style={{
+                                    border: '1px solid #CCCFD2',
+                                    borderRadius: '8px',
+                                    color: '#8F4D63',
+                                    background: activeButton === 'chat' ? '#E6C2CD' : 'transparent',
+                                    borderColor: activeButton === 'chat' ? '#BE93A0' : '#C6BFC2',
+                                }}
+                                onMouseOver={(e) => {
+                                    e.currentTarget.style.background = '#F2E9EC';
+
+                                }}
+                                onMouseOut={(e) => {
+                                    e.currentTarget.style.background = activeButton === 'chat' ? '#E6C2CD' : 'transparent';
+                                    e.currentTarget.style.border = activeButton === 'chat' ? '1px solid #BE93A0' : '1px solid #CCCFD2';
+                                }}
+                                onMouseDown={() => setActiveButton('chat')}
+                                onMouseUp={() => setActiveButton(null)}
+                                onClick={() => setOpenControlModal(true)}
+                            >
+                                <img src={welcome} alt="Welcome" style={{ width: '24px', height: '24px' }} />
+                            </IconButton>
+                        </Tooltip>
+
+                    </div>
                 )}
             </div>
 
@@ -432,19 +476,31 @@ const HomePage: React.FC = () => {
             )}
 
             {showData && selectedOption && (
-                <Grid container spacing={2} sx={{ marginTop: '20px', justifyContent: 'center', width: '1500px' }}>
-                    {dataOptions[selectedOption as "corto" | "largo"].map((item, index) => (
+                <Grid container spacing={2} sx={{ marginTop: '20px', justifyContent: 'center' }}>
+                    {dataOptions.map((item, index) => (
                         <Grid item xs={12} sm={6} md={3} key={index}>
-                            <Paper elevation={3} sx={{ marginLeft: '-10px', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
-                                <Typography variant="subtitle1" sx={{ fontFamily: 'Poppins', color: '#574B4F' }}>
+                            <Paper
+                                elevation={3}
+                                sx={{
+                                    marginLeft: "-10px",
+                                    padding: "20px",
+                                    borderRadius: "8px",
+                                    textAlign: "center",
+                                }}
+                            >
+                                <Typography
+                                    variant="subtitle1"
+                                    sx={{ fontFamily: "Poppins", color: "#574B4F" }}
+                                >
                                     {item.title}
                                 </Typography>
-                                <Typography variant="h5" sx={{ color: '#8F4D63' }}>
+                                <Typography variant="h5" sx={{ color: "#8F4D63" }}>
                                     {item.value}
                                 </Typography>
                             </Paper>
                         </Grid>
                     ))}
+
                     {settings.listadoCampanas && (
                         <Paper sx={{
                             padding: 2,
@@ -453,10 +509,10 @@ const HomePage: React.FC = () => {
                             overflow: 'hidden',
                             width: '100%', // 🔥 Asegura que el ancho sea completo
                             marginLeft: '0px', // 🔥 Lo alinea con el resto del contenido
-                            
+
                         }}>
                             <Typography
-                                
+
                                 sx={{
                                     textAlign: 'left',
                                     fontSize: '16px',
@@ -473,7 +529,7 @@ const HomePage: React.FC = () => {
                             </Typography>
                             <Box
                                 sx={{
-                                    
+
                                     display: 'flex',
                                     overflowX: 'auto',
                                     whiteSpace: 'nowrap', // Evita que se vayan a múltiples líneas
@@ -520,7 +576,7 @@ const HomePage: React.FC = () => {
                                             }}
                                         >
                                             <Typography
-                                                
+
                                                 sx={{
                                                     textAlign: 'left',
                                                     fontSize: '12px',
@@ -537,7 +593,7 @@ const HomePage: React.FC = () => {
                                             <Box sx={{ width: '100%', position: 'relative', marginTop: 1 }}>
                                                 <Box
                                                     sx={{
-                                                        
+
                                                         width: '100%',
                                                         height: '8px',
                                                         borderRadius: '4px',
@@ -547,7 +603,7 @@ const HomePage: React.FC = () => {
                                                 />
                                                 <Box
                                                     sx={{
-                                                        
+
                                                         width: `${percentage}%`,
                                                         height: '8px',
                                                         borderRadius: '4px',
@@ -558,7 +614,7 @@ const HomePage: React.FC = () => {
                                             </Box>
                                             <Box
                                                 sx={{
-                                                    
+
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'space-between',
@@ -643,7 +699,7 @@ const HomePage: React.FC = () => {
                             {/* Contenedor de estadísticas */}
                             <Box
                                 sx={{
-                                    
+
                                     display: "flex",
                                     justifyContent: "space-between",
                                     alignItems: "center",
@@ -1133,7 +1189,7 @@ const HomePage: React.FC = () => {
                     </Box>
                 </Box>
             </Modal>
-        </div>
+        </Box>
     );
 };
 

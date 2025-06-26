@@ -22,6 +22,7 @@ import IconCheckBox1 from "../assets/IconCheckBox1.svg";
 import IconCheckBox2 from "../assets/IconCheckBox2.svg";
 import IconResta from "../assets/IconResta.svg";
 import IconSuma from "../assets/IconSuma.svg";
+import modalerror from "../components/commons/ModalError";
 interface CreditCard {
     id: number;
     user_id: number;
@@ -36,15 +37,15 @@ interface CreditCard {
     type: string;
 }
 interface NumberData {
-    id: number;
-    number: string;
-    type: string;
-    service: string;
-    cost: number;
-    nextPaymentDate: string;
-    state: string;
-    municipality: string;
-    lada: string;
+    Id: number;
+    Number: string;
+    Type: string;
+    Service: string;
+    Cost: number;
+    NextPaymentDate: string;
+    State: string;
+    Municipality: string;
+    Lada: string;
 }
 
 const MyNumbers: React.FC = () => {
@@ -1890,9 +1891,9 @@ const MyNumbers: React.FC = () => {
             setFilteredData(numbersData);
         } else {
             const filtered = numbersData.filter((item) =>
-                item.number.toLowerCase().includes(value) ||
-                item.state.toLowerCase().includes(value) ||
-                item.municipality.toLowerCase().includes(value)
+                item.Number.toLowerCase().includes(value) ||
+                item.State.toLowerCase().includes(value) ||
+                item.Municipality.toLowerCase().includes(value)
             );
             setFilteredData(filtered);
         }
@@ -1906,7 +1907,7 @@ const MyNumbers: React.FC = () => {
 
         try {
             const request = `${import.meta.env.VITE_SMS_API_URL +
-                import.meta.env.VITE_API_GET_NUMBERS}${obj?.email}`;
+                import.meta.env.VITE_API_GET_NUMBERS}${obj?.idCliente}`;
             const response = await axios.get(request);
 
             if (response.status === 200) {
@@ -2209,12 +2210,12 @@ const MyNumbers: React.FC = () => {
 
 
     const handleApplyStateFilter = () => {
-        const filtered = filteredData.filter((item) => selectedStates2.includes(item.state));
+        const filtered = filteredData.filter((item) => selectedStates2.includes(item.State));
         setFilteredData(filtered);
     };
 
     const handleApplyMunicipalityFilter = () => {
-        const filtered = filteredData.filter((item) => selectedMunicipalities2.includes(item.municipality));
+        const filtered = filteredData.filter((item) => selectedMunicipalities2.includes(item.Municipality));
         setFilteredData(filtered);
     };
 
@@ -2240,9 +2241,9 @@ const MyNumbers: React.FC = () => {
             setFilteredData(numbersData); // Restaurar todos los datos
         } else {
             const filtered = numbersData.filter((item) =>
-                item.number.toLowerCase().includes(value) ||
-                item.state.toLowerCase().includes(value) ||
-                item.municipality.toLowerCase().includes(value)
+                item.Number.toLowerCase().includes(value) ||
+                item.State.toLowerCase().includes(value) ||
+                item.Municipality.toLowerCase().includes(value)
             );
             setFilteredData(filtered);
         }
@@ -2281,7 +2282,7 @@ const MyNumbers: React.FC = () => {
 
     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            setSelectedRows(numbersData.map((row) => row.id)); // Seleccionar todos
+            setSelectedRows(numbersData.map((row) => row.Id)); // Seleccionar todos
             setIsAnyRowSelected(true);
         } else {
             setSelectedRows([]);
@@ -3340,11 +3341,11 @@ const MyNumbers: React.FC = () => {
                                     </thead>
                                     <tbody>
                                         {currentItems.map((number) => (
-                                            <tr key={number.id} style={{ borderBottom: '1px solid #dcdcdc', fontFamily: 'Poppins', fontWeight: "500", fontSize: "15px", color: "#787878" }}>
-                                                <td style={{ textAlign: 'left', padding: '0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit" }}>
+                                            <tr key={number.Id} style={{ borderBottom: '1px solid #dcdcdc', fontFamily: 'Poppins', fontWeight: "500", fontSize: "15px", color: "#787878" }}>
+                                                <td style={{ textAlign: 'left', padding: '0px', backgroundColor: selectedRows.includes(number.Id) ? "#F8ECEF" : "inherit" }}>
                                                     <Checkbox
-                                                        checked={selectedRows.includes(number.id)}
-                                                        onChange={() => handleRowSelection(number.id)}
+                                                        checked={selectedRows.includes(number.Id)}
+                                                        onChange={() => handleRowSelection(number.Id)}
                                                         sx={{
                                                             color: '#6C3A52',
                                                             '&.Mui-checked': { color: '#6C3A52' },
@@ -3362,51 +3363,51 @@ const MyNumbers: React.FC = () => {
                                                     />
                                                 </td>
                                                 <td style={{
-                                                    padding: '0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    padding: '0px', backgroundColor: selectedRows.includes(number.Id) ? "#F8ECEF" : "inherit",
                                                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
                                                     fontSize: "13px", width: "140px"
-                                                }}>{number.number}</td>
+                                                }}>{number.Number}</td>
 
                                                 <td style={{
-                                                    padding: '0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    padding: '0px', backgroundColor: selectedRows.includes(number.Id) ? "#F8ECEF" : "inherit",
                                                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
                                                     fontSize: "13px", width: "115px"
-                                                }}>{number.type}</td>
+                                                }}>{number.Type}</td>
 
                                                 <td style={{
-                                                    padding: '0px', backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    padding: '0px', backgroundColor: selectedRows.includes(number.Id) ? "#F8ECEF" : "inherit",
                                                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
                                                     fontSize: "13px", width: "120px"
-                                                }}>{number.service}</td>
+                                                }}>{number.Service}</td>
 
                                                 <td style={{
                                                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
                                                     fontSize: "13px", width: "100px",
-                                                    backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
-                                                }}>${number.cost}</td>
+                                                    backgroundColor: selectedRows.includes(number.Id) ? "#F8ECEF" : "inherit",
+                                                }}>${number.Cost}</td>
 
                                                 <td style={{
                                                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
                                                     fontSize: "13px", width: "300px",
-                                                    backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    backgroundColor: selectedRows.includes(number.Id) ? "#F8ECEF" : "inherit",
                                                 }}
-                                                >{formatDate(number.nextPaymentDate)}</td>
+                                                >{formatDate(number.NextPaymentDate)}</td>
 
                                                 <td style={{
                                                     width: '350px',
                                                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
                                                     fontSize: "13px",
-                                                    backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    backgroundColor: selectedRows.includes(number.Id) ? "#F8ECEF" : "inherit",
                                                 }}
-                                                >{number.state}</td>
+                                                >{number.State}</td>
 
                                                 <td style={{
                                                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: "left",
                                                     fontSize: "13px", width: "150px",
                                                     borderRight: '1px solid #dcdcdc',
-                                                    backgroundColor: selectedRows.includes(number.id) ? "#F8ECEF" : "inherit",
+                                                    backgroundColor: selectedRows.includes(number.Id) ? "#F8ECEF" : "inherit",
                                                 }}
-                                                >{number.municipality}</td>
+                                                >{number.Municipality}</td>
 
                                                 <td style={{ textAlign: 'center', padding: '5px' }}>
                                                     <IconButton

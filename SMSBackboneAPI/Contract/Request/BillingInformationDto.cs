@@ -9,12 +9,19 @@ namespace Contract.Request
 {
     public class BillingInformationDto
     {
-        public string Email { get; set; } // Relación con la tabla de usuarios
-        public string BusinessName { get; set; } // Nombre o razón social
-        public string TaxId { get; set; } // RFC
-        public string TaxRegime { get; set; } // Régimen fiscal
-        public string Cfdi { get; set; } // CFDI
-        public string PostalCode { get; set; } // Código postal
+        public string Email { get; set; } 
+        public string BusinessName { get; set; } 
+        public string TaxId { get; set; }
+        public string TaxRegime { get; set; } 
+        public string Cfdi { get; set; } 
+        public string PostalCode { get; set; } 
+        public string PersonType { get; set; } 
+        public string Street { get; set; } 
+        public string ExtNumber { get; set; } 
+        public string IntNumber { get; set; } 
+        public string Colony { get; set; } 
+        public string City { get; set; } 
+        public string State { get; set; } 
 
     }
 }
