@@ -1230,7 +1230,7 @@ const HomePage: React.FC = () => {
                     </Box>
                 </Box>
             </Modal>
-        </Box>
+        </div>
     );
 };
 

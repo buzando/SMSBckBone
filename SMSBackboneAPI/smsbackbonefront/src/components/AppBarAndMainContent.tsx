@@ -108,11 +108,11 @@ const pages: Page[] = [
         icon: <img src={Iconmesage} alt="SMS" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />,
         hasSubMenus: true,
         subMenus: [
-            { id: 1, title: 'Campañas', path: '/campains',icon: undefined },
-            { id: 2, title: 'Plantillas', path: '/templates',icon: undefined },
-            { id: 3, title: 'Prueba SMS', path: '/sms-test' ,icon: undefined},
-            { id: 4, title: 'Listas Negras', path: '/blacklists',icon: undefined },
-            { id: 5, title: 'Configuración SMS', path: '/sms',icon: undefined }
+            { id: 1, title: 'Campañas', path: '/campains', icon: undefined },
+            { id: 2, title: 'Plantillas', path: '/templates', icon: undefined },
+            { id: 3, title: 'Prueba SMS', path: '/sms-test', icon: undefined },
+            { id: 4, title: 'Listas Negras', path: '/blacklists', icon: undefined },
+            { id: 5, title: 'Configuración SMS', path: '/sms', icon: undefined }
         ]
     },
     { id: 6, title: 'Ayuda', path: '/help', icon: <img src={Iconhelpu} alt="Ayuda" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: false, subMenus: [] },
@@ -1963,79 +1963,80 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         }}
                     >
 
-                    {location.pathname === '/' && (
-                        <Tooltip
-                            title="Descargar API"
-                            arrow
-                            placement="top"
-                            sx={{
-                                "& .MuiTooltip-tooltip": {
-                                    backgroundColor: "#330F1B",
-                                    color: "#FFFFFF",
-                                    fontSize: "12px",
-                                    fontFamily: "Poppins, sans-serif",
-                                    fontWeight: "medium",
-                                },
-                                "& .MuiTooltip-arrow": {
-                                    color: "#330F1B",
-                                },
-                            }}
-                        >
-
-                            <div
-                                onClick={handleDownload}
-                                onMouseEnter={() => setIsHoveringApi(true)}
-                                onMouseLeave={() => setIsHoveringApi(false)}
-                                style={{
-                                    position: "fixed",
-                                    bottom: "70px",
-                                    right: "30px",
-                                    width: "80px",
-                                    height: "80px",
-                                    cursor: "pointer",
-                                    zIndex: 1500,
+                        {location.pathname === '/' && (
+                            <Tooltip
+                                title="Descargar API"
+                                arrow
+                                placement="top"
+                                sx={{
+                                    "& .MuiTooltip-tooltip": {
+                                        backgroundColor: "#330F1B",
+                                        color: "#FFFFFF",
+                                        fontSize: "12px",
+                                        fontFamily: "Poppins, sans-serif",
+                                        fontWeight: "medium",
+                                    },
+                                    "& .MuiTooltip-arrow": {
+                                        color: "#330F1B",
+                                    },
                                 }}
                             >
-                                {/* Imagen base */}
-                                <img
-                                    src={api}
-                                    alt="Ícono de api"
-                                    style={{
-                                        width: "100px",
-                                        height: "100px",
-                                        borderRadius: "50%",
-                                        objectFit: "contain",
-                                        display: "block",
-                                    }}
-                                />
 
-                                {/* Overlay rosita */}
-                                {isHoveringApi && (
-                                    <div
+                                <div
+                                    onClick={handleDownload}
+                                    onMouseEnter={() => setIsHoveringApi(true)}
+                                    onMouseLeave={() => setIsHoveringApi(false)}
+                                    style={{
+                                        position: "fixed",
+                                        bottom: "70px",
+                                        right: "30px",
+                                        width: "80px",
+                                        height: "80px",
+                                        cursor: "pointer",
+                                        zIndex: 1500,
+                                    }}
+                                >
+                                    {/* Imagen base */}
+                                    <img
+                                        src={api}
+                                        alt="Ícono de api"
                                         style={{
-                                            marginTop: "15px",
-                                            marginLeft: "18px",
-                                            position: "absolute",
-                                            top: 0,
-                                            left: 0,
-                                            width: "58px",
-                                            height: "60px",
+                                            width: "100px",
+                                            height: "100px",
                                             borderRadius: "50%",
-                                            backgroundColor: "#D9C5CB",
-                                            opacity: 0.5,
-                                            pointerEvents: "none",
+                                            objectFit: "contain",
+                                            display: "block",
                                         }}
                                     />
-                                )}
 
-                            </div>
+                                    {/* Overlay rosita */}
+                                    {isHoveringApi && (
+                                        <div
+                                            style={{
+                                                marginTop: "15px",
+                                                marginLeft: "18px",
+                                                position: "absolute",
+                                                top: 0,
+                                                left: 0,
+                                                width: "58px",
+                                                height: "60px",
+                                                borderRadius: "50%",
+                                                backgroundColor: "#D9C5CB",
+                                                opacity: 0.5,
+                                                pointerEvents: "none",
+                                            }}
+                                        />
+                                    )}
+
+                                </div>
+
+                            </Tooltip>
+                        )}
+                    </Fab>
 
 
 
 
-
-                        </Tooltip>
-                    )}
 
 
                 </Box>

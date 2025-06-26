@@ -829,9 +829,9 @@ const Reports: React.FC = () => {
                                 primaryTypographyProps={{ fontFamily: 'Poppins', fontWeight: "500" }}
                             />
                         </MenuItem> */}
-                        {campaigns.filter(c => c.toLowerCase().includes(campaignSearch.toLowerCase())).map(c => (
-                            <MenuItem key={c} onClick={() => handleCampaignSelection(c)}>
-                                <Checkbox checked={selectedCampaigns.includes(c)}
+                        {campaigns.filter(c => c.name.toLowerCase().includes(campaignSearch.toLowerCase())).map(c => (
+                            <MenuItem key={c.id} onClick={() => handleCampaignSelection(c.name)}>
+                                <Checkbox checked={selectedCampaigns.includes(c.name)}
                                     checkedIcon={
                                         <Box
                                             sx={{
@@ -859,10 +859,10 @@ const Reports: React.FC = () => {
                                     }}
                                 />
                                 <ListItemText
-                                    primary={c}
+                                    primary={c.name}
                                     primaryTypographyProps={{
                                         fontFamily: 'Poppins',
-                                        color: selectedCampaigns.includes(c) ? '#8F4E63' : '#786E71',
+                                        color: selectedCampaigns.includes(c.name) ? '#8F4E63' : '#786E71',
                                     }}
                                 />
                             </MenuItem>
@@ -993,9 +993,9 @@ const Reports: React.FC = () => {
                                 primaryTypographyProps={{ fontFamily: 'Poppins' }}
                             />
                         </MenuItem> */}
-                        {users.filter(u => u.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
-                            <MenuItem key={u} onClick={() => handleUserSelection(u)}>
-                                <Checkbox checked={selectedUsers.includes(u)}
+                        {users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
+                            <MenuItem key={u.id} onClick={() => handleUserSelection(u.name)}>
+                                <Checkbox checked={selectedUsers.includes(u.name)}
                                     checkedIcon={
                                         <Box
                                             sx={{
@@ -1022,11 +1022,10 @@ const Reports: React.FC = () => {
 
                                     }}
                                 />
-                                <ListItemText primary={u}
-                                    primary={u}
+                                <ListItemText primary={u.name}
                                     primaryTypographyProps={{
                                         fontFamily: 'Poppins',
-                                        color: selectedUsers.includes(u) ? '#8F4E63' : '#786E71',
+                                        color: selectedUsers.includes(u.name) ? '#8F4E63' : '#786E71',
                                     }}
                                 />
                             </MenuItem>
