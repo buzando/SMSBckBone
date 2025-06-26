@@ -24,7 +24,7 @@ import DatePicker from '../components/commons/DatePicker';
 import BoxEmpty from '../assets/Nousers.svg';
 import boxopen from '../assets/NoResultados.svg';
 import backarrow from '../assets/MoveTable.svg';
-
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
 import IconCSV from '../assets/IconCSV.svg';
 import IconExcel from '../assets/IconExcel.svg';
 import IconPDF from '../assets/IconPDF.svg';
@@ -86,12 +86,12 @@ const Reports: React.FC = () => {
     const [filteredReports, setFilteredReports] = useState<Reports[] | null>(null);
     const navigate = useNavigate();
 
-    // Maneja el cambio de tabs (SMS / Llamada)
+
     const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
     };
 
-    // Abre el DatePicker al hacer clic en el botón
+
     const handleDateClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
         setDatePickerOpen(true);
@@ -924,8 +924,8 @@ const Reports: React.FC = () => {
                     FechaFin: selectedDates?.end,
                     Campanas: selectedCampaigns,
                     Usuarios: selectedUsers,
-                    Tipo: selectedTab, // SMS o Llamada
-                    Formato: format // csv, excel, pdf
+                    Tipo: selectedTab,
+                    Formato: format
                 };
 
                 const headers = {
@@ -1016,7 +1016,7 @@ const Reports: React.FC = () => {
 
 
     return (
-        <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop:'-50px' }}>
+        <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop: '-50px' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', pl: '0px', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')} // ← O ajusta la ruta a donde quieras volver
@@ -1048,8 +1048,7 @@ const Reports: React.FC = () => {
                 </Typography>
             </Box>
 
-            {/* Tabs para SMS y Llamada */}
-            <Divider sx={{ mt: 2, mb: 0, maxWidth: "83%", }} />
+            <Divider sx={{ mt: 2, mb: 0, maxWidth: "1140px" }} />
             <Tabs value={selectedTab} onChange={handleTabChange} TabIndicatorProps={{
                 style: {
                     display: 'none',
@@ -1098,7 +1097,7 @@ const Reports: React.FC = () => {
                 <Popper open={smsMenuOpen} anchorEl={smsAnchorEl} placement="bottom-start">
                     <Paper sx={{ width: 379 }}>
                         {smsOptions
-                            .filter((option) => option !== "SMS") // 👈 Aquí ocultamos "SMS"
+                            .filter((option) => option !== "SMS")
                             .map((option) => (
 
                                 <MenuItem
@@ -1121,7 +1120,7 @@ const Reports: React.FC = () => {
                 </Popper>
 
             </Tabs>
-            <Divider sx={{ mt: 1, mb: 2, marginTop: "-5px", maxWidth: "83%", }} />
+            <Divider sx={{ mt: 1, mb: 2, marginTop: "-5px", maxWidth: "1140px" }} />
 
             {/* Filtros de Fecha, Campaña y Usuario */}
             <Box display="flex" gap={2} mb={4} marginBottom={2}>
@@ -1210,6 +1209,23 @@ const Reports: React.FC = () => {
                         {campaigns.filter(c => c.toLowerCase().includes(campaignSearch.toLowerCase())).map(c => (
                             <MenuItem key={c} onClick={() => handleCampaignSelection(c)}>
                                 <Checkbox checked={selectedCampaigns.includes(c)}
+                                    checkedIcon={
+                                        <Box
+                                            sx={{
+                                                width: '24px',
+                                                height: '24px',
+                                                position: 'relative',
+                                                marginTop: '0px',
+                                                marginLeft: '0px',
+                                            }}
+                                        >
+                                            <img
+                                                src={IconCheckBox1}
+                                                alt="Seleccionado"
+                                                style={{ width: '24px', height: '24px' }}
+                                            />
+                                        </Box>
+                                    }
                                     sx={{
                                         marginBottom: "-10px",
                                         marginTop: "-10px",
@@ -1326,10 +1342,10 @@ const Reports: React.FC = () => {
                     />
 
                     {/* Línea horizontal*/}
-                    <Divider sx={{ my: 1.5, bgcolor: '#dcdcdc', marginBottom: "10px", marginTop: "15px" }} />
+                    <Divider sx={{ my: 1.5, bgcolor: '#dcdcdc', marginBottom: "10px", marginTop: "15px", }} />
                     <div style={{
                         position: 'absolute',
-                        top: '74px', // ajusta según el contenido anterior
+                        top: '74px',
                         left: 0,
                         right: 0,
                         height: '1px',
@@ -1357,6 +1373,23 @@ const Reports: React.FC = () => {
                         {users.filter(u => u.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
                             <MenuItem key={u} onClick={() => handleUserSelection(u)}>
                                 <Checkbox checked={selectedUsers.includes(u)}
+                                    checkedIcon={
+                                        <Box
+                                            sx={{
+                                                width: '24px',
+                                                height: '24px',
+                                                position: 'relative',
+                                                marginTop: '0px',
+                                                marginLeft: '0px',
+                                            }}
+                                        >
+                                            <img
+                                                src={IconCheckBox1}
+                                                alt="Seleccionado"
+                                                style={{ width: '24px', height: '24px' }}
+                                            />
+                                        </Box>
+                                    }
                                     sx={{
                                         marginBottom: "-10px",
                                         marginTop: "-10px",
@@ -1377,10 +1410,10 @@ const Reports: React.FC = () => {
                         ))}
                     </Box>
 
-                    {/* Línea horizontal arriba de los botones */}
+
                     <div style={{
                         position: 'absolute',
-                        top: '245px', // ajusta según el contenido anterior
+                        top: '245px',
                         left: 0,
                         right: 0,
                         height: '1px',
@@ -1432,23 +1465,23 @@ const Reports: React.FC = () => {
                 </Paper>
             </Popper>
 
-            <Divider sx={{ mb: 4, maxWidth: "83%" }} />
+            <Divider sx={{ mb: 4, maxWidth: "1140px" }} />
 
 
-            {/* Controles de paginación (solo visual) */}
             {selectedDates?.start && selectedDates?.end && (
-                <Box display="flex" gap={2} alignItems="center" mb={3} sx={{ marginTop: "-15px", marginBottom: "20px" }}>
+                <Box display="flex" gap={2} alignItems="center" mb={3} sx={{ marginTop: "-15px", marginBottom: "20px", }}>
                     <Typography sx={{
                         fontFamily: "Poppins",
                         fontWeight: 500,
                         color: "#6F565E",
                         fontSize: "14px",
-                        marginLeft: "5px"
+                        marginLeft: "5px", position: "absolute"
+
                     }}>
                         1-1 de {getCurrentDataLength()}
                     </Typography>
 
-                    <Box display="flex" gap={1}>
+                    <Box display="flex" gap={1} ml={10}>
                         {/* Primera página (doble flecha izquierda) */}
                         <IconButton sx={{ p: 0 }} disabled>
                             <Box display="flex" alignItems="center" >
@@ -1488,7 +1521,7 @@ const Reports: React.FC = () => {
                         </IconButton>
 
                         {/* Botones de CSV / Excel y PDF */}
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "1140px", gap: 2 }}>
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1, marginLeft: "810px", gap: 2 }}>
                             <IconButton sx={{ p: 0, opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
                                 onClick={() => handleExportClick('csv', setIsExportingCSV)}
                                 disabled={anyExporting && !isExportingCSV}
@@ -1501,7 +1534,7 @@ const Reports: React.FC = () => {
                                             {
                                                 name: 'arrow',
                                                 options: {
-                                                    padding: 8, // Ajusta si es necesario
+                                                    padding: 8,
                                                 },
                                             },
                                         ],
@@ -1510,8 +1543,8 @@ const Reports: React.FC = () => {
                                         tooltip: {
                                             sx: {
                                                 fontFamily: 'Poppins',
-                                                backgroundColor: '#322D2E', // Fondo negro
-                                                color: '#FFFFFF', // Texto blanco para contraste
+                                                backgroundColor: '#322D2E',
+                                                color: '#FFFFFF',
                                                 fontSize: '12px',
                                                 borderRadius: '4px',
                                                 padding: '6px 10px',
@@ -1519,7 +1552,7 @@ const Reports: React.FC = () => {
                                         },
                                         arrow: {
                                             sx: {
-                                                color: '#322D2E', // Flecha con color negro también
+                                                color: '#322D2E',
                                             },
                                         },
                                     }}
@@ -1548,7 +1581,7 @@ const Reports: React.FC = () => {
                                             {
                                                 name: 'arrow',
                                                 options: {
-                                                    padding: 8, // Ajusta si es necesario
+                                                    padding: 8,
                                                 },
                                             },
                                         ],
@@ -1557,8 +1590,8 @@ const Reports: React.FC = () => {
                                         tooltip: {
                                             sx: {
                                                 fontFamily: 'Poppins',
-                                                backgroundColor: '#322D2E', // Fondo negro
-                                                color: '#FFFFFF', // Texto blanco para contraste
+                                                backgroundColor: '#322D2E',
+                                                color: '#FFFFFF',
                                                 fontSize: '12px',
                                                 borderRadius: '4px',
                                                 padding: '6px 10px',
@@ -1566,7 +1599,7 @@ const Reports: React.FC = () => {
                                         },
                                         arrow: {
                                             sx: {
-                                                color: '#322D2E', // Flecha con color negro también
+                                                color: '#322D2E',
                                             },
                                         },
                                     }}
@@ -1594,7 +1627,7 @@ const Reports: React.FC = () => {
                                             {
                                                 name: 'arrow',
                                                 options: {
-                                                    padding: 8, // Ajusta si es necesario
+                                                    padding: 8,
                                                 },
                                             },
                                         ],
@@ -1603,8 +1636,8 @@ const Reports: React.FC = () => {
                                         tooltip: {
                                             sx: {
                                                 fontFamily: 'Poppins',
-                                                backgroundColor: '#322D2E', // Fondo negro
-                                                color: '#FFFFFF', // Texto blanco para contraste
+                                                backgroundColor: '#322D2E',
+                                                color: '#FFFFFF',
                                                 fontSize: '12px',
                                                 borderRadius: '4px',
                                                 padding: '6px 10px',
@@ -1612,7 +1645,7 @@ const Reports: React.FC = () => {
                                         },
                                         arrow: {
                                             sx: {
-                                                color: '#322D2E', // Flecha con color negro también
+                                                color: '#322D2E',
                                             },
                                         },
                                     }}
@@ -1648,20 +1681,26 @@ const Reports: React.FC = () => {
                     <CircularProgress sx={{ color: '#7B354D' }} size={60} />
                 </Box>
             ) : Reports === undefined ? (
-                // Imagen de caja cerrada cuando NO se ha seleccionado ninguna fecha
+
                 <Box>
-                    {/* Contenido por defecto cuando no hay selección */}
-                    <Card sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: 5, textAlign: "center", maxWidth: "83%" }}>
+
+                    <Card sx={{
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: 5, textAlign: "center",
+                        maxWidth: "1140px", maxHeight: "400px", marginBottom: "150px"
+                    }}>
                         <CardContent>
                             <Box component="img" src={BoxEmpty} alt="Caja Vacía" sx={{ width: '200px', height: "400px" }} />
-                            <Typography mt={2} sx={{ color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins', fontSize: '14px' }}>
+                            <Typography mt={2} sx={{
+                                color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins',
+                                fontSize: '14px', position: "absolute", marginLeft: "-100px", marginTop: "-100px"
+                            }}>
                                 Seleccione un canal del menú superior para comenzar.
                             </Typography>
                         </CardContent>
                     </Card>
                 </Box>
             ) : Reports === null ? (
-                // Imagen de caja abierta cuando NO se encuentran resultados
+
                 <Box
                     sx={{
                         background: '#FFFFFF',
@@ -1700,12 +1739,12 @@ const Reports: React.FC = () => {
                         background: '#FFFFFF',
                         border: '1px solid #E6E4E4',
                         borderRadius: '8px',
-                        width: '1500px', // Limita el ancho
+                        width: '1140px',
                         maxWidth: '100%',
                         padding: '20px',
                         marginTop: '5px',
-                        overflowX: 'auto', // Habilita scroll horizontal
-                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                        overflowX: 'auto',
+                        overflowY: 'auto',
                         height: '500px',
                         maxHeight: '100%',
 
@@ -1713,7 +1752,7 @@ const Reports: React.FC = () => {
 
 
                 >
-                    <table style={{ maxWidth: "83%", borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                    <table style={{ maxWidth: "1140px", borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         {/* Encabezados */}
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4', }}>
@@ -2045,17 +2084,17 @@ const Reports: React.FC = () => {
                         background: '#FFFFFF',
                         border: '1px solid #E6E4E4',
                         borderRadius: '8px',
-                        width: '1500px',
+                        width: '1140px',
                         maxWidth: '100%',
                         padding: '20px',
                         marginTop: '5px',
                         overflowX: 'auto',
-                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                        overflowY: 'auto',
                         height: '500px',
                         maxHeight: '100%',
                     }}
                 >
-                    <table style={{ maxWidth: "83%", borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                    <table style={{ maxWidth: "1140px", borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
                         <thead>
                             <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
                                 <th style={{
@@ -2181,12 +2220,12 @@ const Reports: React.FC = () => {
                         background: '#FFFFFF',
                         border: '1px solid #E6E4E4',
                         borderRadius: '8px',
-                        width: '1500px',
+                        width: '1140px',
                         maxWidth: '100%',
                         padding: '20px',
                         marginTop: '5px',
                         overflowX: 'auto',
-                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                        overflowY: 'auto',
                         height: '500px',
                         maxHeight: '100%',
                     }}
@@ -2355,12 +2394,12 @@ const Reports: React.FC = () => {
                         background: '#FFFFFF',
                         border: '1px solid #E6E4E4',
                         borderRadius: '8px',
-                        width: '1500px',
+                        width: '1140px',
                         maxWidth: '100%',
                         padding: '20px',
                         marginTop: '5px',
                         overflowX: 'auto',
-                        overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                        overflowY: 'auto',
                         height: '500px',
                         maxHeight: '100%',
                     }}
@@ -2529,12 +2568,12 @@ const Reports: React.FC = () => {
                     background: '#FFFFFF',
                     border: '1px solid #E6E4E4',
                     borderRadius: '8px',
-                    width: '1500px',
+                    width: '1140px',
                     maxWidth: '100%',
                     padding: '20px',
                     marginTop: '5px',
                     overflowX: 'auto',
-                    overflowY: 'auto', // Opcional: oculta scroll vertical si no se necesita
+                    overflowY: 'auto',
                     height: '500px',
                     maxHeight: '100%',
                 }}

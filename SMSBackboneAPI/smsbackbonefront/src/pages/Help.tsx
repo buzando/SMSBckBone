@@ -3,7 +3,7 @@ import { Box, Divider, Typography } from '@mui/material';
 
 const Help: React.FC = () => {
     return (
-        <Box sx={{ padding: '20px', fontFamily: 'Arial, sans-serif', color: '#4a4a4a' }}>
+        <Box sx={{ padding: '20px', fontFamily: 'Arial, sans-serif', color: '#4a4a4a', marginTop: "-68px", marginLeft: "45px", overflow: "hidden" }}>
             <Typography variant="h4" sx={{ marginBottom: '20px', fontWeight: 'bold', fontSize: '1.5rem', fontFamily: 'Poppins' }}>
                 Ayuda
             </Typography>
@@ -46,7 +46,7 @@ const Help: React.FC = () => {
                     <Typography variant="body2" sx={{ marginBottom: '10px', fontFamily: 'Poppins' }}>
                         9:00-15:00 CST
                     </Typography>
-                    <Typography variant="body2"sx={{ marginBottom: '10px', fontFamily: 'Poppins' }}>
+                    <Typography variant="body2" sx={{ marginBottom: '10px', fontFamily: 'Poppins' }}>
                         Teléfono: 55 1107 8510 Opción 3
                         <Divider sx={{ my: 2, width: '875px', position: 'absolute' }} /> {/*/Linea*/}
                     </Typography>
@@ -68,17 +68,17 @@ const Help: React.FC = () => {
                     <Typography variant="body2" sx={{ marginBottom: '10px', fontFamily: 'Poppins' }}>
                         <strong>Sábado y domingo</strong>
                     </Typography>
-                    <Typography variant="body2"sx={{ marginBottom: '10px', fontFamily: 'Poppins' }}>
+                    <Typography variant="body2" sx={{ marginBottom: '10px', fontFamily: 'Poppins' }}>
                         Teléfono: 55 5437 6175
                     </Typography>
                 </Box>
             </Box>
-                
+
             <Typography variant="body2" sx={{ fontWeight: 'bold', marginBottom: '10px', fontFamily: 'Poppins' }}>
                 Soporte: cwsoporte@nuxiba.com
             </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 'bold', marginBottom: '10px', fontFamily: 'Poppins' }}>
-               Dirección: Eugenia 197, Narvarte Poniente, Benito Juárez, 03020 Ciudad de México, CDMX
+            <Typography variant="body2" sx={{ fontWeight: 'bold', marginBottom: '100px', fontFamily: 'Poppins', overflow: "hidden" }}>
+                Dirección: Eugenia 197, Narvarte Poniente, Benito Juárez, 03020 Ciudad de México, CDMX
             </Typography>
         </Box>
 

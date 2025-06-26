@@ -78,7 +78,7 @@ interface ManageRecordsPayload {
     name: string;
     idRoom: number;
 
-    // solo para modo por Excel
+
     sheetName?: string;
     columnPhone?: string;
     columnData?: string;
@@ -86,7 +86,7 @@ interface ManageRecordsPayload {
     filterType?: string;
     fileBase64?: string;
     eliminationname?: string;
-    // solo para modo por teléfonos manuales
+
     phones?: string[];
 }
 
@@ -341,9 +341,9 @@ const BlackList: React.FC = () => {
         setIsblacklistModalOpen(false);
     };
 
-    //Const para limpiar formulario
+
     const handleResetAndCloseModal = () => {
-        // Limpiar formulario
+
         setFormData({
             Name: '',
             Phones: [''],
@@ -351,7 +351,7 @@ const BlackList: React.FC = () => {
             File: '',
         });
 
-        // Limpiar archivo
+
         setFileSuccess(false);
         setFileError(false);
         setUploadedFile(null);
@@ -363,7 +363,7 @@ const BlackList: React.FC = () => {
             fileInputRef.current.value = '';
         }
 
-        // Cerrar modal
+
         setIsblacklistModalOpen(false);
     };
 
@@ -465,14 +465,14 @@ const BlackList: React.FC = () => {
         setTitleMainModal('Cancelación');
         setMessageMainModal('¿Estás seguro de que deseas cancelar? Los datos ingresados no serán almacenados.');
         setIsblacklistModalOpen(false);
-        setIsConfirmModalOpen(true); // Abre el modal de confirmación
+        setIsConfirmModalOpen(true);
     };
 
     const handleCloseCancelationModal = () => {
         setTitleMainModal('');
         setMessageMainModal('');
         setIsblacklistModalOpen(true);
-        setIsConfirmModalOpen(false); // Abre el modal de confirmación
+        setIsConfirmModalOpen(false);
     };
 
     const handleConfirmAccept = () => {
@@ -481,9 +481,9 @@ const BlackList: React.FC = () => {
             Phones: [''],
             ExpirationDate: null,
             File: '',
-        }); // Limpia los datos
-        setIsConfirmModalOpen(false); // Cierra el modal de confirmación
-        setIsblacklistModalOpen(false); // Cierra el modal principal
+        });
+        setIsConfirmModalOpen(false);
+        setIsblacklistModalOpen(false);
     };
 
 
@@ -521,7 +521,7 @@ const BlackList: React.FC = () => {
                 dato: row[datoIndex],
             }));
 
-            setProcessedRows(rows); // ✅ esto puedes mandarlo junto con el archivo base64
+            setProcessedRows(rows);
         }
     }, [selectedTelefonoCol, selectedDatoCol]);
 
@@ -565,7 +565,7 @@ const BlackList: React.FC = () => {
 
         reader.readAsArrayBuffer(file);
 
-        // Extraer base64 también
+
         const readerB64 = new FileReader();
         readerB64.onloadend = () => {
             const base64 = (readerB64.result as string).split(',')[1];
@@ -598,7 +598,7 @@ const BlackList: React.FC = () => {
 
 
     const handlePhoneChange = (index: number, value: string) => {
-        const numericOnly = value.replace(/\D/g, ''); // elimina todo lo que no sea número
+        const numericOnly = value.replace(/\D/g, '');
         const updated = [...formData.Phones];
         updated[index] = numericOnly;
         setFormData((prev) => ({ ...prev, Phones: updated }));
@@ -706,12 +706,12 @@ const BlackList: React.FC = () => {
         };
         reader.readAsArrayBuffer(file);
 
-        // === BASE64 ===
+
         const readerB64 = new FileReader();
         readerB64.onloadend = () => {
             const base64 = (readerB64.result as string).split(',')[1];
             setBase64File(base64);
-            setUploadedFileBase64(base64); // <- este es el que usas en el payload
+            setUploadedFileBase64(base64);
         };
         readerB64.readAsDataURL(file);
     };
@@ -824,7 +824,7 @@ const BlackList: React.FC = () => {
     const handleCloseManageModal = () => {
         setIsManageModalOpen(false);
 
-        // Opcionalmente puedes limpiar campos si quieres
+
         setSelectedBlackList(null);
         setSelectedBlackListName('');
         setIndividualPhones(['']);
@@ -856,7 +856,7 @@ const BlackList: React.FC = () => {
                     sx={{
                         p: 0,
                         mr: 1,
-                        ml: '-28px', // para que flote más a la izquierda si quieres
+                        ml: '-28px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -877,7 +877,7 @@ const BlackList: React.FC = () => {
                 <Typography
                     variant="h4"
                     sx={{
-                        fontWeight: 'bold',
+                        fontWeight: 500,
                         color: '#330F1B',
                         fontFamily: 'Poppins',
                         fontSize: '26px'
@@ -950,7 +950,7 @@ const BlackList: React.FC = () => {
                                 backgroundColor: "transparent",
                             }}
                         />
-                        {/* Ícono de cerrar cuando hay texto */}
+
                         {searchTerm && (
                             <img
                                 src={iconclose}
@@ -2092,8 +2092,8 @@ const BlackList: React.FC = () => {
                                 text="Guardar"
                                 onClick={addBlackList}
                                 disabled={
-                                    !formData.Name.trim() || // nombre vacío
-                                    isNameInvalid ||         // nombre inválido
+                                    !formData.Name.trim() ||
+                                    isNameInvalid ||
                                     (!formData.File && !formData.Phones.some(p => p.trim() !== '')) // ni archivo ni teléfonos
                                 }
                             />
@@ -4804,7 +4804,7 @@ const BlackList: React.FC = () => {
                 </MenuItem>
                 <MenuItem onClick={() => {
                     handleMenuClose();
-                    setSelectedBlackList(selectedBlackList); // pasa el objeto de la lista
+                    setSelectedBlackList(selectedBlackList);
                     setIsManageModalOpen(true);
 
                 }}
@@ -4812,7 +4812,7 @@ const BlackList: React.FC = () => {
                         fontFamily: 'Poppins',
                         fontSize: '14px',
                         '&:hover': {
-                            backgroundColor: '#F2EBED'  // 👈 Fondo al pasar el mouse
+                            backgroundColor: '#F2EBED'
                         }
                     }}
                 >

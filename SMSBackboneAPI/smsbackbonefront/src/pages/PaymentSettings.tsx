@@ -30,7 +30,7 @@ import mastercard from '../assets/masterCard.png';
 import amex from '../assets/americanExpress.png';
 import openpay from '../assets/OpenPayLogoColor.jpg';
 import spei from '../assets/spei.png'
-
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
 
 type Account = {
     id: number;
@@ -222,7 +222,7 @@ const PaymentSettings: React.FC = () => {
             setIsErrorModalOpen(true);
         }
         finally {
-            setLoading(false); // Desactiva el estado de carga
+            setLoading(false);
         }
     };
 
@@ -277,7 +277,7 @@ const PaymentSettings: React.FC = () => {
             }
 
         } catch {
-        
+
         }
         finally {
             setLoading(false); // Desactiva el estado de carga
@@ -611,6 +611,23 @@ const PaymentSettings: React.FC = () => {
                         marginLeft: '-5px',
 
                     }}
+                    checkedIcon={
+                        <Box
+                            sx={{
+                                width: '24px',
+                                height: '24px',
+                                position: 'relative',
+                                marginTop: '0px',
+                                marginLeft: '0px',
+                            }}
+                        >
+                            <img
+                                src={IconCheckBox1}
+                                alt="Seleccionado"
+                                style={{ width: '24px', height: '24px' }}
+                            />
+                        </Box>
+                    }
                 />
                 <span
                     style={{
@@ -802,6 +819,23 @@ const PaymentSettings: React.FC = () => {
                         '&.Mui-checked': { color: '#6C3A52' },
                         marginLeft: '-5px',
                     }}
+                    checkedIcon={
+                        <Box
+                            sx={{
+                                width: '24px',
+                                height: '24px',
+                                position: 'relative',
+                                marginTop: '0px',
+                                marginLeft: '0px',
+                            }}
+                        >
+                            <img
+                                src={IconCheckBox1}
+                                alt="Seleccionado"
+                                style={{ width: '24px', height: '24px' }}
+                            />
+                        </Box>
+                    }
                 />
 
 
@@ -1072,6 +1106,23 @@ const PaymentSettings: React.FC = () => {
                             checked={generateInvoice}
                             onChange={(e) => setGenerateInvoice(e.target.checked)}
                             sx={{ color: '#8F4D63' }}
+                            checkedIcon={
+                                <Box
+                                    sx={{
+                                        width: '24px',
+                                        height: '24px',
+                                        position: 'relative',
+                                        marginTop: '0px',
+                                        marginLeft: '0px',
+                                    }}
+                                >
+                                    <img
+                                        src={IconCheckBox1}
+                                        alt="Seleccionado"
+                                        style={{ width: '24px', height: '24px' }}
+                                    />
+                                </Box>
+                            }
                         />
                     }
                     label={

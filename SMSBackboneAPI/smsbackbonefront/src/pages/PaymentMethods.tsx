@@ -22,7 +22,7 @@ import trash from '../assets/Icon-trash-Card.svg'
 import Radio from '@mui/material/Radio';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
-
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
 
 interface CreditCard {
     id: number;
@@ -616,7 +616,7 @@ const PaymentMethods: React.FC = () => {
                         transform: 'translate(-50%, -50%)',
                         width: '885px',
                         maxWidth: '100%',
-                        height: '730px', 
+                        height: '730px',
                         bgcolor: 'background.paper',
                         boxShadow: 24,
                         pt: 1.5,     // 🔥 Padding top reducido
@@ -741,7 +741,7 @@ const PaymentMethods: React.FC = () => {
                                             },
                                             endAdornment: (
                                                 <InputAdornment position="end">
-                                                    <WhiteTooltip placement="bottom-end"  title={<>
+                                                    <WhiteTooltip placement="bottom-end" title={<>
                                                         <div>• Solo caracteres numéricos</div>
                                                         <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                     </>}>
@@ -779,7 +779,7 @@ const PaymentMethods: React.FC = () => {
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <WhiteTooltip placement="bottom-end"  title={<>
+                                                <WhiteTooltip placement="bottom-end" title={<>
                                                     <div>• Solo caracteres numéricos</div>
                                                     <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                 </>}>
@@ -829,7 +829,7 @@ const PaymentMethods: React.FC = () => {
                                             },
                                             endAdornment: (
                                                 <InputAdornment position="end">
-                                                    <WhiteTooltip placement="bottom-end"  title={<>
+                                                    <WhiteTooltip placement="bottom-end" title={<>
                                                         <div>• Solo caracteres numéricos</div>
                                                         <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                     </>}>
@@ -878,7 +878,7 @@ const PaymentMethods: React.FC = () => {
                                             },
                                             endAdornment: (
                                                 <InputAdornment position="end">
-                                                    <WhiteTooltip placement="bottom-end"  title={<>
+                                                    <WhiteTooltip placement="bottom-end" title={<>
                                                         <div>• Solo caracteres numéricos</div>
                                                         <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                     </>}>
@@ -916,7 +916,7 @@ const PaymentMethods: React.FC = () => {
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <WhiteTooltip placement="bottom-end"  title={<>
+                                                <WhiteTooltip placement="bottom-end" title={<>
                                                     <div>• Solo caracteres numéricos</div>
                                                     <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                 </>}>
@@ -953,7 +953,7 @@ const PaymentMethods: React.FC = () => {
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <WhiteTooltip placement="bottom-end"  title={<>
+                                                <WhiteTooltip placement="bottom-end" title={<>
                                                     <div>• Solo caracteres numéricos</div>
                                                     <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                 </>}>
@@ -990,7 +990,7 @@ const PaymentMethods: React.FC = () => {
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <WhiteTooltip placement="bottom-end"  title={<>
+                                                <WhiteTooltip placement="bottom-end" title={<>
                                                     <div>• Solo caracteres numéricos</div>
                                                     <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                 </>}>
@@ -1028,7 +1028,7 @@ const PaymentMethods: React.FC = () => {
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <WhiteTooltip placement="bottom-end"  title={<>
+                                                <WhiteTooltip placement="bottom-end" title={<>
                                                     <div>• Solo caracteres numéricos</div>
                                                     <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                 </>}>
@@ -1136,7 +1136,7 @@ const PaymentMethods: React.FC = () => {
                                                 },
                                                 endAdornment: (
                                                     <InputAdornment position="end">
-                                                        <WhiteTooltip placement="bottom-end"  title={<>
+                                                        <WhiteTooltip placement="bottom-end" title={<>
                                                             <div>• Solo caracteres numéricos</div>
                                                             <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
                                                         </>}>
@@ -1168,6 +1168,23 @@ const PaymentMethods: React.FC = () => {
                                                 color: '#6C3A52',
                                                 '&.Mui-checked': { color: '#6C3A52' },
                                             }}
+                                            checkedIcon={
+                                                <Box
+                                                    sx={{
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        position: 'relative',
+                                                        marginTop: '0px',
+                                                        marginLeft: '0px',
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={IconCheckBox1}
+                                                        alt="Seleccionado"
+                                                        style={{ width: '24px', height: '24px' }}
+                                                    />
+                                                </Box>
+                                            }
                                         />
                                         <Typography
                                             sx={{

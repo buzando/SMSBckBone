@@ -90,6 +90,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Chipbar from '../components/commons/ChipBar'
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
 interface Horario {
   titulo: string;
   start: Date | null;
@@ -1359,7 +1360,7 @@ const Campains: React.FC = () => {
         <Typography
           variant="h4"
           sx={{
-            fontWeight: 'bold',
+            fontWeight: 500,
             color: '#330F1B',
             fontFamily: 'Poppins',
             fontSize: '26px',
@@ -1729,7 +1730,7 @@ const Campains: React.FC = () => {
                 )}
                 <Divider
                   sx={{
-                    width: 'calc(100% + 30px)', // compensa 15px de padding a cada lado
+                    width: 'calc(100% + 30px)',
                     marginLeft: '-15px',
                     marginBottom: '5px',
                   }}
@@ -3435,7 +3436,7 @@ const Campains: React.FC = () => {
                                 {
                                   name: 'offset',
                                   options: {
-                                    offset: [0, -12] // [horizontal, vertical]
+                                    offset: [0, -12]
                                   }
                                 }
                               ]
@@ -3492,28 +3493,18 @@ const Campains: React.FC = () => {
                           checkedIcon={
                             <Box
                               sx={{
-                                width: "20px",
-                                height: "20px",
-                                borderRadius: "4px",
-                                backgroundColor: "#8F4D63",
-                                border: "2px solid #8F4D63",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
+                                width: '24px',
+                                height: '24px',
+                                position: 'relative',
+                                marginTop: '0px',
+                                marginLeft: '-2px',
                               }}
                             >
-                              <Box
-                                component="span"
-                                sx={{
-                                  color: "#FFFFFF",
-                                  fontSize: "13px",
-                                  fontWeight: "bold",
-                                  lineHeight: "1",
-                                  fontFamily: "Poppins, sans-serif",
-                                }}
-                              >
-                                ✓
-                              </Box>
+                              <img
+                                src={IconCheckBox1}
+                                alt="Seleccionado"
+                                style={{ width: '24px', height: '24px' }}
+                              />
                             </Box>
                           }
                           sx={{
@@ -6794,28 +6785,18 @@ const Campains: React.FC = () => {
                           checkedIcon={
                             <Box
                               sx={{
-                                width: "20px",
-                                height: "20px",
-                                borderRadius: "4px",
-                                backgroundColor: "#8F4D63",
-                                border: "2px solid #8F4D63",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
+                                width: '24px',
+                                height: '24px',
+                                position: 'relative',
+                                marginTop: '0px',
+                                marginLeft: '-2px',
                               }}
                             >
-                              <Box
-                                component="span"
-                                sx={{
-                                  color: "#FFFFFF",
-                                  fontSize: "13px",
-                                  fontWeight: "bold",
-                                  lineHeight: "1",
-                                  fontFamily: "Poppins, sans-serif",
-                                }}
-                              >
-                                ✓
-                              </Box>
+                              <img
+                                src={IconCheckBox1}
+                                alt="Seleccionado"
+                                style={{ width: '24px', height: '24px' }}
+                              />
                             </Box>
                           }
                           sx={{
@@ -8251,29 +8232,18 @@ const Campains: React.FC = () => {
                   checkedIcon={
                     <Box
                       sx={{
-                        ml: 2.5, mt: -1,
-                        width: "20px",
-                        height: "20px",
-                        borderRadius: "4px",
-                        backgroundColor: "#8F4D63",
-                        border: "2px solid #8F4D63",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        width: '24px',
+                        height: '24px',
+                        position: 'relative',
+                        marginTop: '0px',
+                        marginLeft: '-2px',
                       }}
                     >
-                      <Box
-                        component="span"
-                        sx={{
-                          color: "#FFFFFF",
-                          fontSize: "13px",
-                          fontWeight: "bold",
-                          lineHeight: "1",
-                          fontFamily: "Poppins, sans-serif",
-                        }}
-                      >
-                        ✓
-                      </Box>
+                      <img
+                        src={IconCheckBox1}
+                        alt="Seleccionado"
+                        style={{ width: '24px', height: '24px' }}
+                      />
                     </Box>
                   }
                   sx={{
