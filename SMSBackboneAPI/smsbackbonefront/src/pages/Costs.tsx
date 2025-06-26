@@ -3,7 +3,7 @@ import { Box, Typography, Divider } from '@mui/material';
 
 const Costs: React.FC = () => {
     return (
-        <Box sx={{ padding: '20px', maxWidth: '600px', marginTop: '-70px' }}>
+        <Box sx={{ padding: '20px', maxWidth: '610px', marginTop: '-70px', height: "670px", overflowY: "hidden", overflowX: "hidden" }}>
             {/* Título */}
             <Typography sx={{
                 textAlign: 'left',

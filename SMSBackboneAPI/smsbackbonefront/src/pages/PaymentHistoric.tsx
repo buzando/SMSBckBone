@@ -130,13 +130,13 @@ const PaymentHistoric: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '930px', marginTop: '-70px', marginLeft: "35px", minHeight: 'calc(100vh - 64px)' }}>
+        <div style={{ padding: '20px', maxWidth: '1140px', marginTop: '-70px', marginLeft: "40px" }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                {/* FLECHA flotante */}
+
                 <IconButton
                     onClick={() => navigate('/')}
                     sx={{
-                        p: 0,              // quita el padding interno del botón
+                        p: 0,
                         mr: 1,
                         display: 'flex',
                         ml: '-28px',
@@ -155,7 +155,7 @@ const PaymentHistoric: React.FC = () => {
                 <Typography
                     variant="h4"
                     sx={{
-                        fontWeight: 'bold',
+                        fontWeight: 500,
                         color: '#5A2836',
                         fontFamily: 'Poppins',
                         fontSize: '26px'
@@ -210,7 +210,7 @@ const PaymentHistoric: React.FC = () => {
                     <CircularProgress sx={{ color: '#7B354D' }} size={60} />
                 </Box>
             ) : Historic === undefined ? (
-                // Imagen de caja cerrada cuando NO se ha seleccionado ninguna fecha
+
                 <Box
                     sx={{
                         background: '#FFFFFF',

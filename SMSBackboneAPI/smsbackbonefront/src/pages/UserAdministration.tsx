@@ -40,7 +40,11 @@ import infoicon from '../assets/Icon-info.svg'
 import infoiconerror from '../assets/Icon-infoerror.svg'
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Thrashicon from '../assets/Icon-trash-Card.svg'
 import ChipBar from "../components/commons/ChipBar";
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import IconCheckBox2 from "../assets/IconCheckBox2.svg";
+import IconHouse from "../assets/IconHouse.svg";
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import SecondaryButton from "../components/commons/SecondaryButton";
 import MainButton from "../components/commons/MainButton";
@@ -55,24 +59,24 @@ type Account = {
 };
 
 type Room = {
-    id: number; // Identificador único de la sala
-    name: string; // Nombre de la sala
-    long_sms: boolean; // Indicador para SMS largos
-    calls: boolean; // Indicador para llamadas
-    credits: number; // Saldo de la sala
+    id: number;
+    name: string;
+    long_sms: boolean;
+    calls: boolean;
+    credits: number;
 };
 
 type FormData = {
-    name: string; // Nombre del usuario
-    email: string; // Correo principal
-    confirmEmail: string; // Confirmación del correo
-    phone: string; // Teléfono
-    useRecoveryEmail: boolean; // Indicador de uso de correo para recuperación
-    password: string; // Contraseña
-    confirmPassword: string; // Confirmación de contraseña
-    allAndFuture: boolean; // Indicador para "todas y futuras salas"
-    profile: string; // Perfil/rol del usuario
-    rooms: string; // Lista de IDs de salas separados por comas
+    name: string;
+    email: string;
+    confirmEmail: string;
+    phone: string;
+    useRecoveryEmail: boolean;
+    password: string;
+    confirmPassword: string;
+    allAndFuture: boolean;
+    profile: string;
+    rooms: string;
 };
 
 
@@ -200,7 +204,7 @@ const ManageAccounts: React.FC = () => {
             [name]: type === "checkbox" ? checked : value,
         }));
 
-        // Solo activa los errores si el campo no es un checkbox y no está vacío
+
         if (type !== "checkbox" && value !== "") {
             setShowErrors((prev) => ({ ...prev, [name]: true }));
         }
@@ -322,8 +326,8 @@ const ManageAccounts: React.FC = () => {
                     );
                 }
             }
-            // Establece el mensaje de error
-            setErrorModalOpen(true); // Abre el modal de error
+
+            setErrorModalOpen(true);
         }
         finally {
             fetchRooms();
@@ -396,42 +400,42 @@ const ManageAccounts: React.FC = () => {
     }, []);
 
     const handleEditClick = async (account: Account) => {
-        // Asegúrate de que las salas estén cargadas
+
         if (rooms.length === 0) {
             await fetchRooms();
         }
 
-        // Parsear los nombres de las salas desde el campo `rooms` del usuario
+
         const selectedRoomNames = account.rooms
             ? account.rooms.split(", ").map((name) => name.trim())
             : [];
 
-        // Filtrar los IDs de las salas basándose en los nombres
+
         const selectedRoomIds = rooms
             .filter((room) => selectedRoomNames.includes(room.name))
             .map((room) => room.id);
 
-        setSelectedRooms(selectedRoomIds); // Actualiza los IDs seleccionados
+        setSelectedRooms(selectedRoomIds);
 
-        // Establece los datos del formulario
+
         setFormData({
-            name: account.name || "", // Nombre del usuario
-            email: account.email || "", // Correo principal
-            confirmEmail: account.email || "", // Confirmación del correo (igual al correo principal en edición)
-            phone: account.phoneNumber || "", // Teléfono del usuario, o vacío si no está disponible
-            useRecoveryEmail: false, // No aplica en edición
-            password: "", // Se deja vacío en edición para no sobrescribir la contraseña
-            confirmPassword: "", // Confirmación de contraseña, también vacío en edición
-            allAndFuture: false, // Ajusta según sea necesario para "todas y futuras salas"
-            profile: account.role || "", // Rol del usuario
-            rooms: selectedRoomIds.join(","), // Lista de IDs de salas seleccionadas como una cadena separada por comas
+            name: account.name || "",
+            email: account.email || "",
+            confirmEmail: account.email || "",
+            phone: account.phoneNumber || "",
+            useRecoveryEmail: false,
+            password: "",
+            confirmPassword: "",
+            allAndFuture: false,
+            profile: account.role || "",
+            rooms: selectedRoomIds.join(","),
         });
 
 
 
 
-        setIsEditing(true); // Activa el modo de edición
-        setOpenAddUserModal(true); // Abre el modal
+        setIsEditing(true);
+        setOpenAddUserModal(true);
     };
 
     const isFormValid = (): boolean => {
@@ -440,15 +444,15 @@ const ManageAccounts: React.FC = () => {
         const phoneRegex = /^[0-9]*$/;
 
         const isValid = (
-            nameRegex.test(formData.name.trim()) &&           // Nombre válido
-            phoneRegex.test(formData.phone.trim()) &&          // Teléfono válido
-            emailRegex.test(formData.email) &&                 // Correo válido
-            formData.email === formData.confirmEmail &&        // Correos coinciden
-            formData.profile.trim() !== "" &&                  // Perfil seleccionado
-            selectedRooms.length > 0 &&                        // Al menos una sala seleccionada
-            (isEditing || (                                   // Si es edición, no validar contraseña
-                isPasswordValid(formData.password) &&          // Contraseña válida
-                formData.password === formData.confirmPassword // Contraseñas coinciden
+            nameRegex.test(formData.name.trim()) &&
+            phoneRegex.test(formData.phone.trim()) &&
+            emailRegex.test(formData.email) &&
+            formData.email === formData.confirmEmail &&
+            formData.profile.trim() !== "" &&
+            selectedRooms.length > 0 &&
+            (isEditing || (
+                isPasswordValid(formData.password) &&
+                formData.password === formData.confirmPassword
             ))
         );
         return isValid;
@@ -457,7 +461,7 @@ const ManageAccounts: React.FC = () => {
 
 
     return (
-        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+        <Box p={3} sx={{ marginTop: "-80px", maxWidth: "1140px", minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -482,22 +486,14 @@ const ManageAccounts: React.FC = () => {
                 <Typography
                     variant="h4"
                     fontFamily="Poppins"
-                    sx={{ color: "#5A2836",fontSize: '26px', }}                >
+                    sx={{ color: "#330F1B", fontSize: '26px', }}                >
                     Usuarios
                 </Typography>
             </Box>
 
 
             <Box sx={{ pl: 5 }}>
-                <Box sx={{ maxWidth: "68%", mx: "auto", mb: 3 }}>
-                    <Divider
-                        sx={{
-                            borderColor: "#DDD",
-                            mb: 3,
-                            width: "100%",
-                        }}
-                    />
-                </Box>
+                <Divider sx={{ marginBottom: "21px", marginTop: "18px" }} />
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
@@ -508,28 +504,31 @@ const ManageAccounts: React.FC = () => {
                 </Button>
                 <TableContainer component={Paper}
                     sx={{
-                        maxWidth: "84%", // 🔥 Limita el ancho de la tabla
-                        marginLeft: "-200 auto", // 🔥 Centra la tabla en la pantalla
-                        overflowX: "auto", // 🔥 Agrega scroll horizontal solo si es necesario
+                        width: "1050px", height: "415px",
+                        marginLeft: "-200 auto",
+                        overflowX: "auto", overflowY: "hidden",
                     }}
                 >
                     <Table
                         sx={{
-                            maxWidth: 1750,  // 🔥 Define un ancho mínimo para evitar que las celdas se compriman demasiado
-                            tableLayout: "auto" // 🔥 Permite que las columnas se ajusten automáticamente
+                            maxWidth: 1750,
+                            tableLayout: "auto"
                         }}
                         aria-label="tabla de usuarios"
                     >
-                        <TableHead>
-                            <TableRow>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Nombre</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Correo Electrónico</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Rol</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Ícono</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Salas</TableCell>
-                                <TableCell align="right"></TableCell>
-                            </TableRow>
-                        </TableHead>
+                        {accounts.length > 0 && (
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Nombre</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Correo Electrónico</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Rol</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Ícono</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#5A2836', fontFamily: "Poppins" }}>Salas</TableCell>
+                                    <TableCell align="right"></TableCell>
+                                </TableRow>
+                            </TableHead>
+                        )}
+
                         <TableBody>
                             {accounts.length === 0 ? (
                                 <TableRow>
@@ -542,13 +541,12 @@ const ManageAccounts: React.FC = () => {
                                                 justifyContent: "center",
                                                 py: 4,
                                                 width: "100%",
-                                                maxWidth: "600px", // 🔥 Evita que el contenedor se expanda más de lo necesario
-                                                margin: "0 auto",
+                                                height: "415px"
 
                                             }}
                                         >
                                             <img src={Nousers} alt="Sin usuarios" style={{
-                                                maxWidth: "250px", // 🔥 Define un tamaño máximo para evitar estiramientos
+                                                maxWidth: "250px",
                                                 width: "auto",
                                                 height: "auto",
                                                 objectFit: "contain",
@@ -557,12 +555,12 @@ const ManageAccounts: React.FC = () => {
                                                 variant="h6"
                                                 sx={{
                                                     fontFamily: "Poppins",
-                                                    color: "#A05B71",
-
+                                                    color: "#7B354D",
+                                                    fontSize: "14px",
                                                     mt: 2,
                                                 }}
                                             >
-                                                Agrega un usuario para comenzar
+                                                Añade un usuario para comenzar
                                             </Typography>
                                         </Box>
                                     </TableCell>
@@ -570,9 +568,9 @@ const ManageAccounts: React.FC = () => {
                             ) : (
                                 accounts.map((account) => (
                                     <TableRow key={account.id}>
-                                        <TableCell><Typography sx={{ fontFamily: "Poppins" }}>{account.name} </Typography></TableCell>
-                                        <TableCell><Typography sx={{ fontFamily: "Poppins" }}>{account.email} </Typography></TableCell>
-                                        <TableCell><Typography sx={{ fontFamily: "Poppins" }}>{account.role} </Typography></TableCell>
+                                        <TableCell><Typography sx={{ fontFamily: "Poppins", color: "#574B4F" }}>{account.name} </Typography></TableCell>
+                                        <TableCell><Typography sx={{ fontFamily: "Poppins", color: "#574B4F" }}>{account.email} </Typography></TableCell>
+                                        <TableCell><Typography sx={{ fontFamily: "Poppins", color: "#574B4F" }}>{account.role} </Typography></TableCell>
                                         {/* Ícono condicional */}
                                         <TableCell>
                                             {account.role === "Administrador" && (
@@ -595,12 +593,12 @@ const ManageAccounts: React.FC = () => {
                                                     <Typography
                                                         noWrap
                                                         sx={{
-                                                            maxWidth: "200px", // Ajusta el ancho máximo visible
+                                                            maxWidth: "200px",
                                                             overflow: "hidden",
                                                             textOverflow: "ellipsis",
                                                             whiteSpace: "nowrap",
                                                             cursor: "pointer",
-                                                            fontFamily: "Poppins"
+                                                            fontFamily: "Poppins",
                                                         }}
                                                     >
                                                         {account.rooms}
@@ -610,11 +608,12 @@ const ManageAccounts: React.FC = () => {
                                                 <Typography
                                                     noWrap
                                                     sx={{
-                                                        maxWidth: "200px", // Ajusta el ancho máximo visible
+                                                        maxWidth: "200px",
                                                         overflow: "hidden",
                                                         textOverflow: "ellipsis",
                                                         whiteSpace: "nowrap",
-                                                        fontFamily: "Poppins"
+                                                        fontFamily: "Poppins",
+                                                        color: "#574B4F"
                                                     }}
                                                 >
                                                     {account.rooms}
@@ -629,20 +628,10 @@ const ManageAccounts: React.FC = () => {
                                                 alignItems: "center",
                                                 justifyContent: "center",
                                                 position: "relative",
+                                                borderLeft: "2px solid #F2F2F2"
                                             }}
                                         >
-                                            <Divider
-                                                orientation="vertical"
-                                                flexItem
-                                                sx={{
-                                                    position: "absolute",
-                                                    height: "100%", // Ocupa todo el alto de la celda
-                                                    left: "10%", // Ajusta la posición hacia la izquierda
-                                                    transform: "translateX(-50%)", // Centra la línea respecto a `left`
-                                                    backgroundColor: "#ccc", // Color opcional
-                                                    zIndex: 1,
-                                                }}
-                                            />
+
                                             <IconButton
                                                 onClick={(e) => handleMenuOpen(e, account)}
                                                 aria-label="more"
@@ -653,23 +642,53 @@ const ManageAccounts: React.FC = () => {
                                                 anchorEl={menuAnchorEl}
                                                 open={Boolean(menuAnchorEl)}
                                                 onClose={handleMenuClose}
+                                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                                sx={{}}
                                             >
                                                 <MenuItem
                                                     onClick={() => {
-                                                        handleEditClick(selectedAccount!); // Pasamos el account seleccionado
-                                                        handleMenuClose(); // Cerramos el menú
+                                                        handleEditClick(selectedAccount!);
+                                                        handleMenuClose();
                                                     }}
-                                                ><EditIcon sx={{ marginRight: 1, color: '#A05B71' }} />
-                                                    Editar
+                                                    sx={{
+                                                        width: "184px", height: "40px",
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: '14px',
+                                                        '&:hover': {
+                                                            backgroundColor: '#F2EBED'
+                                                        }
+                                                    }}
+                                                >
+                                                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#583B43" }}>
+
+                                                        Editar
+                                                    </Typography>
                                                 </MenuItem>
                                                 <MenuItem
                                                     onClick={() => {
                                                         setOpenDeleteModal(true);
                                                         handleMenuClose();
                                                     }}
+                                                    sx={{
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: '14px',
+                                                        '&:hover': {
+                                                            backgroundColor: '#F2EBED'
+                                                        }
+                                                    }}
                                                 >
-                                                    <DeleteIcon sx={{ marginRight: 1, color: '#A05B71' }} />
-                                                    Eliminar
+                                                    <Box display="flex" alignItems="center" gap={1}>
+                                                        <img
+                                                            src={Thrashicon}
+                                                            alt="Eliminar"
+                                                            style={{ width: 24, height: 24, color: '#5F5064' }}
+                                                        />
+                                                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
+                                                            Eliminar
+                                                        </Typography>
+                                                    </Box>
                                                 </MenuItem>
                                             </Menu>
                                         </TableCell>
@@ -687,9 +706,10 @@ const ManageAccounts: React.FC = () => {
                         top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
-                        width: 700,
-                        maxHeight: "80vh",
+                        width: "768px",
+                        maxHeight: "704px",
                         overflowY: "auto",
+                        overflowX: "hidden",
                         bgcolor: "background.paper",
                         boxShadow: 24,
                         p: 4,
@@ -698,7 +718,7 @@ const ManageAccounts: React.FC = () => {
                         flexDirection: "column",
                     }}
                 >
-                    {/* Botón de cierre */}
+
                     <IconButton
                         aria-label="close"
                         onClick={handleCloseModal}
@@ -726,18 +746,18 @@ const ManageAccounts: React.FC = () => {
                     }}>
                         {isEditing ? "Editar usuario" : "Añadir usuario"}
                     </Typography>
-                    <Divider sx={{ my: 2, backgroundColor: "#CCC" }} />
-                    {/* Form */}
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', my: 2 }} />
+
                     <Box sx={{ overflowY: "auto", mt: -1, pt: 4, pr: 4, pb: 4, pl: 0, flexGrow: 1 }}>
                         <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
-                            {/* Nombre */}
+
                             <Box gridColumn="span 6">
                                 <Typography
                                     sx={{
                                         textAlign: "left",
                                         fontFamily: "Poppins",
                                         letterSpacing: "0px",
-                                        color: !/^[a-zA-Z\s]*$/.test(formData.name) ? "#D11247" : "#000000",
+                                        color: !/^[a-zA-Z\s]*$/.test(formData.name) ? "#D11247" : "#574B4F",
                                         opacity: 1,
                                         fontSize: "16px",
                                         marginBottom: "8px",
@@ -753,16 +773,53 @@ const ManageAccounts: React.FC = () => {
                                     required
                                     error={!/^[a-zA-Z\s]*$/.test(formData.name)}
                                     helperText={!/^[a-zA-Z\s]*$/.test(formData.name) && "Solo letras y espacios."}
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        "& .MuiInputBase-input": {
+                                            fontFamily: "Poppins",
+                                        },
+                                        "& .MuiFormHelperText-root": {
+                                            fontFamily: "Poppins",
+                                        }
+                                    }}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <Tooltip title={
-                                                    <Box sx={{ fontSize: "14px", lineHeight: 1.5 }}>
-                                                        <div>• Solo caracteres alfabéticos</div>
-                                                        <div>• Longitud máxima de 40 caracteres</div>
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#FFFFFF",
+                                                            borderRadius: "8px",
+                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                            padding: "8px 12px",
+                                                            fontSize: "14px",
+                                                            fontFamily: "Poppins",
+                                                            color: "#574B4F",
+                                                            whiteSpace: "pre-line",
+                                                            transform: "translate(-10px, -22px)",
+                                                            borderColor: "#00131F3D",
+                                                            borderStyle: "solid",
+                                                            borderWidth: "1px"
+                                                        }}
+                                                    >
+                                                        <>
+                                                            • Solo caracteres alfabéticos<br />
+                                                            • Longitud máxima de 40<br />
+                                                            caracteres
+                                                        </>
                                                     </Box>
                                                 }
-                                                    arrow>
+
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent",
+                                                                padding: 0,
+                                                            },
+                                                        },
+                                                    }}
+                                                >
                                                     <img
                                                         src={!/^[a-zA-Z\s]*$/.test(formData.name) ? infoiconerror : infoicon}
                                                         alt="Info"
@@ -781,13 +838,14 @@ const ManageAccounts: React.FC = () => {
                                         textAlign: "left",
                                         fontFamily: "Poppins",
                                         letterSpacing: "0px",
-                                        color: showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) ? "#D11247" : "#000000",
+                                        color: showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) ? "#D11247" : "#574B4F",
                                         opacity: 1,
                                         fontSize: "16px",
                                         marginBottom: "8px",
+
                                     }}
                                 >
-                                    Telefono<span style={{ color: "red" }}>*</span>
+                                    Teléfono<span style={{ color: "red" }}>*</span>
                                 </Typography>
                                 <TextField
                                     fullWidth
@@ -796,10 +854,51 @@ const ManageAccounts: React.FC = () => {
                                     onChange={handleInputChange}
                                     error={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone)}
                                     helperText={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) && "Debe tener 10 dígitos."}
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        "& .MuiInputBase-input": {
+                                            fontFamily: "Poppins",
+                                        },
+                                        "& .MuiFormHelperText-root": {
+                                            fontFamily: "Poppins",
+                                        }
+                                    }}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <Tooltip title="Número telefónico">
+                                                <Tooltip title={
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#FFFFFF",
+                                                            borderRadius: "8px",
+                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                            padding: "8px 12px",
+                                                            fontSize: "14px",
+                                                            fontFamily: "Poppins",
+                                                            color: "#574B4F",
+                                                            whiteSpace: "pre-line",
+                                                            transform: "translate(-10px, -22px)",
+                                                            borderColor: "#00131F3D",
+                                                            borderStyle: "solid",
+                                                            borderWidth: "1px"
+                                                        }}
+                                                    >
+                                                        <>
+                                                            • Número telefónico
+                                                        </>
+                                                    </Box>
+                                                }
+
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent",
+                                                                padding: 0,
+                                                            },
+                                                        },
+                                                    }}
+                                                >
                                                     <img
                                                         src={showErrors.phone && !/^[0-9]{10}$/.test(formData.phone) ? infoiconerror : infoicon}
                                                         alt="Info"
@@ -811,16 +910,14 @@ const ManageAccounts: React.FC = () => {
                                     }}
                                 />
                             </Box>
-                            {/* Teléfono */}
-                            {/* Correo y Confirmación de Correo */}
-                            {/* Correo Electrónico */}
+
                             <Box gridColumn="span 6">
                                 <Typography
                                     sx={{
                                         textAlign: "left",
                                         fontFamily: "Poppins",
                                         letterSpacing: "0px",
-                                        color: showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ? "#D11247" : "#000000",
+                                        color: showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ? "#D11247" : "#574B4F",
                                         opacity: 1,
                                         fontSize: "16px",
                                         marginBottom: "8px",
@@ -835,10 +932,51 @@ const ManageAccounts: React.FC = () => {
                                     onChange={handleInputChange}
                                     error={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)}
                                     helperText={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && "Ingrese un correo válido."}
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        "& .MuiInputBase-input": {
+                                            fontFamily: "Poppins",
+                                        },
+                                        "& .MuiFormHelperText-root": {
+                                            fontFamily: "Poppins",
+                                        }
+                                    }}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <Tooltip title="Ejemplo: usuario@dominio.com">
+                                                <Tooltip title={
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#FFFFFF",
+                                                            borderRadius: "8px",
+                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                            padding: "8px 12px",
+                                                            fontSize: "14px",
+                                                            fontFamily: "Poppins",
+                                                            color: "#574B4F",
+                                                            whiteSpace: "pre-line",
+                                                            transform: "translate(-10px, -22px)",
+                                                            borderColor: "#00131F3D",
+                                                            borderStyle: "solid",
+                                                            borderWidth: "1px"
+                                                        }}
+                                                    >
+                                                        <>
+                                                            • Ejemplo: usuario@domino.com
+                                                        </>
+                                                    </Box>
+                                                }
+
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent",
+                                                                padding: 0,
+                                                            },
+                                                        },
+                                                    }}
+                                                >
                                                     <img
                                                         src={showErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ? infoiconerror : infoicon}
                                                         alt="Info"
@@ -852,14 +990,13 @@ const ManageAccounts: React.FC = () => {
                                 />
                             </Box>
 
-                            {/* Confirmar Correo Electrónico */}
                             <Box gridColumn="span 6">
                                 <Typography
                                     sx={{
                                         textAlign: "left",
                                         fontFamily: "Poppins",
                                         letterSpacing: "0px",
-                                        color: formData.email !== formData.confirmEmail ? "#D11247" : "#000000",
+                                        color: formData.email !== formData.confirmEmail ? "#D11247" : "#574B4F",
                                         opacity: 1,
                                         fontSize: "16px",
                                         marginBottom: "8px",
@@ -876,10 +1013,52 @@ const ManageAccounts: React.FC = () => {
                                     helperText={
                                         formData.email !== formData.confirmEmail && "Los correos electrónicos no coinciden."
                                     }
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        "& .MuiInputBase-input": {
+                                            fontFamily: "Poppins",
+                                        },
+                                        "& .MuiFormHelperText-root": {
+                                            fontFamily: "Poppins",
+                                        }
+                                    }}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <Tooltip title="Debe coincidir con el correo ingresado.">
+                                                <Tooltip title={
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: "#FFFFFF",
+                                                            borderRadius: "8px",
+                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                            padding: "8px 12px",
+                                                            fontSize: "14px",
+                                                            fontFamily: "Poppins",
+                                                            color: "#574B4F",
+                                                            whiteSpace: "pre-line",
+                                                            transform: "translate(-10px, -22px)",
+                                                            borderColor: "#00131F3D",
+                                                            borderStyle: "solid",
+                                                            borderWidth: "1px"
+                                                        }}
+                                                    >
+                                                        <>
+                                                            • Debe coincidir con el<br />
+                                                            correo ingresado
+                                                        </>
+                                                    </Box>
+                                                }
+
+                                                    placement="bottom-end"
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: "transparent",
+                                                                padding: 0,
+                                                            },
+                                                        },
+                                                    }}
+                                                >
                                                     <img
                                                         src={formData.email !== formData.confirmEmail ? infoiconerror : infoicon}
                                                         alt="Info"
@@ -893,17 +1072,15 @@ const ManageAccounts: React.FC = () => {
                                 />
                             </Box>
 
-                            {/* Contraseña y Confirmar Contraseña */}
                             {!isEditing && (
                                 <>
-                                    {/* Contraseña */}
                                     <Box gridColumn="span 6">
                                         <Typography
                                             sx={{
                                                 textAlign: "left",
                                                 fontFamily: "Poppins",
                                                 letterSpacing: "0px",
-                                                color: showErrors.password && !isPasswordValid(formData.password) ? "#D11247" : "#000000",
+                                                color: showErrors.password && !isPasswordValid(formData.password) ? "#D11247" : "#574B4F",
                                                 opacity: 1,
                                                 fontSize: "16px",
                                                 marginBottom: "8px",
@@ -919,10 +1096,53 @@ const ManageAccounts: React.FC = () => {
                                             onChange={handleInputChange}
                                             error={showErrors.password && !isPasswordValid(formData.password)}
                                             helperText={showErrors.password && !isPasswordValid(formData.password) && "La contraseña debe cumplir con los requisitos."}
+                                            sx={{
+                                                fontFamily: "Poppins",
+                                                "& .MuiInputBase-input": {
+                                                    fontFamily: "Poppins",
+                                                },
+                                                "& .MuiFormHelperText-root": {
+                                                    fontFamily: "Poppins",
+                                                }
+                                            }}
                                             InputProps={{
                                                 endAdornment: (
                                                     <InputAdornment position="end">
-                                                        <Tooltip title="Debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula y un número.">
+                                                        <Tooltip title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF",
+                                                                    borderRadius: "8px",
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                    padding: "8px 12px",
+                                                                    fontSize: "14px",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#574B4F",
+                                                                    whiteSpace: "pre-line",
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Debe tener al menos 8 carácteres,<br />
+                                                                    incluir una letra mayúscula<br />
+                                                                    una minúscula y un número.
+                                                                </>
+                                                            </Box>
+                                                        }
+
+                                                            placement="bottom-end"
+                                                            componentsProps={{
+                                                                tooltip: {
+                                                                    sx: {
+                                                                        backgroundColor: "transparent",
+                                                                        padding: 0,
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
                                                             <img
                                                                 src={showErrors.password && !isPasswordValid(formData.password) ? infoiconerror : infoicon}
                                                                 alt="Info"
@@ -935,14 +1155,14 @@ const ManageAccounts: React.FC = () => {
                                             required
                                         />
                                     </Box>
-                                    {/* Confirmar contraseña */}
+
                                     <Box gridColumn="span 6">
                                         <Typography
                                             sx={{
                                                 textAlign: "left",
                                                 fontFamily: "Poppins",
                                                 letterSpacing: "0px",
-                                                color: formData.password !== formData.confirmPassword ? "#D11247" : "#000000",
+                                                color: formData.password !== formData.confirmPassword ? "#D11247" : "#574B4F",
                                                 opacity: 1,
                                                 fontSize: "16px",
                                                 marginBottom: "8px",
@@ -960,10 +1180,51 @@ const ManageAccounts: React.FC = () => {
                                             helperText={
                                                 formData.password !== formData.confirmPassword && "Las contraseñas no coinciden."
                                             }
+                                            sx={{
+                                                fontFamily: "Poppins",
+                                                "& .MuiInputBase-input": {
+                                                    fontFamily: "Poppins",
+                                                },
+                                                "& .MuiFormHelperText-root": {
+                                                    fontFamily: "Poppins",
+                                                }
+                                            }}
                                             InputProps={{
                                                 endAdornment: (
                                                     <InputAdornment position="end">
-                                                        <Tooltip title="Deben coincidir las contraseñas">
+                                                        <Tooltip title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF",
+                                                                    borderRadius: "8px",
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                    padding: "8px 12px",
+                                                                    fontSize: "14px",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#574B4F",
+                                                                    whiteSpace: "pre-line",
+                                                                    transform: "translate(-10px, -22px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Deben coincidir las contraseñas
+                                                                </>
+                                                            </Box>
+                                                        }
+
+                                                            placement="bottom-end"
+                                                            componentsProps={{
+                                                                tooltip: {
+                                                                    sx: {
+                                                                        backgroundColor: "transparent",
+                                                                        padding: 0,
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
                                                             <img
                                                                 src={(formData.password !== formData.confirmPassword) ? infoiconerror : infoicon}
                                                                 alt="Info"
@@ -988,8 +1249,25 @@ const ManageAccounts: React.FC = () => {
                                             checked={formData.useRecoveryEmail}
                                             onChange={handleInputChange}
                                             name="useRecoveryEmail"
+                                            checkedIcon={
+                                                <Box
+                                                    sx={{
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        position: 'relative',
+                                                        marginTop: '0px',
+                                                        marginLeft: '0px',
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={IconCheckBox1}
+                                                        alt="Seleccionado"
+                                                        style={{ width: '24px', height: '24px' }}
+                                                    />
+                                                </Box>
+                                            }
                                             sx={{
-                                                color: '#6C3A52',
+                                                color: '#574B4FCC',
                                                 '&.Mui-checked': { color: '#6C3A52' },
                                                 marginLeft: '-5px',
 
@@ -1002,7 +1280,7 @@ const ManageAccounts: React.FC = () => {
                                                 textAlign: "left",
                                                 fontFamily: "Poppins",
                                                 letterSpacing: "0px",
-                                                color: "#8F4D63",
+                                                color: formData.useRecoveryEmail ? "#8F4D63" : "#574B4FCC",
                                                 opacity: 1,
                                                 fontSize: "16px",
                                                 lineHeight: "24px",
@@ -1013,7 +1291,7 @@ const ManageAccounts: React.FC = () => {
                                     }
                                     sx={{
                                         display: "flex",
-                                        alignItems: "center", // Asegura alineación del checkbox y texto
+                                        alignItems: "center",
                                         gap: 1,
                                     }}
                                 />
@@ -1021,11 +1299,11 @@ const ManageAccounts: React.FC = () => {
                         )}
                         {/* Selección de roles */}
                         {/* Roles en línea horizontal */}
-                        <Divider sx={{ my: 2, backgroundColor: "#CCC" }} />
-                        <Typography variant="subtitle1" fontWeight="bold" mb={2} sx={{ fontFamily: "Poppins", }}>
+                        <Divider sx={{ my: 2, backgroundColor: "#F2F2F2" }} />
+                        <Typography variant="subtitle1" fontWeight="bold" mb={2} sx={{ fontFamily: "Poppins", fontSize: "16px" }}>
                             Rol de usuario<span style={{ color: "red" }}>*</span>
                         </Typography>
-                        <Typography variant="body2" mb={3} sx={{ fontFamily: "Poppins", }}>
+                        <Typography variant="body2" mb={3} mt={-1} sx={{ fontFamily: "Poppins", color: "#574B4F", fontSize: "14px" }}>
                             Seleccione el rol que el colaborador podrá desempeñar.
                         </Typography>
                         <RadioGroup
@@ -1036,26 +1314,31 @@ const ManageAccounts: React.FC = () => {
                             <Box display="flex" justifyContent="space-between" gap={2}>
                                 <Box
                                     sx={{
-                                        border: "2px solid #C3B5E6",
-                                        borderRadius: 2,
+                                        border: "2px solid #9963C3",
+                                        borderRadius: "8px",
                                         padding: 2,
                                         position: "relative",
                                         textAlign: "center",
-                                        width: "30%",
+                                        width: "224px", height: "224px",
                                         cursor: "pointer",
-                                        backgroundColor: formData.profile === "Monitor" ? "#E9DDF8" : "white",
+                                        backgroundColor: formData.profile === "Monitor" ? "#9100FF1A" : "white",
                                     }}
                                 >
                                     <Radio
                                         value="Monitor"
+                                        checked={formData.profile === "Monitor"}
                                         sx={{
                                             position: "absolute",
                                             top: 8,
                                             right: 8,
+                                            color: "#574B4FCC",
+                                            '&.Mui-checked': {
+                                                color: "#9963C3"
+                                            }
                                         }}
                                     />
                                     <img src={usrMon} alt="Monitor" width="50" height="50" />
-                                    <Typography fontWeight="bold" color="#9C27B0" mt={1} sx={{ fontFamily: "Poppins", }}>
+                                    <Typography fontWeight="bold" color="#9963C3" mt={1} sx={{ fontFamily: "Poppins", }}>
                                         Monitor
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary" sx={{ fontFamily: "Poppins", }}>
@@ -1065,12 +1348,12 @@ const ManageAccounts: React.FC = () => {
                                 </Box>
                                 <Box
                                     sx={{
-                                        border: "2px solid #FBC02D",
+                                        border: "2px solid #DD8E27",
                                         borderRadius: 2,
                                         padding: 2,
                                         position: "relative",
                                         textAlign: "center",
-                                        width: "30%",
+                                        width: "224px", height: "224px",
                                         cursor: "pointer",
                                         backgroundColor: formData.profile === "Supervisor" ? "#FEF6E3" : "white",
                                     }}
@@ -1081,6 +1364,10 @@ const ManageAccounts: React.FC = () => {
                                             position: "absolute",
                                             top: 8,
                                             right: 8,
+                                            color: "#574B4FCC",
+                                            '&.Mui-checked': {
+                                                color: "#DD8E27"
+                                            }
                                         }}
                                     />
                                     <img src={usrSup} alt="Supervisor" width="50" height="50" />
@@ -1095,12 +1382,12 @@ const ManageAccounts: React.FC = () => {
                                 </Box>
                                 <Box
                                     sx={{
-                                        border: "2px solid #F48FB1",
+                                        border: "2px solid #FB8FB8",
                                         borderRadius: 2,
                                         padding: 2,
                                         position: "relative",
                                         textAlign: "center",
-                                        width: "30%",
+                                        width: "224px", height: "224px",
                                         cursor: "pointer",
                                         backgroundColor: formData.profile === "Administrador" ? "#FDEEF3" : "white",
                                     }}
@@ -1111,6 +1398,10 @@ const ManageAccounts: React.FC = () => {
                                             position: "absolute",
                                             top: 8,
                                             right: 8,
+                                            color: "#574B4FCC",
+                                            '&.Mui-checked': {
+                                                color: "#FB8FB8"
+                                            }
                                         }}
                                     />
                                     <img src={usrAdmin} alt="Administrador" width="50" height="50" />
@@ -1126,60 +1417,118 @@ const ManageAccounts: React.FC = () => {
                             </Box>
                         </RadioGroup>
 
+                        <Divider sx={{ my: 2, backgroundColor: "#F2F2F2" }} />
 
-
-
-                        <Divider sx={{ my: 2, backgroundColor: "#CCC" }} />
-
-                        <Box p={3}>
-                            <Typography variant="h6" fontWeight="bold" mb={2} sx={{ fontFamily: "Poppins", }}>
-                                Salas a las que podrá acceder <span style={{ color: "red" }}>*</span>
+                        <Box p={2}>
+                            <Typography variant="h6" fontWeight="bold" mb={2} mt={-2} sx={{ fontFamily: "Poppins", fontSize: "16px" }}>
+                                Salas a las que podrá acceder <span style={{ color: "red", }}>*</span>
                             </Typography>
-                            <Typography variant="body2" mb={2} sx={{ fontFamily: "Poppins", }}>
+                            <Typography variant="body2" mb={2} mt={-1} sx={{ fontFamily: "Poppins", color: "#574B4F", fontSize: "14px" }}>
                                 Seleccione las salas a las que el usuario tendrá acceso.
                             </Typography>
 
                             <Box display="flex" flexDirection="column" gap={2}>
-                                {/* Checkboxes principales */}
-                                <Box display="flex" alignItems="center" gap={4}>
-                                    {/* Checkbox "Todas" */}
+
+                                <Box display="flex" alignItems="center" gap={2}>
+
                                     <FormControlLabel
                                         control={
                                             <Checkbox
                                                 checked={areAllRoomsSelected}
                                                 onChange={(e) => handleSelectAll(e.target.checked)}
                                                 indeterminate={selectedRooms.length > 0 && selectedRooms.length < rooms.length}
-                                                sx={{
-                                                    color: '#6C3A52',
-                                                    '&.Mui-checked': { color: '#6C3A52' },
-                                                    marginLeft: '-5px',
-
-                                                }}
+                                                checkedIcon={
+                                                    <Box
+                                                        sx={{
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            position: 'relative',
+                                                            marginTop: '0px',
+                                                            marginLeft: '0px',
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={IconCheckBox1}
+                                                            alt="Seleccionado"
+                                                            style={{ width: '24px', height: '24px' }}
+                                                        />
+                                                    </Box>
+                                                }
+                                                indeterminateIcon={
+                                                    <Box
+                                                        sx={{
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            position: 'relative',
+                                                            marginTop: '0px',
+                                                            marginLeft: '0px',
+                                                            color: "#574B4FCC"
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={IconCheckBox2}
+                                                            alt="Indeterminado"
+                                                            style={{ width: '24px', height: '24px' }}
+                                                        />
+                                                    </Box>
+                                                }
                                             />
                                         }
-                                        label="Todas"
+                                        label={
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: '16px',
+                                                    fontWeight: 500,
+                                                    color: areAllRoomsSelected ? "#8F4D63" : "#574B4FCC"
+                                                }}
+                                            >
+                                                Todas
+                                            </Typography>
+                                        }
                                     />
 
-                                    {/* Checkbox "Todas y futuras" */}
                                     <FormControlLabel
                                         control={
                                             <Checkbox
                                                 checked={formData.allAndFuture}
                                                 onChange={(e) => handleSelectAllAndFuture(e.target.checked)}
-                                                sx={{
-                                                    color: '#6C3A52',
-                                                    '&.Mui-checked': { color: '#6C3A52' },
-                                                    marginLeft: '-5px',
-
-                                                }}
+                                                checkedIcon={
+                                                    <Box
+                                                        sx={{
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            position: 'relative',
+                                                            marginTop: '0px',
+                                                            marginLeft: '0px',
+                                                            color: "#574B4FCC"
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={IconCheckBox1}
+                                                            alt="Seleccionado"
+                                                            style={{ width: '24px', height: '24px' }}
+                                                        />
+                                                    </Box>
+                                                }
                                             />
                                         }
-                                        label="Todas y futuras"
+                                        label={
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: '16px',
+                                                    fontWeight: 500,
+                                                    color: formData.allAndFuture ? "#8F4D63" : "#574B4FCC"
+                                                }}
+                                            >
+                                                Todas y futuras
+                                            </Typography>
+                                        }
                                     />
                                 </Box>
 
 
-                                {/* Repetidor de Rooms */}
                                 {rooms.map((room) => (
                                     <Box
                                         key={room.id}
@@ -1187,23 +1536,40 @@ const ManageAccounts: React.FC = () => {
                                             position: "relative",
                                             marginBottom: 1,
                                             fontFamily: "Poppins",
-                                            marginLeft: "18px", // Mueve todo un poco a la derecha
+                                            marginLeft: "18px",
                                         }}
                                     >
-                                        {/* Checkbox fuera del recuadro */}
+
                                         <Checkbox
                                             checked={selectedRooms.includes(room.id)}
                                             onChange={() => handleCheckboxChange(room.id)}
                                             sx={{
                                                 position: "absolute",
-                                                left: -30, // Ajustado para mantener la posición del checkbox
+                                                left: -30,
                                                 top: "50%",
                                                 transform: "translateY(-50%)",
-                                                mt: 0, // Alineación precisa con el texto
-                                                color: "#6C3A52",
+                                                mt: 1,
+                                                color: "#574B4FCC",
                                                 '&.Mui-checked': { color: '#6C3A52' },
 
                                             }}
+                                            checkedIcon={
+                                                <Box
+                                                    sx={{
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        position: 'relative',
+                                                        marginTop: '0px',
+                                                        marginLeft: '0px',
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={IconCheckBox1}
+                                                        alt="Seleccionado"
+                                                        style={{ width: '24px', height: '24px' }}
+                                                    />
+                                                </Box>
+                                            }
                                         />
                                         <Paper
                                             sx={{
@@ -1212,32 +1578,51 @@ const ManageAccounts: React.FC = () => {
                                                 alignItems: "center",
                                                 padding: 2,
                                                 border: selectedRooms.includes(room.id)
-                                                    ? "2px solid #A05B71"
-                                                    : "1px solid #E0E0E0",
+                                                    ? "1px solid #83395366"
+                                                    : "1px solid #CED2D5CC",
                                                 backgroundColor: selectedRooms.includes(room.id)
-                                                    ? "#F8E1E7"
+                                                    ? "#EFEAEC"
                                                     : "#FFFFFF",
-                                                borderRadius: 2,
+                                                borderRadius: "8px",
                                                 flex: 1,
-                                                width: "50%", // Mantén el ancho del recuadro
-                                                height: "60px", // Mantén la altura del recuadro
-                                                boxSizing: "border-box",
+                                                width: "229px",
+                                                height: "47px",
+                                                mb: -1.5
                                             }}
                                         >
                                             <Grid container alignItems="center" flex={1}>
                                                 <Grid item display="flex" alignItems="center">
-                                                    <HomeIcon
+                                                    <Box
                                                         sx={{
-                                                            backgroundColor: "#B0B0B0",
+                                                            backgroundColor: selectedRooms.includes(room.id)
+                                                                ? "#833953"
+                                                                : "#796E71",
                                                             borderRadius: "50%",
-                                                            padding: "8px",
-                                                            fontSize: 40,
+                                                            width: "26px",
+                                                            height: "26px",
                                                             color: "white",
                                                             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                                                             marginRight: "16px",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
                                                         }}
-                                                    />
-                                                    <Typography fontWeight="bold" color="#5A2836">
+                                                    >
+                                                        <img
+                                                            src={IconHouse}
+                                                            alt="HouseIcon"
+                                                            width="14px"
+                                                            height="14px"
+                                                            color="#FFFFFF"
+                                                            style={{ display: 'block' }}
+                                                        />
+                                                    </Box>
+                                                    <Typography sx={{
+                                                        fontWeight: "bold",
+                                                        color: selectedRooms.includes(room.id)
+                                                            ? "#833953"
+                                                            : "#574B4F",
+                                                    }}>
                                                         {room.name}
                                                     </Typography>
                                                 </Grid>
@@ -1246,23 +1631,18 @@ const ManageAccounts: React.FC = () => {
                                     </Box>
                                 ))}
 
-
-
-
                             </Box>
                         </Box>
                     </Box>
-
-                    {/* Buttons */}
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 1.5 }} />
                     <Box
                         sx={{
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            borderTop: "1px solid #ddd",
-                            px: 2,
-                            pt: 2,
-                            pb: -6, // 🔽 menos padding abajo
+                            mt: 1,
+                            mb: -2
+
                         }}
                     >
                         <SecondaryButton onClick={handleCloseModal} text="Cancelar" />
@@ -1352,34 +1732,51 @@ const ManageAccounts: React.FC = () => {
                         top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
-                        width: 400,
+                        width: "480px",
+                        height: "228px",
                         bgcolor: "background.paper",
                         borderRadius: 2,
                         boxShadow: 24,
                         p: 4,
                     }}
                 >
-                    <Typography variant="h6" component="h2">
+                    <Typography
+                        sx={{
+                            fontFamily: 'Poppins',
+                            fontSize: '20px',
+                            color: '#574B4F',
+                            fontWeight: 600
+                        }}
+                    >
                         Error al agregar un usuario
                     </Typography>
-                    <Typography sx={{ mt: 2 }}>{errorMessage}</Typography>
+                    {/*{errorMessage} pendiente de confirmación con supervisor*/}
+                    <Typography sx={{
+                        mt: 2,
+                        fontFamily: 'Poppins',
+                        fontSize: '16px',
+                        color: '#574B4F',
+                        fontWeight: 500
+                    }}>Algo salió mal. Inténtelo de nuevo o regrese más tarde.</Typography>
+
                     <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
                         <Button
                             onClick={() => {
-                                setErrorModalOpen(false); // Cierra el modal
+                                setErrorModalOpen(false);
                             }}
                             sx={{
-                                color: "#8F4D63", // Color del texto
-                                fontWeight: "bold", // Negrita
-                                backgroundColor: "transparent", // Fondo transparente
-                                border: "none", // Sin bordes
-                                fontSize: "16px", // Tamaño del texto
-                                letterSpacing: "2px", // Espaciado entre letras
-                                textTransform: "uppercase", // Texto en mayúsculas
-                                boxShadow: "none", // Sin sombra
+                                marginTop: "25px",
+                                right: -15,
+                                color: "#833A53",
+                                fontWeight: 600,
+                                backgroundColor: "transparent",
+                                border: "none",
+                                fontSize: "14px",
+                                letterSpacing: "1.12px",
+                                textTransform: "uppercase",
+                                boxShadow: "none",
                                 '&:hover': {
-                                    backgroundColor: "transparent", // Fondo transparente en hover
-                                    textDecoration: "underline", // Subrayado en hover
+                                    backgroundColor: "transparent",
                                 },
                             }}
                         >

@@ -117,7 +117,7 @@ const pages: Page[] = [
     },
     { id: 6, title: 'Ayuda', path: '/help', icon: <img src={Iconhelpu} alt="Ayuda" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />, hasSubMenus: false, subMenus: [] },
 
-    // Opciones del botón de usuario
+
     { id: 7, title: 'Editar cuenta', path: '/ManageAccount', icon: <EditIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 8, title: 'Administrar cuentas', path: '/UserAdministration', icon: <PeopleAltIcon sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
     { id: 9, title: 'Cerrar sesión', path: '', icon: <Avatar sx={{ color: 'white' }} />, hasSubMenus: false, subMenus: [] },
@@ -127,7 +127,7 @@ type Room = {
     id: string | number;
     name: string;
     client: string;
-    description: string; // Ajustado desde "dscription"
+    description: string;
     credits: number;
     long_sms: number;
     calls: number;
@@ -378,17 +378,17 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         if (anchorEl) {
-            setAnchorEl(null); // Si ya está abierto, lo cierra
+            setAnchorEl(null);
         } else {
-            setAnchorEl(event.currentTarget); // Si está cerrado, lo abre
-        }  // Establecer correctamente el anchorEl
+            setAnchorEl(event.currentTarget);
+        }
     };
 
     //const handleMenuClose = () => {
     //    setAnchorEl(null);
     //};
 
-    // Función para seleccionar una sala
+
     const handleRoomChange = (room: Room) => {
         setSelectedRoom(room);
         localStorage.setItem('selectedRoom', JSON.stringify(room));
@@ -463,7 +463,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             display: 'flex',
                             alignItems: 'center',
                             position: 'relative',
-                            marginRight: '50px', // Ajusta este valor para mover toda la sección hacia la izquierda
+                            marginRight: '50px',
                         }}
                     >
                         {/* Buscador */}
@@ -480,7 +480,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     bgcolor: 'background.paper',
                                     borderRadius: '5px',
                                     boxShadow: 2,
-                                    border: '1px solid #7B354D', // Borde del mismo color que las letras
+                                    border: '1px solid #7B354D',
                                     height: '40px',
                                     width: '300px',
                                 }}
@@ -558,7 +558,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                                             fontFamily: 'Poppins, sans-serif',
                                                             fontSize: '16px',
                                                             lineHeight: '25px',
-                                                            color: '#7B354D', // Color del texto
+                                                            color: '#7B354D',
                                                         }}
                                                     >
                                                         {page.title}
@@ -678,8 +678,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             onClick={handleMenuOpen}
                             sx={{
                                 color: 'black',
-                                transform: anchorEl ? 'rotate(180deg)' : 'rotate(0deg)', // Cambia la rotación si está abierto
-                                transition: 'transform 0.3s ease-in-out', // Agrega animación para suavizar el giro
+                                transform: anchorEl ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s ease-in-out',
                             }}
                         >
 
@@ -695,13 +695,13 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 {
                                     name: 'offset',
                                     options: {
-                                        offset: [-120, 8], // Ajusta el desplazamiento (horizontal, vertical)
+                                        offset: [-120, 8],
                                     },
                                 },
                                 {
                                     name: 'preventOverflow',
                                     options: {
-                                        boundary: 'window', // Evita que se salga de los bordes de la ventana
+                                        boundary: 'window',
                                     },
                                 },
                             ]}
@@ -729,7 +729,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             padding: '2px 8px',
                                             '& .MuiInputAdornment-root': {
                                                 position: 'absolute',
-                                                right: 0, // Lupa alineada a la derecha dentro del recuadro
+                                                right: 0,
                                                 marginRight: '8px',
                                             },
                                         },
@@ -827,7 +827,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             src={IconUser}
                             alt="User Icon"
                             style={{
-                                width: '40px',  // Ajusta el tamaño si es necesario
+                                width: '40px',
                                 height: '40px',
                             }}
                         />
@@ -838,14 +838,14 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             alt="Chevron Icon"
                             style={{
                                 position: 'absolute',
-                                bottom: '2px', // Ajusta la posición para que quede sobre el icono grande
+                                bottom: '2px',
                                 right: '2px',
-                                width: '14px', // Tamaño de la flecha
+                                width: '14px',
                                 height: '14px',
-                                backgroundColor: '#B0B0B0', // Color de fondo si es necesario
-                                borderRadius: '50%', // Para que sea redondo
-                                padding: '2px', // Ajusta el espacio dentro del círculo
-                                transition: 'transform 0.3s ease-in-out', // ✨ Animación suave
+                                backgroundColor: '#B0B0B0',
+                                borderRadius: '50%',
+                                padding: '2px',
+                                transition: 'transform 0.3s ease-in-out',
                                 transform: anchorElUser ? 'rotate(180deg)' : 'rotate(0deg)',
                             }}
                         />
@@ -862,14 +862,14 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         sx={{
                             mt: 1,
                             '& .MuiMenuItem-root': {
-                                padding: '8px 16px', // Reduce el padding interno superior e inferior
-                                margin: 0, // Elimina márgenes entre los elementos
+                                padding: '8px 16px',
+                                margin: 0,
                             },
                             '& .MuiTypography-root': {
-                                lineHeight: '1.2', // Ajusta la altura de línea para textos más compactos
+                                lineHeight: '1.2',
                             },
                             '& .MuiMenu-paper': {
-                                transform: 'translateX(-20px) !important', // 📌 Mueve el menú más a la izquierda
+                                transform: 'translateX(-20px) !important',
                             },
                         }}
                         anchorOrigin={{
@@ -883,7 +883,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     >
                         <MenuItem onClick={() => navigate('/ManageAccount')} sx={{
                             '&:hover': {
-                                background: '#F2EBED 0% 0% no-repeat padding-box', // ✨ Efecto hover
+                                background: '#F2EBED 0% 0% no-repeat padding-box',
                                 opacity: 1,
                             },
                         }}>
@@ -949,7 +949,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         </MenuItem>
                         <MenuItem onClick={handleLogout} sx={{
                             '&:hover': {
-                                background: '#F2EBED 0% 0% no-repeat padding-box', // ✨ Efecto hover
+                                background: '#F2EBED 0% 0% no-repeat padding-box',
                                 opacity: 1,
                             },
                         }}>
@@ -988,16 +988,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
 
                 <Box
                     sx={{
-                        position: 'relative', // Esto permite posicionar elementos absolutos dentro
-                        background: '#FFFFFF', // Fondo blanco
+                        position: 'relative',
+                        background: '#FFFFFF',
                         border: '1px solid #DDD8DA',
                         borderRadius: '12px',
                         padding: '16px',
                         display: 'flex',
                         flexDirection: 'column',
-                        width: '90%', // Mantener el ancho del contenedor principal
+                        width: '90%',
                         marginX: 'auto',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Sombra general
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                         marginTop: '10px',
                     }}
                 >
@@ -1005,7 +1005,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                     <Box
                         sx={{
                             display: 'flex',
-                            justifyContent: 'space-between', // Asegura que los elementos se separen
+                            justifyContent: 'space-between',
                             alignItems: 'center',
                             marginBottom: '16px',
                         }}
@@ -1013,11 +1013,11 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         {/* Créditos totales con sombra */}
                         <Box
                             sx={{
-                                background: '#DDD8D933', // Fondo semitransparente
+                                background: '#DDD8D933',
                                 border: '1px solid #DDD8DA',
                                 borderRadius: '8px',
                                 padding: '12px',
-                                width: '80%', // Más pequeño y pegado a la izquierda
+                                width: '80%',
                             }}
                         >
                             <Typography
@@ -1027,7 +1027,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     letterSpacing: '-0.5px',
                                     color: '#574B4F',
                                     opacity: 1,
-                                    fontSize: '15px', // Esto asegura que el tamaño de fuente sea correcto
+                                    fontSize: '15px',
                                 }}
                             >
                                 Créditos Totales SMS
@@ -1040,7 +1040,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                     letterSpacing: '0px',
                                     color: '#330F1B',
                                     opacity: 1,
-                                    fontSize: '18px', // Estilo para los valores numéricos debajo
+                                    fontSize: '18px',
                                     marginBottom: '-8px'
                                 }}
                             >
@@ -1064,7 +1064,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             letterSpacing: '0px',
                                             color: '#574B4F',
                                             opacity: 1,
-                                            fontSize: '14px', // Ajuste preciso del tamaño de fuente
+                                            fontSize: '14px',
                                             marginBottom: '8px'
                                         }}
                                     >
@@ -1079,7 +1079,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             color: '#330F1B',
                                             opacity: 1,
                                             marginBottom: '-4px',
-                                            fontSize: '16px', // Estilo para los valores numéricos debajo
+                                            fontSize: '16px',
                                         }}
                                     >
                                         {selectedRoom?.short_sms || 0}
@@ -1093,7 +1093,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                             letterSpacing: '0px',
                                             color: '#574B4F',
                                             opacity: 1,
-                                            fontSize: '15px', // Ajuste preciso del tamaño de fuente
+                                            fontSize: '15px',
                                         }}
                                     >
                                         # Largos
@@ -1120,16 +1120,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         {/* Contenedor para los dos botones (el de cambio y el dropdown) */}
                         <Box
                             sx={{
-                                position: 'absolute', // Se posiciona en relación con el contenedor padre
-                                top: '35%', // Lo centra verticalmente
-                                right: '5px', // Se acerca al borde derecho
-                                transform: 'translateY(-50%)', // Corrige la alineación exacta
+                                position: 'absolute',
+                                top: '35%',
+                                right: '5px',
+                                transform: 'translateY(-50%)',
                                 display: 'flex',
-                                flexDirection: 'column', // Asegura que los botones estén alineados en columna
+                                flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                gap: '6px', // Espacio entre los dos botones
-                                zIndex: 10, // Asegura que no se quede detrás de otros elementos
+                                gap: '6px',
+                                zIndex: 10,
                             }}
                         >
                             {/* Botón cuadrado con icono de cambio */}
@@ -1263,13 +1263,13 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 width: '109px',
                                 height: '32px',
                                 '&:hover': {
-                                    background: '#F2E9EC 0% 0% no-repeat padding-box', // Color al pasar el mouse
-                                    borderRadius: '4px', // Redondeo al hover
-                                    opacity: 1, // Asegura que se vea correctamente
+                                    background: '#F2E9EC 0% 0% no-repeat padding-box',
+                                    borderRadius: '4px',
+                                    opacity: 1,
                                 },
                                 '&:active': {
-                                    background: '#E6C2CD 0% 0% no-repeat padding-box', // Color al presionar
-                                    border: '1px solid #BE93A0', // Borde definido
+                                    background: '#E6C2CD 0% 0% no-repeat padding-box',
+                                    border: '1px solid #BE93A0',
                                     borderRadius: '4px',
                                     opacity: 1,
                                 },
@@ -1292,13 +1292,13 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 width: '109px',
                                 height: '32px',
                                 '&:hover': {
-                                    background: '#F2E9EC 0% 0% no-repeat padding-box', // Color al pasar el mouse
-                                    borderRadius: '4px', // Redondeo al hover
-                                    opacity: 1, // Asegura que se vea correctamente
+                                    background: '#F2E9EC 0% 0% no-repeat padding-box',
+                                    borderRadius: '4px',
+                                    opacity: 1,
                                 },
                                 '&:active': {
-                                    background: '#E6C2CD 0% 0% no-repeat padding-box', // Color al presionar
-                                    border: '1px solid #BE93A0', // Borde definido
+                                    background: '#E6C2CD 0% 0% no-repeat padding-box',
+                                    border: '1px solid #BE93A0',
                                     borderRadius: '4px',
                                     opacity: 1,
                                 },
@@ -1942,6 +1942,26 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         {' Nuxiba. Todos los derechos reservados. Se prohíbe el uso no autorizado.'}
                     </Typography>
                     <img src={nuxiba_svg} alt="Nuxiba Logo" width="80" />
+                    <Fab
+                        aria-label="help"
+                        onClick={handleDownload}
+                        sx={{
+                            position: "fixed",
+                            bottom: 70,
+                            right: 30,
+                            zIndex: 1500,
+                            width: "60px",
+                            height: "60px",
+                            backgroundColor: "#FFFFFF",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                            border: "1px solid #D9C5CB",
+                            "&:hover": {
+                                background: "#EBE5E7 0% 0% no-repeat padding-box",
+                                boxShadow: "0px 8px 16px #00131F14",
+                                border: "1px solid #D9C5CB",
+                            },
+                        }}
+                    >
 
                     {location.pathname === '/' && (
                         <Tooltip
@@ -2029,8 +2049,8 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                 aria-labelledby="modal-title"
                 aria-describedby="modal-description"
                 sx={{
-                    backdropFilter: "blur(4px)", // Fondo desenfocado
-                    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo gris semitransparente
+                    backdropFilter: "blur(4px)",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
                 }}
             >
                 <Box
@@ -2081,37 +2101,37 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                             letterSpacing: "0px",
                             color: "#330F1B",
                             opacity: 1,
-                            fontSize: "18px", // Tamaño ajustado a 18px
+                            fontSize: "18px",
                             marginBottom: "10px",
                         }}
                     >
                         Por favor, contáctenos:
                     </Typography>
 
-                    <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1}> {/* Reducir espacio entre columnas */}
+                    <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1}>
                         {/* Horarios de atención */}
                         <Box>
                             <Typography
                                 sx={{
                                     font: "normal normal medium 16px/54px Poppins",
                                     color: "#574B4F",
-                                    mb: 0.5, // Reducir margen inferior
+                                    mb: 0.5,
                                 }}
                             >
                                 Horarios de atención
                             </Typography>
                             <Typography
                                 sx={{
-                                    font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
+                                    font: "normal normal normal 14px/20px Poppins",
                                     color: "#574B4F",
-                                    mb: 0.5, // Reducir margen entre elementos
+                                    mb: 0.5,
                                 }}
                             >
                                 Lunes a viernes
                             </Typography>
                             <Typography
                                 sx={{
-                                    font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
+                                    font: "normal normal normal 14px/20px Poppins",
                                     color: "#574B4F",
                                 }}
                             >
@@ -2125,16 +2145,16 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                                 sx={{
                                     font: "normal normal medium 16px/54px Poppins",
                                     color: "#574B4F",
-                                    mb: 0.5, // Reducir margen inferior
+                                    mb: 0.5,
                                 }}
                             >
                                 Línea de emergencia
                             </Typography>
                             <Typography
                                 sx={{
-                                    font: "normal normal normal 14px/20px Poppins", // Reducir espacio entre líneas
+                                    font: "normal normal normal 14px/20px Poppins",
                                     color: "#574B4F",
-                                    mb: 0.5, // Reducir margen entre elementos
+                                    mb: 0.5,
                                 }}
                             >
                                 Lunes a viernes 21:00-07:00
@@ -2209,7 +2229,7 @@ const NavBarAndDrawer: React.FC<Props> = props => {
                         </Box>
                     </Box>
 
-                    {/* Línea horizontal */}
+
                     <Box
                         sx={{
                             borderBottom: "1px solid #E6E4E4",

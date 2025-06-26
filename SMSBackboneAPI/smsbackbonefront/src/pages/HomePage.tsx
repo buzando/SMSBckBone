@@ -7,7 +7,7 @@ import infoiconerror from '../assets/Icon-infoerror.svg'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import MainButton from '../components/commons/MainButton'
 import SecondaryButton from '../components/commons/SecondaryButton'
-import { styled } from '@mui/system';
+import { fontFamily, height, letterSpacing, styled, textTransform, width } from '@mui/system';
 import { ReactNode } from 'react';
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import BoxEmpty from '../assets/Nousers.svg';
@@ -31,7 +31,7 @@ const HomePage: React.FC = () => {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [activeButton, setActiveButton] = useState<string | null>(null);
-    const [phoneNumbers, setPhoneNumbers] = useState([""]); // Inicia con un solo input
+    const [phoneNumbers, setPhoneNumbers] = useState([""]);
     const [errors, setErrors] = useState<boolean[]>(Array(phoneNumbers.length).fill(false)); // Array de errores
     const [selectedOption, setSelectedOption] = useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -248,7 +248,7 @@ const HomePage: React.FC = () => {
         setOpenControlModal(false);
     };
 
-    // Tooltip personalizado sin `theme`
+
     const CustomTooltip = styled(({ className, ...props }) => (
         <Tooltip {...props} classes={{ popper: className }} arrow placement="bottom" />
     ))(() => ({
@@ -281,13 +281,27 @@ const HomePage: React.FC = () => {
     }, []);
 
     return (
-        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+        <div style={{
+            padding: '30px',
+            maxWidth: "1140px",
+            height: '1000px',
+            backgroundColor: '#F2F2F2',
+            display: 'flex',
+            flexDirection: 'column',
+            marginTop: "-70px"
+        }}>
 
             {/* Header con título */}
-            <Typography variant="h4" component="h1" style={{ textAlign: 'left', color: '#330F1B', fontFamily: "Poppins", fontSize: "26px", opacity: 1, marginTop: "-10px" }}>
+            <Typography variant="h4" component="h1" style={{
+                textAlign: 'left', color: '#330F1B', fontFamily: "Poppins",
+                fontSize: "26px", opacity: 1, marginTop: "-10px", marginLeft: "15px"
+            }}>
                 {firstname ? `¡Bienvenido de vuelta, ${firstname}!` : '¡Bienvenido!'}
             </Typography>
-            <Typography variant="body1" style={{ textAlign: 'left', color: '#574B4F', fontFamily: "Poppins", fontSize: "18px", opacity: 1, marginBottom: '20px' }}>
+            <Typography variant="body1" style={{
+                textAlign: 'left', color: '#574B4F', fontFamily: "Poppins",
+                fontSize: "18px", opacity: 1, marginBottom: '20px', marginLeft: "15px"
+            }}>
                 Te mostramos el resumen de tu actividad más reciente.
             </Typography>
 
@@ -301,16 +315,17 @@ const HomePage: React.FC = () => {
                     aria-describedby={id}
 
                 >
-                    {selectedOption ? `SMS # ${selectedOption.toUpperCase()}` : "Canal"}
+                    {selectedOption ? `SMS # ${selectedOption.toUpperCase()}` : "CANAL"}
                 </Button>
                 <Popper id={id} open={isPopperOpen} anchorEl={anchorEl} placement="bottom-start">
                     <Paper sx={{
                         fontFamily: "Poppins",
-                        width: '280px',  // Ancho del Popper
-                        height: '160px', // Alto del Popper
+                        width: '280px',
+                        height: '157px',
                         padding: '10px',
                         borderRadius: '8px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)'
+                        boxShadow: '0px 8px 16px #00131F29',
+                        border: "1px solid #C6BFC2"
 
                     }}>
                         <RadioGroup
@@ -323,6 +338,9 @@ const HomePage: React.FC = () => {
                                 control={
                                     <Radio
                                         sx={{
+                                            marginLeft: "8px",
+                                            marginTop: "-3px",
+                                            marginBottom: "-10px",
                                             fontFamily: "Poppins",
                                             color: "#000000",
                                             "&.Mui-checked": {
@@ -335,13 +353,19 @@ const HomePage: React.FC = () => {
                                     />
                                 }
 
-                                label="SMS # cortos"
-                                sx={{
-
-                                    color: selectedOption === "corto" ? "#8F4D63" : "#000000",
-                                    fontWeight: selectedOption === "corto" ? "bold" : "normal",
-                                    fontFamily: "Poppins, sans-serif",
-                                }}
+                                label={
+                                    <Typography
+                                        sx={{
+                                            marginBottom: "-8px",
+                                            fontFamily: 'Poppins',
+                                            fontSize: '16px',
+                                            fontWeight: selectedOption === 'corto' ? 500 : 'normal',
+                                            color: selectedOption === 'corto' ? '#8F4D63' : '#574B4F',
+                                        }}
+                                    >
+                                        SMS # cortos
+                                    </Typography>
+                                }
                             />
 
                             <FormControlLabel
@@ -349,6 +373,7 @@ const HomePage: React.FC = () => {
                                 control={
                                     <Radio
                                         sx={{
+                                            marginLeft: "8px",
 
                                             color: "#000000",
                                             "&.Mui-checked": {
@@ -360,27 +385,31 @@ const HomePage: React.FC = () => {
                                         }}
                                     />
                                 }
-                                label="SMS # largos"
+                                label={
+                                    <Typography
+                                        sx={{
 
-                                sx={{
-
-                                    color: selectedOption === "largo" ? "#8F4D63" : "#000000",
-                                    fontWeight: selectedOption === "largo" ? "bold" : "normal",
-                                    fontFamily: "Poppins, sans-serif",
-                                }}
+                                            fontFamily: 'Poppins',
+                                            fontSize: '16px',
+                                            fontWeight: selectedOption === 'largos' ? 500 : 'normal',
+                                            color: selectedOption === 'largos' ? '#8F4D63' : '#574B4F',
+                                        }}
+                                    >
+                                        SMS # largos
+                                    </Typography>
+                                }
                             />
                         </RadioGroup>
-                        <Divider sx={{ margin: '10px 0' }} />
+                        <Divider sx={{ width: 'calc(100% + 21px)', marginLeft: '-10px', mb: 2, mt: 0.5 }} />
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
                             <SecondaryButton text='Limpiar' onClick={handleClear} />
                             <MainButton text='Aplicar' onClick={handleApply} />
                         </Box>
                     </Paper>
                 </Popper>
-                {/* Botones de la derecha alineados */}
-                {!!enableButtons && (
-                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-start', transform: 'translateX(-330px)' }}>
 
+                {!!enableButtons && (
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                         <Button
                             onClick={() => navigate('/Use')}
 
@@ -467,7 +496,7 @@ const HomePage: React.FC = () => {
 
 
             {!showData && (
-                <Box sx={{ textAlign: 'center', marginTop: '150px', marginLeft: '-400px' }}>
+                <Box sx={{ textAlign: 'center', marginTop: '150px', marginLeft: '0px' }}>
                     <Box component="img" src={BoxEmpty} alt="Caja Vacía" sx={{ width: '250px', height: 'auto' }} />
                     <Typography sx={{ marginTop: '10px', color: '#8F4D63', fontWeight: '500', fontFamily: 'Poppins' }}>
                         Seleccione un canal para continuar.
@@ -847,30 +876,42 @@ const HomePage: React.FC = () => {
 
                 </Grid>
             )}
-            {/* Modal */}
+
             <Modal open={open} onClose={handleClose} aria-labelledby="quick-send-title">
                 <Box sx={modalStyle}>
-                    {/* Encabezado */}
+
                     <Box sx={headerStyle}>
-                        <Typography id="quick-send-title" sx={titleStyle}>
+                        <Typography id="quick-send-title" sx={{
+                            marginTop: "-10px",
+                            textAlign: 'left',
+                            fontWeight: 600,
+                            fontSize: '20px',
+                            lineHeight: '54px',
+                            fontFamily: 'Poppins, sans-serif',
+                            letterSpacing: '0px',
+                            color: '#574B4F',
+                            opacity: 1
+                        }}>
                             Envío rápido
                         </Typography>
                         <IconButton onClick={handleClose}>
-                            <CloseIcon />
+                            <CloseIcon sx={{
+                                position: "absolute",
+                                marginTop: "-35px", marginLeft: "0px"
+                            }} />
                         </IconButton>
                     </Box>
-                    <Divider sx={dividerStyle} />
+                    <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 1.5 }} />
 
-                    {/* Contenedor con scroll solo vertical */}
                     <Box sx={{
                         flexGrow: 1,
                         overflowY: 'auto',
-                        overflowX: 'hidden',  // 🔥 Evita scroll horizontal
+                        overflowX: 'hidden',
                         maxHeight: 'calc(100% - 120px)',
                         paddingRight: '10px',
                     }}>
-                        {/* Campo de teléfono */}
-                        <Box sx={{ marginBottom: '24px' }}> {/* 🔥 Espacio extra antes del mensaje */}
+
+                        <Box sx={{ marginBottom: '24px' }}>
                             <Typography variant="body1" sx={{ ...labelStyle, marginBottom: '6px' }}>Teléfono(s)</Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
                                 {phoneNumbers.map((phone, index) => (
@@ -1250,16 +1291,7 @@ const buttonContainer = {
     marginTop: '20px',
 };
 
-const titleStyle = {
-    textAlign: 'left',
-    fontWeight: 600,
-    fontSize: '20px',
-    lineHeight: '54px',
-    fontFamily: 'Poppins, sans-serif',
-    letterSpacing: '0px',
-    color: '#574B4F',
-    opacity: 1
-};
+
 const dividerStyle = {
     width: '100%',
     height: '1px',
@@ -1267,13 +1299,17 @@ const dividerStyle = {
     marginBottom: '15px',
 };
 const buttonStyle = {
+    marginLeft: "15px",
     background: '#FFFFFF',
     border: '1px solid #C6BFC2',
     borderRadius: '18px',
     padding: '8px 16px',
-    fontWeight: 'bold',
-    color: '#8F4D63',
-    textTransform: 'none',
+    fontWeight: 500,
+    color: '#330F1B',
+    minWidth: "96px", height: "36px",
+    textTransform: "uppercase",
+    fontFamily: "Poppins",
+    letterSpacing: "1.12px",
     opacity: 1,
     '&:hover': {
         background: '#F2E9EC',

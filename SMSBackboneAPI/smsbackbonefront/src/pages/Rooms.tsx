@@ -17,6 +17,9 @@ import {
 } from "@mui/material";
 import ChipBar from "../components/commons/ChipBar";
 import AddIcon from "@mui/icons-material/Add";
+import SecondaryButton from '../components/commons/SecondaryButton'
+import Thrashicon from '../assets/Icon-trash-Card.svg'
+import CloseIcon from '@mui/icons-material/Close';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import HomeIcon from "@mui/icons-material/Home";
 import EditIcon from '@mui/icons-material/Edit';
@@ -101,9 +104,9 @@ const Rooms: React.FC = () => {
                 );
 
                 if (response.status === 200) {
-                    setShowDeleteChipBar(true); // Mostrar ChipBar para eliminación exitosa
+                    setShowDeleteChipBar(true);
                     setTimeout(() => setShowDeleteChipBar(false), 3000);
-                    GetRooms(); // Refresca la lista de salas
+                    GetRooms();
                 }
             } catch {
                 handleOpenErrorModal("Error al eliminar sala");
@@ -141,7 +144,11 @@ const Rooms: React.FC = () => {
     }, []);
 
     const handleOpenModal = () => setModalOpen(true);
-    const handleCloseModal = () => setModalOpen(false);
+    const handleCloseModal = () => {
+        setModalOpen(false);
+        setNewRoom({ name: "", description: "" });
+        setErrors({ name: false, description: false });
+    };
 
     const handleOpenEditModal = () => {
         if (selectedRoom!) {
@@ -156,7 +163,7 @@ const Rooms: React.FC = () => {
 
     const handleCloseEditModal = () => {
         setEditModalOpen(false);
-        setSelectedRoom(null); // Limpia el room seleccionado
+        setSelectedRoom(null);
     };
 
     const handleUpdateRoom = async () => {
@@ -193,9 +200,9 @@ const Rooms: React.FC = () => {
 
             console.log(`Response: ${response}`);
             if (response.status === 200) {
-                setShowEditChipBar(true); // Mostrar ChipBar para edición exitosa
+                setShowEditChipBar(true);
                 setTimeout(() => setShowEditChipBar(false), 3000);
-                // Refresca la lista de salas después de la actualización
+
                 GetRooms();
             }
         } catch {
@@ -248,7 +255,7 @@ const Rooms: React.FC = () => {
         } catch {
             handleOpenErrorModal("Error al crear sala");
         }
-        // Logic to create a new room
+
         console.log("Room Created:", newRoom);
         GetRooms();
         handleCloseModal();
@@ -267,12 +274,12 @@ const Rooms: React.FC = () => {
     };
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, room: Room) => {
-        setMenuAnchorEl(event.currentTarget); // Abre el menú contextual
-        setSelectedRoom(room); // Selecciona el room correctamente
+        setMenuAnchorEl(event.currentTarget);
+        setSelectedRoom(room);
     };
 
     const handleMenuClose = () => {
-        setMenuAnchorEl(null); // Cierra el menú
+        setMenuAnchorEl(null);
     };
 
     const clearSearch = () => {
@@ -280,7 +287,7 @@ const Rooms: React.FC = () => {
     };
 
     return (
-        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+        <Box p={3} sx={{ marginTop: "-80px", maxWidth: "1140px", height: 'calc(100vh - 64px)', }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')}
@@ -296,7 +303,7 @@ const Rooms: React.FC = () => {
                 <Typography
                     variant="h4"
                     fontFamily="Poppins"
-                    sx={{ color: "#5A2836", fontSize: '26px', }}
+                    sx={{ color: "#330F1B", fontSize: '26px', }}
                 >
                     Salas
                 </Typography>
@@ -310,8 +317,8 @@ const Rooms: React.FC = () => {
                         startIcon={<AddIcon />}
                         sx={{
                             backgroundColor: "#A05B71",
-                            height: "100%", // Asegura que coincida con la altura del input
-                            marginRight: "16px", // Espacio entre el botón y el buscador
+                            height: "100%",
+                            marginRight: "16px",
                         }}
                         onClick={handleOpenModal}
                     >
@@ -370,15 +377,15 @@ const Rooms: React.FC = () => {
                     <Box
                         sx={{
                             display: 'grid',
-                            gap: '16px',          // Espacio vertical (entre filas)
-                            columnGap: '24px',    // Espacio horizontal (entre columnas)
+                            gap: '16px',
+                            columnGap: '24px',
                             gridTemplateColumns: '500px 500px',
                         }}
                     >
                         {rooms.filter((room) => {
                             const term = searchTerm.toLowerCase();
-                            const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
-                            return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
+                            const nameWords = room.name.toLowerCase().split(" ");
+                            return nameWords.some((word) => word.startsWith(term));
                         }).length === 0 ? (
                             <Grid item xs={12}>
                                 <Box
@@ -393,18 +400,24 @@ const Rooms: React.FC = () => {
                                         src={NoResult}
                                         alt="No hay resultados"
                                         style={{
-                                            width: "150px", // Tamaño ajustable
-                                            height: "150px", // Tamaño ajustable
-                                            marginBottom: "16px", // Espacio debajo de la imagen
+                                            marginTop: 90,
+                                            marginLeft: 500,
+                                            width: "242px",
+                                            height: "168px",
+                                            marginBottom: "16px",
                                         }}
                                     />
                                     <Typography
                                         variant="body1"
                                         sx={{
+                                            position: "absolute",
+                                            marginTop: 40,
+                                            marginLeft: 64,
                                             textAlign: "center",
-                                            color: "#833A53",
-                                            fontWeight: "bold",
-                                            fontSize: "16px",
+                                            color: "#7B354D",
+                                            fontWeight: 500,
+                                            fontSize: "14px",
+                                            fontFamily: "Poppins"
                                         }}
                                     >
                                         No se encontraron resultados.
@@ -413,123 +426,168 @@ const Rooms: React.FC = () => {
                             </Grid>
 
                         ) : (
-                            rooms
-                                .filter((room) => {
-                                    const term = searchTerm.toLowerCase();
-                                    const nameWords = room.name.toLowerCase().split(" "); // Divide el nombre en palabras
-                                    return nameWords.some((word) => word.startsWith(term)); // Verifica si alguna palabra comienza con el término
-                                })
-                                .map((room) => (
-                                    <Grid item xs={12} sm={6} md={6} display="flex" justifyContent="flex-start"
-                                    >
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                backgroundColor: '#FFFFFF',
-                                                borderRadius: '8px',
-                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                                                padding: '16px',
-                                                width: '100%',
-                                                height: '108|px',
-                                                maxWidth: 600, // << Cambia este valor para ajustar el tamaño
-                                            }}
+                            <Box
+                                sx={{
+                                    width: "1140px",
+                                    maxHeight: '465px',
+                                    overflowY: 'auto',
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    flexDirection: 'row',
+                                    alignContent: 'flex-start',
+                                    gap: '18px 16px',
+                                }}
+                            >
+                                {rooms
+                                    .filter((room) => {
+                                        const term = searchTerm.toLowerCase();
+                                        const nameWords = room.name.toLowerCase().split(" ");
+                                        return nameWords.some((word) => word.startsWith(term));
+                                    })
+                                    .map((room) => (
+                                        <Grid item xs={12} sm={6} md={6} display="flex" justifyContent="flex-start"
+                                            width={"430px"} height={"101px"}
                                         >
-                                            {/* Left Section: Icon and Room Details */}
-                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                <HomeIcon
-                                                    sx={{
-                                                        backgroundColor: '#796E71',
-                                                        borderRadius: '50%',
-                                                        padding: '8px',
-                                                        fontSize: 40,
-                                                        color: 'white',
-                                                        width: "46px",
-                                                        height: "46px",
-                                                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                                                        marginRight: '16px',
-                                                    }}
-                                                />
-                                                <Box>
-                                                    <Typography
-                                                        variant="h6"
-                                                        sx={{ fontWeight: '500', fontSize: '16px', color: '#574B4F', fontFamily: "Poppins", }}
-                                                    >
-                                                        {room.name}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{ fontSize: '14px', color: '#574B4F', fontFamily: "Poppins", }}
-                                                    >
-                                                        Cliente: {room.cliente}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-
-                                            {/* Right Section: Metrics and Button */}
-                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                <Box sx={{ textAlign: 'right', marginRight: '16px' }}>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            fontSize: '14px',
-                                                            color: '#8D4B62',
-                                                            fontWeight: '500',
-                                                        }}
-                                                    >
-                                                        SMS cortos: {room.short_sms.toLocaleString()}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            fontSize: '14px',
-                                                            color: '#8D4B62',
-                                                            fontWeight: '500',
-                                                        }}
-                                                    >
-                                                        SMS largos: {room.long_sms.toLocaleString()}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            fontSize: '14px',
-                                                            color: '#8D4B62',
-                                                            fontWeight: '500',
-                                                        }}
-                                                    >
-                                                        Llamada: {room.calls.toLocaleString()}
-                                                    </Typography>
-                                                </Box>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    backgroundColor: '#FFFFFF',
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                                    padding: '16px',
+                                                    width: '100%',
+                                                    height: '108|px',
+                                                    maxWidth: 600,
+                                                }}
+                                            >
                                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                    <IconButton onClick={(event) => handleMenuOpen(event, room)}>
-                                                        <MoreVertIcon />
-                                                    </IconButton>
-                                                    <Menu
-                                                        anchorEl={menuAnchorEl}
-                                                        open={Boolean(menuAnchorEl)}
-                                                        onClose={handleMenuClose}
-                                                        PaperProps={{
-                                                            sx: {
-                                                                borderRadius: '8px',
-                                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                            },
+                                                    <HomeIcon
+                                                        sx={{
+                                                            backgroundColor: '#796E71',
+                                                            borderRadius: '50%',
+                                                            padding: '8px',
+                                                            fontSize: 40,
+                                                            color: 'white',
+                                                            width: "46px",
+                                                            height: "46px",
+                                                            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                                                            marginRight: '16px',
                                                         }}
-                                                    >
-                                                        <MenuItem onClick={handleOpenEditModal}>
-                                                            <EditIcon sx={{ marginRight: 1, color: '#A05B71' }} />
-                                                            <Typography>Editar</Typography>
-                                                        </MenuItem>
-                                                        <MenuItem onClick={() => handleOpenDeleteModal(room)}>
-                                                            <DeleteIcon sx={{ marginRight: 1, color: '#A05B71' }} />
-                                                            <Typography>Eliminar</Typography>
-                                                        </MenuItem>
-                                                    </Menu>
+                                                    />
+                                                    <Box>
+                                                        <Typography
+                                                            variant="h6"
+                                                            sx={{ fontWeight: '500', fontSize: '16px', color: '#574B4F', fontFamily: "Poppins", }}
+                                                        >
+                                                            {room.name}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{ fontSize: '14px', color: '#574B4F', fontFamily: "Poppins", }}
+                                                        >
+                                                            Cliente: {room.cliente}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+
+                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                    <Box sx={{ textAlign: 'right', marginRight: '16px' }}>
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                fontSize: '14px',
+                                                                color: '#8D4B62',
+                                                                fontWeight: '500',
+                                                                fontFamily: "Poppins"
+                                                            }}
+                                                        >
+                                                            SMS cortos: {room.short_sms.toLocaleString()}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                fontSize: '14px',
+                                                                color: '#8D4B62',
+                                                                fontWeight: '500',
+                                                                fontFamily: "Poppins"
+                                                            }}
+                                                        >
+                                                            SMS largos: {room.long_sms.toLocaleString()}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                fontSize: '14px',
+                                                                color: '#8D4B62',
+                                                                fontWeight: '500',
+                                                                fontFamily: "Poppins"
+                                                            }}
+                                                        >
+                                                            Llamada: {room.calls.toLocaleString()}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                        <IconButton onClick={(event) => handleMenuOpen(event, room)}>
+                                                            <MoreVertIcon />
+                                                        </IconButton>
+                                                        <Menu
+                                                            anchorEl={menuAnchorEl}
+                                                            open={Boolean(menuAnchorEl)}
+                                                            onClose={handleMenuClose}
+                                                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                                            PaperProps={{
+                                                                sx: {
+                                                                    borderRadius: '8px',
+                                                                    boxShadow: '0px 8px 16px #00131F3D',
+                                                                },
+                                                            }}
+                                                        >
+                                                            <MenuItem onClick={handleOpenEditModal}
+                                                                sx={{
+                                                                    width: "184px", height: "40px",
+                                                                    fontFamily: 'Poppins',
+                                                                    fontSize: '14px',
+                                                                    '&:hover': {
+                                                                        backgroundColor: '#F2EBED'
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <EditIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                                                                <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#583B43" }}>
+
+                                                                    Editar
+                                                                </Typography>
+                                                            </MenuItem>
+                                                            <MenuItem onClick={() => handleOpenDeleteModal(room)}
+                                                                sx={{
+                                                                    fontFamily: 'Poppins',
+                                                                    fontSize: '14px',
+                                                                    '&:hover': {
+                                                                        backgroundColor: '#F2EBED'
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <Box display="flex" alignItems="center" gap={1}>
+                                                                    <img
+                                                                        src={Thrashicon}
+                                                                        alt="Eliminar"
+                                                                        style={{ width: 24, height: 24, color: '#5F5064' }}
+                                                                    />
+                                                                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
+                                                                        Eliminar
+                                                                    </Typography>
+                                                                </Box>
+                                                            </MenuItem>
+                                                        </Menu>
+                                                    </Box>
                                                 </Box>
                                             </Box>
-                                        </Box>
-                                    </Grid> //Cerración del GRID items
-                                ))
+                                        </Grid>
+                                    ))}
+                            </Box>
                         )}
                     </Box>
 
@@ -552,8 +610,8 @@ const Rooms: React.FC = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            width: 500,
-                            height: 430,
+                            width: "556px",
+                            height: "405px",
                             bgcolor: "background.paper",
                             fontFamily: "Poppins",
                             boxShadow: 24,
@@ -568,141 +626,242 @@ const Rooms: React.FC = () => {
                                 fontStyle: "normal",
                                 fontVariant: "normal",
                                 fontFamily: "Poppins",
-                                fontWeight: "600",
+                                fontWeight: 600,
                                 letterSpacing: "1.12px",
                                 color: "#574B4F",
                                 opacity: 1,
-                                fontSize: "28px",
+                                fontSize: "20px",
                                 marginBottom: "16px",
+                                marginTop: "-5px"
                             }}
                         >
                             Añadir sala
                         </Typography>
-                        <Divider sx={{ mb: 2 }} />
-                        <Typography
+                        <IconButton
+                            onClick={handleCloseModal}
                             sx={{
-                                textAlign: "left",
-                                font: "normal normal medium 16px/54px Poppins",
-                                letterSpacing: "0px",
-                                color: "#330F1B",
-                                opacity: 1,
-                                fontSize: "22px",
-                                marginBottom: "8px",
+                                position: 'absolute',
+                                marginTop: '-68px',
+                                marginLeft: '474px',
+                                zIndex: 10
                             }}
                         >
-                            Nombre de la sala
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            value={newRoom.name}
-                            error={errors.name}
-                            helperText={errors.name ? "Nombre inválido, solo letras y números." : ""}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                setNewRoom((prev) => ({ ...prev, name: value }));
-                                setErrors((prev) => ({ ...prev, name: !validateInput(value) }));
-                            }}
-                            InputProps={{
-                                endAdornment: (
-                                    <Tooltip title="Solo letras y números. Longitud máxima de 40 caracteres">
-                                        <img
-                                            src={errors.name ? infoiconerror : infoicon}
-                                            alt="Info"
-                                            style={{
-                                                width: "24px",
-                                                height: "24px",
-                                                marginLeft: "8px",
+                            <CloseIcon sx={{ color: '#A6A6A6' }} />
+                        </IconButton>
+                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2 }} />
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1,
+                            marginBottom: 2
+                        }}>
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    fontFamily: "Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                    marginBottom: "2px",
+                                    marginLeft: "-180px"
+                                }}
+                            >
+                                Nombre de la sala
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                value={newRoom.name}
+                                error={errors.name}
+                                helperText={errors.name ? "Nombre inválido, solo letras y números." : ""}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    setNewRoom((prev) => ({ ...prev, name: value }));
+                                    setErrors((prev) => ({ ...prev, name: !validateInput(value) }));
+                                }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <Tooltip
+                                            title={
+                                                <Box
+                                                    sx={{
+                                                        backgroundColor: "#FFFFFF",
+                                                        borderRadius: "8px",
+                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                        padding: "8px 12px",
+                                                        fontSize: "14px",
+                                                        fontFamily: "Poppins",
+                                                        color: "#574B4F",
+                                                        whiteSpace: "pre-line",
+                                                        transform: "translate(-1px, -15px)",
+                                                        borderColor: "#00131F3D",
+                                                        borderStyle: "solid",
+                                                        borderWidth: "1px"
+                                                    }}
+                                                >
+                                                    <>
+                                                        • Solo caracteres alfabéticos<br />
+                                                        • Longitud máxima de 40<br />
+                                                        caracteres
+                                                    </>
+                                                </Box>
+                                            }
+                                            placement="bottom-end"
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        backgroundColor: "transparent",
+                                                        padding: 0,
+                                                    },
+                                                },
                                             }}
-                                        />
-                                    </Tooltip>
-                                ),
-                            }}
-                            inputProps={{
-                                maxLength: 40,
-                                style: {
-                                    fontFamily: 'Poppins, sans-serif'
-                                }
-                            }}
-                            sx={{
-                                mb: 2,
-                                '& .MuiInputBase-input': {
-                                    fontFamily: 'Poppins, sans-serif',
-                                },
-                                '& .MuiFormHelperText-root': {
-                                    fontFamily: 'Poppins, sans-serif',
-                                }
-                            }}
-                        />
-
-                        <Typography
-                            sx={{
-                                textAlign: "left",
-                                font: "normal normal medium 16px/54px Poppins",
-                                letterSpacing: "0px",
-                                color: "#330F1B",
-                                opacity: 1,
-                                fontSize: "22px",
-                                marginBottom: "8px", // Separación del texto y el input
-                            }}
-                        >
-                            Descripción
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            value={newRoom.description}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                setNewRoom((prev) => ({ ...prev, description: value }));
-                                setErrors((prev) => ({ ...prev, description: !validateInput(value) }));
-                            }}
-                            error={errors.description}
-                            helperText={errors.description ? "Descripción inválida, solo caracteres alfabéticos." : ""}
-                            InputProps={{
-                                endAdornment: (
-                                    <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
-                                        <img
-                                            src={errors.description ? infoiconerror : infoicon}
-                                            alt="Info"
-                                            style={{
-                                                width: "24px",
-                                                height: "24px",
-                                                marginLeft: "8px",
+                                        >
+                                            <img
+                                                src={errors.name ? infoiconerror : infoicon}
+                                                alt="Info"
+                                                style={{
+                                                    width: "24px",
+                                                    height: "24px",
+                                                    marginLeft: "8px",
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    ),
+                                }}
+                                inputProps={{
+                                    maxLength: 40,
+                                    style: {
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }
+                                }}
+                                sx={{
+                                    width: "340px",
+                                    height: "54px",
+                                    mb: 2,
+                                    '& .MuiInputBase-input': {
+                                        fontFamily: 'Poppins, sans-serif',
+                                    },
+                                    '& .MuiFormHelperText-root': {
+                                        fontFamily: 'Poppins, sans-serif',
+                                    }
+                                }}
+                            />
+                        </Box>
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1,
+                        }}>
+                            <Typography
+                                sx={{
+                                    textAlign: "left",
+                                    fontFamily: "Poppins",
+                                    letterSpacing: "0px",
+                                    color: "#330F1B",
+                                    opacity: 1,
+                                    fontSize: "16px",
+                                    marginBottom: "2px",
+                                    marginLeft: "-232px"
+                                }}
+                            >
+                                Descripción
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                value={newRoom.description}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    setNewRoom((prev) => ({ ...prev, description: value }));
+                                    setErrors((prev) => ({ ...prev, description: !validateInput(value) }));
+                                }}
+                                error={errors.description}
+                                helperText={errors.description ? "Descripción inválida, solo caracteres alfabéticos." : ""}
+                                InputProps={{
+                                    endAdornment: (
+                                        <Tooltip
+                                            title={
+                                                <Box
+                                                    sx={{
+                                                        backgroundColor: "#FFFFFF",
+                                                        borderRadius: "8px",
+                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                        padding: "8px 12px",
+                                                        fontSize: "14px",
+                                                        fontFamily: "Poppins",
+                                                        color: "#574B4F",
+                                                        whiteSpace: "pre-line",
+                                                        transform: "translate(-1px, -15px)",
+                                                        borderColor: "#00131F3D",
+                                                        borderStyle: "solid",
+                                                        borderWidth: "1px"
+                                                    }}
+                                                >
+                                                    <>
+                                                        • Solo caracteres alfabéticos<br />
+                                                        • Longitud máxima de 40<br />
+                                                        caracteres
+                                                    </>
+                                                </Box>
+                                            }
+                                            placement="bottom-end"
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        backgroundColor: "transparent",
+                                                        padding: 0,
+                                                    },
+                                                },
                                             }}
-                                        />
-                                    </Tooltip>
-                                ),
-                            }}
-                            inputProps={{ maxLength: 40 }}
-                            sx={{
-                                mb: 2,
-                                '& .MuiInputBase-input': {
-                                    fontFamily: 'Poppins, sans-serif',
-                                },
-                                '& .MuiFormHelperText-root': {
-                                    fontFamily: 'Poppins, sans-serif',
-                                }
-                            }}
-                        />
-                        <Divider sx={{ mt: 2, mb: 2 }} />
+                                        >
+                                            <img
+                                                src={errors.description ? infoiconerror : infoicon}
+                                                alt="Info"
+                                                style={{
+                                                    width: "24px",
+                                                    height: "24px",
+                                                    marginLeft: "8px",
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    ),
+                                }}
+                                inputProps={{ maxLength: 40 }}
+                                sx={{
+                                    width: "340px",
+                                    height: "54px",
+                                    mb: 2,
+                                    '& .MuiInputBase-input': {
+                                        fontFamily: 'Poppins, sans-serif',
+                                    },
+                                    '& .MuiFormHelperText-root': {
+                                        fontFamily: 'Poppins, sans-serif',
+                                    }
+                                }}
+                            />
+                        </Box>
+                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2, mt: 2 }} />
                         <Box display="flex" justifyContent="space-between">
-                            <Button variant="outlined" onClick={handleCloseModal}>
-                                Cancelar
-                            </Button>
+                            <SecondaryButton onClick={handleCloseModal}
+                                text='Cancelar'
+                            />
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleCreateRoom}
                                 disabled={!newRoom.name || !newRoom.description}
                                 sx={{
-                                    backgroundColor: "#A05B71", // Mismo color que el botón "Añadir Sala"
+                                    width: "106px",
+                                    backgroundColor: "#A05B71",
                                     color: "#fff",
                                     "&:hover": {
-                                        backgroundColor: "#8B4D61", // Color más oscuro para el hover
+                                        backgroundColor: "#8B4D61",
                                     },
                                     height: "100%",
-                                    marginLeft: "8px", // Espaciado opcional si se requiere
+                                    marginLeft: "8px",
                                 }}
                             >
                                 {loading ? (
@@ -721,7 +880,6 @@ const Rooms: React.FC = () => {
                 </Fade>
             </Modal>
 
-            {/* Modal for editing room */}
             <Modal
                 open={editModalOpen}
                 onClose={handleCloseEditModal}
@@ -738,8 +896,8 @@ const Rooms: React.FC = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            width: 500, // Más ancho
-                            height: 430, // Más alto
+                            width: "556px",
+                            height: "405px",
                             bgcolor: "background.paper",
                             boxShadow: 24,
                             p: 4,
@@ -750,27 +908,49 @@ const Rooms: React.FC = () => {
                             variant="h6"
                             sx={{
                                 textAlign: "left",
-                                font: "normal normal 600 20px/54px Poppins",
-                                letterSpacing: "0px",
+                                fontStyle: "normal",
+                                fontVariant: "normal",
+                                fontFamily: "Poppins",
+                                fontWeight: 600,
+                                letterSpacing: "1.12px",
                                 color: "#574B4F",
                                 opacity: 1,
-                                fontSize: "28px",
-                                marginBottom: "16px", // Separación con el contenido siguiente
+                                fontSize: "20px",
+                                marginBottom: "16px",
+                                marginTop: "-5px"
                             }}
                         >
                             Editar sala
                         </Typography>
-                        <Divider sx={{ mb: 2 }} />
-                        <Box sx={{ mb: 3 }}>
+                        <IconButton
+                            onClick={handleCloseEditModal}
+                            sx={{
+                                position: 'absolute',
+                                marginTop: '-68px',
+                                marginLeft: '474px',
+                                zIndex: 10
+                            }}
+                        >
+                            <CloseIcon sx={{ color: '#A6A6A6' }} />
+                        </IconButton>
+                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2 }} />
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1,
+                            marginBottom: 2
+                        }}>
                             <Typography
                                 sx={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#330F1B",
                                     opacity: 1,
-                                    fontSize: "22px",
-                                    marginBottom: "8px", // Separación del texto y el input
+                                    fontSize: "16px",
+                                    marginBottom: "2px",
+                                    marginLeft: "-180px"
                                 }}
                             >
                                 Nombre de la sala
@@ -786,7 +966,41 @@ const Rooms: React.FC = () => {
                                 }
                                 InputProps={{
                                     endAdornment: (
-                                        <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
+                                        <Tooltip
+                                            title={
+                                                <Box
+                                                    sx={{
+                                                        backgroundColor: "#FFFFFF",
+                                                        borderRadius: "8px",
+                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                        padding: "8px 12px",
+                                                        fontSize: "14px",
+                                                        fontFamily: "Poppins",
+                                                        color: "#574B4F",
+                                                        whiteSpace: "pre-line",
+                                                        transform: "translate(-1px, -15px)",
+                                                        borderColor: "#00131F3D",
+                                                        borderStyle: "solid",
+                                                        borderWidth: "1px"
+                                                    }}
+                                                >
+                                                    <>
+                                                        • Solo caracteres alfabéticos<br />
+                                                        • Longitud máxima de 40<br />
+                                                        caracteres
+                                                    </>
+                                                </Box>
+                                            }
+                                            placement="bottom-end"
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        backgroundColor: "transparent",
+                                                        padding: 0,
+                                                    },
+                                                },
+                                            }}
+                                        >
                                             <img
                                                 src={errors.name ? infoiconerror : infoicon}
                                                 alt="Info"
@@ -799,20 +1013,42 @@ const Rooms: React.FC = () => {
                                         </Tooltip>
                                     ),
                                 }}
-                                inputProps={{ maxLength: 40 }}
+                                inputProps={{
+                                    maxLength: 40,
+                                    style: {
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }
+                                }}
+                                sx={{
+                                    width: "340px",
+                                    height: "54px",
+                                    mb: 2,
+                                    '& .MuiInputBase-input': {
+                                        fontFamily: 'Poppins, sans-serif',
+                                    },
+                                    '& .MuiFormHelperText-root': {
+                                        fontFamily: 'Poppins, sans-serif',
+                                    }
+                                }}
                             />
                         </Box>
 
-                        <Box sx={{ mb: 3 }}>
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1,
+                        }}>
                             <Typography
                                 sx={{
                                     textAlign: "left",
-                                    font: "normal normal medium 16px/54px Poppins",
+                                    fontFamily: "Poppins",
                                     letterSpacing: "0px",
                                     color: "#330F1B",
                                     opacity: 1,
-                                    fontSize: "22px",
-                                    marginBottom: "8px", // Separación del texto y el input
+                                    fontSize: "16px",
+                                    marginBottom: "2px",
+                                    marginLeft: "-232px"
                                 }}
                             >
                                 Descripción
@@ -830,7 +1066,41 @@ const Rooms: React.FC = () => {
                                 }
                                 InputProps={{
                                     endAdornment: (
-                                        <Tooltip title="Solo caracteres alfabéticos. Longitud máxima de 40 caracteres">
+                                        <Tooltip
+                                            title={
+                                                <Box
+                                                    sx={{
+                                                        backgroundColor: "#FFFFFF",
+                                                        borderRadius: "8px",
+                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                        padding: "8px 12px",
+                                                        fontSize: "14px",
+                                                        fontFamily: "Poppins",
+                                                        color: "#574B4F",
+                                                        whiteSpace: "pre-line",
+                                                        transform: "translate(-1px, -15px)",
+                                                        borderColor: "#00131F3D",
+                                                        borderStyle: "solid",
+                                                        borderWidth: "1px"
+                                                    }}
+                                                >
+                                                    <>
+                                                        • Solo caracteres alfabéticos<br />
+                                                        • Longitud máxima de 40<br />
+                                                        caracteres
+                                                    </>
+                                                </Box>
+                                            }
+                                            placement="bottom-end"
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        backgroundColor: "transparent",
+                                                        padding: 0,
+                                                    },
+                                                },
+                                            }}
+                                        >
                                             <img
                                                 src={errors.description ? infoiconerror : infoicon}
                                                 alt="Info"
@@ -844,28 +1114,39 @@ const Rooms: React.FC = () => {
                                     ),
                                 }}
                                 inputProps={{ maxLength: 40 }}
+                                sx={{
+                                    width: "340px",
+                                    height: "54px",
+                                    mb: 2,
+                                    '& .MuiInputBase-input': {
+                                        fontFamily: 'Poppins, sans-serif',
+                                    },
+                                    '& .MuiFormHelperText-root': {
+                                        fontFamily: 'Poppins, sans-serif',
+                                    }
+                                }}
                             />
                         </Box>
-                        <Divider sx={{ mt: 2, mb: 2 }} />
+                        <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2, mt: 2 }} />
                         <Box display="flex" justifyContent="space-between">
-                            <Button variant="outlined" onClick={handleCloseEditModal}>
-                                Cancelar
-                            </Button>
+                            <SecondaryButton onClick={handleCloseEditModal}
+                                text='Cancelar'
+                            />
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleUpdateRoom}
                                 disabled={
                                     !newRoom.name || !newRoom.description || errors.name || errors.description
-                                } // Desactiva si hay errores o campos vacíos
+                                }
                                 sx={{
-                                    backgroundColor: "#A05B71", // Mismo color que el botón "Añadir Sala"
+                                    backgroundColor: "#A05B71",
                                     color: "#fff",
                                     "&:hover": {
-                                        backgroundColor: "#8B4D61", // Color más oscuro para el hover
+                                        backgroundColor: "#8B4D61",
                                     },
                                     height: "100%",
-                                    marginLeft: "8px", // Espaciado opcional si se requiere
+                                    marginLeft: "8px",
                                 }}
                             >
                                 {loading ? (
