@@ -1530,11 +1530,6 @@ const NumbersDids: React.FC = () => {
                             </FormControl>
                         </Grid>
                     </Grid>
-                    <FormControlLabel
-                        control={<Checkbox checked={isShared} onChange={(e) => setIsShared(e.target.checked)} sx={{ color: '#7B354D' }} />}
-                        label={<Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: '#645E60' }}>Números compartidos</Typography>}
-                        sx={{ mb: 2 }}
-                    />
 
                     <Box
                         sx={{
@@ -1543,7 +1538,7 @@ const NumbersDids: React.FC = () => {
                             px: 3,
                             py: 0,
                             mt: -3,
-                            maxHeight: 'calc(85vh - 200px)', // 🔥 ajusta el espacio restante después del header y los botones
+                            maxHeight: 'calc(85vh - 200px)',
                         }}
                     >
                         <Box

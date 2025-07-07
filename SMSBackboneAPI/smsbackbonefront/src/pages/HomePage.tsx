@@ -288,7 +288,8 @@ const HomePage: React.FC = () => {
             backgroundColor: '#F2F2F2',
             display: 'flex',
             flexDirection: 'column',
-            marginTop: "-70px"
+            marginTop: "-70px",
+
         }}>
 
             {/* Header con título */}
@@ -325,7 +326,7 @@ const HomePage: React.FC = () => {
                         padding: '10px',
                         borderRadius: '8px',
                         boxShadow: '0px 8px 16px #00131F29',
-                        border: "1px solid #C6BFC2"
+                        border: "1px solid #C6BFC2",
 
                     }}>
                         <RadioGroup
@@ -360,7 +361,7 @@ const HomePage: React.FC = () => {
                                             fontFamily: 'Poppins',
                                             fontSize: '16px',
                                             fontWeight: selectedOption === 'corto' ? 500 : 'normal',
-                                            color: selectedOption === 'corto' ? '#8F4D63' : '#574B4F',
+                                            color: selectedOption === 'corto' ? '#8F4D63' : '#807D7E',
                                         }}
                                     >
                                         SMS # cortos
@@ -391,8 +392,8 @@ const HomePage: React.FC = () => {
 
                                             fontFamily: 'Poppins',
                                             fontSize: '16px',
-                                            fontWeight: selectedOption === 'largos' ? 500 : 'normal',
-                                            color: selectedOption === 'largos' ? '#8F4D63' : '#574B4F',
+                                            fontWeight: selectedOption === 'largo' ? 500 : 'normal',
+                                            color: selectedOption === 'largo' ? '#8F4D63' : '#807D7E',
                                         }}
                                     >
                                         SMS # largos
@@ -420,7 +421,7 @@ const HomePage: React.FC = () => {
                                 padding: '6px 12px',
                                 fontWeight: 'bold',
                                 color: '#8F4D63',
-                                background: activeButton === 'uso' ? '#E6C2CD' : 'transparent',
+                                background: activeButton === 'uso' ? '#E6C2CD' : '#FFFFFF',
                                 borderColor: activeButton === 'uso' ? '#BE93A0' : '#C6BFC2',
                             }}
                             onMouseOver={(e) => {
@@ -428,7 +429,7 @@ const HomePage: React.FC = () => {
 
                             }}
                             onMouseOut={(e) => {
-                                e.currentTarget.style.background = activeButton === 'uso' ? '#E6C2CD' : 'transparent';
+                                e.currentTarget.style.background = activeButton === 'uso' ? '#E6C2CD' : '#FFFFFF';
                                 e.currentTarget.style.border = activeButton === 'uso' ? '1px solid #BE93A0' : '1px solid #CCCFD2';
                             }}
                             onMouseDown={() => setActiveButton('uso')}
@@ -444,7 +445,7 @@ const HomePage: React.FC = () => {
                                 border: '1px solid #CCCFD2',
                                 borderRadius: '8px',
                                 color: '#8F4D63',
-                                background: activeButton === 'chat' ? '#E6C2CD' : 'transparent',
+                                background: activeButton === 'chat' ? '#E6C2CD' : '#FFFFFF',
                                 borderColor: activeButton === 'chat' ? '#BE93A0' : '#CCCFD2',
                             }}
                             onMouseOver={(e) => {
@@ -452,7 +453,7 @@ const HomePage: React.FC = () => {
 
                             }}
                             onMouseOut={(e) => {
-                                e.currentTarget.style.background = activeButton === 'chat' ? '#E6C2CD' : 'transparent';
+                                e.currentTarget.style.background = activeButton === 'chat' ? '#E6C2CD' : '#FFFFFF';
                                 e.currentTarget.style.border = activeButton === 'chat' ? '1px solid #BE93A0' : '1px solid #CCCFD2';
                             }}
                             onMouseDown={() => setActiveButton('chat')}
@@ -470,7 +471,7 @@ const HomePage: React.FC = () => {
                                     border: '1px solid #CCCFD2',
                                     borderRadius: '8px',
                                     color: '#8F4D63',
-                                    background: activeButton === 'chat' ? '#E6C2CD' : 'transparent',
+                                    background: activeButton === 'chat' ? '#E6C2CD' : '#FFFFFF',
                                     borderColor: activeButton === 'chat' ? '#BE93A0' : '#C6BFC2',
                                 }}
                                 onMouseOver={(e) => {
@@ -505,7 +506,7 @@ const HomePage: React.FC = () => {
             )}
 
             {showData && selectedOption && (
-                <Grid container spacing={2} sx={{ marginTop: '20px', justifyContent: 'center' }}>
+                <Grid container spacing={3} sx={{ marginTop: '20px', justifyContent: 'center', marginLeft: "15px" }}>
                     {dataOptions.map((item, index) => (
                         <Grid item xs={12} sm={6} md={3} key={index}>
                             <Paper
@@ -536,8 +537,8 @@ const HomePage: React.FC = () => {
                             borderRadius: '8px',
                             marginTop: 2,
                             overflow: 'hidden',
-                            width: '100%', // 🔥 Asegura que el ancho sea completo
-                            marginLeft: '0px', // 🔥 Lo alinea con el resto del contenido
+                            width: '100%',
+                            marginLeft: '0px',
 
                         }}>
                             <Typography
@@ -551,7 +552,7 @@ const HomePage: React.FC = () => {
                                     letterSpacing: '0px',
                                     color: '#574B4F',
                                     opacity: 1,
-                                    marginBottom: 2
+                                    marginBottom: 0.5
                                 }}
                             >
                                 Campañas activas
@@ -561,10 +562,10 @@ const HomePage: React.FC = () => {
 
                                     display: 'flex',
                                     overflowX: 'auto',
-                                    whiteSpace: 'nowrap', // Evita que se vayan a múltiples líneas
+                                    whiteSpace: 'nowrap',
                                     gap: 4,
                                     paddingBottom: 1,
-                                    maxWidth: '100%', // Limita el ancho para que no se expanda demasiado
+                                    maxWidth: '100%',
                                     '&::-webkit-scrollbar': {
                                         height: '6px',
                                     },
@@ -1300,13 +1301,13 @@ const dividerStyle = {
 };
 const buttonStyle = {
     marginLeft: "15px",
-    background: '#FFFFFF',
+    background: '#F6F6F6',
     border: '1px solid #C6BFC2',
     borderRadius: '18px',
     padding: '8px 16px',
     fontWeight: 500,
     color: '#330F1B',
-    minWidth: "96px", height: "36px",
+    minWidth: "100px", height: "36px",
     textTransform: "uppercase",
     fontFamily: "Poppins",
     letterSpacing: "1.12px",

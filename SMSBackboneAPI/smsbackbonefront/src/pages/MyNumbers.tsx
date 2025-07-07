@@ -2385,11 +2385,11 @@ const MyNumbers: React.FC = () => {
                                                 MenuProps={{
                                                     anchorOrigin: {
                                                         vertical: "bottom",
-                                                        horizontal: "right", // Ancla el menú al lado izquierdo del botón
+                                                        horizontal: "right",
                                                     },
                                                     transformOrigin: {
                                                         vertical: "top",
-                                                        horizontal: "right", // Expande el menú hacia la derecha
+                                                        horizontal: "right",
                                                     },
                                                     PaperProps: {
                                                         sx: {
@@ -2460,13 +2460,13 @@ const MyNumbers: React.FC = () => {
                                                                         src={iconclose}
                                                                         alt="Limpiar búsqueda"
                                                                         style={{
-                                                                            width: "16px",
-                                                                            height: "16px",
+                                                                            width: "24px",
+                                                                            height: "24px",
                                                                             cursor: "pointer",
                                                                         }}
                                                                         onClick={() => {
                                                                             setSearchTerm('');
-                                                                            setFilteredData(numbersData); // Restaurar datos
+                                                                            setFilteredData(numbersData);
                                                                         }}
                                                                     />
                                                                 </InputAdornment>
@@ -2495,7 +2495,7 @@ const MyNumbers: React.FC = () => {
                                                 >
                                                     {filteredStates.map((state) => (
                                                         <MenuItem key={state.state} value={state.state} onClick={() => handleStateToggle(state.state)}
-                                                            sx={{ mt: -1.5, mb: -1.5 }}
+                                                            sx={{ height: "32px", marginLeft: "-12px" }}
                                                         >
                                                             <Checkbox checked={selectedStates2.includes(state.state)}
                                                                 onChange={() => handleStateToggle(state.state)}
@@ -2508,8 +2508,13 @@ const MyNumbers: React.FC = () => {
                                                                 checkedIcon={
                                                                     <Box
                                                                         sx={{
-                                                                            marginBottom: '-6.1px',
-                                                                        }}>
+                                                                            width: '24px',
+                                                                            height: '24px',
+                                                                            position: 'relative',
+                                                                            marginTop: '0px',
+                                                                            marginLeft: '0px',
+                                                                        }}
+                                                                    >
                                                                         <img
                                                                             src={IconCheckBox1}
                                                                             alt="Seleccionado"
@@ -2749,8 +2754,8 @@ const MyNumbers: React.FC = () => {
                                                             width: "5px",
                                                         },
                                                         "&::-webkit-scrollbar-thumb": {
-                                                            background: "#C6BFC2", // Color de la barra
-                                                            borderRadius: "4px", // Bordes redondeados
+                                                            background: "#C6BFC2",
+                                                            borderRadius: "4px",
                                                             minHeight: "50px",
                                                         }
                                                     }}
@@ -2760,19 +2765,37 @@ const MyNumbers: React.FC = () => {
                                                             key={municipality.name}
                                                             value={municipality.name}
                                                             onClick={() => handleMunicipalityToggle(municipality.name)}
+                                                            sx={{ height: "32px", marginLeft: "-12px", overflowX: "hidden" }}
                                                         >
                                                             <Checkbox
                                                                 checked={selectedMunicipalities2.includes(municipality.name)}
                                                                 onChange={() => handleMunicipalityToggle(municipality.name)}
-                                                                sx={{
-                                                                    color: '#6C3A52',
-                                                                    '&.Mui-checked': { color: '#6C3A52' },
-                                                                    marginLeft: '-5px',
-
-                                                                }}
+                                                                checkedIcon={
+                                                                    <Box
+                                                                        sx={{
+                                                                            width: '24px',
+                                                                            height: '24px',
+                                                                            position: 'relative',
+                                                                            marginTop: '0px',
+                                                                            marginLeft: '0px',
+                                                                        }}
+                                                                    >
+                                                                        <img
+                                                                            src={IconCheckBox1}
+                                                                            alt="Seleccionado"
+                                                                            style={{ width: '24px', height: '24px' }}
+                                                                        />
+                                                                    </Box>
+                                                                }
                                                             />
                                                             <ListItemText
                                                                 primary={municipality.name}
+                                                                primaryTypographyProps={{
+                                                                    fontFamily: 'Poppins',
+                                                                    fontSize: '16px',
+                                                                    fontWeight: 500,
+                                                                    color: "#786E71"
+                                                                }}
                                                                 sx={{
                                                                     textAlign: "left",
                                                                     fontFamily: "Poppins, sans-serif",
@@ -2787,19 +2810,9 @@ const MyNumbers: React.FC = () => {
                                                         </MenuItem>
                                                     ))}
                                                 </Box>
-
+                                                <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 1, mt: 1 }} />
                                                 {/* Botones fijos en la parte inferior */}
-                                                <Box
-                                                    p={1}
-                                                    display="flex"
-                                                    justifyContent="space-between"
-                                                    sx={{
-                                                        borderTop: "1px solid #e0e0e0",
-                                                        backgroundColor: "#fff",
-                                                        position: "sticky",
-                                                        bottom: 0,
-                                                    }}
-                                                >
+                                                <Box display="flex" justifyContent="space-between" px={1} pb={1} gap={2.5}>
                                                     <Button
                                                         variant="outlined"
                                                         onClick={(e) => {
@@ -3133,9 +3146,9 @@ const MyNumbers: React.FC = () => {
                                 </Typography>
                             </Box>
                         ) : (
-                            <div style={{ maxHeight: '400px', overflowY: 'auto', borderRadius: '5px' }}>
+                            <div style={{ maxHeight: '400px', overflowY: 'hidden', borderRadius: '5px' }}>
 
-                                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1080px', }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1080px', overflowY: 'hidden' }}>
                                     <thead style={{ backgroundColor: '#f9f9f9', color: '#6a6a6a' }}>
                                         {isAnyRowSelected ? (
                                             <tr style={{ backgroundColor: '#FFFFFF', textAlign: 'left', borderBottom: '1px solid #dcdcdc', }}>
@@ -3197,12 +3210,28 @@ const MyNumbers: React.FC = () => {
                                             </tr>
                                         ) : (
                                             <tr>
-                                                <th style={{ width: '30px', padding: '10px 10px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #dcdcdc' }}>
+                                                <th style={{ width: '24px', padding: '0px 0px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #dcdcdc', overflowY: "hidden" }}>
                                                     <Checkbox
                                                         indeterminate={isIndeterminate}
                                                         checked={isAllSelected}
                                                         onChange={handleSelectAll}
-                                                        sx={{ padding: 0 }}
+                                                        checkedIcon={
+                                                            <Box
+                                                                sx={{
+                                                                    width: '24px',
+                                                                    height: '24px',
+                                                                    position: 'relative',
+                                                                    marginTop: '0px',
+                                                                    marginLeft: '0px',
+                                                                }}
+                                                            >
+                                                                <img
+                                                                    src={IconCheckBox1}
+                                                                    alt="Seleccionado"
+                                                                    style={{ width: '24px', height: '24px' }}
+                                                                />
+                                                            </Box>
+                                                        }
                                                     />
                                                 </th>
                                                 <th
@@ -3298,16 +3327,14 @@ const MyNumbers: React.FC = () => {
                                                         width: '350px',
                                                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                                                         padding: '0px', textAlign: "left",
-                                                        borderRight: '1px solid #dcdcdc',
                                                         fontFamily: "Poppins",
                                                         fontWeight: "500",
                                                         letterSpacing: '0px',
                                                         color: '#330F1B',
                                                         opacity: 1,
                                                         fontSize: '13px',
-                                                        backgroundColor: '#FFFFFF', // Fondo blanco
+                                                        backgroundColor: '#FFFFFF',
                                                         borderBottom: '1px solid #dcdcdc',
-                                                        borderRight: '1px solid #FFFFFF',
 
                                                     }}
                                                 >
@@ -3318,7 +3345,6 @@ const MyNumbers: React.FC = () => {
                                                         width: '150px',
                                                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                                                         padding: '0px', textAlign: "left",
-                                                        borderRight: '1px solid #dcdcdc',
                                                         fontFamily: "Poppins",
                                                         fontWeight: "500",
                                                         letterSpacing: '0px',

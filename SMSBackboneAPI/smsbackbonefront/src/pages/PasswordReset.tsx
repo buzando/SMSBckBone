@@ -13,6 +13,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import PublicLayout from '../components/PublicLayout';
 import axios from 'axios';
 import Radio from "@mui/material/Radio";
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
 import RadioGroup from "@mui/material/RadioGroup";
 import Countdown from 'react-countdown';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -68,9 +69,9 @@ const TermsAndConditions: React.FC = () => {
     const handleResendToken = async () => {
         if (isResendDisabled) return; // Evita reenviar si ya está bloqueado
 
-        setIsResendDisabled(true); 
-        setCodeExpired(false); 
-        setStartTime(Date.now()); 
+        setIsResendDisabled(true);
+        setCodeExpired(false);
+        setStartTime(Date.now());
 
         try {
             await SendToken(); // Llama a la función que reenvía el token
@@ -420,549 +421,564 @@ const TermsAndConditions: React.FC = () => {
     }));
 
     return (
-<Box
-    sx={{
-        backgroundColor: "#F2F2F2", // Fondo gris
-        minHeight: "100vh", // Asegura que cubra toda la pantalla
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        
-    }}
-    >   
-        
-        <PublicLayout>
-            <Container maxWidth="sm" fixed sx={{ marginTop: "71px", marginBottom: 8 }}>
-                <Typography
-                    
-                    align="center"
-                    gutterBottom
-                    sx={{
-                        textAlign: "center",
-                        fontStyle: "normal",
-                        fontVariant: "normal",
-                        fontWeight: "500",
-                        lineHeight: "55px",
-                        fontFamily: "Poppins",
-                        letterSpacing: "0px",
-                        color: "#330F1B",
-                        opacity: 1,
-                        fontSize: "28px",
-                    }}
-                >
-                    Recuperación de la cuenta
-                </Typography>
+        <Box
+            sx={{
+                backgroundColor: "#F2F2F2", // Fondo gris
+                minHeight: "100vh", // Asegura que cubra toda la pantalla
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
 
-                <Box sx={{ width: "100%", marginBottom: 4 }}>
-                    <Stepper
-                        activeStep={activeStep}
-                        connector={<CustomStepConnector />}
-                        alternativeLabel
-                        sx={{ gap: "40px" }}
+            }}
+        >
+
+            <PublicLayout>
+                <Container maxWidth="sm" fixed sx={{ marginTop: "71px", marginBottom: 8 }}>
+                    <Typography
+
+                        align="center"
+                        gutterBottom
+                        sx={{
+                            textAlign: "center",
+                            fontStyle: "normal",
+                            fontVariant: "normal",
+                            fontWeight: "500",
+                            lineHeight: "55px",
+                            fontFamily: "Poppins",
+                            letterSpacing: "0px",
+                            color: "#330F1B",
+                            opacity: 1,
+                            fontSize: "28px",
+                        }}
                     >
-                        {steps.map((label, index) => (
-                            <Step key={label}>
-                                <StepLabel
-                                    StepIconComponent={() => (
-                                        <CustomStepIcon
-                                            active={activeStep === index}
-                                            completed={activeStep > index}
+                        Recuperación de la cuenta
+                    </Typography>
+
+                    <Box sx={{ width: "100%", marginBottom: 4 }}>
+                        <Stepper
+                            activeStep={activeStep}
+                            connector={<CustomStepConnector />}
+                            alternativeLabel
+                            sx={{ gap: "40px" }}
+                        >
+                            {steps.map((label, index) => (
+                                <Step key={label}>
+                                    <StepLabel
+                                        StepIconComponent={() => (
+                                            <CustomStepIcon
+                                                active={activeStep === index}
+                                                completed={activeStep > index}
+                                            >
+                                                {activeStep >= index ? "✓" : ""}
+                                            </CustomStepIcon>
+                                        )}
+                                    >
+                                        {/* Texto debajo del paso */}
+                                        <Typography
+                                            sx={{
+                                                textAlign: "center",
+                                                font: "normal normal 600 14px/22px Poppins",
+                                                color: activeStep === index
+                                                    ? "#833A53"
+                                                    : activeStep > index
+                                                        ? "#833A53"
+                                                        : "#DADADA",
+                                                marginTop: 1,
+                                            }}
                                         >
-                                            {activeStep >= index ? "✓" : ""}
-                                        </CustomStepIcon>
-                                    )}
-                                >
-                                    {/* Texto debajo del paso */}
+                                            {label}
+                                        </Typography>
+                                    </StepLabel>
+                                </Step>
+                            ))}
+                        </Stepper>
+                    </Box>
+
+                    <Box padding={1}>
+                        {activeStep === 0 && (
+                            <Paper elevation={10} sx={{ width: '100%', borderRadius: '10px', height: '300px' }}>
+                                <Box sx={{
+                                    margin: '20px', // Mantener el margen
+                                    paddingX: '20px', // Padding horizontal
+                                    paddingY: '40px', // Incrementar el padding vertical para mayor espacio interno
+                                    height: '100%', // Ajustar el contenido a la altura del Paper
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between', // Espacio uniforme entre elementos
+                                }}>
                                     <Typography
                                         sx={{
-                                            textAlign: "center",
-                                            font: "normal normal 600 14px/22px Poppins",
-                                            color: activeStep === index
-                                                ? "#833A53"
-                                                : activeStep > index
-                                                    ? "#833A53"
-                                                    : "#DADADA",
-                                            marginTop: 1,
+                                            textAlign: "left",
+                                            fontStyle: "normal",
+                                            fontVariant: "normal",
+                                            fontWeight: "500",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: "#330F1B",
+                                            opacity: 1,
+                                            fontSize: "16px",
+                                            marginBottom: "8px", // Espaciado inferior normal
+                                            marginTop: "-10px", // Subir el texto al borde superior
                                         }}
                                     >
-                                        {label}
+                                        Ingrese el correo electrónico asociado para localizar su cuenta.
                                     </Typography>
-                                </StepLabel>
-                            </Step>
-                        ))}
-                    </Stepper>
-                </Box>
-
-                <Box padding={1}>
-                    {activeStep === 0 && (
-                        <Paper elevation={10} sx={{ width: '100%', borderRadius: '10px', height: '300px' }}>
-                            <Box sx={{
-                                margin: '20px', // Mantener el margen
-                                paddingX: '20px', // Padding horizontal
-                                paddingY: '40px', // Incrementar el padding vertical para mayor espacio interno
-                                height: '100%', // Ajustar el contenido a la altura del Paper
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between', // Espacio uniforme entre elementos
-                            }}>
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        fontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontWeight: "500",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: "#330F1B",
-                                        opacity: 1,
-                                        fontSize: "16px",
-                                        marginBottom: "8px", // Espaciado inferior normal
-                                        marginTop: "-10px", // Subir el texto al borde superior
-                                    }}
-                                >
-                                    Ingrese el correo electrónico asociado para localizar su cuenta.
-                                </Typography>
-                                <Box
-                                    sx={{
-                                        marginTop: "12px", // Espaciado adicional para bajar el Typography y el input
-                                    }}
-                                >
-                                <Typography
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal medium 16px/54px",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: "#330F1B",
-                                        opacity: 1,
-                                        fontSize: "16px",
-                                        marginBottom: "12px", // Espaciado entre el título y el input
-                                    }}
-                                >
-                                    Correo Electrónico
-                                </Typography>
-                                <TextField
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    /*Fuente del campo de texto*/
-                                    sx={{
-                                        fontFamily: "Poppins",
-                                        "& .MuiInputBase-input": {
-                                            fontFamily: "Poppins",
-                                        },
-                                        "& .MuiOutlinedInput-root": {
-                                        "& fieldset": {
-                                            borderColor: "#DADADA", // Color de borde normal
-                                        },
-                                        "&:hover fieldset": {
-                                            borderColor: "#9B9295", // Color de borde al pasar el mouse
-                                        },
-                                        "&.Mui-focused fieldset": {
-                                            borderColor: "#9B9295", // Color de borde cuando el campo está enfocado
-                                            borderWidth: "1px",
-
-                                        },
-                                    },
-
-
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip 
-                                                title={
-                                                    <Box
-                                                        sx={{
-                                                            backgroundColor: "#FFFFFF",
-                                                            borderRadius: "8px",
-                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                                                            padding: "8px 12px",
-                                                            font: "normal normal medium 16px/24px Poppins",
-                                                            fontFamily: "Poppins",
-                                                            color: "#000000",
-                                                            whiteSpace: "pre-line",
-                                                            transform: "translate(-10px, -22px)",
-                                                            borderColor: "#00131F3D",
-                                                            borderStyle: "solid",
-                                                            borderWidth: "1px"
-                                                        }}
-                                                    >
-                                                        <>
-                                                        • Ingrese su correo registrado en el sistema
-                                                        </>
-                                                    </Box>
-                                                }
-                                                
-                                                placement="bottom-end"
-                                                componentsProps={{
-                                                    tooltip: {
-                                                        sx: {
-                                                            backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                            padding: 0, // Removes padding around the Box
-                                                        },
-                                                    },
-                                                }}
-                                            >
-                                                    <IconButton>
-                                                    <img src={infoicon} style={{ width: 20, height: 20 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    />
-                                </Box>
-                                {errorMessage && (
-                                    <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
-                                        {errorMessage}{" "}
-                                        <Link component={LinkDom} to="/register" color="primary">
-                                            Registrarte
-                                        </Link>
-                                    </Typography>
-                                )}
-
-                                    {/* Línea horizontal */}
                                     <Box
-                                    sx={{
-                                        borderTop: "1px solid #DADADA",
-                                        position: "relative",
-                                        left: -40,
-                                        right: 0,
-                                        width: "535px",
-                                        height: "1px",
-                                        backgroundColor: "red",
-                                        my: 1,
-                                        marginBottom: "-35px",
-                                        marginTop: "35px",
-                                }}
-                                />                                
-
-
-
-                                <Box
-                                    sx={{
-                                        borderTop: "0px solid #DADADA", // Línea gris claro
-                                        marginTop: "32px", // Mayor separación del contenido superior
-                                        paddingTop: "8px", // Menor separación con los botones
-                                        //Cambios para anchura de linea
-                                        
-                                    }}
-                                >
-                                    {/* Botones */}
-                                    <Box display="flex" justifyContent="space-between" pt={2}>
-                                        <Button
-                                            variant="outlined"
-                                            onClick={() => navigate("/")}
-                                            sx={{
-                                                border: "1px solid #CCCFD2",
-                                                borderRadius: "4px",
-                                                color: "#833A53",
-                                                fontFamily: "Poppins",
-                                                fontStyle: "normal",
-                                                fontVariant: "normal",
-                                                letterSpacing: "1.12px",
-                                                fontSize: "14px",
-                                                lineHeight: "54px",
-                                                fontWeight: "600",
-                                                height: "38px",
-                                                backgroundColor: "transparent",
-                                                "&:hover": {
-                                                backgroundColor: "#f3e6eb",
-                                                
-                                            },
-                                        }}
-                                        >
-                                            Cancelar
-                                        </Button>
-                                        <Button
-                                            variant="contained"
-                                            sx={{
-                                                fontFamily: "Poppins",
-                                                backgroundColor: "#833A53",
-                                                color: "#FFFFFF",
-                                                padding: "10px 20px",
-                                                textTransform: "uppercase",
-                                                height: "38px",
-                                                letterSpacing: "1.12px",
-                                                fontStyle: "normal",
-                                                fontVariant: "normal",
-                                                fontWeight: "500",
-                                                "&:hover": {
-                                                    backgroundColor: "#A54261",
-                                                },
-                                            }}
-                                            onClick={handleSubmit}
-                                            disabled={!isEmailValid(email) || loading}
-                                        >
-                                            {loading ? <CircularProgress size={24} thickness={8} sx={{ color: "#FFFFFF",  }} /> : "Enviar"}
-                                        </Button>
-                                    </Box>
-                                </Box>
-                            </Box>
-                        </Paper>
-                    )}
-
-                    {activeStep === 1 && (
-                        <Box
-                            sx={{
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                padding: "20px",
-                                maxWidth: "500px",
-                                textAlign: "center",
-                                marginTop: "20px",
-                                backgroundColor: "#FFFFFF"
-                            }}
-                        >
-                            <Typography
-                                variant="body1"
-                                gutterBottom
-                                sx={{
-                                    textAlign: "left",
-                                    font: "normal normal normal 16px/20px Poppins",
-                                    fontFamily: "Poppins",
-                                    letterSpacing: "0px",
-                                    color: "#330F1B",
-                                    opacity: 1,
-                                }}
-                            >
-                                Seleccione el canal por el cual prefiere recibir su código de autenticación
-                            </Typography>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    marginTop: "20px",
-                                }}
-                            >
-                                <RadioGroup
-                                    row
-                                    value={SendType}
-                                    onChange={onChangeValue}
-                                    sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                                >
-                                    <FormControlLabel
-                                        value="SMS"
-                                        control={<Radio sx={{
-                                            fontFamily: "Poppins",
-                                            color: "#574B4F", // Color por defecto
-                                            "&.Mui-checked": {
-                                            color: "#8F4D63", // Color al seleccionarse
-                                            },
-                                        }} />}
-                                        label="SMS"
                                         sx={{
-                                            fontFamily: "Poppins",
-                                            color: SendType === "SMS" ? "#8F4D63" : "#574B4F", // Cambia el color del texto
-                                            fontWeight: SendType === "SMS" ? "bold" : "normal", // Opcional: hacer negrita la opción seleccionada
-                                            transition: "color 0.3s ease", // Suaviza la transición del color
+                                            marginTop: "12px", // Espaciado adicional para bajar el Typography y el input
                                         }}
-                                    />
-                                    <FormControlLabel
-                                        value="EMAIL"
-                                        control={<Radio sx={{
-                                            fontFamily: "Poppins",
-                                            color: "#574B4F", // Color por defecto
-                                            "&.Mui-checked": {
-                                            color: "#8F4D63", // Color al seleccionarse
-                                        },
-                                        }} />}
-                                        label="Correo electrónico"
-                                        sx={{
-                                            fontFamily: "Poppins",
-                                            color: SendType === "EMAIL" ? "#8F4D63" : "#574B4F",
-                                            fontWeight: SendType === "EMAIL" ? "bold" : "normal",
-                                            transition: "color 0.3s ease",
-                                        }}
-                                    />
-                                </RadioGroup>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    disabled={loading}
-                                    onClick={SendToken}
-                                    sx={{
-                                        textAlign: "center",
-                                        fontFamily: "Poppins",
-                                        FontStyle: "normal",
-                                        fontVariant: "normal",
-                                        fontWeight: "500",
-                                        letterSpacing: "1.12px",
-                                        color: "#FFFFFF",
-                                        textTransform: "uppercase",
-                                        opacity: 1,
-                                        backgroundColor: "#833A53",
-                                        height: "40px",
-                                        padding: "0 20px",
-                                    }}
-                                >
-
-                                    Enviar
-                                </Button>
-                            </Box>
-                        </Box>
-                    )}
-
-                    {activeStep === 2 && (
-                        <Box
-                            sx={{
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                padding: "20px",
-                                maxWidth: "500px",
-                                textAlign: "center",
-                                marginTop: "20px",
-                                backgroundColor: "#FFFFFF"
-                            }}
-                        >
-                            <Typography variant="body1" gutterBottom sx={{
-                                textAlign: 'left',
-                                font: 'normal normal medium 16px/54px Poppins',
-                                fontFamily: "Poppins",
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                marginBottom: "-5px",
-                                opacity: 1,
-                            }} >
-                                Ingresa los 4 últimos dígitos del teléfono configurado
-                            </Typography>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    gap: "10px",
-                                    marginTop: "18px",
-                                    height: "75px",
-                                    
-                                }}
-                            >
-                                {phoneDigits.map((digit, index) => (
-                                    <TextField
-                                        key={index}
-                                        value={digit}
-                                        type="text"
-                                        inputProps={{
-                                            maxLength: 1,
-                                            style: {
-                                                textAlign: "center",
-                                                font: "normal normal medium 26px/54px Poppins",
+                                    >
+                                        <Typography
+                                            sx={{
+                                                textAlign: "left",
+                                                font: "normal normal medium 16px/54px",
                                                 fontFamily: "Poppins",
-                                                fontSize: "26px",
-                                                width: "54px",
-                                                height: "19px",
-                                                margin: "0 3px",
-                                                marginTop: "1px",
                                                 letterSpacing: "0px",
                                                 color: "#330F1B",
                                                 opacity: 1,
-                                                
-                                            },
+                                                fontSize: "16px",
+                                                marginBottom: "12px", // Espaciado entre el título y el input
+                                            }}
+                                        >
+                                            Correo Electrónico
+                                        </Typography>
+                                        <TextField
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            required
+                                            /*Fuente del campo de texto*/
+                                            sx={{
+                                                fontFamily: "Poppins",
+                                                "& .MuiInputBase-input": {
+                                                    fontFamily: "Poppins",
+                                                },
+                                                "& .MuiOutlinedInput-root": {
+                                                    "& fieldset": {
+                                                        borderColor: "#DADADA", // Color de borde normal
+                                                    },
+                                                    "&:hover fieldset": {
+                                                        borderColor: "#9B9295", // Color de borde al pasar el mouse
+                                                    },
+                                                    "&.Mui-focused fieldset": {
+                                                        borderColor: "#9B9295", // Color de borde cuando el campo está enfocado
+                                                        borderWidth: "1px",
+
+                                                    },
+                                                },
+
+
+                                            }}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <Tooltip
+                                                            title={
+                                                                <Box
+                                                                    sx={{
+                                                                        backgroundColor: "#FFFFFF",
+                                                                        borderRadius: "8px",
+                                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                        padding: "8px 12px",
+                                                                        fontSize: "14px",
+                                                                        fontFamily: "Poppins",
+                                                                        color: "#574B4F",
+                                                                        whiteSpace: "pre-line",
+                                                                        transform: "translate(2px, -15px)",
+                                                                        borderColor: "#00131F3D",
+                                                                        borderStyle: "solid",
+                                                                        borderWidth: "1px"
+                                                                    }}
+                                                                >
+                                                                    <>
+                                                                        • Ingrese su correo registrado <br />
+                                                                        en el sistema
+                                                                    </>
+                                                                </Box>
+                                                            }
+
+                                                            placement="bottom-end"
+                                                            componentsProps={{
+                                                                tooltip: {
+                                                                    sx: {
+                                                                        backgroundColor: "transparent",
+                                                                        padding: 0,
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <IconButton>
+                                                                <img src={infoicon} style={{ width: 24, height: 24 }} />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                        />
+                                    </Box>
+                                    {errorMessage && (
+                                        <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
+                                            {errorMessage}{" "}
+                                            <Link component={LinkDom} to="/register" color="primary">
+                                                Registrarte
+                                            </Link>
+                                        </Typography>
+                                    )}
+
+                                    {/* Línea horizontal */}
+                                    <Box
+                                        sx={{
+                                            borderTop: "1px solid #DADADA",
+                                            position: "relative",
+                                            left: -40,
+                                            right: 0,
+                                            width: "535px",
+                                            height: "1px",
+                                            backgroundColor: "red",
+                                            my: 1,
+                                            marginBottom: "-35px",
+                                            marginTop: "35px",
                                         }}
-                                        inputRef={(el) => (inputRefs.current[index] = el)} // Asignar referencia
-                                        onChange={(e) => handlePhoneDigitsChange(index, e.target.value)} // Manejar cambios
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Backspace" && !digit && index > 0) {
-                                                inputRefs.current[index - 1]?.focus(); // Enfocar cuadro anterior
-                                            }
-                                        }}
-                                        error={hasAttemptedValidation && !isPhoneDigitsValid} // Mostrar error solo después de intentar validar
-                                        sx={{ width: "50px", height: "50px" }}
                                     />
-                                ))}
-                            </Box>
-
-                            {hasAttemptedValidation && !isPhoneDigitsValid && (
-                                <Typography variant="body2" color="error" sx={{ marginTop: 2, fontFamily: "Poppins", }}>
-                                    Los dígitos ingresados son incorrectos. Por favor, inténtalo nuevamente.
-                                </Typography>
-                            )}
-
-                    {/* Línea horizontal */}
-                    <Box
-                        sx={{
-                            position: "relative",
-                            left: -23,
-                            right: 0,
-                            width: "500px",
-                            height: "1px",
-                            backgroundColor: "#E0E0E0",
-                            my: 1,
-                        }}
-                    />
 
 
+
+                                    <Box
+                                        sx={{
+                                            borderTop: "0px solid #DADADA", // Línea gris claro
+                                            marginTop: "32px", // Mayor separación del contenido superior
+                                            paddingTop: "8px", // Menor separación con los botones
+                                            //Cambios para anchura de linea
+
+                                        }}
+                                    >
+                                        {/* Botones */}
+                                        <Box display="flex" justifyContent="space-between" pt={2}>
+                                            <Button
+                                                variant="outlined"
+                                                onClick={() => navigate("/")}
+                                                sx={{
+                                                    border: "1px solid #CCCFD2",
+                                                    borderRadius: "4px",
+                                                    color: "#833A53",
+                                                    fontFamily: "Poppins",
+                                                    fontStyle: "normal",
+                                                    fontVariant: "normal",
+                                                    letterSpacing: "1.12px",
+                                                    fontSize: "14px",
+                                                    lineHeight: "54px",
+                                                    fontWeight: "600",
+                                                    height: "38px",
+                                                    backgroundColor: "transparent",
+                                                    "&:hover": {
+                                                        backgroundColor: "#f3e6eb",
+
+                                                    },
+                                                }}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                sx={{
+                                                    fontFamily: "Poppins",
+                                                    backgroundColor: "#833A53",
+                                                    color: "#FFFFFF",
+                                                    padding: "10px 20px",
+                                                    textTransform: "uppercase",
+                                                    height: "38px",
+                                                    letterSpacing: "1.12px",
+                                                    fontStyle: "normal",
+                                                    fontVariant: "normal",
+                                                    fontWeight: "500",
+                                                    "&:hover": {
+                                                        backgroundColor: "#A54261",
+                                                    },
+                                                }}
+                                                onClick={handleSubmit}
+                                                disabled={!isEmailValid(email) || loading}
+                                            >
+                                                {loading ? <CircularProgress size={24} thickness={8} sx={{ color: "#FFFFFF", }} /> : "Enviar"}
+                                            </Button>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                            </Paper>
+                        )}
+
+                        {activeStep === 1 && (
                             <Box
                                 sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "8px",
+                                    padding: "20px",
+                                    maxWidth: "500px",
+                                    textAlign: "center",
                                     marginTop: "20px",
+                                    backgroundColor: "#FFFFFF"
                                 }}
                             >
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => {
-                                        setActiveStep(1);
-                                        setIsPhoneDigitsValid(true);
-                                        setLoading(false);
-                                    }}
+                                <Typography
+                                    variant="body1"
+                                    gutterBottom
                                     sx={{
-                                        border: "1px solid #60293C",
-                                        borderRadius: "4px",
-                                        color: "#833A53",
-                                        backgroundColor: "transparent",
-                                        "&:hover": {
-                                        backgroundColor: "#f3e6eb",
-                                    },
-                                }}
-                                >
-                                    Regresar
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => {
-                                        handleValidatePhoneDigits();
-                                        SendToken();
-                                    }}
-                                    disabled={
-                                        phoneDigits.some(
-                                            digit => digit === '' ||
-                                                phoneDigits.join('') !== JSON.parse(localStorage.getItem('userData') || '{}')?.phonenumber?.slice(-4)
-                                        )
-                                    }
-                                    sx={{
-                                        background: '#833A53 0% 0% no-repeat padding-box',
-                                        border: '1px solid #60293C',
-                                        borderRadius: '4px',
-                                        opacity: 0.9,
-                                        color: '#FFFFFF',
+                                        textAlign: "left",
+                                        font: "normal normal normal 16px/20px Poppins",
+                                        fontFamily: "Poppins",
+                                        letterSpacing: "0px",
+                                        color: "#330F1B",
+                                        opacity: 1,
                                     }}
                                 >
-                                    Validar
-                                </Button>
-                            </Box>
-                        </Box>
-                     
-                    )}
+                                    Seleccione el canal por el cual prefiere recibir su código de autenticación
+                                </Typography>
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        marginTop: "20px",
+                                    }}
+                                >
+                                    <RadioGroup
+                                        row
+                                        value={SendType}
+                                        onChange={onChangeValue}
+                                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                                    >
+                                        <FormControlLabel
+                                            value="SMS"
+                                            control={<Radio sx={{
+                                                fontFamily: "Poppins",
+                                                color: "#574B4F",
+                                                "&.Mui-checked": {
+                                                    color: "#8F4D63",
+                                                },
+                                            }} />}
+                                            label="SMS"
+                                            sx={{
+                                                fontFamily: "Poppins",
+                                                color: SendType === "SMS" ? "#8F4D63" : "#574B4F",
+                                                fontWeight: SendType === "SMS" ? "bold" : "normal",
+                                                transition: "color 0.3s ease",
+                                            }}
+                                            componentsProps={{
+                                                typography: {
+                                                    sx: {
+                                                        fontFamily: "Poppins",
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                        <FormControlLabel
+                                            value="EMAIL"
+                                            control={<Radio sx={{
+                                                fontFamily: "Poppins",
+                                                color: "#574B4F",
+                                                "&.Mui-checked": {
+                                                    color: "#8F4D63",
+                                                },
+                                            }} />}
+                                            label="Correo electrónico"
+                                            sx={{
+                                                fontFamily: "Poppins",
+                                                color: SendType === "EMAIL" ? "#8F4D63" : "#574B4F",
+                                                fontWeight: SendType === "EMAIL" ? "bold" : "normal",
+                                                transition: "color 0.3s ease",
+                                            }}
+                                            componentsProps={{
+                                                typography: {
+                                                    sx: {
+                                                        fontFamily: "Poppins",
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    </RadioGroup>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        disabled={loading}
+                                        onClick={SendToken}
+                                        sx={{
+                                            textAlign: "center",
+                                            fontFamily: "Poppins",
+                                            FontStyle: "normal",
+                                            fontVariant: "normal",
+                                            fontWeight: "500",
+                                            letterSpacing: "1.12px",
+                                            color: "#FFFFFF",
+                                            textTransform: "uppercase",
+                                            opacity: 1,
+                                            backgroundColor: "#833A53",
+                                            height: "40px",
+                                            padding: "0 20px",
+                                        }}
+                                    >
 
-                    {activeStep === 3 && (
-                           <Box
-                            sx={{
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                padding: "20px",
-                                maxWidth: "600px",
-                                width: "90%",
-                                textAlign: "center",
-                                marginTop: "20px",
-                                backgroundColor: "#FFFFFF",
-                            }}
-                        >
-                            {/* Parte 1: Reenviar código */}
-                            
+                                        Enviar
+                                    </Button>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {activeStep === 2 && (
+                            <Box
+                                sx={{
+                                    border: "1px solid #ccc",
+                                    borderRadius: "8px",
+                                    padding: "20px",
+                                    maxWidth: "500px",
+                                    textAlign: "center",
+                                    marginTop: "20px",
+                                    backgroundColor: "#FFFFFF"
+                                }}
+                            >
+                                <Typography variant="body1" gutterBottom sx={{
+                                    textAlign: 'left',
+                                    font: 'normal normal medium 16px/54px Poppins',
+                                    fontFamily: "Poppins",
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    marginBottom: "-5px",
+                                    opacity: 1,
+                                }} >
+                                    Ingresa los 4 últimos dígitos del teléfono configurado
+                                </Typography>
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        gap: "10px",
+                                        marginTop: "18px",
+                                        height: "75px",
+
+                                    }}
+                                >
+                                    {phoneDigits.map((digit, index) => (
+                                        <TextField
+                                            key={index}
+                                            value={digit}
+                                            type="text"
+                                            inputProps={{
+                                                maxLength: 1,
+                                                style: {
+                                                    textAlign: "center",
+                                                    font: "normal normal medium 26px/54px Poppins",
+                                                    fontFamily: "Poppins",
+                                                    fontSize: "26px",
+                                                    width: "54px",
+                                                    height: "19px",
+                                                    margin: "0 3px",
+                                                    marginTop: "1px",
+                                                    letterSpacing: "0px",
+                                                    color: "#330F1B",
+                                                    opacity: 1,
+
+                                                },
+                                            }}
+                                            inputRef={(el) => (inputRefs.current[index] = el)} // Asignar referencia
+                                            onChange={(e) => handlePhoneDigitsChange(index, e.target.value)} // Manejar cambios
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Backspace" && !digit && index > 0) {
+                                                    inputRefs.current[index - 1]?.focus(); // Enfocar cuadro anterior
+                                                }
+                                            }}
+                                            error={hasAttemptedValidation && !isPhoneDigitsValid} // Mostrar error solo después de intentar validar
+                                            sx={{ width: "50px", height: "50px" }}
+                                        />
+                                    ))}
+                                </Box>
+
+                                {hasAttemptedValidation && !isPhoneDigitsValid && (
+                                    <Typography variant="body2" color="error" sx={{ marginTop: 2, fontFamily: "Poppins", }}>
+                                        Los dígitos ingresados son incorrectos. Por favor, inténtalo nuevamente.
+                                    </Typography>
+                                )}
+
+                                {/* Línea horizontal */}
+                                <Box
+                                    sx={{
+                                        position: "relative",
+                                        left: -23,
+                                        right: 0,
+                                        width: "500px",
+                                        height: "1px",
+                                        backgroundColor: "#E0E0E0",
+                                        my: 1,
+                                    }}
+                                />
+
+
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        marginTop: "20px",
+                                    }}
+                                >
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => {
+                                            setActiveStep(1);
+                                            setIsPhoneDigitsValid(true);
+                                            setLoading(false);
+                                        }}
+                                        sx={{
+                                            border: "1px solid #60293C",
+                                            borderRadius: "4px",
+                                            color: "#833A53",
+                                            backgroundColor: "transparent",
+                                            "&:hover": {
+                                                backgroundColor: "#f3e6eb",
+                                            },
+                                        }}
+                                    >
+                                        Regresar
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => {
+                                            handleValidatePhoneDigits();
+                                            SendToken();
+                                        }}
+                                        disabled={
+                                            phoneDigits.some(
+                                                digit => digit === '' ||
+                                                    phoneDigits.join('') !== JSON.parse(localStorage.getItem('userData') || '{}')?.phonenumber?.slice(-4)
+                                            )
+                                        }
+                                        sx={{
+                                            background: '#833A53 0% 0% no-repeat padding-box',
+                                            border: '1px solid #60293C',
+                                            borderRadius: '4px',
+                                            opacity: 0.9,
+                                            color: '#FFFFFF',
+                                        }}
+                                    >
+                                        Validar
+                                    </Button>
+                                </Box>
+                            </Box>
+
+                        )}
+
+                        {activeStep === 3 && (
+                            <Box
+                                sx={{
+                                    border: "1px solid #ccc",
+                                    borderRadius: "8px",
+                                    padding: "20px",
+                                    maxWidth: "600px",
+                                    width: "90%",
+                                    textAlign: "center",
+                                    marginTop: "20px",
+                                    backgroundColor: "#FFFFFF",
+                                }}
+                            >
+                                {/* Parte 1: Reenviar código */}
+
                                 <Typography
                                     variant="body2"
                                     sx={{
@@ -980,26 +996,26 @@ const TermsAndConditions: React.FC = () => {
                                         disabled={isResendDisabled} // Deshabilita el botón si está bloqueado
                                         sx={{
                                             fontWeight: "bold",
-                                            
+
                                             cursor: isResendDisabled ? "not-allowed" : "pointer", // Cambia el cursor si está bloqueado
                                             color: isResendDisabled ? "#ccc" : "#8F4D63", // Cambia el color si está bloqueado
                                             textTransform: "none",
-                                        "&:hover": {
-                                        backgroundColor: "transparent", // Evita que cambie de color al hacer hover
-                                        },
+                                            "&:hover": {
+                                                backgroundColor: "transparent", // Evita que cambie de color al hacer hover
+                                            },
                                         }}
                                     >
                                         {isResendDisabled ? "Espere un minuto para otro Reenvio" : "Reenviar"}
                                     </Link>
                                 </Typography>
 
-                                         <Box
-                                     sx={{
-                                    borderBottom: "2px solid #ddd",
-                                    
-                                    marginTop: "10px",
-                                        }}
-                                        />
+                                <Box
+                                    sx={{
+                                        borderBottom: "2px solid #ddd",
+
+                                        marginTop: "10px",
+                                    }}
+                                />
 
 
                                 <Typography
@@ -1037,10 +1053,10 @@ const TermsAndConditions: React.FC = () => {
 
                                 </Typography>
 
-                            
 
-                            {/* Parte 2: Cajas de texto y contador */}
-                            
+
+                                {/* Parte 2: Cajas de texto y contador */}
+
                                 <Typography
                                     variant="body1"
                                     fontFamily={"Poppins"}
@@ -1055,7 +1071,7 @@ const TermsAndConditions: React.FC = () => {
                                         color: isCodeValid ? "black" : "#D01247",
                                         opacity: 1,
                                         marginTop: "-18px",
-                                        
+
                                     }}
                                 >
                                     Código
@@ -1064,9 +1080,9 @@ const TermsAndConditions: React.FC = () => {
                                     sx={{
                                         display: "flex",
                                         justifyContent: "space-between 10px",
-                                            marginTop: "1px",
-                                            margin: "0 -4px",
-                                            gap: "10px",
+                                        marginTop: "1px",
+                                        margin: "0 -4px",
+                                        gap: "10px",
                                     }}
                                 >
                                     {authCode.map((digit, index) => (
@@ -1078,20 +1094,20 @@ const TermsAndConditions: React.FC = () => {
                                             inputRef={(el) => (inputRefs.current[index] = el)}
                                             inputProps={{
                                                 maxLength: 1,
-                                                style: { 
-                                                    textAlign: "center", 
-                                                    fontFamily: "Poppins", 
+                                                style: {
+                                                    textAlign: "center",
+                                                    fontFamily: "Poppins",
                                                     fontSize: "26px",
                                                     height: "27px",
                                                     marginTop: "-8px"
-                                                    },
+                                                },
                                             }}
                                             error={!isCodeValid}
                                             sx={{
                                                 width: "54px",
                                                 height: "56px",
                                                 margin: "0 3px",
-                                                
+
                                             }}
                                         />
                                     ))}
@@ -1122,179 +1138,29 @@ const TermsAndConditions: React.FC = () => {
                                     </Typography>
                                 )}
 
-                    {/* Línea horizontal */}
-                    <Box
-                        sx={{
-                            position: "relative",
-                            left: -23,
-                            right: 0,
-                            width: "485px",
-                            height: "1px",
-                            backgroundColor: "#E0E0E0",
-                            my: 1,
-                        }}
-                    />
-
-
-                            
-                            {/* Parte 3: Botones */}
-                            <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "30px" }}>
-                                <Button variant="outlined" onClick={Return} sx={{
-                                            border: "1px solid #60293C",
-                                            borderRadius: "4px",
-                                            color: "#833A53",
-                                            backgroundColor: "transparent",
-                                            "&:hover": {
-                                            backgroundColor: "#f3e6eb",
-                                        },
-                                    }}
-                                    >
-                                    Regresar
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={ValidateToken}
-                                    disabled={authCode.some((digit) => digit === "") || codeExpired} // Desactiva si faltan dígitos o expiró el tiempo
+                                {/* Línea horizontal */}
+                                <Box
                                     sx={{
-                                        background: "#833A53 0% 0% no-repeat padding-box",
+                                        position: "relative",
+                                        left: -23,
+                                        right: 0,
+                                        width: "485px",
+                                        height: "1px",
+                                        backgroundColor: "#E0E0E0",
+                                        my: 1,
+                                    }}
+                                />
+
+
+
+                                {/* Parte 3: Botones */}
+                                <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "30px" }}>
+                                    <Button variant="outlined" onClick={Return} sx={{
                                         border: "1px solid #60293C",
                                         borderRadius: "4px",
-                                        opacity: 0.9,
-                                        color: "#FFFFFF",
+                                        color: "#833A53",
+                                        backgroundColor: "transparent",
                                         "&:hover": {
-                                            backgroundColor: "#60293C",
-                                        },
-                                    }}
-                                >
-                                    Validar
-                                </Button>
-
-                            </Box>
-                        </Box>
-                        
-                    )}
-                    {activeStep === 4 && (
-                        <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
-                            <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
-                                <Typography
-                                    variant="h6"
-                                    gutterBottom
-                                    sx={{
-                                        textAlign: "left",
-                                        font: "normal normal normal 16px/20px Poppins",
-                                        fontFamily: "Poppins",
-                                        letterSpacing: "0px",
-                                        color: "#330F1B",
-                                        opacity: 1,
-                                    }}
-                                >
-                                    Ingrese una nueva contraseña
-                                </Typography>
-                                <TextField
-                                    
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={!isPasswordValid(password) && password.length > 0}
-                                    helperText={
-                                        !isPasswordValid(password) && password.length > 0
-                                            ? "Debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número."
-                                            : ""
-                                    }
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip
-                                                    title={
-                                                        <Box
-                                                            sx={{
-                                                                backgroundColor: "#FFFFFF", // Set background to white
-                                                                borderRadius: "8px", // Rounded corners
-                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Optional shadow
-                                                                padding: "8px 12px", // Padding for better spacing
-                                                                font: "normal normal medium 16px/24px Poppins",
-                                                                fontFamily: "Poppins",
-                                                                color: "#000000", // Black font color
-                                                                whiteSpace: "pre-line", // Line breaks
-                                                            }}
-                                                        >
-                                                            - Ingrese mínimo 8 carácteres.
-                                                            <br />
-                                                            - Ingrese una letra mayúscula.
-                                                            <br />
-                                                            - Ingrese una letra minúscula.
-                                                            <br />
-                                                            - Ingrese un número.
-                                                        </Box>
-                                                    }
-                                                    arrow
-                                                    placement="bottom-end"
-                                                    componentsProps={{
-                                                        tooltip: {
-                                                            sx: {
-                                                                backgroundColor: "transparent", // Background is transparent to avoid additional layers
-                                                                padding: 0, // Removes padding around the Box
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <IconButton>
-                                                    <img src={!isPasswordValid(password) && password.length > 0 ? infoiconerror: infoicon}></img>
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-
-                                <TextField
-                                    
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    error={confirmPassword.length > 0 && confirmPassword !== password}
-                                    helperText={
-                                        confirmPassword.length > 0 && confirmPassword !== password
-                                            ? "La confirmación no coincide con la nueva contraseña."
-                                            : ""
-                                    }
-                                    
-                                    sx={{ marginTop: 3, fontFamily: "Poppins", }} // Aquí se agrega un margen superior para separarlo
-                                    
-                                    
-                                />
-
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={enableTwoFactor}
-                                            onChange={(e) => setEnableTwoFactor(e.target.checked)}
-                                            color="primary"
-                                        />
-                                    }
-                                    label="Habilitar verificación en 2 pasos"
-                                />
-                                <Box display="flex" justifyContent="space-between" pt={2}>
-                                    <Button
-                                        variant="outlined"
-                                        onClick={() => {
-                                            setActiveStep(1);
-                                            setIsPhoneDigitsValid(true);
-                                            setLoading(false);
-                                        }}
-                                        sx={{
-                                            border: "1px solid #60293C",
-                                            borderRadius: "4px",
-                                            color: "#833A53",
-                                            backgroundColor: "transparent",
-                                            "&:hover": {
                                             backgroundColor: "#f3e6eb",
                                         },
                                     }}
@@ -1303,20 +1169,18 @@ const TermsAndConditions: React.FC = () => {
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        onClick={handleSendNewPassword}
-                                        disabled={
-                                            !isPasswordValid(password) ||
-                                            password !== confirmPassword ||
-                                            password === "" ||
-                                            confirmPassword === ""
-                                        }
+                                        color="primary"
+                                        onClick={ValidateToken}
+                                        disabled={authCode.some((digit) => digit === "") || codeExpired} // Desactiva si faltan dígitos o expiró el tiempo
                                         sx={{
                                             background: "#833A53 0% 0% no-repeat padding-box",
                                             border: "1px solid #60293C",
-                                            fontFamily: "Poppins",
                                             borderRadius: "4px",
                                             opacity: 0.9,
                                             color: "#FFFFFF",
+                                            "&:hover": {
+                                                backgroundColor: "#60293C",
+                                            },
                                         }}
                                     >
                                         Validar
@@ -1324,118 +1188,307 @@ const TermsAndConditions: React.FC = () => {
 
                                 </Box>
                             </Box>
-                        </Paper>
-                       
-                    )}
-                    {activeStep === 5 && (
+
+                        )}
+                        {activeStep === 4 && (
+                            <Paper elevation={10} sx={{ width: '100%', borderRadius: '20px' }}>
+                                <Box sx={{ margin: '20px', paddingX: '20px', paddingY: '30px' }}>
+                                    <Typography
+                                        variant="h6"
+                                        gutterBottom
+                                        sx={{
+                                            textAlign: "left",
+                                            font: "normal normal normal 16px/20px Poppins",
+                                            fontFamily: "Poppins",
+                                            letterSpacing: "0px",
+                                            color: "#330F1B",
+                                            opacity: 1,
+                                        }}
+                                    >
+                                        Ingrese una nueva contraseña
+                                    </Typography>
+                                    <TextField
+
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={!isPasswordValid(password) && password.length > 0}
+                                        helperText={
+                                            !isPasswordValid(password) && password.length > 0
+                                                ? "Debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número."
+                                                : ""
+                                        }
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <Tooltip
+                                                        title={
+                                                            <Box
+                                                                sx={{
+                                                                    backgroundColor: "#FFFFFF",
+                                                                    borderRadius: "8px",
+                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                                                    padding: "8px 12px",
+                                                                    fontSize: "14px",
+                                                                    fontFamily: "Poppins",
+                                                                    color: "#574B4F",
+                                                                    whiteSpace: "pre-line",
+                                                                    transform: "translate(-1px, -15px)",
+                                                                    borderColor: "#00131F3D",
+                                                                    borderStyle: "solid",
+                                                                    borderWidth: "1px"
+                                                                }}
+                                                            >
+                                                                <>
+                                                                    • Ingrese mínimo 8 carácteres.
+                                                                    <br />
+                                                                    • Ingrese una letra mayúscula.
+                                                                    <br />
+                                                                    • Ingrese una letra minúscula.
+                                                                    <br />
+                                                                    • Ingrese un número.
+                                                                </>
+                                                            </Box>
+                                                        }
+                                                        placement="bottom-end"
+                                                        componentsProps={{
+                                                            tooltip: {
+                                                                sx: {
+                                                                    backgroundColor: "transparent",
+                                                                    padding: 0,
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IconButton
+                                                            sx={{
+                                                                padding: 0,
+                                                                backgroundColor: 'transparent',
+                                                                '&:hover': {
+                                                                    backgroundColor: 'transparent',
+                                                                },
+                                                            }}
+                                                        >
+                                                            <img src={!isPasswordValid(password) && password.length > 0 ? infoiconerror : infoicon}></img>
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+
+                                    <TextField
+
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
+                                        error={confirmPassword.length > 0 && confirmPassword !== password}
+                                        helperText={
+                                            confirmPassword.length > 0 && confirmPassword !== password
+                                                ? "La confirmación no coincide con la nueva contraseña."
+                                                : ""
+                                        }
+
+                                        sx={{ marginTop: 3, fontFamily: "Poppins", }}
+
+
+                                    />
+
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={enableTwoFactor}
+                                                onChange={(e) => setEnableTwoFactor(e.target.checked)}
+                                                color="primary"
+                                                checkedIcon={
+                                                    <Box
+                                                        sx={{
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            position: 'relative',
+                                                            marginTop: '0px',
+                                                            marginLeft: '0px',
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={IconCheckBox1}
+                                                            alt="Seleccionado"
+                                                            style={{ width: '24px', height: '24px' }}
+                                                        />
+                                                    </Box>
+                                                }
+                                            />
+                                        }
+                                        label="Habilitar verificación en 2 pasos"
+                                        sx={{
+                                            '& .MuiFormControlLabel-label': {
+                                                fontFamily: 'Poppins, sans-serif',
+                                                fontSize: '14px',
+                                                color: '#574B4FCC',
+                                            },
+                                        }}
+                                    />
+                                    <Box display="flex" justifyContent="space-between" pt={2}>
+                                        <Button
+                                            variant="outlined"
+                                            onClick={() => {
+                                                setActiveStep(1);
+                                                setIsPhoneDigitsValid(true);
+                                                setLoading(false);
+                                            }}
+                                            sx={{
+                                                border: "1px solid #60293C",
+                                                borderRadius: "4px",
+                                                color: "#833A53",
+                                                backgroundColor: "transparent",
+                                                "&:hover": {
+                                                    backgroundColor: "#f3e6eb",
+                                                },
+                                            }}
+                                        >
+                                            Regresar
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            onClick={handleSendNewPassword}
+                                            disabled={
+                                                !isPasswordValid(password) ||
+                                                password !== confirmPassword ||
+                                                password === "" ||
+                                                confirmPassword === ""
+                                            }
+                                            sx={{
+                                                background: "#833A53 0% 0% no-repeat padding-box",
+                                                border: "1px solid #60293C",
+                                                fontFamily: "Poppins",
+                                                borderRadius: "4px",
+                                                opacity: 0.9,
+                                                color: "#FFFFFF",
+                                            }}
+                                        >
+                                            Validar
+                                        </Button>
+
+                                    </Box>
+                                </Box>
+                            </Paper>
+
+                        )}
+                        {activeStep === 5 && (
+                            <Box
+                                sx={{
+                                    fontFamily: "Poppins",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "8px",
+                                    padding: "20px",
+                                    maxWidth: "500px",
+                                    textAlign: "center",
+                                    marginTop: "20px",
+                                }}
+                            >
+                                <Typography
+                                    variant="h6"
+                                    gutterBottom
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        margin: "5px",
+                                        marginBottom: "5px",
+                                        marginTop: "5px",
+                                        textAlign: "left",
+                                        width: "100%",
+                                    }}
+                                >
+                                    Se ha llegado al límite de envíos de código,
+                                    el ingreso a la cuenta quedará bloqueado por :
+
+                                    <Box component="span" sx={{ color: "#f44336", fontWeight: "bold", marginRight: "5px" }}>
+                                        <Countdown
+                                            date={lockoutEndTime || new Date()}
+                                            renderer={({ hours, minutes, seconds, completed }) =>
+                                                completed ? (
+                                                    <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
+                                                ) : (
+                                                    <span>
+                                                        0{hours}:{minutes}:{seconds}
+                                                    </span>
+                                                )}
+                                        />
+                                    </Box>
+                                    minutos.
+                                </Typography>
+
+                                <Typography
+                                    variant="h6"
+                                    gutterBottom
+                                    sx={{
+                                        fontFamily: "Poppins",
+                                        margin: "5px",
+                                        marginBottom: "5px",
+                                        marginTop: "5px",
+                                        textAlign: "left",
+                                        width: "100%",
+                                    }}
+                                >
+                                    Inténtelo más tarde
+                                </Typography>
+                            </Box>
+                        )}
+
+
+                    </Box>
+                    <Modal
+                        open={isErrorModalOpen}
+                        onClose={closeErrorModal}
+                        aria-labelledby="error-modal-title"
+                        aria-describedby="error-modal-description"
+                    >
                         <Box
                             sx={{
-                                fontFamily: "Poppins",
-                                border: "1px solid #ccc",
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                width: 400,
+                                bgcolor: "background.paper",
+                                border: "2px solid #ccc",
                                 borderRadius: "8px",
-                                padding: "20px",
-                                maxWidth: "500px",
-                                textAlign: "center",
-                                marginTop: "20px",
+                                boxShadow: 24,
+                                p: 4,
                             }}
                         >
-                            <Typography
-                                                    variant="h6"
-                                                    gutterBottom
-                                                sx={{
-                                                    fontFamily: "Poppins",
-                                                    margin: "5px",
-                                                    marginBottom: "5px",
-                                                    marginTop: "5px",
-                                                    textAlign: "left",
-                                                    width: "100%",
-                                                    }}
-                                                    >
-                                                        Se ha llegado al límite de envíos de código, 
-                                                        el ingreso a la cuenta quedará bloqueado por :    
-                
-                                                <Box component="span" sx={{ color: "#f44336", fontWeight: "bold", marginRight: "5px" }}>
-                                                <Countdown
-                                                    date={lockoutEndTime || new Date()}
-                                                    renderer={({ hours, minutes, seconds, completed }) =>
-                                                    completed ? (
-                                                    <span>¡El bloqueo ha terminado! Intente nuevamente.</span>
-                                                    ) : (
-                                                    <span>
-                                                    0{hours}:{minutes}:{seconds}
-                                                    </span>
-                                                    )}
-                                                    />
-                                                </Box>    
-                                                    minutos.
-                                        </Typography>
-                                                        
-                                        <Typography
-                                            variant="h6"
-                                            gutterBottom
-                                        sx={{
-                                            fontFamily: "Poppins",
-                                            margin: "5px",
-                                            marginBottom: "5px",
-                                            marginTop: "5px",
-                                            textAlign: "left",
-                                            width: "100%",
-                                            }}
-                                            >
-                                                Inténtelo más tarde  
-                                    </Typography>
+                            <Typography id="error-modal-title" variant="h6" component="h2">
+                                Error en la recuperación de cuenta
+                            </Typography>
+                            <Typography id="error-modal-description" sx={{ mt: 2 }}>
+                                {messageError}
+                            </Typography>
+                            <Button
+                                onClick={handleAccept}
+                                sx={{
+                                    background: "#833A53 0% 0% no-repeat padding-box",
+                                    border: "1px solid #60293C",
+                                    borderRadius: "4px",
+                                    opacity: 0.9,
+                                    color: "#FFFFFF",
+                                    width: "100%",
+                                    "&:hover": { backgroundColor: "#60293C", },
+                                }}
+                            >
+                                Aceptar
+                            </Button>
                         </Box>
-                    )}
+                    </Modal>
+                </Container>
 
+            </PublicLayout>
+        </Box>
 
-                </Box>
-                <Modal
-                    open={isErrorModalOpen}
-                    onClose={closeErrorModal}
-                    aria-labelledby="error-modal-title"
-                    aria-describedby="error-modal-description"
-                >
-                    <Box
-                        sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            width: 400,
-                            bgcolor: "background.paper",
-                            border: "2px solid #ccc",
-                            borderRadius: "8px",
-                            boxShadow: 24,
-                            p: 4,
-                        }}
-                    >
-                        <Typography id="error-modal-title" variant="h6" component="h2">
-                            Error en la recuperación de cuenta
-                        </Typography>
-                        <Typography id="error-modal-description" sx={{ mt: 2 }}>
-                            {messageError}
-                        </Typography>
-                        <Button
-                            onClick={handleAccept}
-                            sx={{
-                                background: "#833A53 0% 0% no-repeat padding-box",
-                                border: "1px solid #60293C",
-                                borderRadius: "4px",
-                                opacity: 0.9,
-                                color: "#FFFFFF",
-                                width: "100%",
-                                "&:hover": { backgroundColor: "#60293C",  },
-                            }}
-                        >
-                            Aceptar
-                        </Button>
-                    </Box>
-                </Modal>
-            </Container>
-             
-        </PublicLayout>
-    </Box>
-        
     );
 };
 

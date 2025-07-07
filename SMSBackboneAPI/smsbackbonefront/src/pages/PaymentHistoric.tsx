@@ -19,6 +19,7 @@ import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import { useNavigate } from "react-router-dom";
 import Snackbar from '../components/commons/ChipBar'
 import billingicon from '../assets/billing.svg'
+import { letterSpacing } from 'html2canvas/dist/types/css/property-descriptors/letter-spacing';
 interface Historic {
     id: number,
     quantityMoney: number,
@@ -175,12 +176,12 @@ const PaymentHistoric: React.FC = () => {
                     ...(selectedDates && {
                         border: '1px solid #8F4E63',
                         color: '#8F4E63',
-                        background: '#F2E9EC',
+                        background: '#FFFFFF',
                     }),
                     ...(datePickerOpen && {
                         border: '1px solid #8F4E63',
                         color: '#8F4E63',
-                        background: '#E6C2CD',
+                        background: '#FFFFFF',
                     }),
                 }}
                 onClick={handleDateClick}
@@ -216,8 +217,8 @@ const PaymentHistoric: React.FC = () => {
                         background: '#FFFFFF',
                         border: '1px solid #E6E4E4',
                         borderRadius: '8px',
-                        width: '892px',
-                        height: '512px',
+                        maxWidth: "1140px",
+                        height: '468px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -225,7 +226,7 @@ const PaymentHistoric: React.FC = () => {
                         marginTop: '20px'
                     }}
                 >
-                    <img src={boxclose} alt="No data" style={{ width: '150px', height: '150px' }} />
+                    <img src={boxclose} alt="No data" style={{ width: '240px', height: '190px' }} />
                     <Typography
                         sx={{
                             textAlign: 'center',
@@ -234,7 +235,7 @@ const PaymentHistoric: React.FC = () => {
                             fontWeight: '500',
                             lineHeight: '18px',
                             color: '#7B354D',
-                            marginTop: '10px'
+                            marginTop: '15px'
                         }}
                     >
                         Seleccione un período para comenzar.
@@ -247,8 +248,8 @@ const PaymentHistoric: React.FC = () => {
                         background: '#FFFFFF',
                         border: '1px solid #E6E4E4',
                         borderRadius: '8px',
-                        width: '892px',
-                        height: '512px',
+                        maxWidth: "1140px",
+                        height: '468px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -256,7 +257,7 @@ const PaymentHistoric: React.FC = () => {
                         marginTop: '20px'
                     }}
                 >
-                    <img src={boxopen} alt="No results" style={{ width: '150px', height: '150px' }} />
+                    <img src={boxopen} alt="No results" style={{ width: '240px', height: '190px' }} />
                     <Typography
                         sx={{
                             textAlign: 'center',
@@ -574,18 +575,18 @@ const buttonStyle = {
     background: '#F6F6F6',
     border: '1px solid #C6BFC2',
     borderRadius: '18px',
-    padding: '8px 16px',
-    fontWeight: 'bold',
+    letterSpacing: "1.12px",
+    fontWeight: 600,
     color: '#330F1B',
     textTransform: 'none',
     '&:hover': {
-        background: '#F2E9EC',
-        border: '1px solid #8F4E63',
+        background: '#F8F8F8',
+        border: '1px solid #8F4E63CC',
         color: '#8F4E63'
     },
     '&:active': {
-        background: '#E6C2CD',
-        border: '1px solid #8F4E63',
+        background: '#F8F8F8',
+        border: '1px solid #8F4E63CC',
         color: '#8F4E63'
     }
 

@@ -250,7 +250,8 @@ const Register: React.FC = () => {
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                backgroundColor: "#F2F2F2"
+                backgroundColor: "#F2F2F2",
+                height: "755px", overflowY: "hidden"
             }}
         >
             <PublicLayout>
@@ -266,6 +267,7 @@ const Register: React.FC = () => {
                                 fontFamily: "Poppins",
                                 color: "#330F1B",
                                 opacity: 1,
+                                mt: -2.5
                             }}>
                             Registro
                         </Typography>
@@ -1259,8 +1261,9 @@ const Register: React.FC = () => {
                                 </Grid> */}
 
                             </Grid>
+                            <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 2, mt: 0.5 }} />
                             {/* Buttons */}
-                            <Box sx={{ display: "flex", justifyContent: "space-between", paddingTop: 2, backgroundColor: "white", position: "sticky", bottom: 0 }}>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", paddingTop: 0, backgroundColor: "white", position: "sticky", mb: -1.8 }}>
                                 <Button
                                     variant="outlined"
                                     color="secondary"
@@ -1628,18 +1631,18 @@ const Register: React.FC = () => {
                             <Box
                                 sx={{
                                     position: "absolute",
-                                    top: "310px", // Posición desde la parte superior
-                                    left: "38%", // Posición desde la izquierda
-                                    width: "480px", // Ancho del modal
-                                    height: "228px", // Alto del modal
-                                    bgcolor: "#FFFFFF", // Fondo blanco
-                                    boxShadow: "0px 0px 16px #00131F52", // Sombra del modal
-                                    borderRadius: "8px", // Bordes redondeados
-                                    opacity: 1, // Opacidad completa
+                                    top: "310px",
+                                    left: "38%",
+                                    width: "480px",
+                                    height: "228px",
+                                    bgcolor: "#FFFFFF",
+                                    boxShadow: "0px 0px 16px #00131F52",
+                                    borderRadius: "8px",
+                                    opacity: 1,
                                     display: "flex",
                                     flexDirection: "column",
                                     justifyContent: "space-between",
-                                    p: 3, // Padding interno
+                                    p: 3,
                                 }}
                             >
                                 <Typography
@@ -1652,7 +1655,7 @@ const Register: React.FC = () => {
                                         letterSpacing: "0px",
                                         color: "#574B4F",
                                         opacity: 1,
-                                        fontSize: "20px", // Tamaño de la fuente
+                                        fontSize: "20px",
                                         lineHeight: "22px",
                                         marginBottom: 2,
                                     }}
@@ -1662,7 +1665,7 @@ const Register: React.FC = () => {
                                 <Typography
                                     sx={{
                                         textAlign: "left",
-                                        font: "normal normal normal 16px/22px Poppins",
+                                        fontFamily: "Poppins",
                                         letterSpacing: "0px",
                                         color: "#330F1B",
                                         opacity: 1,

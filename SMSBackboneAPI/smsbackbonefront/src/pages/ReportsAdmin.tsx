@@ -258,420 +258,528 @@ const ReportsAdmin = () => {
                 <IconButton onClick={() => navigate('/')}>
                     <ArrowBackIosNewIcon sx={{ color: "#330F1B" }} />
                 </IconButton>
-                <Typography sx={{ fontSize: "24px", fontFamily: "Poppins", fontWeight: 600, color: "#330F1B", ml: 1 }}>
+                <Typography sx={{ fontSize: "24px", fontFamily: "Poppins", fontWeight: 500, color: "#330F1B", ml: 1 }}>
                     Reportes
                 </Typography>
             </Box>
-            <Divider sx={{ mb: 2 }} />
-            <Tabs
-                value={activeTab}
-                onChange={handleChange}
-                textColor="inherit"
-                indicatorColor="primary"
-                sx={{
-                    '& .MuiTab-root': {
-                        fontFamily: 'Poppins',
-                        fontWeight: 500,
-                        color: '#7B354D',
-                        textTransform: 'none',
-                    },
-                    '& .Mui-selected': {
-                        color: '#330F1B',
-                        fontWeight: 600,
-                    },
-                }}
-            >
-                <Tab label="Facturación" />
-                <Tab label="Consumo de cliente" />
-                <Tab label="Consumo de sistema" />
-            </Tabs>
-            <Box sx={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px' }}>
-                {['FECHA', 'CLIENTE'].map((label) => {
-                    const key = label.toLowerCase() as 'fecha' | 'cliente';
-                    const isActive = activeFilter === key;
-                    const isFecha = key === 'fecha';
-                    const isCliente = key === 'cliente';
-                    const hasFechas = selectedStartDate && selectedEndDate;
-                    const fechaLabel = hasFechas
-                        ? `${dayjs(selectedStartDate).format('D MMM, HH:mm')} – ${dayjs(selectedEndDate).format('D MMM HH:mm')}`
-                        : 'FECHA';
-
-                    return (
-                        <Box
-                            key={label}
-                            onClick={(event) => {
-                                setActiveFilter(key);
-                                if (key === 'fecha') {
-                                    setAnchorElFecha(event.currentTarget);
-                                    setOpenFecha(true);
-                                } else if (key === 'cliente') {
-                                    setClientAnchorEl(event.currentTarget);
-                                    setClientMenuOpen(true);
-                                }
-                            }}
+            <Box sx={{ marginLeft: "32px", }}>
+                <Divider sx={{ marginBottom: "0px", marginTop: "16px" }} />
+                <Tabs
+                    value={activeTab}
+                    onChange={handleChange}
+                    textColor="inherit"
+                    indicatorColor="primary"
+                    TabIndicatorProps={{
+                        sx: {
+                            backgroundColor: '#7B354D',
+                            display: 'none',
+                        }
+                    }}
+                    sx={{
+                        minHeight: '43px',
+                    }}
+                >
+                    {['Facturación', 'Consumo de cliente', 'Consumo de sistema'].map((label, index) => (
+                        <Tab
+                            key={index}
+                            label={label}
                             sx={{
-                                px: '16px',
-                                py: '6px',
-                                border: '1px solid',
-                                borderColor: isActive ? '#7B354D' : '#CFCFCF',
-                                borderRadius: '50px',
-                                cursor: 'pointer',
+                                minWidth: '109px',
+                                px: 2,
+                                height: '43px',
                                 fontFamily: 'Poppins',
-                                fontWeight: 600,
-                                fontSize: '13px',
-                                backgroundColor: isActive ? '#F6EEF1' : '#FFFFFF',
-                                color: isActive ? '#7B354D' : '#9B9295',
-                                transition: 'all 0.2s ease-in-out',
-                                userSelect: 'none',
+                                fontStyle: 'normal',
+                                fontWeight: 500,
+                                fontSize: '16px',
+                                lineHeight: '25px',
+                                textTransform: 'none',
+                                color: '#574B4F',
+                                backgroundColor: 'transparent',
+                                '&:hover': {
+                                    backgroundColor: '#EDD5DC99',
+                                    color: '#864058',
+                                },
+                                '&.Mui-selected': {
+                                    color: '#864058',
+                                    backgroundColor: '#EDD5DC99',
+                                },
+                            }}
+                        />
+                    ))}
+                </Tabs>
+                <Divider sx={{ marginBottom: "15px", marginTop: "0px" }} />
+                <Box sx={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px', mt: 1 }}>
+                    {['FECHA', 'CLIENTE'].map((label) => {
+                        const key = label.toLowerCase() as 'fecha' | 'cliente';
+                        const isActive = activeFilter === key;
+                        const isFecha = key === 'fecha';
+                        const isCliente = key === 'cliente';
+                        const hasFechas = selectedStartDate && selectedEndDate;
+                        const fechaLabel = hasFechas
+                            ? `${dayjs(selectedStartDate).format('D MMM, HH:mm')} – ${dayjs(selectedEndDate).format('D MMM HH:mm')}`
+                            : 'FECHA';
+
+                        return (
+                            <Box
+                                key={label}
+                                onClick={(event) => {
+                                    setActiveFilter(key);
+                                    if (key === 'fecha') {
+                                        setAnchorElFecha(event.currentTarget);
+                                        setOpenFecha(true);
+                                    } else if (key === 'cliente') {
+                                        setClientAnchorEl(event.currentTarget);
+                                        setClientMenuOpen(true);
+                                    }
+                                }}
+                                sx={{
+                                    px: '16px',
+                                    py: '6px',
+                                    border: '1px solid',
+                                    borderColor: isActive ? '#7B354D' : '#CFCFCF',
+                                    borderRadius: '50px',
+                                    cursor: 'pointer',
+                                    fontFamily: 'Poppins',
+                                    fontWeight: 600,
+                                    fontSize: '13px',
+                                    backgroundColor: isActive ? '#F6EEF1' : '#FFFFFF',
+                                    color: isActive ? '#7B354D' : '#9B9295',
+                                    transition: 'all 0.2s ease-in-out',
+                                    userSelect: 'none', marginBottom: "-10px"
+                                }}
+                            >
+                                {isFecha ? fechaLabel : label}
+                            </Box>
+                        );
+                    })}
+                </Box>
+
+                {/* Divider inferior opcional */}
+                <Divider sx={{ marginBottom: "5px" }} />
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mt={0}
+                    p={2}
+                    sx={{ backgroundColor: "#F2F2F2", borderRadius: "8px" }}
+                >
+                    {/* Rango de resultados */}
+                    <Typography sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#330F1B" }}>
+                        {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, originalData.length)} de {originalData.length}
+                    </Typography>
+
+
+                    {/* Flechas + Exportaciones */}
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <Tooltip title="Primera página">
+                            <IconButton onClick={goToFirstPage} disabled={currentPage === 1}>
+                                <Box
+                                    display="flex"
+                                    gap="2px"
+                                    alignItems="center"
+                                    sx={{
+                                        opacity: currentPage === 1 ? 0.3 : 1
+                                    }}
+                                >
+                                    <img src={backarrow} style={{ width: 24 }} />
+                                    <img src={backarrow} style={{ width: 24 }} />
+                                </Box>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Página Anterior">
+                            <IconButton onClick={handlePrevPage} disabled={currentPage === 1}>
+                                <img src={backarrow} style={{ width: 24, opacity: currentPage === 1 ? 0.3 : 1 }} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Siguiente página">
+                            <IconButton onClick={handleNextPage} disabled={currentPage === totalPages}>
+                                <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)', opacity: currentPage === totalPages ? 0.3 : 1 }} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Ultima Página">
+                            <IconButton onClick={goToLastPage} disabled={currentPage === totalPages}>
+                                <Box
+                                    display="flex"
+                                    gap="2px"
+                                    alignItems="center"
+                                    sx={{
+                                        opacity: currentPage === 1 ? 0.3 : 1
+                                    }}
+                                >
+                                    <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)' }} />
+                                    <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)' }} />
+                                </Box>
+                            </IconButton>
+                        </Tooltip>
+
+
+                        {/* Exportaciones */}
+                        <Box display="flex" alignItems="center" gap={2} ml={3}>
+                            <Tooltip title="Exportar a CSV" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
+                                }}
+                            >
+                                <IconButton
+                                    onClick={() => handleExportClick('csv', setIsExportingCSV)}
+                                    disabled={anyExporting && !isExportingCSV}
+                                    sx={{ opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingCSV ? <DualSpinner /> : <img src={IconDownloadCSV} alt="CSV" />}
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title="Exportar a Excel" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
+                                }}
+                            >
+                                <IconButton
+                                    onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
+                                    disabled={anyExporting && !isExportingXLSX}
+                                    sx={{ opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingXLSX ? <DualSpinner /> : <img src={IconDownloadExcel} alt="Excel" />}
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title="Exportar a PDF" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
+                                }}
+                            >
+                                <IconButton
+                                    onClick={() => handleExportClick('pdf', setIsExportingPDF)}
+                                    disabled={anyExporting && !isExportingPDF}
+                                    sx={{ opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingPDF ? <DualSpinner /> : <img src={IconDownloadPDF} alt="PDF" />}
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+
+                    </Box>
+                </Box>
+                <Box mt={3}>
+                    {!hasFiltered ? (
+                        // Caja cerrada al entrar a la vista
+                        <Box
+                            display="flex"
+                            flexDirection="column"
+                            alignItems="center"
+                            justifyContent="center"
+                            sx={{
+                                backgroundColor: "#FAFAFA",
+                                padding: "60px 0",
+                                borderRadius: "8px",
+                                border: "1px solid #E0E0E0"
                             }}
                         >
-                            {isFecha ? fechaLabel : label}
+                            <img src={emptybox} alt="Sin resultados" style={{ width: 120, marginBottom: 16 }} />
+                            <Typography
+                                sx={{
+                                    fontFamily: "Poppins",
+                                    fontSize: "16px",
+                                    color: "#7B354D",
+                                    fontWeight: 500
+                                }}
+                            >
+                                Usa los filtros para generar un reporte.
+                            </Typography>
                         </Box>
-                    );
-                })}
-            </Box>
-
-
-
-            {/* Divider inferior opcional */}
-            <Divider sx={{ marginBottom: "17px" }} />
-            <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                mt={2}
-                p={2}
-                sx={{ backgroundColor: "#F6F6F6", borderRadius: "8px" }}
-            >
-                {/* Rango de resultados */}
-                <Typography sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#330F1B" }}>
-                    {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, originalData.length)} de {originalData.length}
-                </Typography>
-
-
-                {/* Flechas + Exportaciones */}
-                <Box display="flex" alignItems="center" gap={1}>
-                    <Tooltip title="Primera página">
-                        <IconButton onClick={goToFirstPage} disabled={currentPage === 1}>
-                            <Box
-                                display="flex"
-                                gap="2px"
-                                alignItems="center"
+                    ) : originalData.length === 0 ? (
+                        // Caja abierta si no hay resultados después de aplicar filtro
+                        <Box
+                            display="flex"
+                            flexDirection="column"
+                            alignItems="center"
+                            justifyContent="center"
+                            sx={{
+                                backgroundColor: "#FAFAFA",
+                                padding: "60px 0",
+                                borderRadius: "8px",
+                                border: "1px solid #E0E0E0"
+                            }}
+                        >
+                            <img src={NoResult} alt="Sin resultados" style={{ width: 120, marginBottom: 16 }} />
+                            <Typography
                                 sx={{
-                                    opacity: currentPage === 1 ? 0.3 : 1
+                                    fontFamily: "Poppins",
+                                    fontSize: "16px",
+                                    color: "#7B354D",
+                                    fontWeight: 500
                                 }}
                             >
-                                <img src={backarrow} style={{ width: 12 }} />
-                                <img src={backarrow} style={{ width: 12 }} />
-                            </Box>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Página Anterior">
-                        <IconButton onClick={handlePrevPage} disabled={currentPage === 1}>
-                            <img src={backarrow} style={{ width: 12, opacity: currentPage === 1 ? 0.3 : 1 }} />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Siguiente página">
-                        <IconButton onClick={handleNextPage} disabled={currentPage === totalPages}>
-                            <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)', opacity: currentPage === totalPages ? 0.3 : 1 }} />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Ultima Página">
-                        <IconButton onClick={goToLastPage} disabled={currentPage === totalPages}>
-                            <Box
-                                display="flex"
-                                gap="2px"
-                                alignItems="center"
-                                sx={{
-                                    opacity: currentPage === 1 ? 0.3 : 1
-                                }}
-                            >
-                                <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)' }} />
-                                <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)' }} />
-                            </Box>
-                        </IconButton>
-                    </Tooltip>
+                                No se encontraron resultados.
+                            </Typography>
+                        </Box>
+                    ) : (
 
+                        <>
+                            {activeTab === 0 && (
+                                <>
+                                    {Array.isArray(originalData) && originalData.length > 0 ? (
+                                        <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        {Object.keys(originalData[0]).map((key) => (
+                                                            <TableCell
+                                                                key={key}
+                                                                sx={{ fontWeight: 'bold', fontFamily: 'Poppins', color: '#5A2836' }}
+                                                            >
+                                                                {key}
+                                                            </TableCell>
+                                                        ))}
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {originalData.map((row: any, index: number) => (
+                                                        <TableRow key={index}>
+                                                            {Object.keys(row).map((key) => (
+                                                                <TableCell key={key}>
+                                                                    {typeof row[key] === 'string' || typeof row[key] === 'number'
+                                                                        ? row[key]
+                                                                        : row[key] instanceof Date
+                                                                            ? dayjs(row[key]).format('DD/MM/YYYY HH:mm')
+                                                                            : row[key] !== null && typeof row[key] === 'object'
+                                                                                ? JSON.stringify(row[key])
+                                                                                : row[key]}
+                                                                </TableCell>
+                                                            ))}
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    ) : (
+                                        <Box
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                            flexDirection="column"
+                                            height="400px"
+                                            width="100%"
+                                        >
+                                            <img src={NoResult} alt="No hay resultados" style={{ width: 140, height: 140, opacity: 0.7 }} />
+                                            <Typography
+                                                sx={{
+                                                    mt: 1,
+                                                    color: '#5A2836',
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: 'medium',
+                                                    fontSize: '16px',
+                                                }}
+                                            >
+                                                No se encontraron resultados.
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </>
+                            )}
 
-                    {/* Exportaciones */}
-                    <Box display="flex" alignItems="center" gap={2} ml={3}>
-                        <Tooltip title="Exportar CSV" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('csv', setIsExportingCSV)}
-                                disabled={anyExporting && !isExportingCSV}
-                                sx={{ opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
-                            >
-                                {isExportingCSV ? <DualSpinner /> : <img src={IconDownloadCSV} alt="CSV" />}
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title="Exportar Excel" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
-                                disabled={anyExporting && !isExportingXLSX}
-                                sx={{ opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
-                            >
-                                {isExportingXLSX ? <DualSpinner /> : <img src={IconDownloadExcel} alt="Excel" />}
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title="Exportar PDF" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('pdf', setIsExportingPDF)}
-                                disabled={anyExporting && !isExportingPDF}
-                                sx={{ opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
-                            >
-                                {isExportingPDF ? <DualSpinner /> : <img src={IconDownloadPDF} alt="PDF" />}
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
-
+                            {activeTab === 1 &&
+                                <>
+                                    {Array.isArray(originalData) && originalData.length > 0 ? (
+                                        <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        {Object.keys(originalData[0]).map((key) => (
+                                                            <TableCell
+                                                                key={key}
+                                                                sx={{ fontWeight: 'bold', fontFamily: 'Poppins', color: '#5A2836' }}
+                                                            >
+                                                                {key}
+                                                            </TableCell>
+                                                        ))}
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {originalData.map((row: any, index: number) => (
+                                                        <TableRow key={index}>
+                                                            {Object.keys(row).map((key) => (
+                                                                <TableCell key={key}>
+                                                                    {typeof row[key] === 'string' || typeof row[key] === 'number'
+                                                                        ? row[key]
+                                                                        : row[key] instanceof Date
+                                                                            ? dayjs(row[key]).format('DD/MM/YYYY HH:mm')
+                                                                            : row[key] !== null && typeof row[key] === 'object'
+                                                                                ? JSON.stringify(row[key])
+                                                                                : row[key]}
+                                                                </TableCell>
+                                                            ))}
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    ) : (
+                                        <Box
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                            flexDirection="column"
+                                            height="400px"
+                                            width="100%"
+                                        >
+                                            <img src={NoResult} alt="No hay resultados" style={{ width: 140, height: 140, opacity: 0.7 }} />
+                                            <Typography
+                                                sx={{
+                                                    mt: 1,
+                                                    color: '#5A2836',
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: 'medium',
+                                                    fontSize: '16px',
+                                                }}
+                                            >
+                                                No se encontraron resultados.
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </>
+                            }
+                            {activeTab === 2 &&
+                                <>
+                                    {Array.isArray(originalData) && originalData.length > 0 ? (
+                                        <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        {Object.keys(originalData[0]).map((key) => (
+                                                            <TableCell
+                                                                key={key}
+                                                                sx={{ fontWeight: 'bold', fontFamily: 'Poppins', color: '#5A2836' }}
+                                                            >
+                                                                {key}
+                                                            </TableCell>
+                                                        ))}
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {originalData.map((row: any, index: number) => (
+                                                        <TableRow key={index}>
+                                                            {Object.keys(row).map((key) => (
+                                                                <TableCell key={key}>
+                                                                    {typeof row[key] === 'string' || typeof row[key] === 'number'
+                                                                        ? row[key]
+                                                                        : row[key] instanceof Date
+                                                                            ? dayjs(row[key]).format('DD/MM/YYYY HH:mm')
+                                                                            : row[key] !== null && typeof row[key] === 'object'
+                                                                                ? JSON.stringify(row[key])
+                                                                                : row[key]}
+                                                                </TableCell>
+                                                            ))}
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    ) : (
+                                        <Box
+                                            display="flex"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                            flexDirection="column"
+                                            height="400px"
+                                            width="100%"
+                                        >
+                                            <img src={NoResult} alt="No hay resultados" style={{ width: 140, height: 140, opacity: 0.7 }} />
+                                            <Typography
+                                                sx={{
+                                                    mt: 1,
+                                                    color: '#5A2836',
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: 'medium',
+                                                    fontSize: '16px',
+                                                }}
+                                            >
+                                                No se encontraron resultados.
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </>
+                            }
+                        </>
+                    )}
                 </Box>
             </Box>
-            <Box mt={3}>
-                {!hasFiltered ? (
-                    // Caja cerrada al entrar a la vista
-                    <Box
-                        display="flex"
-                        flexDirection="column"
-                        alignItems="center"
-                        justifyContent="center"
-                        sx={{
-                            backgroundColor: "#FAFAFA",
-                            padding: "60px 0",
-                            borderRadius: "8px",
-                            border: "1px solid #E0E0E0"
-                        }}
-                    >
-                        <img src={emptybox} alt="Sin resultados" style={{ width: 120, marginBottom: 16 }} />
-                        <Typography
-                            sx={{
-                                fontFamily: "Poppins",
-                                fontSize: "16px",
-                                color: "#7B354D",
-                                fontWeight: 500
-                            }}
-                        >
-                            Usa los filtros para generar un reporte.
-                        </Typography>
-                    </Box>
-                ) : originalData.length === 0 ? (
-                    // Caja abierta si no hay resultados después de aplicar filtro
-                    <Box
-                        display="flex"
-                        flexDirection="column"
-                        alignItems="center"
-                        justifyContent="center"
-                        sx={{
-                            backgroundColor: "#FAFAFA",
-                            padding: "60px 0",
-                            borderRadius: "8px",
-                            border: "1px solid #E0E0E0"
-                        }}
-                    >
-                        <img src={NoResult} alt="Sin resultados" style={{ width: 120, marginBottom: 16 }} />
-                        <Typography
-                            sx={{
-                                fontFamily: "Poppins",
-                                fontSize: "16px",
-                                color: "#7B354D",
-                                fontWeight: 500
-                            }}
-                        >
-                            No se encontraron resultados.
-                        </Typography>
-                    </Box>
-                ) : (
-
-                    <>
-                        {activeTab === 0 && (
-                            <>
-                                {Array.isArray(originalData) && originalData.length > 0 ? (
-                                    <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
-                                        <Table>
-                                            <TableHead>
-                                                <TableRow>
-                                                    {Object.keys(originalData[0]).map((key) => (
-                                                        <TableCell
-                                                            key={key}
-                                                            sx={{ fontWeight: 'bold', fontFamily: 'Poppins', color: '#5A2836' }}
-                                                        >
-                                                            {key}
-                                                        </TableCell>
-                                                    ))}
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {originalData.map((row: any, index: number) => (
-                                                    <TableRow key={index}>
-                                                        {Object.keys(row).map((key) => (
-                                                            <TableCell key={key}>
-                                                                {typeof row[key] === 'string' || typeof row[key] === 'number'
-                                                                    ? row[key]
-                                                                    : row[key] instanceof Date
-                                                                        ? dayjs(row[key]).format('DD/MM/YYYY HH:mm')
-                                                                        : row[key] !== null && typeof row[key] === 'object'
-                                                                            ? JSON.stringify(row[key])
-                                                                            : row[key]}
-                                                            </TableCell>
-                                                        ))}
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                ) : (
-                                    <Box
-                                        display="flex"
-                                        justifyContent="center"
-                                        alignItems="center"
-                                        flexDirection="column"
-                                        height="400px"
-                                        width="100%"
-                                    >
-                                        <img src={NoResult} alt="No hay resultados" style={{ width: 140, height: 140, opacity: 0.7 }} />
-                                        <Typography
-                                            sx={{
-                                                mt: 1,
-                                                color: '#5A2836',
-                                                fontFamily: 'Poppins',
-                                                fontWeight: 'medium',
-                                                fontSize: '16px',
-                                            }}
-                                        >
-                                            No se encontraron resultados.
-                                        </Typography>
-                                    </Box>
-                                )}
-                            </>
-                        )}
-
-                        {activeTab === 1 &&
-                            <>
-                                {Array.isArray(originalData) && originalData.length > 0 ? (
-                                    <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
-                                        <Table>
-                                            <TableHead>
-                                                <TableRow>
-                                                    {Object.keys(originalData[0]).map((key) => (
-                                                        <TableCell
-                                                            key={key}
-                                                            sx={{ fontWeight: 'bold', fontFamily: 'Poppins', color: '#5A2836' }}
-                                                        >
-                                                            {key}
-                                                        </TableCell>
-                                                    ))}
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {originalData.map((row: any, index: number) => (
-                                                    <TableRow key={index}>
-                                                        {Object.keys(row).map((key) => (
-                                                            <TableCell key={key}>
-                                                                {typeof row[key] === 'string' || typeof row[key] === 'number'
-                                                                    ? row[key]
-                                                                    : row[key] instanceof Date
-                                                                        ? dayjs(row[key]).format('DD/MM/YYYY HH:mm')
-                                                                        : row[key] !== null && typeof row[key] === 'object'
-                                                                            ? JSON.stringify(row[key])
-                                                                            : row[key]}
-                                                            </TableCell>
-                                                        ))}
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                ) : (
-                                    <Box
-                                        display="flex"
-                                        justifyContent="center"
-                                        alignItems="center"
-                                        flexDirection="column"
-                                        height="400px"
-                                        width="100%"
-                                    >
-                                        <img src={NoResult} alt="No hay resultados" style={{ width: 140, height: 140, opacity: 0.7 }} />
-                                        <Typography
-                                            sx={{
-                                                mt: 1,
-                                                color: '#5A2836',
-                                                fontFamily: 'Poppins',
-                                                fontWeight: 'medium',
-                                                fontSize: '16px',
-                                            }}
-                                        >
-                                            No se encontraron resultados.
-                                        </Typography>
-                                    </Box>
-                                )}
-                            </>
-                        }
-                        {activeTab === 2 &&
-                            <>
-                                {Array.isArray(originalData) && originalData.length > 0 ? (
-                                    <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
-                                        <Table>
-                                            <TableHead>
-                                                <TableRow>
-                                                    {Object.keys(originalData[0]).map((key) => (
-                                                        <TableCell
-                                                            key={key}
-                                                            sx={{ fontWeight: 'bold', fontFamily: 'Poppins', color: '#5A2836' }}
-                                                        >
-                                                            {key}
-                                                        </TableCell>
-                                                    ))}
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {originalData.map((row: any, index: number) => (
-                                                    <TableRow key={index}>
-                                                        {Object.keys(row).map((key) => (
-                                                            <TableCell key={key}>
-                                                                {typeof row[key] === 'string' || typeof row[key] === 'number'
-                                                                    ? row[key]
-                                                                    : row[key] instanceof Date
-                                                                        ? dayjs(row[key]).format('DD/MM/YYYY HH:mm')
-                                                                        : row[key] !== null && typeof row[key] === 'object'
-                                                                            ? JSON.stringify(row[key])
-                                                                            : row[key]}
-                                                            </TableCell>
-                                                        ))}
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                ) : (
-                                    <Box
-                                        display="flex"
-                                        justifyContent="center"
-                                        alignItems="center"
-                                        flexDirection="column"
-                                        height="400px"
-                                        width="100%"
-                                    >
-                                        <img src={NoResult} alt="No hay resultados" style={{ width: 140, height: 140, opacity: 0.7 }} />
-                                        <Typography
-                                            sx={{
-                                                mt: 1,
-                                                color: '#5A2836',
-                                                fontFamily: 'Poppins',
-                                                fontWeight: 'medium',
-                                                fontSize: '16px',
-                                            }}
-                                        >
-                                            No se encontraron resultados.
-                                        </Typography>
-                                    </Box>
-                                )}
-                            </>
-                        }
-                    </>
-                )}
-            </Box>
-
 
             <Menu
                 anchorEl={clientAnchorEl}

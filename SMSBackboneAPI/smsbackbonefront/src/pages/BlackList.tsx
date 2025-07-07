@@ -1879,7 +1879,7 @@ const BlackList: React.FC = () => {
                                                                             padding: "8px 12px",
                                                                             fontSize: "14px",
                                                                             fontFamily: "Poppins",
-                                                                            color: "#000000",
+                                                                            color: "#574B4F",
                                                                             whiteSpace: "pre-line",
                                                                             transform: "translate(2px, -15px)",
                                                                             borderColor: "#00131F3D",
@@ -2829,7 +2829,7 @@ const BlackList: React.FC = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     fontFamily: 'Poppins',
-                    overflow: 'hidden', // 🔥 evita doble scroll
+                    overflow: 'hidden',
                     boxShadow: 24,
                 }}>
 
