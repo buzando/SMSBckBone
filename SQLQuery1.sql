@@ -581,7 +581,7 @@ BEGIN
         c.Message,
         c.Name AS CampaignName,
         c.Id AS CampaignId,
-		u.id as UserId
+		u.id as UserId,
         u.userName AS UserName,
         r.name AS RoomName,
         cc.PhoneNumber,
@@ -627,3 +627,74 @@ EXEC sp_getSmsDeliveryReport
     @ReportType,
     @UserIds,
     @CampaignIds;
+
+
+CREATE OR ALTER PROCEDURE sp_getCampaignsToAutoStart
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @now DATETIME = GETDATE();
+
+    SELECT
+        c.Id AS CampaignId,
+        c.Name,
+        c.Message,
+        c.UseTemplate,
+        c.TemplateId,
+        c.AutoStart,
+        c.FlashMessage,
+        c.CustomANI,
+        c.RecycleRecords,
+        c.NumberType,
+        c.CreatedDate,
+        c.RoomId,
+        r.Name AS RoomName,
+        r.Description AS RoomDescription,
+        r.Credits,
+        r.Long_Sms,
+        r.Short_Sms,
+        ca.username,
+        ca.password,
+        cl.RateForShort,
+        cl.RateForLong,
+        r.credits,
+        r.long_sms,
+        r.short_sms,
+        sch.Id AS ScheduleId,
+        sch.StartDateTime,
+        sch.EndDateTime,
+        (
+            SELECT STRING_AGG(CAST(bc.idblacklist AS VARCHAR), ',')
+            FROM blacklistcampains bc
+            WHERE bc.idcampains = c.Id
+        ) AS BlackListIds
+    FROM Campaigns c
+    INNER JOIN Rooms r ON r.id = c.RoomId
+    INNER JOIN roomsbyuser rbu ON rbu.idRoom = r.id
+    INNER JOIN Users u ON u.Id = rbu.idUser
+    INNER JOIN Clients cl ON cl.id = u.IdCliente AND cl.Estatus = 0
+    INNER JOIN client_access ca ON ca.client_id = cl.id
+    OUTER APPLY (
+        SELECT TOP 1 s.*
+        FROM CampaignSchedules s
+        WHERE s.CampaignId = c.Id
+          AND s.StartDateTime <= GETDATE()
+          AND s.EndDateTime >= GETDATE()
+        ORDER BY s.StartDateTime
+    ) sch
+    WHERE c.AutoStart = 1
+      AND EXISTS (
+          SELECT 1
+          FROM CampaignSchedules s
+          WHERE s.CampaignId = c.Id
+            AND s.StartDateTime <= @now
+            AND s.EndDateTime >= @now
+      );
+END
+
+select * from blacklistcampains
+
+select * from CampaignContacts
+
+select * from CampaignSchedules

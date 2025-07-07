@@ -91,6 +91,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Chipbar from '../components/commons/ChipBar'
 import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import DynamicCampaignEditText from '../components/commons/DynamicCampaignEditText';
 interface Horario {
   titulo: string;
   start: Date | null;
@@ -261,6 +262,7 @@ const Campains: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState<number | null>(null);
+  const [allowConcatenation, setAllowConcatenation] = useState(false);
 
   const [openPicker, setOpenPicker] = useState<{
     open: boolean;
@@ -287,7 +289,7 @@ const Campains: React.FC = () => {
     setSelectedCampaign(campaign);
     setEditCampaignName(campaign.name);
     setEditAutoStart(campaign.autoStart ?? false);
-
+    setEditMensaje(campaign.message ?? '');
     // ✅ Fechas y horarios
     setEditHorarios(
       campaign.schedules.map((s, index) => ({
@@ -670,14 +672,20 @@ const Campains: React.FC = () => {
       const response = await axios.get(url);
       if (response.status === 200) {
         setCampaigns(response.data);
+
+        const firstCampaign = response.data[0];
+
         if (selectedCampaignId) {
           const exists = response.data.some((c: { id: number }) => c.id === selectedCampaignId);
           if (!exists) {
-            setSelectedCampaignId(response.data[0]?.id || null);
+            setSelectedCampaignId(firstCampaign?.id || null);
+            setSelectedCampaign(firstCampaign);
           }
         } else {
-          setSelectedCampaignId(response.data[0]?.id || null);
+          setSelectedCampaignId(firstCampaign?.id || null);
+          setSelectedCampaign(firstCampaign);
         }
+
       }
     } catch (error) {
       console.error("Error al traer campañas:", error);
@@ -868,6 +876,13 @@ const Campains: React.FC = () => {
     }
   };
 
+  const toLocalISOString = (date: Date) => {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+  };
+
+
   const handleSaveCampaign = async () => {
     setLoading(true);
     try {
@@ -890,8 +905,8 @@ const Campains: React.FC = () => {
           shortenUrls: shouldShortenUrls
         },
         campaignSchedules: horarios.map((h, index) => ({
-          startDateTime: h.start?.toISOString(),
-          endDateTime: h.end?.toISOString(),
+          startDateTime: toLocalISOString(h.start!),
+          endDateTime: toLocalISOString(h.end!),
           operationMode: recycleEnabled ? 2 : 1,
           order: index + 1
         })),
@@ -997,9 +1012,8 @@ const Campains: React.FC = () => {
   };
 
   const handleSelectCampaign = (selected: CampaignFullResponse) => {
-    if (selectedCampaign?.id === selected.id) return; // 🔒 Ya está seleccionada
+    if (selectedCampaign?.id === selected.id) return;
     setSelectedCampaignId(selected.id);
-    // 🔁 Reorganizamos: el seleccionado va primero, los demás le siguen
     const reordered = [selected, ...campaigns.filter(c => c.id !== selected.id)];
     setCampaigns(reordered);
     setSelectedCampaign(selected);
@@ -2270,13 +2284,18 @@ const Campains: React.FC = () => {
 
                   <Box
                     sx={{
-                      padding: "10px",
-                      borderRadius: "10px",
-                      width: "100%",
-                      height: "auto",
-                      backgroundColor: "#D6D6D64D",
-                      opacity: 0.6
+                      fontFamily: 'Poppins',
+                      fontSize: '14px',
+                      color: '#574B4F',
+                      backgroundColor: '#F3F1F1',
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
+                      maxWidth: '100%',
                     }}
+
                   >
                     <Typography sx={{ textAlign: "left", fontFamily: "Poppins", fontSize: "14px", color: "#574B4F" }}>
                       {selectedCampaign?.message}
@@ -3534,7 +3553,6 @@ const Campains: React.FC = () => {
           )}
 
           {activeStep === 0 && (
-            // 🟰 CONTENIDO de "Registros" nuevo (el que quieres mostrar)
             <Box sx={{ marginTop: "30px", display: "flex", flexDirection: "column", gap: 2, maxHeight: "420px", overflowY: "auto" }}>
               {!fileSuccess && (
                 <Typography sx={{ fontFamily: 'Poppins', fontSize: '18px', color: '#330F1B', mt: "-7px", textAlign: 'center' }}>
@@ -3546,8 +3564,8 @@ const Campains: React.FC = () => {
               {!postCargaActiva && uploadedFile && (
                 <Box sx={{
                   display: 'flex',
-                  justifyContent: 'center', // 👈 separa a los extremos
-                  alignItems: 'center', // 👈 alinea verticalmente si hace falta
+                  justifyContent: 'center',
+                  alignItems: 'center',
                   gap: 27, marginBottom: "-10px", mt: 1
                 }}
                 >
@@ -3806,7 +3824,7 @@ const Campains: React.FC = () => {
                                 mt: '4px'
                               }}
                             >
-                              Total de registros:
+                              Total de registros: {excelData.length}
                             </Typography>
                           )}
                         </Box>
@@ -4157,7 +4175,7 @@ const Campains: React.FC = () => {
                                 mt: '4px'
                               }}
                             >
-                              Total de registros:
+                              Total de registros: {excelData.length}
                             </Typography>
                           )}
                         </Box>
@@ -4660,7 +4678,7 @@ const Campains: React.FC = () => {
                                     mt: '4px'
                                   }}
                                 >
-                                  Total de registros:
+                                  Total de registros: {excelData.length}
                                 </Typography>
                               )}
                             </Box>
@@ -4777,7 +4795,7 @@ const Campains: React.FC = () => {
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: "6px" }}>
                             <LinearProgress
                               variant="determinate"
-                              value={porcentajeTelefonosCargados}
+                              value={100 - porcentajeTelefonosCargados}
                               sx={{
                                 flex: 1,
                                 height: 8,
@@ -4792,7 +4810,7 @@ const Campains: React.FC = () => {
                               minWidth: '40px', textAlign: 'right', color: "#574B4F",
                               fontFamily: "Poppins", fontSize: '12px'
                             }}>
-                              {porcentajeTelefonosCargados}%
+                              {100 - porcentajeTelefonosCargados}%
                             </Typography>
                           </Box>
                         </Box>
@@ -4899,7 +4917,7 @@ const Campains: React.FC = () => {
                           </Typography>
 
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            {telefonos.map((variable, i) => (
+                            {selectedTelefonos.map((variable, i) => (
                               <Button
                                 key={i}
                                 sx={{
@@ -4950,7 +4968,7 @@ const Campains: React.FC = () => {
                           </Typography>
 
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            {variables.map((variable, i) => (
+                            {selectedVariables.map((variable, i) => (
                               <Button
                                 key={i}
                                 sx={{
@@ -4989,18 +5007,6 @@ const Campains: React.FC = () => {
                     </Box>
                   </Box>
                 )}
-
-                {/*Box con absolute para creación de fondo*
-                {postCargaActiva && estadisticasCarga && (
-                  <Box
-                    sx={{
-                      position: "absolute", width: "658px", height: "232px", marginBottom: "-10px",
-                      border: "1px solid #FFFFF", marginLeft: "64px", marginTop: "-5px", pointerEvents: "none",
-                      borderTopLeftRadius: '12px', borderTopRightRadius: '12px',
-                    }}>
-                  </Box>
-                )}
-*/}
               </Box>
             </Box>
           )}
@@ -5106,6 +5112,7 @@ const Campains: React.FC = () => {
                     variables={variables}
                     value={mensajeTexto}
                     onChange={setMensajeTexto}
+                    allowConcatenation={allowConcatenation}
                   />
 
                   {/* Opciones adicionales debajo */}
@@ -5114,10 +5121,12 @@ const Campains: React.FC = () => {
                       <FormControlLabel
                         control={
                           <Checkbox
+                            checked={allowConcatenation}
+                            onChange={(e) => setAllowConcatenation(e.target.checked)}
                             sx={{
-                              color: "#786F72", // color cuando está desmarcado
+                              color: "#786F72",
                               '&.Mui-checked': {
-                                color: "#8F4D63", // color cuando está marcado
+                                color: "#8F4D63",
                               },
                             }}
                           />
@@ -5170,6 +5179,8 @@ const Campains: React.FC = () => {
                                 color: "#8F4D63", // color cuando está marcado
                               },
                             }}
+                            checked={saveAsTemplate}
+                            onChange={(e) => setSaveAsTemplate(e.target.checked)}
                           />
                         }
                         label="Guardar como plantilla"
@@ -5202,6 +5213,7 @@ const Campains: React.FC = () => {
                           </InputAdornment>
                         ),
                       }}
+                      onChange={(e) => setTemplateName(e.target.value)}
                       sx={{
                         width: "500px",
                         fontFamily: "Poppins",
@@ -6090,162 +6102,308 @@ const Campains: React.FC = () => {
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        PaperProps={{
-          sx: {
-            borderRadius: "10px",
-            width: "184px",
-            height: "134px",
-            mt: 1,
-            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)", overflowY: 'hidden'
-          },
+        onClose={() => {
+          setAnchorEl(null);
+          setMenuIndex(null);
         }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            minWidth: '184px'
-          }}
-        >
-          <Box sx={{ flexGrow: 1 }}>
-            <MenuItem
-              onClick={() => {
-                if (!campaigns[menuIndex!]?.autoStart) {
-                  handleOpenEditCampaignModal(campaigns[menuIndex!]);
-                }
-                handleMenuClose();
-              }}
-              disabled={menuIndex !== null && campaigns[menuIndex]?.autoStart}
+        {menuIndex === -1 ? (
+             <>
+            <Box
               sx={{
-                opacity: menuIndex !== null && campaigns[menuIndex]?.autoStart ? 0.5 : 1,
-                fontFamily: "Poppins",
-                color: "#574B4F",
-                fontSize: "14px",
-                fontWeight: 500,
                 display: 'flex',
                 alignItems: 'center',
-                paddingRight: '8px',
+                minWidth: '184px'
+              }}
+            >
+              <Box sx={{ flexGrow: 1 }}>
+                <MenuItem
+                  onClick={() => {
+                    if (selectedCampaign.autoStart) {
+                      handleOpenEditCampaignModal(selectedCampaign);
+                    }
+                    handleMenuClose();
+                  }}
+                  disabled={menuIndex !== null && selectedCampaign?.autoStart}
+                  sx={{
+                    opacity: menuIndex !== null && selectedCampaign?.autoStart ? 0.5 : 1,
+                    fontFamily: "Poppins",
+                    color: "#574B4F",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    paddingRight: '8px',
+                    height: "40px", '&:hover': {
+                      backgroundColor: '#F2EBED'
+                    }
+                  }}
+                >
+                  <EditIcon sx={{ marginRight: 1, width: 24, height: 24, ml: 0.5 }} />
+                  Editar
+                </MenuItem>
+              </Box>
+
+              {selectedCampaign?.autoStart && (
+                <Tooltip
+                  title={
+                    <Box
+                      sx={{
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "8px",
+                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                        padding: "8px 12px",
+                        fontSize: "14px",
+                        fontFamily: "Poppins",
+                        color: "#574B4F",
+                        whiteSpace: "pre-line",
+                        transform: "translate(-1px, -15px)",
+                        borderColor: "#00131F3D",
+                        borderStyle: "solid",
+                        borderWidth: "1px",
+                        width: "190px",
+                        height: "88px", textAlign: "center"
+                      }}
+                    >
+                      <>
+                        No es posible editar<br />
+                        mientras la campaña<br />
+                        se encuentre en curso.
+                      </>
+                    </Box>
+                  }
+                  placement="bottom-end"
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: "transparent",
+                        padding: 0,
+
+                      },
+                    },
+                  }}
+                  PopperProps={{
+                    modifiers: [
+                      {
+                        name: 'offset',
+                        options: {
+                          offset: [10, 1] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                        }
+                      }
+                    ]
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={infoicon}
+                    alt="info"
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      mr: '25px', // mueve ligeramente hacia la izquierda
+                      cursor: 'pointer'
+                    }}
+                  />
+                </Tooltip>
+              )}
+            </Box>
+
+            <MenuItem onClick={() => {
+              if (menuIndex !== null && menuIndex >= 0) {
+                handleOpenDuplicateModal(selectedCampaign);
+              } else if (selectedCampaign) {
+                handleOpenDuplicateModal(selectedCampaign);
+              }
+              handleMenuClose();
+            }}
+              sx={{
+                fontFamily: "Poppins", color: "#574B4F",
+                fontSize: "14px",
+                fontWeight: 500,
                 height: "40px", '&:hover': {
                   backgroundColor: '#F2EBED'
                 }
               }}
             >
-              <EditIcon sx={{ marginRight: 1, width: 24, height: 24, ml: 0.5 }} />
-              Editar
+              <ContentCopyIcon sx={{ width: 24, height: 24, marginRight: 1, ml: 0.5 }} /> Duplicar
             </MenuItem>
-          </Box>
-
-          {menuIndex !== null && campaigns[menuIndex]?.autoStart && (
-            <Tooltip
-              title={
-                <Box
-                  sx={{
-                    backgroundColor: "#FFFFFF",
-                    borderRadius: "8px",
-                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                    padding: "8px 12px",
-                    fontSize: "14px",
-                    fontFamily: "Poppins",
-                    color: "#574B4F",
-                    whiteSpace: "pre-line",
-                    transform: "translate(-1px, -15px)",
-                    borderColor: "#00131F3D",
-                    borderStyle: "solid",
-                    borderWidth: "1px",
-                    width: "190px",
-                    height: "88px", textAlign: "center"
-                  }}
-                >
-                  <>
-                    No es posible editar<br />
-                    mientras la campaña<br />
-                    se encuentre en curso.
-                  </>
-                </Box>
-              }
-              placement="bottom-end"
-              componentsProps={{
-                tooltip: {
-                  sx: {
-                    backgroundColor: "transparent",
-                    padding: 0,
-
-                  },
-                },
+            <MenuItem
+              onClick={() => {
+                setCampaignToDelete(selectedCampaign);
+                setOpenDeleteModal(true);
+                handleMenuClose();
               }}
-              PopperProps={{
-                modifiers: [
-                  {
-                    name: 'offset',
-                    options: {
-                      offset: [10, 1] // [horizontal, vertical] — aquí movemos 3px hacia abajo
-                    }
-                  }
-                ]
+              sx={{
+                fontFamily: "Poppins", color: "#574B4F", fontSize: "14px", fontWeight: 500, height: "40px",
+                ml: "1px", '&:hover': {
+                  backgroundColor: '#F2EBED'
+                }
               }}
             >
-              <Box
-                component="img"
-                src={infoicon}
-                alt="info"
-                sx={{
-                  width: 24,
-                  height: 24,
-                  mr: '25px', // mueve ligeramente hacia la izquierda
-                  cursor: 'pointer'
+              <ListItemIcon>
+                <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24, marginLeft: "3px" }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Eliminar"
+                primaryTypographyProps={{
+                  fontFamily: "Poppins",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: "#574B4F", marginTop: "0px"
                 }}
               />
-            </Tooltip>
-          )}
-        </Box>
+            </MenuItem>
+          </>
+        ) : (
+          <>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                minWidth: '184px'
+              }}
+            >
+              <Box sx={{ flexGrow: 1 }}>
+                <MenuItem
+                  onClick={() => {
+                    if (!campaigns[menuIndex!]?.autoStart) {
+                      handleOpenEditCampaignModal(campaigns[menuIndex!]);
+                    }
+                    handleMenuClose();
+                  }}
+                  disabled={menuIndex !== null && campaigns[menuIndex]?.autoStart}
+                  sx={{
+                    opacity: menuIndex !== null && campaigns[menuIndex]?.autoStart ? 0.5 : 1,
+                    fontFamily: "Poppins",
+                    color: "#574B4F",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    paddingRight: '8px',
+                    height: "40px", '&:hover': {
+                      backgroundColor: '#F2EBED'
+                    }
+                  }}
+                >
+                  <EditIcon sx={{ marginRight: 1, width: 24, height: 24, ml: 0.5 }} />
+                  Editar
+                </MenuItem>
+              </Box>
 
-        <MenuItem onClick={() => {
-          if (menuIndex !== null && menuIndex >= 0) {
-            handleOpenDuplicateModal(campaigns[menuIndex]);
-          } else if (selectedCampaign) {
-            handleOpenDuplicateModal(selectedCampaign);
-          }
-          handleMenuClose();
-        }}
-          sx={{
-            fontFamily: "Poppins", color: "#574B4F",
-            fontSize: "14px",
-            fontWeight: 500,
-            height: "40px", '&:hover': {
-              backgroundColor: '#F2EBED'
-            }
-          }}
-        >
-          <ContentCopyIcon sx={{ width: 24, height: 24, marginRight: 1, ml: 0.5 }} /> Duplicar
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            setCampaignToDelete(filteredCampaigns[menuIndex ?? 0]);
-            setOpenDeleteModal(true);
-            handleMenuClose();
-          }}
-          sx={{
-            fontFamily: "Poppins", color: "#574B4F", fontSize: "14px", fontWeight: 500, height: "40px",
-            ml: "1px", '&:hover': {
-              backgroundColor: '#F2EBED'
-            }
-          }}
-        >
-          <ListItemIcon>
-            <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24, marginLeft: "3px" }} />
-          </ListItemIcon>
-          <ListItemText
-            primary="Eliminar"
-            primaryTypographyProps={{
-              fontFamily: "Poppins",
-              fontSize: "14px",
-              fontWeight: 500,
-              color: "#574B4F", marginTop: "0px"
+              {menuIndex !== null && campaigns[menuIndex]?.autoStart && (
+                <Tooltip
+                  title={
+                    <Box
+                      sx={{
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "8px",
+                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                        padding: "8px 12px",
+                        fontSize: "14px",
+                        fontFamily: "Poppins",
+                        color: "#574B4F",
+                        whiteSpace: "pre-line",
+                        transform: "translate(-1px, -15px)",
+                        borderColor: "#00131F3D",
+                        borderStyle: "solid",
+                        borderWidth: "1px",
+                        width: "190px",
+                        height: "88px", textAlign: "center"
+                      }}
+                    >
+                      <>
+                        No es posible editar<br />
+                        mientras la campaña<br />
+                        se encuentre en curso.
+                      </>
+                    </Box>
+                  }
+                  placement="bottom-end"
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: "transparent",
+                        padding: 0,
+
+                      },
+                    },
+                  }}
+                  PopperProps={{
+                    modifiers: [
+                      {
+                        name: 'offset',
+                        options: {
+                          offset: [10, 1] // [horizontal, vertical] — aquí movemos 3px hacia abajo
+                        }
+                      }
+                    ]
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={infoicon}
+                    alt="info"
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      mr: '25px', // mueve ligeramente hacia la izquierda
+                      cursor: 'pointer'
+                    }}
+                  />
+                </Tooltip>
+              )}
+            </Box>
+
+            <MenuItem onClick={() => {
+              if (menuIndex !== null && menuIndex >= 0) {
+                handleOpenDuplicateModal(campaigns[menuIndex]);
+              } else if (selectedCampaign) {
+                handleOpenDuplicateModal(selectedCampaign);
+              }
+              handleMenuClose();
             }}
-          />
-        </MenuItem>
+              sx={{
+                fontFamily: "Poppins", color: "#574B4F",
+                fontSize: "14px",
+                fontWeight: 500,
+                height: "40px", '&:hover': {
+                  backgroundColor: '#F2EBED'
+                }
+              }}
+            >
+              <ContentCopyIcon sx={{ width: 24, height: 24, marginRight: 1, ml: 0.5 }} /> Duplicar
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setCampaignToDelete(filteredCampaigns[menuIndex ?? 0]);
+                setOpenDeleteModal(true);
+                handleMenuClose();
+              }}
+              sx={{
+                fontFamily: "Poppins", color: "#574B4F", fontSize: "14px", fontWeight: 500, height: "40px",
+                ml: "1px", '&:hover': {
+                  backgroundColor: '#F2EBED'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <img src={Thrashicon} alt="Eliminar archivo" style={{ width: 24, height: 24, marginLeft: "3px" }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Eliminar"
+                primaryTypographyProps={{
+                  fontFamily: "Poppins",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: "#574B4F", marginTop: "0px"
+                }}
+              />
+            </MenuItem>
+          </>
+        )}
       </Menu>
+
 
       <Dialog
         open={openEditCampaignModal}
@@ -7024,13 +7182,9 @@ const Campains: React.FC = () => {
             <Box
               sx={{ maxHeight: "342px", ml: "0px" }}
             >
-              <DynamicCampaignText
-                value={selectedCampaign?.message ?? ''}
+              <DynamicCampaignEditText
+                value={EditMensaje}
                 onChange={setEditMensaje}
-                variables={[
-                  ...(selectedCampaign?.contacts.some(c => !!c.datoId) ? ['ID'] : []),
-                  ...(selectedCampaign?.contacts.some(c => !!c.dato) ? ['Dato'] : [])
-                ]}
               />
 
               <FormControlLabel

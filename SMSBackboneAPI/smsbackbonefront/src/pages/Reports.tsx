@@ -7,7 +7,6 @@ import {
     Typography,
     Divider,
     Tabs,
-    Tab,
     Popper,
     Paper,
     TextField,
@@ -31,6 +30,7 @@ import IconPDF from '../assets/IconPDF.svg';
 import Tooltip from "@mui/material/Tooltip";
 
 import axios from 'axios';
+import dayjs from 'dayjs';
 
 import { saveAs } from 'file-saver';
 import { unparse } from 'papaparse';
@@ -70,21 +70,21 @@ interface ReporteGlobal {
     ReceivedAt: string;
     Cost: string;
     Type: string;
+    SentAt?: string;
 }
 
 interface ReporteSMS {
-    Date: string;
-    Phone: string;
-    Room: string;
-    Campaign: string;
-    CampaignId: number;
-    User: string;
-    MessageId: number;
-    Message: string;
-    Status?: string;
-    ReceivedAt?: string;
-    Result?: string;
-    Reason?: string;
+    messageId: number;
+    message: string;
+    campaignName: string;
+    campaignId: number;
+    userName: string;
+    roomName: string;
+    phoneNumber: string;
+    status?: string;
+    responseMessage?: string;
+    sentAt?: string;
+    UserId: number;
 }
 
 interface Campaign {
@@ -119,17 +119,19 @@ const Reports: React.FC = () => {
     // Estados para el Popper de Campañas
     const [campaignMenuOpen, setCampaignMenuOpen] = useState(false);
     const [anchorElC, setAnchorElC] = useState<HTMLElement | null>(null);
-    const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
+    const [selectedCampaigns, setSelectedCampaigns] = useState<Campaign[]>([]);
     const [campaignSearch, setCampaignSearch] = useState('');
 
     // Estados para el Popper de Usuarios
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
-    const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+    const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
     const [userSearch, setUserSearch] = useState('');
     const tableRef = React.useRef<HTMLDivElement>(null);
-    const [filteredReports, setFilteredReports] = useState<ReporteGlobal[] | ReporteSMS[] | null>([]);
-    const [reportData, setReportData] = useState<ReporteGlobal[] | ReporteSMS[] | undefined | null>(undefined);
+    const [filteredReports, setFilteredReports] = useState<ReporteGlobal[] | null>([]);
+    const [filteredReportsSms, setFilteredReportsSms] = useState<ReporteSMS[] | null>(null);
+    const [reportData, setReportData] = useState<ReporteGlobal[] | undefined | null>(undefined);
+    const [reportDatasms, setReportDatasms] = useState<ReporteSMS[] | undefined | null>(undefined);
     const [users, setUsers] = useState<User[]>([]);
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const navigate = useNavigate();
@@ -163,29 +165,50 @@ const Reports: React.FC = () => {
         }
     };
 
-    // Alterna selección de una campaña
-    const handleCampaignSelection = (campaign: string) => {
-        setSelectedCampaigns((prev) =>
-            prev.includes(campaign) ? prev.filter((item) => item !== campaign) : [...prev, campaign]
-        );
+
+    const handleCampaignSelection = (campaign: Campaign) => {
+        setSelectedCampaigns((prev) => {
+            const exists = prev.some((c) => c.id === campaign.id);
+            if (exists) {
+                return prev.filter((c) => c.id !== campaign.id);
+            } else {
+                return [...prev, campaign];
+            }
+        });
     };
 
-    // Selecciona o deselecciona todas las campañas
     const handleSelectAllCampaigns = () => {
         setSelectedCampaigns(
-            selectedCampaigns.length === campaigns.length
-                ? []
-                : campaigns.map((c) => c.id.toString()) // convierte los ids a string si lo necesitas
+            selectedCampaigns.length === campaigns.length ? [] : campaigns
         );
     };
 
 
-    // Limpia todas las campañas seleccionadas
     const handleClearCampaignSelection = () => {
+        if (selectedSmsOption === "Global") {
+            setCampaignMenuOpen(false);
+            return;
+        }
+
+
         setSelectedCampaigns([]);
-        setFilteredReports(null);
+        setCampaignSearch('');
+
+        setFilteredReportsSms(null);
+
+        handleFilter();
+
+        setCampaignMenuOpen(false);
     };
 
+    useEffect(() => {
+        if (selectedCampaigns.length === 0) {
+            setFilteredReportsSms(null);
+        }
+        if (selectedUsers.length === 0) {
+            setFilteredReportsSms(null);
+        }
+    }, [selectedCampaigns, selectedUsers]);
 
     // Abre o cierra el menú de usuarios
     const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -198,30 +221,36 @@ const Reports: React.FC = () => {
         }
     };
 
-    // Alterna selección de un usuario
-    const handleUserSelection = (user: string) => {
+    const handleUserSelection = (user: User) => {
         setSelectedUsers((prevSelected) =>
-            prevSelected.includes(user)
-                ? prevSelected.filter((u) => u !== user)
+            prevSelected.some((u) => u.id === user.id)
+                ? prevSelected.filter((u) => u.id !== user.id)
                 : [...prevSelected, user]
         );
     };
-
-    // Selecciona o deselecciona todos los usuarios
     const handleSelectAllUsers = () => {
         setSelectedUsers(
-            selectedUsers.length === users.length
-                ? []
-                : users.map((u) => u.id.toString()) // o u.userName, si eso estás usando
+            selectedUsers.length === users.length ? [] : users
         );
     };
 
 
-    // Limpia todos los usuarios seleccionados
     const handleClearUserSelection = () => {
+        if (selectedSmsOption === "Global") {
+            setUserMenuOpen(false);
+            return;
+        }
+
         setSelectedUsers([]);
-        setFilteredReports(null);
+        setUserSearch('');
+
+        setFilteredReportsSms(null);
+
+        handleFilter();
+
+        setUserMenuOpen(false);
     };
+
 
     //Estado para submenu SMS
     const [smsMenuOpen, setSmsMenuOpen] = useState(false);
@@ -286,6 +315,14 @@ const Reports: React.FC = () => {
         }
     };
 
+    const formatDateToLocalString = (date: Date) => {
+        return date.getFullYear() +
+            '-' + (date.getMonth() + 1).toString().padStart(2, '0') +
+            '-' + date.getDate().toString().padStart(2, '0') +
+            ' ' + date.getHours().toString().padStart(2, '0') +
+            ':' + date.getMinutes().toString().padStart(2, '0') +
+            ':' + date.getSeconds().toString().padStart(2, '0');
+    };
 
     const handleReport = async (dates?: DateRangeType) => {
         const selectedRoom = localStorage.getItem("selectedRoom");
@@ -299,21 +336,29 @@ const Reports: React.FC = () => {
         setLoading(true);
         try {
             const payload = {
-                "ReportType": selectedSmsOption,
-                "SubType": "",
-                "RoomId": roomId,
-                "StartDate": dates?.start || null,
-                "EndDate": dates?.end || null,
-                "CampaignIds": selectedCampaigns.length ? selectedCampaigns : null,
-                "UserIds": selectedUsers.length ? selectedUsers : null,
+                ReportType: selectedSmsOption,
+                SubType: "",
+                RoomId: roomId,
+                StartDate: formatDateToLocalString(dates!.start),
+                EndDate: formatDateToLocalString(dates!.end),
+                CampaignIds: selectedCampaigns.length ? selectedCampaigns : null,
+                UserIds: selectedUsers.length ? selectedUsers : null
             };
 
             const response = await axios.post(
                 `${import.meta.env.VITE_SMS_API_URL}${import.meta.env.VITE_API_GET_REPORT}`,
                 payload
             );
-
-            setReportData(transformPascalCase(response.data || null));
+            if (response.data.length > 0) {
+                if (selectedSmsOption === "Global") {
+                    setReportData(transformPascalCase(response.data || [])); // para reporte Global
+                } else {
+                    setReportDatasms(response.data || []);
+                }
+            }
+            else {
+                setReportData(null);
+            }
         } catch (error) {
             console.error("Error al obtener el reporte:", error);
         } finally {
@@ -347,15 +392,33 @@ const Reports: React.FC = () => {
         endHour: number,
         endMinute: number
     ) => {
-        const updatedDates = { start, end, startHour, startMinute, endHour, endMinute };
-        setSelectedDates(updatedDates); // puedes mantener esto si usas selectedDates en la UI
 
+        const startDateTime = new Date(start);
+        startDateTime.setHours(startHour);
+        startDateTime.setMinutes(startMinute);
+        startDateTime.setSeconds(0);
+
+        const endDateTime = new Date(end);
+        endDateTime.setHours(endHour);
+        endDateTime.setMinutes(endMinute);
+        endDateTime.setSeconds(0);
+
+        const updatedDates = {
+            start: startDateTime,
+            end: endDateTime,
+            startHour,
+            startMinute,
+            endHour,
+            endMinute
+        };
+
+        setSelectedDates(updatedDates);
         setDatePickerOpen(false);
         setAnchorEl(null);
         setLoading(true);
 
         try {
-            await handleReport(updatedDates); // pasa las fechas directamente
+            await handleReport(updatedDates);
         } catch (error) {
             console.error("Error al cargar reporte:", error);
             setReports(null);
@@ -363,6 +426,7 @@ const Reports: React.FC = () => {
             setLoading(false);
         }
     };
+
 
 
     {/*Spinner*/ }
@@ -446,24 +510,46 @@ const Reports: React.FC = () => {
     ) => {
         const MAX_RECORDS_LOCAL = 100000;
         try {
+            const dataToExport = selectedSmsOption === "Global"
+                ? reportData
+                : (reportData!.length > 0 ? reportData : reportDatasms);
 
-            if ((reportData!.length ?? 0) <= MAX_RECORDS_LOCAL) {
+            if ((dataToExport?.length ?? 0) <= MAX_RECORDS_LOCAL) {
                 // === LOCAL EXPORT ===
-                const cleanData = reportData!.map(item => ({
-                    Fecha: new Date(item.Date).toLocaleString(),
-                    Telefono: item.Phone,
-                    Sala: item.Room,
-                    Campana: item.Campaign,
-                    Idcampana: item.CampaignId,
-                    Usuario: item.User,
-                    Idmensaje: item.MessageId,
-                    Mensaje: item.Message,
-                    Estado: item.Status,
-                    Fecharecepcion: new Date(item.Date).toLocaleString(),
-                    Costo: 'Cost' in item ? item.Cost : '',
-                    Tipo: 'Type' in item ? item.Type : '',
-                }));
 
+                const cleanData = dataToExport!.map((item: ReporteGlobal | ReporteSMS) => {
+                    const isGlobal = 'Cost' in item;
+
+                    return isGlobal
+                        ? {
+                            Fecha: new Date((item as ReporteGlobal).Date).toLocaleString(),
+                            Telefono: (item as ReporteGlobal).Phone,
+                            Sala: (item as ReporteGlobal).Room,
+                            Campana: (item as ReporteGlobal).Campaign,
+                            Idcampana: (item as ReporteGlobal).CampaignId,
+                            Usuario: (item as ReporteGlobal).User,
+                            Idmensaje: (item as ReporteGlobal).MessageId,
+                            Mensaje: (item as ReporteGlobal).Message,
+                            Estado: (item as ReporteGlobal).Status,
+                            Fecharecepcion: new Date((item as ReporteGlobal).SentAt ?? '').toLocaleString(),
+                            Costo: (item as ReporteGlobal).Cost,
+                            Tipo: (item as ReporteGlobal).Type,
+                        }
+                        : {
+                            Fecha: new Date((item as ReporteSMS).sentAt ?? '').toLocaleString(),
+                            Telefono: (item as ReporteSMS).phoneNumber,
+                            Sala: (item as ReporteSMS).roomName,
+                            Campana: (item as ReporteSMS).campaignName,
+                            Idcampana: (item as ReporteSMS).campaignId,
+                            Usuario: (item as ReporteSMS).userName,
+                            Idmensaje: (item as ReporteSMS).messageId,
+                            Mensaje: (item as ReporteSMS).message,
+                            Estado: (item as ReporteSMS).status ?? '',
+                            Fecharecepcion: '', // o repetir SentAt si aplica
+                            Costo: '',
+                            Tipo: '',
+                        };
+                });
                 if (format === 'csv') {
                     const csv = unparse(cleanData);
                     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -568,7 +654,7 @@ const Reports: React.FC = () => {
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', `Reporte.${format === 'excel' ? 'xlsx' : format}`);
+                link.setAttribute('download', `Reporte.${format === 'xlsx' ? 'xlsx' : format}`);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
@@ -582,61 +668,67 @@ const Reports: React.FC = () => {
     };
 
     const handleFilter = () => {
-        let baseData: ReporteGlobal[] | ReporteSMS[] | undefined | null = [];
-
-        // Selecciona el dataset base según la opción actual
-        switch (selectedSmsOption) {
-            case "Global":
-                baseData = reportData;
-                break;
-            case "Mensajes entrantes":
-                baseData = reportData;
-                break;
-            case "Mensajes enviados":
-                baseData = reportData;
-                break;
-            case "Mensajes no enviados":
-                baseData = reportData;
-                break;
-            case "Mensajes rechazados":
-                baseData = reportData;
-                break;
-            default:
-                baseData = [];
+        if (selectedSmsOption === "Global") {
+            setFilteredReports((reportData ?? []) as ReporteGlobal[]);
+            return;
         }
 
-        // Aplica filtro por usuario si hay selección
-        let resultado = [...baseData];
+        // Para reportes SMS
+        let resultado = [...(reportDatasms ?? [])];
+
         if (selectedUsers.length > 0) {
-            resultado = resultado.filter(r => selectedUsers.includes(r.Usuario));
+            const selectedUserIds = selectedUsers.map(u => u.id);
+            resultado = resultado.filter(r => selectedUserIds.includes(r.UserId));
         }
-        if (selectedCampaigns.length > 0) {
-            resultado = resultado.filter(r => selectedCampaigns.includes(r.Campana));
-        }
-        // En el futuro podés aplicar filtros por campaña u otros aquí
 
-        setFilteredReports(resultado);
+        if (selectedCampaigns.length > 0) {
+            const selectedCampaignIds = selectedCampaigns.map(c => c.id);
+            resultado = resultado.filter(r => selectedCampaignIds.includes(r.campaignId));
+        }
+        if (resultado.length > 0) {
+
+            setFilteredReportsSms(resultado as ReporteSMS[]);
+        } else {
+            setFilteredReportsSms(null);
+        }
+
     };
+
+
+
 
     const getCurrentDataLength = () => {
-        if (filteredReports) return filteredReports.length;
-
-        switch (selectedSmsOption) {
-            case "Global":
-                return reportData!.length;
-            case "Mensajes entrantes":
-                return reportData!.length;
-            case "Mensajes enviados":
-                return reportData!.length;
-            case "Mensajes no enviados":
-                return reportData!.length;
-            case "Mensajes rechazados":
-                return reportData!.length;
-            default:
-                return 0;
+        if (selectedSmsOption === "Global") {
+            if (filteredReports?.length != 0) return filteredReports?.length ?? 0;
+            return reportData?.length ?? 0;
+        } else {
+            if (filteredReportsSms) return filteredReportsSms.length;
+            return reportDatasms?.length ?? 0;
         }
     };
 
+
+    useEffect(() => {
+
+        setSelectedCampaigns([]);
+        setSelectedUsers([]);
+
+        setReportData(undefined);
+        setReportDatasms(undefined);
+    }, [selectedSmsOption]);
+
+    const getStatusText = (code: string | number): string => {
+        switch (Number(code)) {
+            case 0: return "Enviando";
+            case 1: return "Entregado";
+            case 2: return "No entregado";
+            case 3: return "No enviado";
+            case 4: return "Fallido";
+            case 5: return "Excepción";
+            case 6: return "Fuera de horario";
+            default: return "Desconocido";
+        }
+    };
 
     return (
         <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop: '-50px' }}>
@@ -672,14 +764,7 @@ const Reports: React.FC = () => {
             </Box>
 
             <Divider sx={{ mt: 2, mb: 0, maxWidth: "1140px" }} />
-            <Tabs value={selectedTab} onChange={handleTabChange} TabIndicatorProps={{
-                style: {
-                    display: 'none',
-
-                }
-            }}>
-
-
+            <Tabs value={selectedTab} onChange={handleTabChange} >
                 <Box
                     onClick={handleSmsClick}
                     sx={{
@@ -706,16 +791,6 @@ const Reports: React.FC = () => {
                     }} >
                     {selectedSmsOption === "SMS" ? "SMS" : `SMS - ${selectedSmsOption}`}
                 </Box>
-
-
-                <Tab label="Llamada" value="Llamada"
-                    sx={{
-                        minHeight: "auto",
-                        padding: "4px 12px",
-                        fontFamily: "Poppins",
-                        textTransform: "none",
-                        fontSize: "16px"
-                    }} disabled={true} />
 
                 <Popper open={smsMenuOpen} anchorEl={smsAnchorEl} placement="bottom-start">
                     <Paper sx={{ width: 379 }}>
@@ -747,15 +822,19 @@ const Reports: React.FC = () => {
 
             {/* Filtros de Fecha, Campaña y Usuario */}
             <Box display="flex" gap={2} mb={4} marginBottom={2}>
-                <Button variant="outlined" sx={buttonStyle} onClick={handleDateClick}>
+                <Button disabled={selectedSmsOption === "SMS"} variant="outlined" sx={buttonStyle} onClick={handleDateClick}>
                     {selectedDates ? `${selectedDates.start.toLocaleDateString()} - ${selectedDates.end.toLocaleDateString()}` : 'FECHA'}
                 </Button>
 
                 {/* Mostrar solo si no es "Global" */}
                 {selectedSmsOption !== "Global" && (
                     <>
-                        <Button variant="outlined" sx={buttonStyle} onClick={handleCampaignClick}>CAMPAÑA</Button>
-                        <Button variant="outlined" sx={buttonStyle} onClick={handleUserClick}>USUARIO</Button>
+                        <Button disabled={selectedSmsOption === "SMS"} variant="outlined" sx={buttonStyle} onClick={handleCampaignClick}>  {selectedCampaigns.length > 0
+                            ? `${selectedCampaigns.length} campaña${selectedCampaigns.length > 1 ? 's' : ''}`
+                            : 'CAMPAÑA'}</Button>
+                        <Button disabled={selectedSmsOption === "SMS"} variant="outlined" sx={buttonStyle} onClick={handleUserClick}> {selectedUsers.length > 0
+                            ? `${selectedUsers.length} usuario${selectedUsers.length > 1 ? 's' : ''}`
+                            : 'USUARIO'}</Button>
                     </>
                 )}
             </Box>
@@ -766,7 +845,6 @@ const Reports: React.FC = () => {
                 <Paper sx={{ width: 280, p: 2 }}>
                     <TextField
                         placeholder="Buscar"
-                        fullWidth
                         value={campaignSearch}
                         onChange={(e) => setCampaignSearch(e.target.value)}
                         sx={{
@@ -805,7 +883,7 @@ const Reports: React.FC = () => {
                     <Divider sx={{ my: 1.5, bgcolor: '#dcdcdc', marginBottom: "10px", marginTop: "15px", }} />
                     <div style={{
                         position: 'absolute',
-                        top: '74px', // ajusta según el contenido anterior
+                        top: '74px',
                         left: 0,
                         right: 0,
                         height: '1px',
@@ -830,8 +908,10 @@ const Reports: React.FC = () => {
                             />
                         </MenuItem> */}
                         {campaigns.filter(c => c.name.toLowerCase().includes(campaignSearch.toLowerCase())).map(c => (
-                            <MenuItem key={c.id} onClick={() => handleCampaignSelection(c.name)}>
-                                <Checkbox checked={selectedCampaigns.includes(c.name)}
+                            <MenuItem key={c.id} disableRipple sx={{ height: "32px", marginLeft: "-12px" }}>
+                                <Checkbox
+                                    checked={selectedCampaigns.some(sc => sc.id === c.id)}
+                                    onChange={() => handleCampaignSelection(c)}
                                     checkedIcon={
                                         <Box
                                             sx={{
@@ -849,24 +929,19 @@ const Reports: React.FC = () => {
                                             />
                                         </Box>
                                     }
-                                    sx={{
-                                        marginBottom: "-10px",
-                                        marginTop: "-10px",
-                                        marginLeft: "-20px",
-                                        color: '#786E71',
-                                        '&.Mui-checked': { color: '#6C3A52' },
-
-                                    }}
                                 />
                                 <ListItemText
                                     primary={c.name}
                                     primaryTypographyProps={{
                                         fontFamily: 'Poppins',
-                                        color: selectedCampaigns.includes(c.name) ? '#8F4E63' : '#786E71',
+                                        fontSize: '16px',
+                                        fontWeight: 500,
+                                        color: selectedCampaigns.some(s => s.id === c.id) ? '#8F4E63' : '#786E71',
                                     }}
                                 />
                             </MenuItem>
                         ))}
+
                     </Box>
 
                     {/* Línea horizontal arriba de los botones */}
@@ -930,7 +1005,6 @@ const Reports: React.FC = () => {
                 <Paper sx={{ width: 280, p: 2 }}>
                     <TextField
                         placeholder="Buscar"
-                        fullWidth
                         value={userSearch}
                         onChange={(e) => setUserSearch(e.target.value)}
                         sx={{
@@ -994,8 +1068,8 @@ const Reports: React.FC = () => {
                             />
                         </MenuItem> */}
                         {users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase())).map(u => (
-                            <MenuItem key={u.id} onClick={() => handleUserSelection(u.name)}>
-                                <Checkbox checked={selectedUsers.includes(u.name)}
+                            <MenuItem key={u.id} onClick={() => handleUserSelection(u)}>
+                                <Checkbox checked={selectedUsers.includes(u)}
                                     checkedIcon={
                                         <Box
                                             sx={{
@@ -1025,7 +1099,7 @@ const Reports: React.FC = () => {
                                 <ListItemText primary={u.name}
                                     primaryTypographyProps={{
                                         fontFamily: 'Poppins',
-                                        color: selectedUsers.includes(u.name) ? '#8F4E63' : '#786E71',
+                                        color: selectedUsers.includes(u) ? '#8F4E63' : '#786E71',
                                     }}
                                 />
                             </MenuItem>
@@ -1302,8 +1376,8 @@ const Reports: React.FC = () => {
                 >
                     <CircularProgress sx={{ color: '#7B354D' }} size={60} />
                 </Box>
-            ) : reportData === undefined ? (
-              
+            ) : (reportData === undefined && reportDatasms === undefined) ? (
+
                 <Box>
 
                     <Card sx={{
@@ -1321,8 +1395,8 @@ const Reports: React.FC = () => {
                         </CardContent>
                     </Card>
                 </Box>
-            ) : reportData === null ? (
-             
+            ) : (reportData === null && reportDatasms === undefined) ? (
+
                 <Box
                     sx={{
                         background: '#FFFFFF',
@@ -1533,170 +1607,173 @@ const Reports: React.FC = () => {
                         </thead>
 
                         {/* Datos */}
-                        <tbody>
-                            {reportData.map((recarga, index) => (
-                                <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
+                        {Array.isArray(reportData) && reportData.length > 0 && (
+                            <tbody>
 
-                                    }}>
-                                        {new Date(recarga.Date).toLocaleString()}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.Phone}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.Room}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.Campaign}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.CampaignId}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.User}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.MessageId}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.Message}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.Status}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {new Date(recarga.Date).toLocaleString()}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.Message}
-                                    </td>
-                                    <td style={{
-                                        padding: '10px',
-                                        fontFamily: 'Poppins, sans-serif',
-                                        fontSize: '13px',
-                                        color: '#574B4F',
-                                        letterSpacing: "0.03",
-                                        textAlign: 'left',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                    }}>
-                                        {recarga.Message}
-                                    </td>
+                                {reportData.map((recarga, index) => (
+                                    <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
 
-                                </tr>
-                            ))}
-                        </tbody>
+                                        }}>
+                                            {new Date(recarga.Date).toLocaleString()}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.Phone}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.Room}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.Campaign}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.CampaignId}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.User}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.MessageId}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.Message}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {getStatusText(recarga.Status)}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {new Date(recarga.Date).toLocaleString()}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.Cost ?? 0}
+                                        </td>
+                                        <td style={{
+                                            padding: '10px',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontSize: '13px',
+                                            color: '#574B4F',
+                                            letterSpacing: "0.03",
+                                            textAlign: 'left',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}>
+                                            {recarga.Type}
+                                        </td>
+
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
                     </table>
                 </Box>
             ) : selectedSmsOption === "Mensajes entrantes" ? (
@@ -1819,19 +1896,37 @@ const Reports: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {(filteredReports || reportData).map((item, index) => (
+                            {(filteredReportsSms && filteredReportsSms.length > 0 ? filteredReportsSms : reportDatasms ?? []).map((item, index) => (
                                 <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
-                                    <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
-                                    <td style={cellStyle}>{item.Telefono}</td>
-                                    <td style={cellStyle}>{item.Sala}</td>
-                                    <td style={cellStyle}>{item.Campana}</td>
-                                    <td style={cellStyle}>{item.Idcampana}</td>
-                                    <td style={cellStyle}>{item.Usuario}</td>
-                                    <td style={cellStyle}>{item.Idmensaje}</td>
-                                    <td style={cellStyle}>{item.Mensaje}</td>
+                                    <td style={cellStyle}>
+                                        {item.sentAt ? new Date(item.sentAt).toLocaleString() : ''}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.phoneNumber}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.roomName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.campaignName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.campaignId}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.userName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.messageId}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.message}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
+
+
                     </table>
                 </Box>
 
@@ -1993,17 +2088,35 @@ const Reports: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {(filteredReports || dataEnviados).map((item, index) => (
+                            {(filteredReportsSms !== null ? filteredReportsSms : reportDatasms ?? []).map((item, index) => (
                                 <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
-                                    <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
-                                    <td style={cellStyle}>{item.Telefono}</td>
-                                    <td style={cellStyle}>{item.Campana}</td>
-                                    <td style={cellStyle}>{item.Idcampana}</td>
-                                    <td style={cellStyle}>{item.Usuario}</td>
-                                    <td style={cellStyle}>{item.Resultado}</td>
-                                    <td style={cellStyle}>{new Date(item.Fecharecepcion).toLocaleString()}</td>
-                                    <td style={cellStyle}>{item.Idmensaje}</td>
-                                    <td style={cellStyle}>{item.Mensaje}</td>
+                                    <td style={cellStyle}>
+                                        {item.sentAt ? new Date(item.sentAt).toLocaleString() : ''}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.phoneNumber}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.campaignName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.campaignId}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.userName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        Envio Exitoso
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.sentAt ? new Date(item.sentAt).toLocaleString() : ''}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.messageId}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.message}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -2167,187 +2280,235 @@ const Reports: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {(filteredReports || dataNoEnviados).map((item, index) => (
+                            {(filteredReportsSms && filteredReportsSms.length > 0 ? filteredReportsSms : reportDatasms ?? []).map((item, index) => (
                                 <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
-                                    <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
-                                    <td style={cellStyle}>{item.Usuario}</td>
-                                    <td style={cellStyle}>{item.Sala}</td>
-                                    <td style={cellStyle}>{item.Campana}</td>
-                                    <td style={cellStyle}>{item.Telefono}</td>
-                                    <td style={cellStyle}>{item.Resultado}</td>
-                                    <td style={cellStyle}>{item.Razon}</td>
-                                    <td style={cellStyle}>{item.Idmensaje}</td>
-                                    <td style={cellStyle}>{item.Mensaje}</td>
+                                    <td style={cellStyle}>
+                                        {item.sentAt ? new Date(item.sentAt).toLocaleString() : ''}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.phoneNumber}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.campaignName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.campaignId}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.userName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        No enviado
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.status === '2'
+                                            ? 'No entregado'
+                                            : item.status === '3'
+                                                ? 'Sin Carrier Disponible'
+                                                : item.status}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.sentAt ? new Date(item.sentAt).toLocaleString() : ''}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.messageId}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.message}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </Box>
 
-            ) : selectedSmsOption === "Mensajes rechazados" ? (<Box
-                ref={tableRef}
-                sx={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E6E4E4',
-                    borderRadius: '8px',
-                    width: '1140px',
-                    maxWidth: '100%',
-                    padding: '20px',
-                    marginTop: '5px',
-                    overflowX: 'auto',
-                    overflowY: 'auto',
-                    height: '500px',
-                    maxHeight: '100%',
-                }}
-            >
-                <table style={{ width: '83%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
-                    <thead>
-                        <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                Fecha</th>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                Usuario</th>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                Sala</th>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                Campaña</th>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                Teléfono de destinatario</th>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                Resultado</th>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                Razón</th>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                ID de mensaje</th>
-                            <th style={{
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: "500",
-                                textAlign: 'left',
-                                padding: '10px',
-                                fontFamily: 'Poppins, sans-serif',
-                                letterSpacing: '0px',
-                                color: '#330F1B',
-                                fontSize: '13px',
-                                backgroundColor: '#FFFFFF'
-                            }}>
-                                Mensaje</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {(filteredReports || dataRechazados).map((item, index) => (
-                            <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
-                                <td style={cellStyle}>{new Date(item.Fecha).toLocaleString()}</td>
-                                <td style={cellStyle}>{item.Usuario}</td>
-                                <td style={cellStyle}>{item.Sala}</td>
-                                <td style={cellStyle}>{item.Campana}</td>
-                                <td style={cellStyle}>{item.Telefono}</td>
-                                <td style={cellStyle}>{item.Resultado}</td>
-                                <td style={cellStyle}>{item.Razon}</td>
-                                <td style={cellStyle}>{item.Idmensaje}</td>
-                                <td style={cellStyle}>{item.Mensaje}</td>
+            ) : selectedSmsOption === "Mensajes rechazados" ? (
+                <Box
+                    ref={tableRef}
+                    sx={{
+                        background: '#FFFFFF',
+                        border: '1px solid #E6E4E4',
+                        borderRadius: '8px',
+                        width: '1140px',
+                        maxWidth: '100%',
+                        padding: '20px',
+                        marginTop: '5px',
+                        overflowX: 'auto',
+                        overflowY: 'auto',
+                        height: '500px',
+                        maxHeight: '100%',
+                    }}
+                >
+                    <table style={{ width: '83%', borderCollapse: 'collapse', marginTop: "-15px", tableLayout: 'auto' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid #E6E4E4' }}>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Fecha</th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Teléfono</th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Usuario</th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Sala</th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Campaña</th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Resultado</th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Razón</th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    ID de mensaje</th>
+                                <th style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontWeight: "500",
+                                    textAlign: 'left',
+                                    padding: '10px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    letterSpacing: '0px',
+                                    color: '#330F1B',
+                                    fontSize: '13px',
+                                    backgroundColor: '#FFFFFF'
+                                }}>
+                                    Mensaje</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </Box>
+                        </thead>
+                        <tbody>
+                            {(filteredReportsSms !== null ? filteredReportsSms : reportDatasms ?? []).map((item, index) => (
+                                <tr key={index} style={{ borderBottom: '1px solid #E6E4E4', height: '50px' }}>
+                                    <td style={cellStyle}>
+                                        {item.sentAt ? new Date(item.sentAt).toLocaleString() : ''}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.phoneNumber}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.userName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.roomName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.campaignName}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        Error
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.status === '4'
+                                            ? 'Fallo en envio de Carrier'
+                                            : item.status === '3'
+                                                ? 'Excepción no controlada'
+                                                : item.status}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.messageId}
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {item.message}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Box>
             ) : (null)}
 
 

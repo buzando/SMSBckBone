@@ -28,6 +28,8 @@ import backarrow from '../assets/MoveTable.svg';
 import backarrowD from '../assets/MoveTabledesactivated.svg';
 import IconSMS from '../assets/IconSMS.svg';
 import infoiconerror from '../assets/Icon-infoerror.svg';
+import DynamicMessageEditText from '../components/commons/DynamicMessageEditText'; // ajusta el path si está en otra carpeta
+
 interface CampañaAsignada {
     chanel: string;
     campainName: string;
@@ -69,8 +71,8 @@ const Templates = () => {
     const [openMassiveDeleteModal, setOpenMassiveDeleteModal] = useState(false);
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
     const [templateToEdit, setTemplateToEdit] = useState<Template | null>(null);
-
-
+    const [isEdit, setIdEdit] = useState<boolean>(false);
+    const [editMessage, setEditMessage] = useState('');
     const [campaignPage, setCampaignPage] = useState(1);
     const [campaignSearch, setCampaignSearch] = useState('');
     const [campaignData, setCampaignData] = useState<string[]>([]);
@@ -100,6 +102,7 @@ const Templates = () => {
 
 
     const handleOpenEditTemplate = (template: Template) => {
+        setIdEdit(true);
         setIsEditingTemplate(true);
         setTemplateToEdit(template);
         setTemplateName(template.name);
@@ -335,7 +338,11 @@ const Templates = () => {
         }
     };
 
-
+    const extractVariablesFromMessage = (msg: string): string[] => {
+        const matches = msg.match(/\{(.*?)\}/g);
+        if (!matches) return [];
+        return Array.from(new Set(matches.map(v => v.replace(/[{}]/g, ''))));
+    };
     useEffect(() => {
 
 
@@ -922,7 +929,7 @@ const Templates = () => {
                 >
                     <Typography variant="h6" fontWeight={600} fontFamily="Poppins"
                         color='#574B4F' marginTop="0px">
-                        Añadir plantilla
+                        {isEdit ? 'Editar plantilla' : 'Añadir plantilla'}
                     </Typography>
 
                     <IconButton onClick={handleCloseModal} sx={{ position: 'absolute', marginTop: "-48px", marginLeft: '506px' }}>
@@ -1025,12 +1032,20 @@ const Templates = () => {
                         <Box component="span" sx={{ color: "#EF5466", ml: "2px" }}>*</Box>
                     </Typography>
 
+                    {isEdit ? (
+                        <DynamicMessageEditText
+                            value={mensaje}
+                            onChange={setEditMessage}
+                            variables={extractVariablesFromMessage(editMessage)}
+                        />
+                    ) : (
+                        <DynamicMessageEditor
+                            initialMessage={mensaje}
+                            onChange={handleMessageChange}
+                        />
 
+                    )}
 
-                    <DynamicMessageEditor
-                        initialMessage={mensaje}
-                        onChange={handleMessageChange}
-                    />
 
 
                     <Box

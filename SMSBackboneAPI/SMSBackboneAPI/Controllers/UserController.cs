@@ -1321,10 +1321,10 @@ namespace SMSBackboneAPI.Controllers
                 case "global":
                     return Ok(manager.GetSmsReport(request));
                     break;
-                case "entrantes":
-                case "enviados":
-                case "noenviados":
-                case "rechazados":
+                case "mensajes entrantes":
+                case "mensajes enviados":
+                case "mensajes no enviados":
+                case "mensajes rechazados":
                     return Ok(manager.GetSmsReportSend(request));
 
                 default:

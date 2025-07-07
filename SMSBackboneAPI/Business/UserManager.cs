@@ -1456,7 +1456,22 @@ namespace Business
             using (var ctx = new Entities())
             {
                 var connection = (SqlConnection)ctx.Database.GetDbConnection();
-
+                if (request.ReportType == "Mensajes entrantes")
+                {
+                    request.ReportType = "entrantes";
+                }
+                if (request.ReportType == "Mensajes enviados")
+                {
+                    request.ReportType = "enviados";
+                }
+                if (request.ReportType == "Mensajes no enviados")
+                {
+                    request.ReportType = "noenviados";
+                }
+                if (request.ReportType == "Mensajes rechazados")
+                {
+                    request.ReportType = "rechazados";
+                }
                 using (var command = new SqlCommand("sp_getSmsDeliveryReport", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
@@ -1465,14 +1480,21 @@ namespace Business
                     command.Parameters.AddWithValue("@EndDate", request.EndDate ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@RoomId", request.RoomId);
                     command.Parameters.AddWithValue("@ReportType", request.ReportType ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@UserIds", string.Join(",", request.UserIds ?? new List<int>()));
-                    command.Parameters.AddWithValue("@CampaignIds", string.Join(",", request.CampaignIds ?? new List<int>()));
+                    command.Parameters.AddWithValue("@UserIds",
+       (request.UserIds == null || request.UserIds.Count == 0) ? (object)DBNull.Value : string.Join(",", request.UserIds));
+
+                    command.Parameters.AddWithValue("@CampaignIds",
+                        (request.CampaignIds == null || request.CampaignIds.Count == 0) ? (object)DBNull.Value : string.Join(",", request.CampaignIds));
 
                     if (connection.State != ConnectionState.Open)
                         connection.Open();
 
                     using (var reader = command.ExecuteReader())
                     {
+                        if (!reader.HasRows)
+                        {
+                            Console.WriteLine("No rows returned from sp_getSmsDeliveryReport");
+                        }
                         while (reader.Read())
                         {
                             results.Add(new ReportDeliveryResponse
