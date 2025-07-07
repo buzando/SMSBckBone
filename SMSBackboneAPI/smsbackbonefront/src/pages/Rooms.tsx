@@ -317,6 +317,7 @@ const Rooms: React.FC = () => {
                         startIcon={<AddIcon />}
                         sx={{
                             backgroundColor: "#A05B71",
+                            width: "170px",
                             height: "100%",
                             marginRight: "16px",
                         }}
@@ -515,17 +516,6 @@ const Rooms: React.FC = () => {
                                                             }}
                                                         >
                                                             SMS largos: {room.long_sms.toLocaleString()}
-                                                        </Typography>
-                                                        <Typography
-                                                            variant="body2"
-                                                            sx={{
-                                                                fontSize: '14px',
-                                                                color: '#8D4B62',
-                                                                fontWeight: '500',
-                                                                fontFamily: "Poppins"
-                                                            }}
-                                                        >
-                                                            Llamada: {room.calls.toLocaleString()}
                                                         </Typography>
                                                     </Box>
                                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -912,7 +902,6 @@ const Rooms: React.FC = () => {
                                 fontVariant: "normal",
                                 fontFamily: "Poppins",
                                 fontWeight: 600,
-                                letterSpacing: "1.12px",
                                 color: "#574B4F",
                                 opacity: 1,
                                 fontSize: "20px",

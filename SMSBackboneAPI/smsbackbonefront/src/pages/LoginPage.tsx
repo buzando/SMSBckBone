@@ -284,14 +284,14 @@ const Login: React.FC = () => {
                                 <Typography
                                     align="center"
                                     sx={{
-                                        fontStyle: "normal",         // No es cursiva
-                                        fontVariant: "normal",       // No usa variantes como small-caps
-                                        fontWeight: "500",           // Medium (equivalente a 500)
-                                        fontSize: "28px",            // Tamaño del texto en píxeles
-                                        fontFamily: "Poppins",       // Fuente Poppins con
-                                        color: "#330F1B",            // Color del texto
-                                        letterSpacing: "1px",        // Espaciado entre letras
-                                        marginBottom: "59px",        // Margen inferior
+                                        fontStyle: "normal",
+                                        fontVariant: "normal",
+                                        fontWeight: "500",
+                                        fontSize: "28px",
+                                        fontFamily: "Poppins",
+                                        color: "#330F1B",
+                                        letterSpacing: "1px",
+                                        marginBottom: "59px",
                                     }}
                                 >
                                     ¡Bienvenida!

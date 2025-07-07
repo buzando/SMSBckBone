@@ -23,6 +23,10 @@ import Radio from '@mui/material/Radio';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import visa from '../assets/visa.png';
+import mastercard from '../assets/masterCard.png';
+import amex from '../assets/americanExpress.png';
+import spei from '../assets/spei.png'
 
 interface CreditCard {
     id: number;
@@ -96,11 +100,18 @@ const PaymentMethods: React.FC = () => {
         <Tooltip {...props} classes={{ popper: className }} />
     ))(() => ({
         [`& .MuiTooltip-tooltip`]: {
-            backgroundColor: '#ffffff',
-            color: '#000000',
-            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-            fontSize: '14px',
-            borderRadius: '4px',
+            backgroundColor: "#FFFFFF",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            padding: "8px 12px",
+            fontSize: "14px",
+            fontFamily: "Poppins",
+            color: "#574B4F",
+            whiteSpace: "pre-line",
+            transform: "translate(-1px, -15px)",
+            borderColor: "#00131F3D",
+            borderStyle: "solid",
+            borderWidth: "1px"
         },
     }));
 
@@ -405,14 +416,14 @@ const PaymentMethods: React.FC = () => {
 
 
     return (
-        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1040px" }}>
+        <div style={{ padding: '20px', marginTop: '-70px', marginLeft: "40px", maxWidth: "1140px", height: "680px" }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <IconButton
                     onClick={() => navigate('/')}
                     sx={{
                         p: 0,
                         mr: 1,
-                        ml: '-28px', // para que flote más a la izquierda si quieres
+                        ml: '-28px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -433,7 +444,7 @@ const PaymentMethods: React.FC = () => {
                 <Typography
                     variant="h4"
                     sx={{
-                        fontWeight: 'bold',
+                        fontWeight: 500,
                         color: '#330F1B',
                         fontFamily: 'Poppins',
                         fontSize: '26px'
@@ -455,8 +466,49 @@ const PaymentMethods: React.FC = () => {
                     marginBottom: "24px"
                 }}
             >
-                Agregué un metodo de pago o seleccione uno existente.
+                Ingrese un método de pago o seleccione alguno existente.
             </p>
+            <Box sx={{
+                width: "408px", height: "102px",
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between', mb: 3
+            }}>
+                <Typography sx={{
+                    fontFamily: "Poppins",
+                    fontSize: "14px",
+                    color: "#330F1B",
+                    fontWeight: 500,
+                    mb: 2, mt: -1
+                }}
+                >
+                    Métodos disponibles
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    {[visa, mastercard, amex, spei].map((imgSrc, index) => (
+                        <Box
+                            key={index}
+                            sx={{
+                                border: '1px solid #9B929566',
+                                borderRadius: '6px',
+                                padding: '10px',
+                                backgroundColor: '#F7F7F7',
+                                width: '85px',
+                                height: '76px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <img
+                                src={imgSrc}
+                                alt={`Método ${index}`}
+                                style={{ maxHeight: '38px', objectFit: 'contain' }}
+                            />
+                        </Box>
+                    ))}
+                </Box>
+            </Box>
             <MainIcon
                 text="Agregar Tarjeta"
                 isLoading={Loading}
@@ -472,13 +524,13 @@ const PaymentMethods: React.FC = () => {
                     <div
                         key={card.id}
                         style={{
-                            border: selectedCard?.id === card.id ? '1px solid #8d406d' : '1px solid #dcdcdc',
+                            border: selectedCard?.id === card.id ? '1px solid rgba(112, 112, 112, 0.2)' : '1px solid #dcdcdc',
                             borderRadius: '8px',
                             padding: '15px',
-                            width: '360px', // Ancho del contenedor
-                            height: '172px', // Alto del contenedor
+                            width: '360px',
+                            height: '172px',
                             position: 'relative',
-                            backgroundColor: selectedCard?.id === card.id ? '#FBEFF1' : '#fff',
+                            backgroundColor: selectedCard?.id === card.id ? 'rgba(237, 196, 209, 0.2)' : '#FFFFFF',
                         }}
                     >
                         {/* Barra lateral de color */}
@@ -505,7 +557,8 @@ const PaymentMethods: React.FC = () => {
                             letterSpacing: "0px",
                             color: "#330F1B",
                             opacity: 1,
-                            fontSize: "14px"
+                            fontSize: "14px",
+                            marginLeft: "10px"
                         }}>
                             <div>
                                 {card.type}
@@ -519,19 +572,20 @@ const PaymentMethods: React.FC = () => {
                                 fontSize: '14px',
                                 fontFamily: "Poppins",
                                 display: 'flex',
-                                flexDirection: 'column', // Distribución en filas
-                                gap: '5px', // Espacio entre filas
-                                lineHeight: '1.2', // Compacta las líneas ligeramente
+                                flexDirection: 'column',
+                                gap: '5px',
+                                lineHeight: '1.2',
+                                marginLeft: "10px",
                             }}
                         >
-                            <span style={{ margin: '0', padding: '0' }}>{card.card_name}</span>
-                            <span style={{ margin: '0', padding: '0' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
-                            <span style={{ margin: '0', padding: '0' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
+                            <span style={{ margin: '0', padding: '2px' }}>{card.card_name}</span>
+                            <span style={{ margin: '0', padding: '2px' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
+                            <span style={{ margin: '0', padding: '2px' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
                         </div>
 
 
                         {/* Radio para seleccionar */}
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px', cursor: 'pointer', }} onClick={() => handleSelectCard(card)} >
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px', cursor: 'pointer', marginTop: 1.5 }} onClick={() => handleSelectCard(card)} >
                             <Radio
                                 checked={selectedCard?.id === card.id}
                                 readOnly
@@ -556,14 +610,45 @@ const PaymentMethods: React.FC = () => {
                             onClick={() => openDeleteModal(card)}
                             style={{
                                 position: 'absolute',
-                                top: '10px',
-                                right: '10px',
+                                marginTop: "-148px",
+                                marginLeft: "278px",
                                 backgroundColor: 'transparent',
                                 border: 'none',
                                 cursor: 'pointer',
                             }}
                         >
-                            <img src={trash} width='24px' height='24px' />
+                            <Tooltip title="Eliminar" arrow placement="top"
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                            color: "#CCC3C3",
+                                            fontFamily: "Poppins, sans-serif",
+                                            fontSize: "12px",
+                                            padding: "6px 8px",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                        }
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: "rgba(0, 0, 0, 0.8)"
+                                        }
+                                    }
+                                }}
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'offset',
+                                            options: {
+                                                offset: [0, -7]
+                                            }
+                                        }
+                                    ]
+                                }}
+                            >
+                                <img src={trash} width='24px' height='24px' />
+                            </Tooltip>
                         </button>
                     </div>
                 ))}
@@ -650,7 +735,8 @@ const PaymentMethods: React.FC = () => {
                         <IconButton
                             onClick={handleCloseModal}
                             sx={{
-                                color: '#574B4F',
+                                position: "absolute", marginTop: "-2px",
+                                color: '#574B4F', marginLeft: "806px"
                             }}
                         >
                             <CloseIcon />
@@ -748,7 +834,7 @@ const PaymentMethods: React.FC = () => {
                                                         <img src={errors.cardName ? infoiconerror : infoicon} alt="info-icon" />
                                                     </WhiteTooltip>
                                                 </InputAdornment>
-                                            )
+                                            ),
                                         }} />
                                 </div>
                             </div>
@@ -1015,7 +1101,8 @@ const PaymentMethods: React.FC = () => {
                                 >
                                     CP<span style={{ color: "#D01247" }}>*</span>
                                 </label>
-                                <TextField type="number"
+                                <TextField
+                                    type="number"
                                     name="postalCode"
                                     value={formData.postalCode}
                                     onChange={handleChange}
@@ -1024,19 +1111,34 @@ const PaymentMethods: React.FC = () => {
                                     fullWidth
                                     InputProps={{
                                         sx: {
-                                            fontFamily: 'Poppins, sans-serif'
+                                            fontFamily: 'Poppins, sans-serif',
+                                            '& input[type=number]': {
+                                                MozAppearance: 'textfield', // Firefox
+                                            },
+                                            '& input[type=number]::-webkit-outer-spin-button': {
+                                                WebkitAppearance: 'none', // Chrome/Safari
+                                                margin: 0,
+                                            },
+                                            '& input[type=number]::-webkit-inner-spin-button': {
+                                                WebkitAppearance: 'none', // Chrome/Safari
+                                                margin: 0,
+                                            },
                                         },
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <WhiteTooltip placement="bottom-end" title={<>
-                                                    <div>• Solo caracteres numéricos</div>
-                                                    <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
-                                                </>}>
+                                                <WhiteTooltip placement="bottom-end" title={
+                                                    <>
+                                                        <div>• Solo caracteres numéricos</div>
+                                                        <div>• Longitud min. 14 dígitos, máx. 19 dígitos</div>
+                                                    </>
+                                                }>
                                                     <img src={errors.postalCode ? infoiconerror : infoicon} alt="info-icon" />
                                                 </WhiteTooltip>
                                             </InputAdornment>
                                         )
-                                    }} />
+                                    }}
+                                />
+
                             </div>
                             <div style={{ display: 'flex', gap: '20px', gridColumn: 'span 2' }}>
                                 <div style={{ flex: 1 }}>

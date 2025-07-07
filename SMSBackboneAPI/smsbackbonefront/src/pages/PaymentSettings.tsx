@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Checkbox, TextField, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Backdrop, CircularProgress, Typography, FormControlLabel } from '@mui/material';
+import { Checkbox, TextField, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Backdrop, CircularProgress, Typography, FormControlLabel, Divider } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ModalError from "../components/commons/ModalError"
@@ -28,8 +28,8 @@ import ArrowBackIosNewIcon from '../assets/icon-punta-flecha-bottom.svg';
 import visa from '../assets/visa.png';
 import mastercard from '../assets/masterCard.png';
 import amex from '../assets/americanExpress.png';
-import openpay from '../assets/OpenPayLogoColor.jpg';
 import spei from '../assets/spei.png'
+import openpay from '../assets/OpenPayLogoColor.jpg';
 import IconCheckBox1 from "../assets/IconCheckBox1.svg";
 
 type Account = {
@@ -557,7 +557,7 @@ const PaymentSettings: React.FC = () => {
     };
 
     return (
-        <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop: '-50px' }}>
+        <Box p={4} sx={{ padding: '10px', marginLeft: "35px", marginTop: '-50px', maxWidth: "1140px" }}>
             <Backdrop
                 open={loading}
                 sx={{
@@ -589,7 +589,7 @@ const PaymentSettings: React.FC = () => {
                 <Typography
                     variant="h4"
                     sx={{
-                        fontWeight: 'bold',
+                        fontWeight: 500,
                         color: '#5A2836',
                         fontFamily: 'Poppins',
                         fontSize: '26px',
@@ -598,7 +598,7 @@ const PaymentSettings: React.FC = () => {
                     Ajustes de pago
                 </Typography>
             </Box>
-            <hr style={{ width: '100%', border: '1px solid #ccc', margin: '10px 0' }} />
+            <Divider sx={{ width: 'calc(100% + 0px)', marginLeft: '0px', mb: 1.5, mt: 1 }} />
 
             {/* Checkbox para activar alertas */}
             <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
@@ -659,33 +659,45 @@ const PaymentSettings: React.FC = () => {
             </h3>
             <div style={{ opacity: isNotificationEnabled ? 1 : 0.5, pointerEvents: isNotificationEnabled ? 'auto' : 'none' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {['SMS # cortos', 'SMS # largos', 'Llamada'].map((channel) => (
-                        <label key={channel} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <Checkbox
-                                checked={selectedChannels.includes(channel)}
-                                onChange={() => handleChannelToggle(channel)}
-                                disabled={channel === 'Llamada' || !isNotificationEnabled}
-                                sx={{
-                                    color: '#6C3A52',
-                                    '&.Mui-checked': { color: '#6C3A52' },
-                                    marginLeft: '-5px',
-
-                                }}
-                            />
-                            <span
-                                style={{
-                                    textAlign: 'left',
-                                    fontFamily: "Poppins",
-                                    letterSpacing: '0px',
-                                    color: channel === 'Llamada' ? '#B0B0B0' : '#574B4FCC',  // 🔴 Texto gris para "Llamada"
-                                    opacity: channel === 'Llamada' ? 0.5 : 1,  // 🔴 Opacidad baja para "Llamada"
-                                    fontSize: '16px',
-                                }}
-                            >
-                                {channel}
-                            </span>
-                        </label>
-                    ))}
+                    {['SMS # cortos', 'SMS # largos'].map((channel) => {
+                        const isChecked = selectedChannels.includes(channel);
+                        return (
+                            <label key={channel} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <Checkbox
+                                    checked={isChecked}
+                                    onChange={() => handleChannelToggle(channel)}
+                                    checkedIcon={
+                                        <Box
+                                            sx={{
+                                                width: '24px',
+                                                height: '24px',
+                                                position: 'relative',
+                                                marginTop: '0px',
+                                                marginLeft: '0px',
+                                            }}
+                                        >
+                                            <img
+                                                src={IconCheckBox1}
+                                                alt="Seleccionado"
+                                                style={{ width: '24px', height: '24px' }}
+                                            />
+                                        </Box>
+                                    }
+                                />
+                                <span
+                                    style={{
+                                        textAlign: 'left',
+                                        fontFamily: 'Poppins',
+                                        letterSpacing: '0px',
+                                        color: isChecked ? '#8F4D63' : '#574B4FCC',
+                                        fontSize: '16px',
+                                    }}
+                                >
+                                    {channel}
+                                </span>
+                            </label>
+                        );
+                    })}
                 </div>
 
                 {/*Ingresar Cantidad */}
@@ -755,17 +767,18 @@ const PaymentSettings: React.FC = () => {
                     border: '1px solid #E6E4E4',
                     borderRadius: '8px',
                     opacity: 1,
-                    height: 'px',
                     width: '553px',
+                    minHeight: "191px",
                     overflowY: 'auto',
+
                 }}>
                     <Table>
                         <TableHead>
                             <TableRow>
                                 <TableCell />
-                                <TableCell>Nombre</TableCell>
-                                <TableCell>Rol</TableCell>
-                                <TableCell>Ícono</TableCell>
+                                <TableCell sx={{ fontFamily: "Poppins", fontSize: "13px", color: "#330F1B" }}>Nombre</TableCell>
+                                <TableCell sx={{ fontFamily: "Poppins", fontSize: "13px", color: "#330F1B" }}>Rol</TableCell>
+                                <TableCell sx={{ fontFamily: "Poppins", fontSize: "13px", color: "#330F1B" }}>Ícono</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -776,16 +789,27 @@ const PaymentSettings: React.FC = () => {
                                             checked={selectedUsers.includes(user.id)}
                                             onChange={() => handleUserToggle(user.id)}
                                             disabled={!isNotificationEnabled}
-                                            sx={{
-                                                color: '#6C3A52',
-                                                '&.Mui-checked': { color: '#6C3A52' },
-                                                marginLeft: '-5px',
-
-                                            }}
+                                            checkedIcon={
+                                                <Box
+                                                    sx={{
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        position: 'relative',
+                                                        marginTop: '0px',
+                                                        marginLeft: '0px',
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={IconCheckBox1}
+                                                        alt="Seleccionado"
+                                                        style={{ width: '24px', height: '24px' }}
+                                                    />
+                                                </Box>
+                                            }
                                         />
                                     </TableCell>
-                                    <TableCell>{user.name}</TableCell>
-                                    <TableCell>{user.role}</TableCell>
+                                    <TableCell sx={{ fontFamily: "Poppins", fontSize: "13px", color: "#574B4F" }}>{user.name}</TableCell>
+                                    <TableCell sx={{ fontFamily: "Poppins", fontSize: "13px", color: "#574B4F" }}>{user.role}</TableCell>
                                     <TableCell>{user.role === "Administrador" && (
                                         <img src={usrAdmin} alt="Administrador" width="32" height="32" />
                                     )}
@@ -804,6 +828,7 @@ const PaymentSettings: React.FC = () => {
 
 
             </div>
+            <Divider sx={{ width: 'calc(100% + 0px)', marginLeft: '0px', mb: 2, mt: 3 }} />
             <h3 style={{
                 textAlign: 'left', fontFamily: "Poppins", letterSpacing: '0px', fontWeight: "500",
                 color: '#330F1B', opacity: 1, fontSize: '18px', marginTop: '20px'
@@ -936,7 +961,7 @@ const PaymentSettings: React.FC = () => {
 
                     </div>
                 </div>
-
+                <Divider sx={{ width: 'calc(100% + 0px)', marginLeft: '0px', mb: 2, mt: 3 }} />
                 {/* SECCIÓN SEPARADA - Método de pago */}
                 <h3 style={{
                     textAlign: 'left',
@@ -955,12 +980,12 @@ const PaymentSettings: React.FC = () => {
                         <Box
                             key={index}
                             sx={{
-                                border: '1px solid #E1E1E1',
-                                borderRadius: '8px',
+                                border: '1px solid #9B929566',
+                                borderRadius: '6px',
                                 padding: '10px',
-                                backgroundColor: '#FFFFFF',
-                                width: '80px',
-                                height: '50px',
+                                backgroundColor: '#F7F7F7',
+                                width: '85px',
+                                height: '76px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -969,7 +994,7 @@ const PaymentSettings: React.FC = () => {
                             <img
                                 src={imgSrc}
                                 alt={`Método ${index}`}
-                                style={{ maxHeight: '24px', objectFit: 'contain' }}
+                                style={{ maxHeight: '38px', objectFit: 'contain' }}
                             />
                         </Box>
                     ))}
@@ -1004,14 +1029,13 @@ const PaymentSettings: React.FC = () => {
                             <div
                                 key={card.id}
                                 style={{
-                                    border: selectedCard?.id === card.id ? '2px solid #8d406d' : '1px solid #dcdcdc',
+                                    border: selectedCard?.id === card.id ? '1px solid rgba(112, 112, 112, 0.2)' : '1px solid #dcdcdc',
                                     borderRadius: '8px',
                                     padding: '15px',
-                                    width: '360px', // Ancho del contenedor
-                                    height: '172px', // Alto del contenedor
+                                    width: '360px',
+                                    height: '172px',
                                     position: 'relative',
-                                    backgroundColor: selectedCard?.id === card.id ? '#f3e6f5' : '#fff',
-                                    flex: '0 0 auto' // Para el scroll horizontal
+                                    backgroundColor: selectedCard?.id === card.id ? 'rgba(237, 196, 209, 0.2)' : '#FFFFFF',
                                 }}
                             >
                                 {/* Barra lateral de color */}
@@ -1030,7 +1054,6 @@ const PaymentSettings: React.FC = () => {
                                 {/* Marca de la tarjeta */}
                                 <div style={{
                                     marginBottom: '10px',
-                                    fontWeight: 'bold',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '10px',
@@ -1039,7 +1062,8 @@ const PaymentSettings: React.FC = () => {
                                     letterSpacing: "0px",
                                     color: "#330F1B",
                                     opacity: 1,
-                                    fontSize: "14px"
+                                    fontSize: "14px",
+                                    marginLeft: "10px"
                                 }}>
                                     {card.type}
                                 </div>
@@ -1052,11 +1076,12 @@ const PaymentSettings: React.FC = () => {
                                         flexDirection: 'column',
                                         gap: '5px',
                                         lineHeight: '1.2',
+                                        marginLeft: "10px",
                                     }}
                                 >
-                                    <span style={{ margin: '0', padding: '0' }}>{card.card_name}</span>
-                                    <span style={{ margin: '0', padding: '0' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
-                                    <span style={{ margin: '0', padding: '0' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
+                                    <span style={{ margin: '0', padding: '2px' }}>{card.card_name}</span>
+                                    <span style={{ margin: '0', padding: '2px' }}>Terminación: •••• {card.card_number.slice(-4)}</span>
+                                    <span style={{ margin: '0', padding: '2px' }}>Vencimiento: {card.expiration_month.toString().padStart(2, '0')}/{card.expiration_year.toString().slice(-2)}</span>
                                 </div>
 
                                 {/* Radio para seleccionar */}
@@ -1085,14 +1110,45 @@ const PaymentSettings: React.FC = () => {
                                     onClick={() => openDeleteModal(card)}
                                     style={{
                                         position: 'absolute',
-                                        top: '10px',
-                                        right: '10px',
+                                        marginTop: "-164px",
+                                        marginLeft: "278px",
                                         backgroundColor: 'transparent',
                                         border: 'none',
                                         cursor: 'pointer',
                                     }}
                                 >
-                                    <img src={trash} width='24px' height='24px' />
+                                    <Tooltip title="Eliminar" arrow placement="top"
+                                        componentsProps={{
+                                            tooltip: {
+                                                sx: {
+                                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                                    color: "#CCC3C3",
+                                                    fontFamily: "Poppins, sans-serif",
+                                                    fontSize: "12px",
+                                                    padding: "6px 8px",
+                                                    borderRadius: "8px",
+                                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)"
+                                                }
+                                            },
+                                            arrow: {
+                                                sx: {
+                                                    color: "rgba(0, 0, 0, 0.8)"
+                                                }
+                                            }
+                                        }}
+                                        PopperProps={{
+                                            modifiers: [
+                                                {
+                                                    name: 'offset',
+                                                    options: {
+                                                        offset: [0, -7]
+                                                    }
+                                                }
+                                            ]
+                                        }}
+                                    >
+                                        <img src={trash} width='24px' height='24px' />
+                                    </Tooltip>
                                 </button>
                             </div>
                         ))}
@@ -1130,7 +1186,7 @@ const PaymentSettings: React.FC = () => {
                             sx={{
                                 fontFamily: 'Poppins',
                                 fontSize: '14px',
-                                color: '#786E71',
+                                color: generateInvoice ? '#8F4D63' : '#574B4FCC',
                             }}
                         >
                             Generar factura automáticamente
@@ -1162,7 +1218,11 @@ const PaymentSettings: React.FC = () => {
                         component="img"
                         src={openpay}
                         alt="Openpay"
-                        sx={{ height: '20px', objectFit: 'contain' }}
+                        sx={{
+                            height: '34px', objectFit: 'contain',
+                            border: "1px solid #9B929566",
+                            borderRadius: "6px"
+                        }}
                     />
                 </Box>
 

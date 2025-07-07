@@ -53,7 +53,11 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CustomDateTimePicker from '../components/commons/DatePickerOneDate';
-
+import IconCheckBox1 from "../assets/IconCheckBox1.svg";
+import IconCheckBox2 from "../assets/IconCheckBox2.svg";
+import EditIcon from '@mui/icons-material/Edit';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import Thrashicon from '../assets/Icon-trash-Card.svg'
 export interface Clients {
     id: number;
     nombreCliente: string;
@@ -91,7 +95,7 @@ interface FormData {
 const Clients: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
-    const [activeFilter, setActiveFilter] = useState<'cliente' | ''>(''); 
+    const [activeFilter, setActiveFilter] = useState<'cliente' | ''>('');
 
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -590,7 +594,7 @@ const Clients: React.FC = () => {
         setRechargeData(prev => ({
             ...prev,
             smsType: '',
-            roomsSelected: parsedRooms,
+            roomsSelected: [],
             ratePerMessage: 0,
             amount: 0,
             tax: 0,
@@ -670,338 +674,505 @@ const Clients: React.FC = () => {
     }, [rechargeData.amount]);
 
     return (
-        <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+        <Box p={3} sx={{ marginTop: "-80px", maxWidth: "1180px", minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
             {/* Header con título y flecha */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, }}>
                 <IconButton onClick={() => navigate('/')} sx={{ p: 0, mr: 1 }}>
                     <img src={ArrowBackIosNewIcon} alt="Regresar" style={{ width: 24, transform: 'rotate(270deg)' }} />
                 </IconButton>
-                <Typography variant="h4" sx={{ fontWeight: 'bold', fontFamily: 'Poppins', fontSize: '26px', color: '#330F1B' }}>
+                <Typography variant="h4" sx={{ fontWeight: 500, fontFamily: 'Poppins', fontSize: '26px', color: '#330F1B' }}>
                     Clientes
                 </Typography>
             </Box>
-
-            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
-
-            {/* Controles de acción */}
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '20px',
-                    marginBottom: '24px',
-                }}
-            >
-                {/* Chips redonditos */}
-                <Box sx={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    {['CLIENTE'].map((label) => {
-                        const isClient = label === 'CLIENTE';
-
-
-                        const count = selectedClients.length;
+            <Box sx={{ marginLeft: "32px", }}>
+                <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
+                {/* Controles de acción */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '20px',
+                        marginBottom: '24px',
+                    }}
+                >
+                    {/* Chips redonditos */}
+                    <Box sx={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        {['CLIENTE'].map((label) => {
+                            const isClient = label === 'CLIENTE';
 
 
-                        const labelDisplay = count > 0 ? `${count} ${label}` : label;
+                            const count = selectedClients.length;
 
-                        return (
+
+                            const labelDisplay = count > 0 ? `${count} ${label}` : label;
+
+                            return (
+                                <Box
+                                    key={label}
+                                    onClick={(e) => {
+                                        if (label === 'CLIENTE') {
+                                            setClientAnchorEl(e.currentTarget);
+                                            setClientMenuOpen(true);
+                                        }
+                                        setActiveFilter(label.toLowerCase() as any);
+                                    }}
+                                    sx={{
+                                        px: '16px', py: '6px', border: '1px solid', borderColor: activeFilter === label.toLowerCase() ? '#7B354D' : '#CFCFCF',
+                                        borderRadius: '50px', cursor: 'pointer', fontFamily: 'Poppins', fontWeight: 600,
+                                        fontSize: '13px', backgroundColor: activeFilter === label.toLowerCase() ? '#F6EEF1' : '#FFFFFF',
+                                        color: activeFilter === label.toLowerCase() ? '#7B354D' : '#9B9295', transition: 'all 0.2s ease-in-out', userSelect: 'none',
+                                    }}
+                                >
+                                    {labelDisplay}
+                                </Box>
+                            );
+                        })}
+
+                    </Box>
+
+                    {/* Botón y buscador */}
+                    <Box sx={{ display: 'flex', gap: '25px', alignItems: 'center' }}>
+                        <SecondaryButton text="SALAS" onClick={() => navigate('/RoomsAdmin')} />
+                        <MainIcon text="Añadir cliente" width="218px" onClick={handleAddClient} />
+                        <Box sx={{ position: 'relative', width: '220px' }}>
                             <Box
-                                key={label}
-                                onClick={(e) => {
-                                    if (label === 'CLIENTE') {
-                                        setClientAnchorEl(e.currentTarget);
-                                        setClientMenuOpen(true);
-                                    }
-                                    setActiveFilter(label.toLowerCase() as any);
-                                }}
+                                display="flex"
+                                alignItems="center"
                                 sx={{
-                                    px: '16px', py: '6px', border: '1px solid', borderColor: activeFilter === label.toLowerCase() ? '#7B354D' : '#CFCFCF',
-                                    borderRadius: '50px', cursor: 'pointer', fontFamily: 'Poppins', fontWeight: 600,
-                                    fontSize: '13px', backgroundColor: activeFilter === label.toLowerCase() ? '#F6EEF1' : '#FFFFFF',
-                                    color: activeFilter === label.toLowerCase() ? '#7B354D' : '#9B9295', transition: 'all 0.2s ease-in-out', userSelect: 'none',
+                                    backgroundColor: "#FFFFFF",
+                                    border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295",
+                                    borderRadius: "4px",
+                                    px: 2,
+                                    py: 1,
+                                    width: "100%",
+                                    height: "40px"
                                 }}
                             >
-                                {labelDisplay}
-                            </Box>
-                        );
-                    })}
-
-                </Box>
-
-                {/* Botón y buscador */}
-                <Box sx={{ display: 'flex', gap: '25px', alignItems: 'center' }}>
-                    <SecondaryButton text="SALAS" onClick={() => navigate('/RoomsAdmin')} />
-                    <MainIcon text="Añadir cliente" width="218px" onClick={handleAddClient} />
-                    <Box sx={{ position: 'relative', width: '220px' }}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            sx={{
-                                backgroundColor: "#FFFFFF",
-                                border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295",
-                                borderRadius: "4px",
-                                px: 2,
-                                py: 1,
-                                width: "100%",
-                                height: "40px"
-                            }}
-                        >
-                            <img src={seachicon} alt="Buscar" style={{ marginRight: 8, width: 18 }} />
-                            <input
-                                type="text"
-                                placeholder="Buscar"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{
-                                    border: "none",
-                                    outline: "none",
-                                    width: "100%",
-                                    fontSize: "16px",
-                                    fontFamily: "Poppins",
-                                    color: searchTerm ? "#7B354D" : "#9B9295",
-                                    backgroundColor: "transparent",
-                                }}
-                            />
-                            {searchTerm && (
-                                <img
-                                    src={iconclose}
-                                    alt="Limpiar búsqueda"
-                                    onClick={() => {
-                                        setSearchTerm('');
+                                <img src={seachicon} alt="Buscar" style={{ marginRight: 8, width: 18 }} />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={{
+                                        border: "none",
+                                        outline: "none",
+                                        width: "100%",
+                                        fontSize: "16px",
+                                        fontFamily: "Poppins",
+                                        color: searchTerm ? "#7B354D" : "#9B9295",
+                                        backgroundColor: "transparent",
                                     }}
-                                    style={{ marginLeft: 8, width: 20, height: 20, cursor: 'pointer' }}
                                 />
+                                {searchTerm && (
+                                    <img
+                                        src={iconclose}
+                                        alt="Limpiar búsqueda"
+                                        onClick={() => {
+                                            setSearchTerm('');
+                                        }}
+                                        style={{ marginLeft: 8, width: 20, height: 20, cursor: 'pointer' }}
+                                    />
 
-                            )}
+                                )}
+                            </Box>
                         </Box>
                     </Box>
                 </Box>
-            </Box>
 
-            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
-            <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                mt={2}
-                p={2}
-                sx={{ backgroundColor: "#F6F6F6", borderRadius: "8px" }}
-            >
-                {/* Rango de resultados */}
-                <Typography sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#330F1B" }}>
-                    {(currentPage - 1) * itemsPerPage + 1}–
-                    {Math.min(currentPage * itemsPerPage, totalItems)} de {totalItems}
-                </Typography>
+                <Divider sx={{ width: 'calc(100% + 0px)', mb: 0 }} />
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mt={0}
+                    p={2}
+                    sx={{ backgroundColor: "#F2F2F2", borderRadius: "8px" }}
+                >
+                    {/* Rango de resultados */}
+                    <Typography sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#330F1B" }}>
+                        {(currentPage - 1) * itemsPerPage + 1}–
+                        {Math.min(currentPage * itemsPerPage, totalItems)} de {totalItems}
+                    </Typography>
 
-                {/* Flechas + Exportaciones */}
-                <Box display="flex" alignItems="center" gap={1}>
-                    <Tooltip title="Primera página">
-                        <IconButton onClick={goToFirstPage} disabled={currentPage === 1}>
-                            <Box
-                                display="flex"
-                                gap="2px"
-                                alignItems="center"
-                                sx={{
-                                    opacity: currentPage === 1 ? 0.3 : 1
+                    {/* Flechas + Exportaciones */}
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <Tooltip title="Primera página">
+                            <IconButton onClick={goToFirstPage} disabled={currentPage === 1}>
+                                <Box
+                                    display="flex"
+                                    gap="2px"
+                                    alignItems="center"
+                                    sx={{
+                                        opacity: currentPage === 1 ? 0.3 : 1
+                                    }}
+                                >
+                                    <img src={backarrow} style={{ width: 24 }} />
+                                    <img src={backarrow} style={{ width: 24 }} />
+                                </Box>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Página Anterior">
+                            <IconButton onClick={handlePrevPage} disabled={currentPage === 1}>
+                                <img src={backarrow} style={{ width: 24, opacity: currentPage === 1 ? 0.3 : 1 }} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Siguiente página">
+                            <IconButton onClick={handleNextPage} disabled={currentPage === totalPages}>
+                                <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)', opacity: currentPage === totalPages ? 0.3 : 1 }} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Ultima Página">
+                            <IconButton onClick={goToLastPage} disabled={currentPage === totalPages}>
+                                <Box
+                                    display="flex"
+                                    gap="2px"
+                                    alignItems="center"
+                                    sx={{
+                                        opacity: currentPage === 1 ? 0.3 : 1
+                                    }}
+                                >
+                                    <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)' }} />
+                                    <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)' }} />
+                                </Box>
+                            </IconButton>
+                        </Tooltip>
+
+
+                        {/* Exportaciones */}
+                        <Box display="flex" alignItems="center" gap={2} ml={3}>
+                            <Tooltip title="Exportar a CSV" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
                                 }}
                             >
-                                <img src={backarrow} style={{ width: 12 }} />
-                                <img src={backarrow} style={{ width: 12 }} />
-                            </Box>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Página Anterior">
-                        <IconButton onClick={handlePrevPage} disabled={currentPage === 1}>
-                            <img src={backarrow} style={{ width: 12, opacity: currentPage === 1 ? 0.3 : 1 }} />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Siguiente página">
-                        <IconButton onClick={handleNextPage} disabled={currentPage === totalPages}>
-                            <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)', opacity: currentPage === totalPages ? 0.3 : 1 }} />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Ultima Página">
-                        <IconButton onClick={goToLastPage} disabled={currentPage === totalPages}>
-                            <Box
-                                display="flex"
-                                gap="2px"
-                                alignItems="center"
-                                sx={{
-                                    opacity: currentPage === 1 ? 0.3 : 1
+                                <IconButton
+                                    onClick={() => handleExportClick('csv', setIsExportingCSV)}
+                                    disabled={anyExporting && !isExportingCSV}
+                                    sx={{ opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingCSV ? <DualSpinner /> : <img src={IconDownloadCSV} alt="CSV" />}
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title="Exportar a Excel" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
                                 }}
                             >
-                                <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)' }} />
-                                <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)' }} />
-                            </Box>
-                        </IconButton>
-                    </Tooltip>
+                                <IconButton
+                                    onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
+                                    disabled={anyExporting && !isExportingXLSX}
+                                    sx={{ opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingXLSX ? <DualSpinner /> : <img src={IconDownloadExcel} alt="Excel" />}
+                                </IconButton>
+                            </Tooltip>
 
-
-                    {/* Exportaciones */}
-                    <Box display="flex" alignItems="center" gap={2} ml={3}>
-                        <Tooltip title="Exportar CSV" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('csv', setIsExportingCSV)}
-                                disabled={anyExporting && !isExportingCSV}
-                                sx={{ opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                            <Tooltip title="Exportar a PDF" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
+                                }}
                             >
-                                {isExportingCSV ? <DualSpinner /> : <img src={IconDownloadCSV} alt="CSV" />}
-                            </IconButton>
-                        </Tooltip>
+                                <IconButton
+                                    onClick={() => handleExportClick('pdf', setIsExportingPDF)}
+                                    disabled={anyExporting && !isExportingPDF}
+                                    sx={{ opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingPDF ? <DualSpinner /> : <img src={IconDownloadPDF} alt="PDF" />}
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
 
-                        <Tooltip title="Exportar Excel" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
-                                disabled={anyExporting && !isExportingXLSX}
-                                sx={{ opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
-                            >
-                                {isExportingXLSX ? <DualSpinner /> : <img src={IconDownloadExcel} alt="Excel" />}
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title="Exportar PDF" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('pdf', setIsExportingPDF)}
-                                disabled={anyExporting && !isExportingPDF}
-                                sx={{ opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
-                            >
-                                {isExportingPDF ? <DualSpinner /> : <img src={IconDownloadPDF} alt="PDF" />}
-                            </IconButton>
-                        </Tooltip>
                     </Box>
-
                 </Box>
-            </Box>
 
-            {originalData.length === 0 ? (
-                // Caja cerrada - sin registros cargados
-                <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    sx={{
-                        width: '100%',
-                        minHeight: '300px',
-                        backgroundColor: '#F9F9F9',
-                        padding: 4,
-                        borderRadius: '12px',
-                        border: '1px solid #E0E0E0',
-                        mt: 2,
-                    }}
-                >
-                    <img src={BoxEmpty} alt="Caja vacía" style={{ width: '120px', marginBottom: '16px' }} />
-                    <Typography
+                {originalData.length === 0 ? (
+                    // Caja cerrada - sin registros cargados
+                    <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="center"
                         sx={{
-                            fontFamily: 'Poppins',
-                            fontSize: '16px',
-                            color: '#7B354D',
-                            fontWeight: 500,
+                            width: '100%',
+                            minHeight: '400px',
+                            backgroundColor: '#F9F9F9',
+                            padding: 4,
+                            borderRadius: '12px',
+                            border: '1px solid #E0E0E0',
+                            mt: 2,
                         }}
                     >
-                        Da de alta un cliente para comenzar.
-                    </Typography>
-                </Box>
-            ) : paginatedData.length === 0 ? (
-                // Caja abierta - no hay coincidencias con los filtros
-                <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    sx={{
-                        width: '100%',
-                        minHeight: '300px',
-                        backgroundColor: '#F9F9F9',
-                        padding: 4,
-                        borderRadius: '12px',
-                        border: '1px solid #E0E0E0',
-                        mt: 2,
-                    }}
-                >
-                    <img src={NoResult} alt="No resultados" style={{ width: '120px', marginBottom: '16px' }} />
-                    <Typography
+                        <img src={BoxEmpty} alt="Caja vacía" style={{ width: '220px', marginBottom: '16px' }} />
+                        <Typography
+                            sx={{
+                                fontFamily: 'Poppins',
+                                fontSize: '16px',
+                                color: '#7B354D',
+                                fontWeight: 500,
+                            }}
+                        >
+                            Da de alta un cliente para comenzar.
+                        </Typography>
+                    </Box>
+                ) : paginatedData.length === 0 ? (
+                    // Caja abierta - no hay coincidencias con los filtros
+                    <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="center"
                         sx={{
-                            fontFamily: 'Poppins',
-                            fontSize: '16px',
-                            color: '#7B354D',
-                            fontWeight: 500,
+                            width: '100%',
+                            minHeight: '400px',
+                            backgroundColor: '#F9F9F9',
+                            padding: 4,
+                            borderRadius: '12px',
+                            border: '1px solid #E0E0E0',
+                            mt: 2,
                         }}
                     >
-                        No se encontraron resultados
-                    </Typography>
-                </Box>
-            ) : (
-                <Box
-                    sx={{
-                        backgroundColor: '#FFFFFF',
-                        borderRadius: '8px',
-                        padding: '30px 20px',
-                        boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
-                        overflowX: 'auto',
-                    }}
-                >
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ textAlign: 'left', fontFamily: 'Poppins', fontSize: '13px', color: '#9B9295' }}>
-                                <th style={{ padding: '12px' }}>
-                                    <Checkbox
-                                        checked={selectedIds.length === clientsList.length}
-                                        indeterminate={selectedIds.length > 0 && selectedIds.length < clientsList.length}
-                                        onChange={handleSelectAll}
-                                    />
-                                </th>
-                                <th style={{ padding: '12px 16px' }}>Fecha de alta</th>
-                                <th style={{ padding: '12px 16px' }}>Cliente</th>
-                                <th style={{ padding: '12px 16px' }}>Nombre</th>
-                                <th style={{ padding: '12px 16px' }}>Apellidos</th>
-                                <th style={{ padding: '12px 16px' }}>Teléfono</th>
-                                <th style={{ padding: '12px 16px' }}>Extensión</th>
-                                <th style={{ padding: '12px 16px' }}>Correo electrónico</th>
-                                <th style={{ padding: '12px 16px' }}>Tarifa SMS # Cortos</th>
-                                <th style={{ padding: '12px 16px' }}>Tarifa SMS # Largos</th>
-                                <th style={{ padding: '12px 16px' }}>Salas</th>
-                                <th style={{ padding: '12px 16px' }}>Estatus</th>
-                                <th style={{ padding: '12px 16px' }}>Créditos Globales</th>
-                                <th style={{ padding: '12px 16px' }}>Créditos SMS # Cortos</th>
-                                <th style={{ padding: '12px 16px' }}>Créditos SMS # Largos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedData.map((Client) => (
-                                <tr key={Client.id} style={{ borderTop: '1px solid #E0E0E0' }}>
-                                    <td style={{ padding: '12px' }}>
-                                        <Checkbox
-                                            checked={selectedIds.includes(Client.id)}
-                                            onChange={() => handleSelect(Client.id)}
-                                        />
-                                    </td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.creationDate}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.nombreCliente}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.firstName}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.lastName}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.phoneNumber}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.extension}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.email}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.rateForShort}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.rateForLong}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.roomName}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.estatus}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.totalCredits}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.totalShortSmsCredits}</td>
-                                    <td style={{ padding: '12px 16px' }}>{Client.totalLongSmsCredits}</td>
-                                    <td style={{ padding: '12px 16px' }}>
-                                        <IconButton onClick={(event) => handleMenuOpen(event, Client.id)}>
-                                            <MoreVertIcon />
-                                        </IconButton>
-                                    </td>
+                        <img src={NoResult} alt="No resultados" style={{ width: '220px', marginBottom: '16px' }} />
+                        <Typography
+                            sx={{
+                                fontFamily: 'Poppins',
+                                fontSize: '16px',
+                                color: '#7B354D',
+                                fontWeight: 500,
+                            }}
+                        >
+                            No se encontraron resultados
+                        </Typography>
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: '8px',
+                            padding: '8px 2px',
+                            boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                            overflowX: 'auto',
+                            maxHeight: "400px"
+                        }}
+                    >
+                        <table style={{ minWidth: '1140px', borderCollapse: 'collapse', }}>
+                            <thead>
+                                <tr style={{
+                                    textAlign: 'left', fontFamily: 'Poppins', fontSize: '13px',
+                                    color: '#330F1B', fontWeight: 500, borderBottom: '1px solid #E0E0E0'
+                                }}>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Fecha de alta</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Cliente</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Nombre</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Apellidos</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Teléfono</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Extensión</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Correo electrónico</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left', whiteSpace: 'nowrap',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Tarifa SMS # Cortos</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left', fontSize: "13px",
+                                        fontWeight: 500, color: "#330F1B", whiteSpace: 'nowrap'
+                                    }}>Tarifa SMS # Largos</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Salas</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Estatus</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left', whiteSpace: 'nowrap',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Créditos Globales</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left', whiteSpace: 'nowrap',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Créditos SMS # Cortos</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left', whiteSpace: 'nowrap',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Créditos SMS # Largos</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </Box>
-            )}
+                            </thead>
+                            <tbody>
+                                {paginatedData.map((Client) => (
+                                    <tr key={Client.id} style={{ borderBottom: '1px solid #E0E0E0' }}>
+                                        <td style={{
+                                            padding: '5px', width: '180px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.creationDate}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.nombreCliente}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.firstName}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.lastName}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.phoneNumber}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.extension}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.email}</td>
+                                        <td style={{
+                                            //sdsd
+                                            padding: '6px', width: '200px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.rateForShort}</td>
+                                        <td style={{
+                                            padding: '6px', maxWidth: '180px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.rateForLong}</td>
+                                        <td style={{
+                                            padding: '6px', maxWidth: '160px', overflow: 'hidden',
+                                            whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.roomName}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.estatus}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.totalCredits}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{Client.totalShortSmsCredits}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                            , borderRight: '1px solid #E0E0E0',
+                                        }}>{Client.totalLongSmsCredits}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>
+                                            <IconButton onClick={(event) => handleMenuOpen(event, Client.id)}>
+                                                <MoreVertIcon />
+                                            </IconButton>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </Box>
+                )}
+            </Box>
 
             <Menu
                 anchorEl={anchorEl}
@@ -1016,9 +1187,19 @@ const Clients: React.FC = () => {
                         handleEditClient(clientToEdit);
                     }
                     handleMenuClose();
-                }}>
-                    <ListItemIcon><img src="/icons/editar.svg" alt="Editar" style={{ width: 20 }} /></ListItemIcon>
-                    <ListItemText primary="Editar" />
+                }}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'
+                        }
+                    }}
+                >
+                    <EditIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#583B43" }}>
+                        Editar
+                    </Typography>
                 </MenuItem>
 
                 <MenuItem
@@ -1029,9 +1210,18 @@ const Clients: React.FC = () => {
                         }
 
                     }}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'
+                        }
+                    }}
                 >
-                    <ListItemIcon><img src="/icons/recargar.svg" alt="Recargar" style={{ width: 20 }} /></ListItemIcon>
-                    <ListItemText primary="Recargar" />
+                    <AutorenewIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 24, height: 24 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#583B43" }}>
+                        Recargar
+                    </Typography>
                 </MenuItem>
 
                 {currentClient?.estatus === 0 ? (
@@ -1050,9 +1240,11 @@ const Clients: React.FC = () => {
                         handleMenuClose();
                     }}>
                         <ListItemIcon>
-                            <BlockIcon fontSize="small" />
+                            <BlockIcon fontSize="small" sx={{ mr: 1, color: '#5F5064', width: 22, height: 22 }} />
                         </ListItemIcon>
-                        <ListItemText primary="Dar de baja" />
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#583B43" }}>
+                            Dar de baja
+                        </Typography>
                     </MenuItem>
                 )}
 
@@ -1065,12 +1257,24 @@ const Clients: React.FC = () => {
                         setMainModalDelete(true);
                         handleMenuClose();
                     }}
-                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    sx={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'
+                        }
+                    }}
                 >
-                    <ListItemIcon>
-                        <DeleteIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary="Eliminar" />
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <img
+                            src={Thrashicon}
+                            alt="Eliminar"
+                            style={{ width: 24, height: 24, color: '#5F5064' }}
+                        />
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
+                            Eliminar
+                        </Typography>
+                    </Box>
 
                     <Tooltip
                         title="El cliente no puede ser eliminado debido a que no ha cumplido 6 meses sin inactividad."
@@ -1093,36 +1297,76 @@ const Clients: React.FC = () => {
                 PaperProps={{
                     sx: {
                         padding: 1,
-                        width: 250,
+                        width: "280px",
+                        height: "282px",
+                        overflowY: "hidden",
                         borderRadius: '12px',
-                        boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
+                        boxShadow: '0px 8px 16px #00131F29',
                     },
                 }}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                 transformOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
-                <TextField
-                    placeholder="Buscar cliente"
-                    variant="outlined"
-                    fullWidth
-                    value={clientSearch}
-                    onChange={(e) => setClientSearch(e.target.value.toLowerCase())}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <img src={seachicon} alt="Buscar" style={{ width: 16 }} />
-                            </InputAdornment>
-                        ),
-                        endAdornment: clientSearch && (
-                            <IconButton onClick={() => setClientSearch('')}>
-                                <img src={iconclose} alt="Limpiar" style={{ width: 16 }} />
-                            </IconButton>
-                        ),
-                    }}
-                    sx={{ mb: 1 }}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                    <TextField
+                        placeholder="Buscar cliente"
+                        variant="outlined"
+                        fullWidth={false}
+                        value={clientSearch}
+                        onChange={(e) => setClientSearch(e.target.value.toLowerCase())}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <img
+                                        src={seachicon}
+                                        alt="Buscar"
+                                        style={{
+                                            width: 24,
+                                            filter: clientSearch ? 'invert(14%) sepia(58%) saturate(1253%) hue-rotate(316deg) brightness(90%) contrast(95%)' : 'none'
+                                        }}
+                                    />
+                                </InputAdornment>
+                            ),
+                            endAdornment: clientSearch && (
+                                <IconButton onClick={() => setClientSearch('')}>
+                                    <img src={iconclose} alt="Limpiar" style={{ width: 24 }} />
+                                </IconButton>
+                            ),
+                            sx: {
+                                fontFamily: 'Poppins',
+                                color: clientSearch ? '#7B354D' : '#000',
+                            }
+                        }}
+                        inputProps={{
+                            style: {
+                                fontFamily: 'Poppins',
+                                color: clientSearch ? '#7B354D' : '#000',
+                            }
+                        }}
+                        sx={{
+                            width: '248px',
+                            height: '40px',
+                            mb: 1,
+                            '& .MuiOutlinedInput-root': {
+                                height: '40px',
+                                border: '1px solid #9B9295',
+                                '& fieldset': {
+                                    borderColor: clientSearch ? '#7B354D' : '#9B9295',
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: clientSearch ? '#7B354D' : '#9B9295',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: clientSearch ? '#7B354D' : '#9B9295',
+                                },
+                            },
+                        }}
+                    />
+                </Box>
 
-                <Box sx={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 1.5, mt: 1 }} />
+
+                <Box sx={{ height: '126px', overflowY: 'auto' }}>
                     {clientsList
                         .filter((c) => c.nombreCliente.toLowerCase().includes(clientSearch))
                         .map((client) => (
@@ -1135,20 +1379,47 @@ const Clients: React.FC = () => {
                                             : [...prev, client.nombreCliente]
                                     )
                                 }
+                                sx={{ height: "32px", marginLeft: "-12px" }}
                             >
-                                <Checkbox checked={selectedClients.includes(client.nombreCliente)} />
-                                <ListItemText primary={client.nombreCliente} />
+                                <Checkbox checked={selectedClients.includes(client.nombreCliente)}
+                                    checkedIcon={
+                                        <Box
+                                            sx={{
+                                                width: '24px',
+                                                height: '24px',
+                                                position: 'relative',
+                                                marginTop: '0px',
+                                                marginLeft: '0px',
+                                            }}
+                                        >
+                                            <img
+                                                src={IconCheckBox1}
+                                                alt="Seleccionado"
+                                                style={{ width: '24px', height: '24px' }}
+                                            />
+                                        </Box>
+                                    }
+                                />
+                                <ListItemText
+                                    primary={client.nombreCliente}
+                                    primaryTypographyProps={{
+                                        fontFamily: 'Poppins',
+                                        fontSize: '16px',
+                                        fontWeight: 500,
+                                        color: selectedClients.includes(client.nombreCliente) ? '#8F4E63' : '#786E71',
+                                    }}
+                                />
                             </MenuItem>
                         ))}
                     {clientsList.filter((c) => c.nombreCliente.toLowerCase().includes(clientSearch)).length === 0 && (
-                        <Typography sx={{ textAlign: 'center', color: '#7B354D', fontSize: '14px', fontWeight: 500 }}>
+                        <Typography sx={{ textAlign: 'center', color: '#7B354D', fontSize: '14px', fontWeight: 500, fontFamily: "Poppins" }}>
                             No se encontraron resultados.
                         </Typography>
                     )}
                 </Box>
 
-                <Divider sx={{ my: 1 }} />
-                <Box display="flex" justifyContent="space-between" px={2} pb={1} gap={1}>
+                <Divider sx={{ width: 'calc(100% + 64px)', marginLeft: '-32px', mb: 1.5, mt: 1 }} />
+                <Box display="flex" justifyContent="space-between" px={1} pb={1} gap={2.5}>
                     <SecondaryButton
                         onClick={() => {
                             setSelectedClients([]);
@@ -1675,7 +1946,6 @@ const Clients: React.FC = () => {
             </Dialog>
 
 
-
             <ModalMain
                 isOpen={MainModal}
                 Title={MainModalTitle}
@@ -1740,9 +2010,33 @@ const Clients: React.FC = () => {
                                     <Checkbox
                                         checked={rechargeData.roomsSelected.includes(room)}
                                         onChange={() => handleToggleRoom(room)}
+                                        checkedIcon={
+                                            <Box
+                                                sx={{
+                                                    width: '24px',
+                                                    height: '24px',
+                                                    position: 'relative',
+                                                    marginTop: '0px',
+                                                    marginLeft: '0px',
+                                                }}
+                                            >
+                                                <img
+                                                    src={IconCheckBox1}
+                                                    alt="Seleccionado"
+                                                    style={{ width: '24px', height: '24px' }}
+                                                />
+                                            </Box>
+                                        }
                                     />
                                 }
                                 label={room}
+                                sx={{
+                                    '& .MuiFormControlLabel-label': {
+                                        fontFamily: 'Poppins',
+                                        fontSize: '14px',
+                                        color: '#574B4F',
+                                    }
+                                }}
                             />
                         ))}
                     </FormGroup>

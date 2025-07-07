@@ -27,6 +27,7 @@ import NoResult from '../assets/NoResultados.svg';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import MainModal from '../components/commons/MainModal'
+import Thrashicon from '../assets/Icon-trash-Card.svg'
 
 interface Clients {
     id: number;
@@ -275,248 +276,437 @@ const RoomsAdmin: React.FC = () => {
                 <IconButton onClick={() => navigate('/')} sx={{ p: 0, mr: 1 }}>
                     <img src={ArrowBackIosNewIcon} alt="Regresar" style={{ width: 24, transform: 'rotate(270deg)' }} />
                 </IconButton>
-                <Typography variant="h4" sx={{ fontWeight: 'bold', fontFamily: 'Poppins', fontSize: '26px', color: '#330F1B' }}>
+                <Typography variant="h4" sx={{ fontWeight: 500, fontFamily: 'Poppins', fontSize: '26px', color: '#330F1B' }}>
                     Salas
                 </Typography>
             </Box>
-
-            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '20px',
-                    marginBottom: '24px',
-                }}
-            >
-                {/* Chips redonditos */}
-                <Box sx={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    {['CLIENTE'].map((label) => {
-                        const isClient = label === 'CLIENTE';
-
-
-                        const count = selectedClients.length;
+            <Box sx={{ marginLeft: "32px", }}>
+                <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '20px',
+                        marginBottom: '24px',
+                    }}
+                >
+                    {/* Chips redonditos */}
+                    <Box sx={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        {['CLIENTE'].map((label) => {
+                            const isClient = label === 'CLIENTE';
 
 
-                        const labelDisplay = count > 0 ? `${count} ${label}` : label;
+                            const count = selectedClients.length;
 
-                        return (
+
+                            const labelDisplay = count > 0 ? `${count} ${label}` : label;
+
+                            return (
+                                <Box
+                                    key={label}
+                                    onClick={(e) => {
+                                        if (label === 'CLIENTE') {
+                                            setClientAnchorEl(e.currentTarget);
+                                            setClientMenuOpen(true);
+                                        }
+                                        setActiveFilter(label.toLowerCase() as any);
+                                    }}
+                                    sx={{
+                                        px: '16px', py: '6px', border: '1px solid', borderColor: activeFilter === label.toLowerCase() ? '#7B354D' : '#CFCFCF',
+                                        borderRadius: '50px', cursor: 'pointer', fontFamily: 'Poppins', fontWeight: 600,
+                                        fontSize: '13px', backgroundColor: activeFilter === label.toLowerCase() ? '#F6EEF1' : '#FFFFFF',
+                                        color: activeFilter === label.toLowerCase() ? '#7B354D' : '#9B9295', transition: 'all 0.2s ease-in-out', userSelect: 'none',
+                                    }}
+                                >
+                                    {labelDisplay}
+                                </Box>
+                            );
+                        })}
+
+                    </Box>
+
+                    {/* Botón y buscador */}
+                    <Box sx={{ display: 'flex', gap: '25px', alignItems: 'center' }}>
+                        <SecondaryButton text="Clientes" onClick={() => navigate('/Clients')} />
+                        <Box sx={{ position: 'relative', width: '220px' }}>
                             <Box
-                                key={label}
-                                onClick={(e) => {
-                                    if (label === 'CLIENTE') {
-                                        setClientAnchorEl(e.currentTarget);
-                                        setClientMenuOpen(true);
-                                    }
-                                    setActiveFilter(label.toLowerCase() as any);
-                                }}
+                                display="flex"
+                                alignItems="center"
                                 sx={{
-                                    px: '16px', py: '6px', border: '1px solid', borderColor: activeFilter === label.toLowerCase() ? '#7B354D' : '#CFCFCF',
-                                    borderRadius: '50px', cursor: 'pointer', fontFamily: 'Poppins', fontWeight: 600,
-                                    fontSize: '13px', backgroundColor: activeFilter === label.toLowerCase() ? '#F6EEF1' : '#FFFFFF',
-                                    color: activeFilter === label.toLowerCase() ? '#7B354D' : '#9B9295', transition: 'all 0.2s ease-in-out', userSelect: 'none',
+                                    backgroundColor: "#FFFFFF",
+                                    border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295",
+                                    borderRadius: "4px",
+                                    px: 2,
+                                    py: 1,
+                                    width: "100%",
+                                    height: "40px"
                                 }}
                             >
-                                {labelDisplay}
-                            </Box>
-                        );
-                    })}
-
-                </Box>
-
-                {/* Botón y buscador */}
-                <Box sx={{ display: 'flex', gap: '25px', alignItems: 'center' }}>
-                    <SecondaryButton text="Clientes" onClick={() => navigate('/Clients')} />
-                    <Box sx={{ position: 'relative', width: '220px' }}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            sx={{
-                                backgroundColor: "#FFFFFF",
-                                border: searchTerm ? "1px solid #7B354D" : "1px solid #9B9295",
-                                borderRadius: "4px",
-                                px: 2,
-                                py: 1,
-                                width: "100%",
-                                height: "40px"
-                            }}
-                        >
-                            <img src={seachicon} alt="Buscar" style={{ marginRight: 8, width: 18 }} />
-                            <input
-                                type="text"
-                                placeholder="Buscar"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{
-                                    border: "none",
-                                    outline: "none",
-                                    width: "100%",
-                                    fontSize: "16px",
-                                    fontFamily: "Poppins",
-                                    color: searchTerm ? "#7B354D" : "#9B9295",
-                                    backgroundColor: "transparent",
-                                }}
-                            />
-                            {searchTerm && (
-                                <img
-                                    src={iconclose}
-                                    alt="Limpiar búsqueda"
-                                    onClick={() => {
-                                        setSearchTerm('');
+                                <img src={seachicon} alt="Buscar" style={{ marginRight: 8, width: 18 }} />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={{
+                                        border: "none",
+                                        outline: "none",
+                                        width: "100%",
+                                        fontSize: "16px",
+                                        fontFamily: "Poppins",
+                                        color: searchTerm ? "#7B354D" : "#9B9295",
+                                        backgroundColor: "transparent",
                                     }}
-                                    style={{ marginLeft: 8, width: 20, height: 20, cursor: 'pointer' }}
                                 />
+                                {searchTerm && (
+                                    <img
+                                        src={iconclose}
+                                        alt="Limpiar búsqueda"
+                                        onClick={() => {
+                                            setSearchTerm('');
+                                        }}
+                                        style={{ marginLeft: 8, width: 20, height: 20, cursor: 'pointer' }}
+                                    />
 
-                            )}
+                                )}
+                            </Box>
                         </Box>
                     </Box>
                 </Box>
-            </Box>
 
-            <Divider sx={{ marginBottom: "17px", marginTop: "16px" }} />
-            <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                mt={2}
-                p={2}
-                sx={{ backgroundColor: "#F6F6F6", borderRadius: "8px" }}
-            >
-                {/* Rango de resultados */}
-                <Typography sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#330F1B" }}>
-                    {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, roomsData.length)} de {roomsData.length}
-                </Typography>
+                <Divider sx={{ width: 'calc(100% + 0px)', mb: 0 }} />
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mt={0}
+                    p={2}
+                    sx={{ backgroundColor: "#F2F2F2", borderRadius: "8px" }}
+                >
+                    {/* Rango de resultados */}
+                    <Typography sx={{ fontFamily: "Poppins", fontSize: "14px", color: "#330F1B" }}>
+                        {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, roomsData.length)} de {roomsData.length}
+                    </Typography>
 
 
-                {/* Flechas + Exportaciones */}
-                <Box display="flex" alignItems="center" gap={1}>
-                    <Tooltip title="Primera página">
-                        <IconButton onClick={goToFirstPage} disabled={currentPage === 1}>
-                            <Box
-                                display="flex"
-                                gap="2px"
-                                alignItems="center"
-                                sx={{
-                                    opacity: currentPage === 1 ? 0.3 : 1
+                    {/* Flechas + Exportaciones */}
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <Tooltip title="Primera página">
+                            <IconButton onClick={goToFirstPage} disabled={currentPage === 1}>
+                                <Box
+                                    display="flex"
+                                    gap="2px"
+                                    alignItems="center"
+                                    sx={{
+                                        opacity: currentPage === 1 ? 0.3 : 1
+                                    }}
+                                >
+                                    <img src={backarrow} style={{ width: 24 }} />
+                                    <img src={backarrow} style={{ width: 24 }} />
+                                </Box>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Página Anterior">
+                            <IconButton onClick={handlePrevPage} disabled={currentPage === 1}>
+                                <img src={backarrow} style={{ width: 24, opacity: currentPage === 1 ? 0.3 : 1 }} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Siguiente página">
+                            <IconButton onClick={handleNextPage} disabled={currentPage === totalPages}>
+                                <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)', opacity: currentPage === totalPages ? 0.3 : 1 }} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Ultima Página">
+                            <IconButton onClick={goToLastPage} disabled={currentPage === totalPages}>
+                                <Box
+                                    display="flex"
+                                    gap="2px"
+                                    alignItems="center"
+                                    sx={{
+                                        opacity: currentPage === 1 ? 0.3 : 1
+                                    }}
+                                >
+                                    <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)' }} />
+                                    <img src={backarrow} style={{ width: 24, transform: 'rotate(180deg)' }} />
+                                </Box>
+                            </IconButton>
+                        </Tooltip>
+
+
+                        {/* Exportaciones */}
+                        <Box display="flex" alignItems="center" gap={2} ml={3}>
+                            <Tooltip title="Exportar a CSV" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
                                 }}
                             >
-                                <img src={backarrow} style={{ width: 12 }} />
-                                <img src={backarrow} style={{ width: 12 }} />
-                            </Box>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Página Anterior">
-                        <IconButton onClick={handlePrevPage} disabled={currentPage === 1}>
-                            <img src={backarrow} style={{ width: 12, opacity: currentPage === 1 ? 0.3 : 1 }} />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Siguiente página">
-                        <IconButton onClick={handleNextPage} disabled={currentPage === totalPages}>
-                            <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)', opacity: currentPage === totalPages ? 0.3 : 1 }} />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Ultima Página">
-                        <IconButton onClick={goToLastPage} disabled={currentPage === totalPages}>
-                            <Box
-                                display="flex"
-                                gap="2px"
-                                alignItems="center"
-                                sx={{
-                                    opacity: currentPage === 1 ? 0.3 : 1
+                                <IconButton
+                                    onClick={() => handleExportClick('csv', setIsExportingCSV)}
+                                    disabled={anyExporting && !isExportingCSV}
+                                    sx={{ opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingCSV ? <DualSpinner /> : <img src={IconDownloadCSV} alt="CSV" />}
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title="Exportar a Excel" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
                                 }}
                             >
-                                <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)' }} />
-                                <img src={backarrow} style={{ width: 12, transform: 'rotate(180deg)' }} />
-                            </Box>
-                        </IconButton>
-                    </Tooltip>
+                                <IconButton
+                                    onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
+                                    disabled={anyExporting && !isExportingXLSX}
+                                    sx={{ opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingXLSX ? <DualSpinner /> : <img src={IconDownloadExcel} alt="Excel" />}
+                                </IconButton>
+                            </Tooltip>
 
-
-                    {/* Exportaciones */}
-                    <Box display="flex" alignItems="center" gap={2} ml={3}>
-                        <Tooltip title="Exportar CSV" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('csv', setIsExportingCSV)}
-                                disabled={anyExporting && !isExportingCSV}
-                                sx={{ opacity: !isExportingCSV && anyExporting ? 0.3 : 1 }}
+                            <Tooltip title="Exportar a PDF" placement="top"
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'arrow',
+                                            options: {
+                                                padding: 0,
+                                            },
+                                        },
+                                    ],
+                                }}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontFamily: 'Poppins',
+                                            backgroundColor: '#312D2E',
+                                            color: '#DEDADA',
+                                            fontSize: '12px',
+                                            borderRadius: '6px',
+                                            padding: '6px 10px',
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: '#322D2E',
+                                        },
+                                    },
+                                }}
                             >
-                                {isExportingCSV ? <DualSpinner /> : <img src={IconDownloadCSV} alt="CSV" />}
-                            </IconButton>
-                        </Tooltip>
+                                <IconButton
+                                    onClick={() => handleExportClick('pdf', setIsExportingPDF)}
+                                    disabled={anyExporting && !isExportingPDF}
+                                    sx={{ opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
+                                >
+                                    {isExportingPDF ? <DualSpinner /> : <img src={IconDownloadPDF} alt="PDF" />}
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
 
-                        <Tooltip title="Exportar Excel" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('xlsx', setIsExportingXLSX)}
-                                disabled={anyExporting && !isExportingXLSX}
-                                sx={{ opacity: !isExportingXLSX && anyExporting ? 0.3 : 1 }}
-                            >
-                                {isExportingXLSX ? <DualSpinner /> : <img src={IconDownloadExcel} alt="Excel" />}
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title="Exportar PDF" arrow>
-                            <IconButton
-                                onClick={() => handleExportClick('pdf', setIsExportingPDF)}
-                                disabled={anyExporting && !isExportingPDF}
-                                sx={{ opacity: !isExportingPDF && anyExporting ? 0.3 : 1 }}
-                            >
-                                {isExportingPDF ? <DualSpinner /> : <img src={IconDownloadPDF} alt="PDF" />}
-                            </IconButton>
-                        </Tooltip>
+                    </Box>
+                </Box>
+                {roomsData.length === 0 && searchTerm === '' ? (
+                    // Caso 1: No hay rooms en general
+                    <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="center"
+                        sx={{
+                            width: '100%',
+                            minHeight: '400px',
+                            backgroundColor: '#F9F9F9',
+                            padding: 4,
+                            borderRadius: '12px',
+                            border: '1px solid #E0E0E0',
+                            mt: 2,
+                        }}
+                    >
+                        <img src={BoxEmpty} alt="Empty" width={220} />
+                        <Typography variant="h6" mt={2}
+                            sx={{
+                                fontFamily: 'Poppins',
+                                fontSize: '16px',
+                                color: '#7B354D',
+                                fontWeight: 500,
+                            }}
+                        >
+                            No hay salas registradas
+                        </Typography>
+                    </Box>
+                ) : roomsData.length === 0 && searchTerm !== '' ? (
+                    // Caso 2: Se buscó algo, pero no hay coincidencias
+                    <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="center"
+                        sx={{
+                            width: '100%',
+                            minHeight: '400px',
+                            backgroundColor: '#F9F9F9',
+                            padding: 4,
+                            borderRadius: '12px',
+                            border: '1px solid #E0E0E0',
+                            mt: 2,
+                        }}
+                    >
+                        <img src={NoResult} alt="No results" width={220} />
+                        <Typography variant="h6" mt={2}
+                            sx={{
+                                fontFamily: 'Poppins',
+                                fontSize: '16px',
+                                color: '#7B354D',
+                                fontWeight: 500,
+                            }}
+                        >
+                            No se encontraron resultados
+                        </Typography>
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: '8px',
+                            padding: '8px 2px',
+                            boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+                            overflowX: 'auto',
+                            maxHeight: "400px"
+                        }}
+                    >
+                        <table style={{ minWidth: '1140px', borderCollapse: 'collapse', }}>
+                            <thead>
+                                <tr style={{
+                                    textAlign: 'left', fontFamily: 'Poppins', fontSize: '13px',
+                                    color: '#330F1B', fontWeight: 500, borderBottom: '1px solid #E0E0E0'
+                                }}>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Fecha de alta</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Cliente</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Nombre de sala</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left', whiteSpace: 'nowrap',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Créditos globales</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left', whiteSpace: 'nowrap',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Créditos SMS # cortos</th>
+                                    <th style={{
+                                        padding: '6px', textAlign: 'left', whiteSpace: 'nowrap',
+                                        fontWeight: 500, color: "#330F1B", fontSize: "13px"
+                                    }}>Créditos SMS # Largos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {roomsData.map((room) => (
+                                    <tr key={room.id} style={{ borderBottom: '1px solid #E0E0E0' }}>
+                                        <td style={{
+                                            padding: '5px', width: '180px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{room.fechaAlta}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{room.nombrecliente}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{room.nombreSala}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{room.creditosGlobales}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>{room.creditosSmsCortos}</td>
+                                        <td style={{
+                                            padding: '6px', width: '100px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                            , borderRight: '1px solid #E0E0E0',
+                                        }}>{room.creditosSmsLargos}</td>
+                                        <td style={{
+                                            padding: '6px', width: '40px', whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', fontFamily: 'Poppins', color: "#574B4F", fontSize: "13px"
+                                        }}>
+                                            <IconButton
+                                                onClick={(event) => {
+                                                    setAnchorEl(event.currentTarget);
+                                                    setSelectedRow(room); // o el item actual
+                                                }}
+                                            >
+                                                <MoreVertIcon sx={{ color: '#7B354D' }} />
+                                            </IconButton>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </Box>
 
-                </Box>
+                )}
             </Box>
-            {roomsData.length === 0 && searchTerm === '' ? (
-                // Caso 1: No hay rooms en general
-                <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" mt={10}>
-                    <img src={BoxEmpty} alt="Empty" width={120} />
-                    <Typography variant="h6" color="#7B354D" mt={2}>No hay salas registradas</Typography>
-                </Box>
-            ) : roomsData.length === 0 && searchTerm !== '' ? (
-                // Caso 2: Se buscó algo, pero no hay coincidencias
-                <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" mt={10}>
-                    <img src={NoResult} alt="No results" width={120} />
-                    <Typography variant="h6" color="#7B354D" mt={2}>No se encontraron resultados</Typography>
-                </Box>
-            ) : (
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell><strong>Fecha de alta</strong></TableCell>
-                            <TableCell><strong>Cliente</strong></TableCell>
-                            <TableCell><strong>Nombre de sala</strong></TableCell>
-                            <TableCell><strong>Créditos globales</strong></TableCell>
-                            <TableCell><strong>Créditos SMS # cortos</strong></TableCell>
-                            <TableCell><strong>Créditos SMS # Largos</strong></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {roomsData.map((room) => (
-                            <TableRow key={room.id}>
-                                <TableCell>{room.fechaAlta}</TableCell>
-                                <TableCell>{room.nombrecliente}</TableCell>
-                                <TableCell>{room.nombreSala}</TableCell>
-                                <TableCell>{room.creditosGlobales}</TableCell>
-                                <TableCell>{room.creditosSmsCortos}</TableCell>
-                                <TableCell>{room.creditosSmsLargos}</TableCell>
-                                <TableCell align="right">
-                                    <IconButton
-                                        onClick={(event) => {
-                                            setAnchorEl(event.currentTarget);
-                                            setSelectedRow(room); // o el item actual
-                                        }}
-                                    >
-                                        <MoreVertIcon sx={{ color: '#7B354D' }} />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            )}
             <Menu
                 anchorEl={clientAnchorEl}
                 open={clientMenuOpen}
@@ -634,9 +824,24 @@ const RoomsAdmin: React.FC = () => {
                         setDeleteModalOpen(true);
                         setAnchorEl(null);
                     }}
+                    sx={{
+                        fontFamily: 'Poppins',
+                        fontSize: '14px',
+                        '&:hover': {
+                            backgroundColor: '#F2EBED'
+                        }
+                    }}
                 >
-                    <ListItemIcon><DeleteOutlineIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText primary="Eliminar" />
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <img
+                            src={Thrashicon}
+                            alt="Eliminar"
+                            style={{ width: 24, height: 24, color: '#5F5064' }}
+                        />
+                        <Typography sx={{ fontFamily: 'Poppins', fontSize: '14px', color: "#574B4F" }}>
+                            Eliminar
+                        </Typography>
+                    </Box>
                 </MenuItem>
             </Menu>
             <MainModal

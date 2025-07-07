@@ -25,7 +25,7 @@ namespace Modal.Model.Model
         public string Email { get; set; }
         public int? Extension { get; set; }
 
-        public string RoomName { get; set; }
+        public string? RoomName { get; set; }
         public double TotalCredits { get; set; }
         public double TotalLongSmsCredits { get; set; }
         public double TotalShortSmsCredits { get; set; }
