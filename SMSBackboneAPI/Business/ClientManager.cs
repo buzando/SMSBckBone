@@ -154,8 +154,8 @@ namespace Business
                         {
                             nombrecliente = dto.NombreCliente,
                             CreationDate = DateTime.Now,
-                            RateForShort = dto.RateForShort,
-                            RateForLong = dto.RateForLong,
+                            RateForShort = decimal.Parse(dto.RateForShort),
+                            RateForLong = decimal.Parse(dto.RateForLong),
                             ShortRateType = dto.ShortRateType,
                             LongRateType = dto.LongRateType,
                             ShortRateQty = dto.ShortRateQty,
@@ -259,8 +259,8 @@ namespace Business
                         if (client == null) return false;
 
                         client.nombrecliente = dto.NombreCliente;
-                        client.RateForShort = dto.RateForShort;
-                        client.RateForLong = dto.RateForLong;
+                        client.RateForShort = decimal.Parse(dto.RateForShort);
+                        client.RateForLong = decimal.Parse(dto.RateForLong);
                         client.ShortRateType = dto.ShortRateType;
                         client.LongRateType = dto.LongRateType;
                         client.ShortRateQty = dto.ShortRateQty;

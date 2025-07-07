@@ -34,9 +34,10 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchText, setSearchText] = useState('');
   const [selectedId, setSelectedId] = useState<string>('');
+  const [charLimitExceeded, setCharLimitExceeded] = useState(false);
 
   const variables = dynamicVariables ?? [];
-  console.log("variables recibidad: " + dynamicVariables);
+
   const handleChipClick = (index: number, e: React.MouseEvent<HTMLElement>) => {
     setChipAnchorEl(e.currentTarget);
     setCurrentIndex(index);
@@ -50,14 +51,18 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
     setTokens(newTokens);
     setChipAnchorEl(null);
     setCurrentIndex(null);
-    onChange(newTokens.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join(''));
+    const updatedText = newTokens.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join('');
+    onChange(updatedText);
+    setCharLimitExceeded(updatedText.length > 160);
   };
 
   const handleDeleteVariable = (index: number) => {
     const newTokens = [...tokens];
     newTokens.splice(index, 1);
     setTokens(newTokens);
-    onChange(newTokens.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join(''));
+    const updatedText = newTokens.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join('');
+    onChange(updatedText);
+    setCharLimitExceeded(updatedText.length > 160);
   };
 
   const handleSelect = (id: string) => {
@@ -68,14 +73,45 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
       setTokens(parsed);
       onChange(template.message);
       onSelectTemplateId?.(template.id);
+      setCharLimitExceeded(template.message.length > 160);
     }
     setAnchorEl(null);
     setSearchText('');
   };
 
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const raw = e.currentTarget.innerText;
+    const parsed = parseMessage(raw);
+    const cleanRaw = parsed.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join('');
+    if (cleanRaw.length <= 160) {
+      setTokens(parsed);
+      onChange(cleanRaw);
+      setCharLimitExceeded(false);
+    } else {
+      setCharLimitExceeded(true);
+    }
+  };
+
+  function saveCaretPosition(container: HTMLElement): Range | null {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+    const range = selection.getRangeAt(0);
+    if (!container.contains(range.startContainer)) return null;
+    return range;
+  }
+
+  function restoreCaretPosition(container: HTMLElement, savedRange: Range | null) {
+    if (!savedRange) return;
+    const selection = window.getSelection();
+    if (!selection) return;
+    selection.removeAllRanges();
+    selection.addRange(savedRange);
+  }
+
+
   const filteredTemplates = templates.filter(t => t.name.toLowerCase().includes(searchText.toLowerCase()));
   const filteredVars = variables.filter(v => v.toLowerCase().includes(chipSearch.toLowerCase()));
-
+  const editableRef = useRef<HTMLDivElement>(null);
   return (
     <Box>
       <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', mb: 2 }}>
@@ -112,10 +148,7 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
-          onClose={() => {
-            setAnchorEl(null);
-            setSearchText('');
-          }}
+          onClose={() => { setAnchorEl(null); setSearchText(''); }}
           PaperProps={{ style: { maxHeight: 300, width: anchorEl?.clientWidth } }}
         >
           <Box sx={{ px: 2, py: 1 }}>
@@ -123,9 +156,7 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
               placeholder="Buscar mensaje..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              fullWidth
-              size="small"
-              autoFocus
+              fullWidth size="small" autoFocus
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -157,14 +188,41 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
       </Box>
 
       <Box
+        ref={editableRef}
         contentEditable
         suppressContentEditableWarning
         onInput={(e) => {
-          const raw = e.currentTarget.innerText;
-          const parsed = parseMessage(raw);
-          setTokens(parsed);
-          onChange(raw);
+          const container = e.currentTarget;
+          const savedRange = saveCaretPosition(container);
+
+          const childNodes = Array.from(container.childNodes);
+          const parsed: (string | { variable: string })[] = [];
+
+          childNodes.forEach((node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+              parsed.push(node.textContent || '');
+            } else if (
+              node.nodeType === Node.ELEMENT_NODE &&
+              (node as HTMLElement).dataset?.type === 'chip'
+            ) {
+              const chipVar = (node as HTMLElement).dataset.var ?? '';
+              parsed.push({ variable: chipVar });
+            } else if (
+              node.nodeType === Node.ELEMENT_NODE &&
+              (node as HTMLElement).tagName === 'SPAN'
+            ) {
+              parsed.push((node as HTMLElement).innerText);
+            }
+          });
+
+          const cleanRaw = parsed.map(t => typeof t === 'string' ? t : `{${t.variable}}`).join('');
+          onChange(cleanRaw);
+          setCharLimitExceeded(cleanRaw.length > 160);
+
+          requestAnimationFrame(() => restoreCaretPosition(container, savedRange));
         }}
+
+
         sx={{
           backgroundColor: '#F8F8F8',
           borderRadius: '8px',
@@ -178,14 +236,19 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
           flexWrap: 'wrap',
           alignItems: 'flex-start',
           gap: '4px',
+          overflowWrap: 'anywhere',
+          outline: 'none'
         }}
       >
         {tokens.map((token, i) =>
           typeof token === 'string' ? (
-            <span key={i}>{token}</span>
+            <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{token}</span>
           ) : (
             <Box
               key={i}
+              data-type="chip"
+              data-var={token.variable}
+              contentEditable={false}
               onClick={(e) => handleChipClick(i, e)}
               sx={{
                 backgroundColor: '#C08194',
@@ -200,7 +263,8 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
                 display: 'inline-flex',
                 alignItems: 'center',
                 userSelect: 'none',
-                maxHeight: '24px'
+                maxHeight: '24px',
+                margin: '0 2px',
               }}
             >
               <span>{`{{${token.variable}}}`}</span>
@@ -215,6 +279,7 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
           )
         )}
       </Box>
+
 
       <Popper
         open={Boolean(chipAnchorEl)}
@@ -247,7 +312,6 @@ const TemplateViewer: React.FC<Props> = ({ templates, value, onChange, onSelectT
                   />
                 </InputAdornment>
               )
-
             }}
             sx={{ mb: 1, backgroundColor: '#F8F8F8', borderRadius: '8px' }}
           />

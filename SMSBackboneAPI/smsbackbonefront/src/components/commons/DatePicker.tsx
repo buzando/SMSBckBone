@@ -16,7 +16,7 @@ interface DatePickerProps {
     placement?: 'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end';
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({ open, anchorEl, onApply, onClose ,placement = 'bottom-start' }) => {
+const DatePicker: React.FC<DatePickerProps> = ({ open, anchorEl, onApply, onClose, placement = 'bottom-start' }) => {
     const [dateRange, setDateRange] = useState([
         {
             startDate: new Date(),
@@ -30,7 +30,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ open, anchorEl, onApply, onClos
     const [startMinutes, setStartMinutes] = useState(0);
     const [endHours, setEndHours] = useState(0);
     const [endMinutes, setEndMinutes] = useState(0);
-
+    const [shownDate, setShownDate] = useState(new Date());
     const handleApply = () => {
         onApply(dateRange[0].startDate, dateRange[0].endDate, startHours, startMinutes, endHours, endMinutes);
         onClose();
@@ -54,9 +54,52 @@ const DatePicker: React.FC<DatePickerProps> = ({ open, anchorEl, onApply, onClos
         >
             <Paper elevation={3} className="date-picker-container">
                 <div className="date-picker-divider"></div>
+                <div style={{ position: 'relative' }}>
+                    <img
+                        src={Iconarrow}
+                        alt="Mes anterior"
+                        onClick={() => {
+                            const newDate = new Date(shownDate);
+                            newDate.setMonth(shownDate.getMonth() - 1);
+                            setShownDate(newDate);
+                        }}
+                        style={{
+                            position: 'absolute',
+                            top: '8px',
+                            left: '12px',
+                            transform: 'rotate(270deg)',
+                            width: '20px',
+                            height: '20px',
+                            cursor: 'pointer',
+                            zIndex: 10,
+                        }}
+                    />
+
+                    <img
+                        src={Iconarrow}
+                        alt="Mes siguiente"
+                        onClick={() => {
+                            const newDate = new Date(shownDate);
+                            newDate.setMonth(shownDate.getMonth() + 1);
+                            setShownDate(newDate);
+                        }}
+                        style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '12px',
+                            transform: 'rotate(90deg)',
+                            width: '20px',
+                            height: '20px',
+                            cursor: 'pointer',
+                            zIndex: 10,
+                        }}
+                    />
+
+                </div>
 
                 {/* Selector de Fecha */}
                 <DateRange
+                  key={shownDate.toString()}
                     locale={es}
                     editableDateInputs={true}
                     onChange={(item) => {
@@ -72,7 +115,10 @@ const DatePicker: React.FC<DatePickerProps> = ({ open, anchorEl, onApply, onClos
                     direction="horizontal"
                     showDateDisplay={false}
                     showMonthAndYearPickers={false}
+                    shownDate={shownDate}
+                    onShownDateChange={(date) => setShownDate(date)}
                 />
+
 
                 <hr className="date-picker-divider" />
 
@@ -154,7 +200,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ open, anchorEl, onApply, onClos
                 {/* Botones de acción */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
                     <SecondaryButton text='Cancelar' onClick={onClose} />
-                    <MainButton text="Aceptar" onClick={handleApply} />
+                    <MainButton text="Aceptar" onClick={handleApply} width='auto' />
                 </div>
             </Paper>
         </Popper>

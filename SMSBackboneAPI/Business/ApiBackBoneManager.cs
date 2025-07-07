@@ -79,6 +79,21 @@ namespace Business
                 return null;
             }
         }
+        public async Task<List<ApiResponse>> SendMessagesAsync(List<MessageToSend> messages, string token)
+        {
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var json = JsonSerializer.Serialize(messages);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync($"{_baseUrl}api/message/list", content);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<ApiResponse>>(responseBody);
+        }
+
         private HttpClient CreateAuthenticatedClient(string token)
         {
             var client = new HttpClient();

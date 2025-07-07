@@ -53,6 +53,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CustomDateTimePicker from '../components/commons/DatePickerOneDate';
+import SnackBar from "../components/commons/ChipBar";
 
 export interface Clients {
     id: number;
@@ -91,7 +92,7 @@ interface FormData {
 const Clients: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
-    const [activeFilter, setActiveFilter] = useState<'cliente' | ''>(''); 
+    const [activeFilter, setActiveFilter] = useState<'cliente' | ''>('');
 
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -120,7 +121,6 @@ const Clients: React.FC = () => {
     const [isExportingPDF, setIsExportingPDF] = useState(false);
     const anyExporting = isExportingCSV || isExportingXLSX || isExportingPDF;
 
-    const [errorModal, setErrorModal] = useState(false);
     const [MainModal, setMainModal] = useState(false);
     const [MainModalDelete, setMainModalDelete] = useState(false);
     const [MainModalMessage, setMainModalMessage] = useState('');
@@ -153,6 +153,12 @@ const Clients: React.FC = () => {
     const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [isEditClient, setIsEditClient] = useState(false);
+    const [MessageSnack, setMessageSnack] = useState("");
+    const [ShowSnackBar, setShowSnackBar] = useState(false);
+    const [ShowModalError, setShowModalError] = useState(false);
+    const [TitleModalError, setTitleModalError] = useState("");
+    const [MessageModal, setMessageModal] = useState("");
     const initialRechargeState = {
         smsType: '', // 'short' | 'long'
         roomsSelected: [] as string[],
@@ -163,6 +169,7 @@ const Clients: React.FC = () => {
         billingDate: new Date().toISOString().split('T')[0],
     };
     const [rechargeData, setRechargeData] = useState(initialRechargeState);
+    const [appliedClientIds, setAppliedClientIds] = useState<number[]>([]);
 
     const DualSpinner = () => (
         <Box
@@ -337,7 +344,9 @@ const Clients: React.FC = () => {
                 document.body.removeChild(link);
             }
         } catch (error) {
-            setErrorModal(true);
+            setTitleModalError('Error al generar el reporte');
+            setMessageModal('Intentelo màs tarde');
+            setShowModalError(true);
         } finally {
             onComplete?.();
         }
@@ -388,9 +397,19 @@ const Clients: React.FC = () => {
         );
     });
 
-    const paginatedData = filteredData.slice(startIndex, endIndex);
+    const visibleData = clientsList
+        .filter(client =>
+            appliedClientIds.length === 0 || appliedClientIds.includes(client.id)
+        )
+        .filter(client =>
+            client.nombreCliente.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+
+    const paginatedData = visibleData.slice(startIndex, endIndex);
 
     const handleAddClient = () => {
+        setIsEditClient(false);
         setSelectedClient(null);
         setStep(0);
         setOpenClientModal(true);
@@ -402,7 +421,7 @@ const Clients: React.FC = () => {
 
     const handleEditClient = (client: Clients) => {
         setSelectedClient(client);
-
+        setIsEditClient(true);
         // Salas
         setNewRooms(
             client.roomName
@@ -445,15 +464,15 @@ const Clients: React.FC = () => {
         if (!selectedClient) return;
 
         const payload = {
-            id: selectedClient.id,
+            id: selectedClient.id ?? null,
             nombreCliente: selectedClient.nombreCliente,
             firstName: selectedClient.firstName,
             lastName: selectedClient.lastName,
             phoneNumber: selectedClient.phoneNumber,
-            extension: selectedClient.extension,
+            extension: selectedClient.extension ?? null,
             email: email,
-            rateForShort: rateForShort,
-            rateForLong: rateForLong,
+            rateForShort: rateForShort?.toString(),
+            rateForLong: rateForLong?.toString(),
             shortRateType: shortRateType === 'personalizada' ? 1 : 0,
             longRateType: longRateType === 'personalizada' ? 1 : 0,
             shortRateQty: shortRateType === 'estandar' ? shortStandardQty : null,
@@ -471,8 +490,21 @@ const Clients: React.FC = () => {
             await method(endpoint, payload);
             setOpenClientModal(false);
             GetClientsAdmin();
+            if (payload.id != null) {
+                setMessageSnack('Cliente Actualizado correctamente');
+            } else {
+                setMessageSnack('Cliente agregado correctamente');
+            }
+
+            setShowSnackBar(true);
+            setMainModal(false);
         } catch (error) {
-            setErrorModal(true);
+            setTitleModalError('Error al agregar el cliente');
+            setMessageModal('Intentelo màs tarde');
+            setShowModalError(true);
+        }
+        finally {
+            setOpenClientModal(false);
         }
     };
 
@@ -513,12 +545,14 @@ const Clients: React.FC = () => {
                         : client
                 )
             );
-
+            setShowSnackBar(true);
+            setMessageSnack('Cliente desactivado correctamente');
             setMainModal(false);
 
         } catch (error) {
-            console.error('Error al desactivar cliente:', error);
-            setErrorModal(true);
+            setTitleModalError('Error al desactivar el cliente');
+            setMessageModal('Intentelo màs tarde');
+            setShowModalError(true);
         }
     };
 
@@ -557,10 +591,13 @@ const Clients: React.FC = () => {
 
             GetClientsAdmin();
             setMainModalDelete(false);
-
+            setShowSnackBar(true);
+            setMessageSnack('Cliente Eliminado correctamente');
         } catch (error) {
             console.error('Error al eliminar cliente:', error);
-            setErrorModal(true);
+            setTitleModalError('Error al capturar la recarga');
+            setMessageModal('Intentelo màs tarde');
+            setShowModalError(true);
         }
     };
 
@@ -617,7 +654,10 @@ const Clients: React.FC = () => {
 
         // Validaciones básicas
         if (!rechargeData.smsType || rechargeData.roomsSelected.length === 0 || !rechargeData.amount || !rechargeData.paymentType || !rechargeData.billingDate) {
-            setErrorModal(true);
+            setTitleModalError('Faltan datos por capturar');
+            setMessageModal('Favor de capturar todos los datos');
+            setShowModalError(true);
+            setRechargeModalOpen(false);
             return;
         }
         const userData = localStorage.getItem("userData");
@@ -647,12 +687,22 @@ const Clients: React.FC = () => {
             if (response.status === 200) {
                 setRechargeModalOpen(false);
                 GetClientsAdmin();
+                setShowSnackBar(true);
+                setMessageSnack('Recarga Exitosa');
             } else {
-                setErrorModal(true);
+                setTitleModalError('Error al capturar la recarga');
+                setMessageModal('Intentelo màs tarde');
+                setShowModalError(true);
             }
+            setRechargeModalOpen(false);
         } catch (error) {
-            console.error('Error al guardar la recarga:', error);
-            setErrorModal(true);
+            setTitleModalError('Error al capturar la recarga');
+            setMessageModal('Intentelo màs tarde');
+            setShowModalError(true);
+            setRechargeModalOpen(false);
+        }
+        finally {
+            setRechargeModalOpen(false);
         }
     };
 
@@ -668,6 +718,18 @@ const Clients: React.FC = () => {
             }));
         }
     }, [rechargeData.amount]);
+
+    const handleFilterClients = () => {
+        const selectedClientIds = clientsList
+            .filter(c => selectedClients.includes(c.nombreCliente))
+            .map(c => c.id);
+
+        setAppliedClientIds(selectedClientIds);
+        setClientMenuOpen(false);
+        setCurrentPage(1);
+    };
+
+
 
     return (
         <Box p={3} sx={{ marginTop: "-80px", width: '90%', minHeight: 'calc(100vh - 64px)', overflow: 'hidden' }}>
@@ -1160,24 +1222,10 @@ const Clients: React.FC = () => {
                         text="LIMPIAR"
                     />
                     <MainButton
-                        onClick={() => {
-                            // Obtener los IDs de los clientes seleccionados
-                            const selectedClientIds = clientsList
-                                .filter(c => selectedClients.includes(c.nombreCliente))
-                                .map(c => c.id);
-
-                            // Filtrar los números por idClient
-                            const filtered = originalData.filter(item =>
-                                selectedClientIds.length === 0 || selectedClientIds.includes(item.id)
-                            );
-
-                            setClientsList(filtered);
-                            setClientMenuOpen(false);
-                            setCurrentPage(1);
-                        }}
-
+                        onClick={handleFilterClients}
                         text="APLICAR"
                     />
+
                 </Box>
             </Menu>
 
@@ -1436,6 +1484,7 @@ const Clients: React.FC = () => {
 
                                             <TextField
                                                 label="Tarifa por mensaje"
+                                                type="number"
                                                 value={selectedClient?.rateForShort || ''}
                                                 onChange={(e) =>
                                                     setSelectedClient({ ...selectedClient, rateForShort: parseFloat(e.target.value) })
@@ -1537,6 +1586,7 @@ const Clients: React.FC = () => {
 
                                             <TextField
                                                 label="Tarifa por mensaje"
+                                                type='number'
                                                 value={selectedClient?.rateForLong || ''}
                                                 onChange={(e) =>
                                                     setSelectedClient({ ...selectedClient, rateForLong: parseFloat(e.target.value) })
@@ -1639,12 +1689,11 @@ const Clients: React.FC = () => {
                         <SecondaryButton text="Cancelar" onClick={() => setOpenClientModal(false)} />
                         <MainButton
                             text={
-                                selectedClient && step === 1
-                                    ? 'Guardar cambios'
-                                    : step === 2
-                                        ? 'Guardar'
-                                        : 'Siguiente'
+                                step === 2 || (step === 1 && isEditClient)
+                                    ? isEditClient ? 'Guardar cambios' : 'Guardar'
+                                    : 'Siguiente'
                             }
+
                             onClick={() => {
                                 if (step === 0) {
                                     const isEmailValid = validateEmailFormat(email);
@@ -1656,8 +1705,7 @@ const Clients: React.FC = () => {
                                     if (!isEmailValid || !isMatch) return;
                                 }
 
-                                if (step === 1 && selectedClient) {
-                                    // Si es edición, guardar directamente
+                                if (step === 1 && isEditClient) {
                                     handleSubmit();
                                     return;
                                 }
@@ -1668,6 +1716,7 @@ const Clients: React.FC = () => {
                                     setStep(step + 1);
                                 }
                             }}
+
 
                         />
                     </Box>
@@ -1694,14 +1743,6 @@ const Clients: React.FC = () => {
                 onPrimaryClick={modalAction}
                 onSecondaryClick={() => setMainModalDelete(false)}
             />
-            <ModalError
-                isOpen={errorModal}
-                title="Error al cargar registros"
-                message="Algo salió mal. Inténtelo de nuevo o regrese más tarde."
-                buttonText="Cerrar"
-                onClose={() => setErrorModal(false)}
-            />
-
             <Modal open={rechargeModalOpen} onClose={() => setRechargeModalOpen(false)}>
                 <Box sx={{ background: '#fff', padding: 4, width: 500, margin: '100px auto', borderRadius: 2 }}>
                     <Typography variant="h6" mb={2} fontFamily="Poppins">Recargar Saldo para {selectedClient?.nombreCliente}</Typography>
@@ -1837,6 +1878,22 @@ const Clients: React.FC = () => {
                     }));
                 }}
                 onClose={() => setDatePickerOpen(false)}
+            />
+
+            {ShowSnackBar && (
+                <SnackBar
+                    message={MessageSnack}
+                    buttonText="Cerrar"
+                    onClose={() => setShowSnackBar(false)}
+                />
+            )}
+
+            <ModalError
+                isOpen={ShowModalError}
+                title={TitleModalError}
+                message={MessageModal}
+                buttonText="Cerrar"
+                onClose={() => setShowModalError(false)}
             />
         </Box>
     );

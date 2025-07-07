@@ -71,6 +71,25 @@ const DatePickerOneDate: React.FC<DatePickerProps> = ({
                         }}
                     />
 
+                    <img
+                        src={Iconarrow}
+                        alt="Mes siguiente"
+                        onClick={() => {
+                            const newDate = new Date(focusedDate);
+                            newDate.setMonth(focusedDate.getMonth() + 1);
+                            setFocusedDate(newDate);
+                        }}
+                        style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '12px',
+                            transform: 'rotate(90deg)', // apuntando hacia la derecha
+                            width: '20px',
+                            height: '20px',
+                            cursor: 'pointer',
+                            zIndex: 10,
+                        }}
+                    />
 
                     <Calendar
                         key={focusedDate.toString()}

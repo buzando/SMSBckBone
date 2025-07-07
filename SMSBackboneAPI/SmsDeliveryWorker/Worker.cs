@@ -41,10 +41,10 @@ namespace SmsDeliveryWorker
 
                 //Agregamos la clase para ser ejecutada:
                 var objRespuestas = new smsdeliveryManager().SimulateSmsDispatch();
-                if (objRespuestas)
-                    _logger.Info("");
-                else
-                    _logger.Error($"");
+                //if (objRespuestas)
+                //    _logger.Info("");
+                //else
+                //    _logger.Error($"");
 
                 _logger.Info($"Esperando {minutosEjecucion} minutos para la nueva ejecución del servicio Descarga Archivos Adjuntos...");
 
@@ -53,7 +53,7 @@ namespace SmsDeliveryWorker
         }
         public override Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.Info($"Deteniendo Servicio Descarga Archivos Adjuntos...");
+            _logger.Info($"Deteniendo Servicio SMS QuantumRED...");
             return base.StopAsync(cancellationToken);
         }
     }

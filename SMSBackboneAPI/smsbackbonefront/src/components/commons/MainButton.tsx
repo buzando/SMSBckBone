@@ -17,9 +17,9 @@ const MainButton: React.FC<MainButtonProps> = ({ text, onClick, isLoading = fals
             onClick={onClick}
             disabled={disabled}
             style={{
-                width: width ?? 'auto',      // ✅ usa el ancho si se proporciona
-                minWidth: width ? undefined : '124px',  // ✅ si se pasa width, no impongas minWidth
-                minHeight: '36px',           // ✅ mantiene altura uniforme
+                width: width ?? 'auto',     
+                minWidth: width ? undefined : '124px',  
+                minHeight: '36px',       
             }}
         >
             {isLoading ? (

@@ -13,10 +13,10 @@ namespace Contract.Request
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
-        public string Extension { get; set; }
+        public string? Extension { get; set; }
         public string Email { get; set; }
-        public decimal RateForShort { get; set; }
-        public decimal RateForLong { get; set; }
+        public string RateForShort { get; set; }
+        public string RateForLong { get; set; }
 
         public byte ShortRateType { get; set; } // 0 = estándar, 1 = personalizada
         public byte LongRateType { get; set; }
